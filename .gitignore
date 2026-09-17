@@ -1,0 +1,17 @@
+# Starter ignores (P1-T01 extends this)
+.tools/
+.ts/
+build/
+dist/
+local_fixtures/
+tests/fixtures/generated/
+tests/artifacts/
+spikes/out/
+__pycache__/
+*.pyc
+.venv/
+# Never commit game files
+*.szs
+*.wbfs
+*.rvz
+*.iso
