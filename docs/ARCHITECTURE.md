@@ -196,9 +196,13 @@ generated file hash == state.json hash ? → normal
    2 Lock as manual  → copy file to files/, component.mode = manual
    3 Discard         → backup to .ctstudio/backups/<timestamp>/, regenerate
 ```
-The capture/reapply mechanism (RiiStudio presets, ABMatt same-name material inheritance, or JSON
-material merge) is chosen by **spike S4**. Before any overwrite of a file whose hash differs from
-what the app last wrote, a timestamped backup is made — no exceptions.
+The capture/reapply mechanism is **`rszst dump-presets` → `import-brres --preset-path`**,
+chosen by **spike S4** (ADR-012; ABMatt copy/paste rejected because its autofix deletes
+orphaned textures and cannot be disabled). Presets match on **material name**, and an
+unmatched preset is skipped silently, so the regenerate step must diff captured preset
+names against the regenerated material list and warn the user about orphans — no tool
+reports this. Before any overwrite of a file whose hash differs from what the app last
+wrote, a timestamped backup is made — no exceptions.
 
 ## 9. Running external tools
 - `core/tools/process.py` is the only place that spawns processes. Arguments are lists. Output is

@@ -162,7 +162,7 @@ lowered to do anything. Interface confirmed, minus `set_texture_formats` for ABM
 Skybox note: the fixture's `vrcorn` model is covered via `--model-name vrcorn`
 (naming is the part that differs per slot); the geometry path is identical to `course`.
 
-### [ ] P0-T07 — Spike S4: preserving external material edits (timebox 3 h)
+### [x] P0-T07 — Spike S4: preserving external material edits (timebox 3 h) (commit P0T07_COMMIT)
 Simulate an external edit on a generated BRRES (change transparency, culling, a TEV/blend setting,
 add an SRT0 animation if feasible). Regenerate from the DAE and try to restore the edit via:
 (a) `rszst dump-presets` + `import-brres --preset-path`; (b) ABMatt replace-with-matching-names /
@@ -170,6 +170,21 @@ copy+paste material; (c) JSON material merge. Check persistence, texture duplica
 survival, speed.
 **Acceptance:** SPIKES.md §S4; ADR-012 updated; list of what must be re-verified with a real
 BrawlCrate-edited file at HC2.
+
+Done. [SPIKES.md §S4](../dev/SPIKES.md#s4--preserving-external-material-edits-p0-t07).
+`uv run python spikes/s4_material_edits.py` reproduces all three routes.
+All three restore the edit with no texture duplication, so the decision is made by
+failure modes: **ADR-012 accepts route (a) presets** — fastest (0.006 s dump + 0.013 s
+import vs ABMatt's 0.198 s), one tool, carries SRT0 for free, and a name miss is a
+silent no-op. Route (b) is **rejected**: pasting onto a renamed material applies the
+settings then deletes the orphaned texture at exit 0, and ABMatt 1.3.2's `-a`/`--auto-fix`
+cannot disable it (all three spellings rejected). Route (c) is kept as the inspection/diff
+format only — its `.json` needs a `<stem>.bin` sidecar (255 without it) and a
+material-only merge silently drops SRT0. Presets match on **material name** and an
+unmatched preset is skipped silently, so P7-T07 must diff and report orphans itself.
+10 integration tests, 5/5 mutations caught. HC2 re-verification list in
+HUMAN_CHECKPOINTS.md (TEV/indirect/multi-layer/PAT0/CLR0 coverage, and whether a
+BrawlCrate-saved BRRES re-imports into rszst at all).
 
 ### [ ] P0-T08 — Spike S5: headless minimap (timebox 3 h)
 Paths to evaluate: (1) KCL → OBJ filtered by KCL types (`wkclt` options) → ABMatt convert as map

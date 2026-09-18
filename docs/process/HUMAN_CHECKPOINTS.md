@@ -41,6 +41,17 @@ Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
    about (e.g. transparency/blend/shader), save. In CT Studio choose "Keep & capture".
 6. Change something in Blender (move a mesh), save — auto-rebuild — confirm your BrawlCrate edit
    survived in game.
+   **From S4 (P0-T07), these are the specific unknowns this step exists to settle.** The spike
+   proved the capture mechanism (`rszst dump-presets` → `--preset-path`) on a 4-material synthetic
+   model, covering xlu, blend mode, cull mode and one SRT0. Still unverified, so test them here:
+   - a **TEV stage / shader** edit, an **indirect texture**, a **multi-layer** material, a
+     **PAT0 or CLR0** animation, and **LightSet/FogSet** indices — does the preset carry each?
+   - does a **BrawlCrate-saved** BRRES re-import into rszst at all? S3b found rszst rejects
+     ABMatt output (`Invalid quantization for normal data: U16`); if BrawlCrate output hits the
+     same wall, capture must move to *before* the edit and ARCHITECTURE §8 changes materially.
+   - rename a material in Blender and confirm CT Studio **reports the orphaned capture** rather
+     than silently dropping it (no tool does this for us).
+   - real material counts and timings, versus the spike's four.
 7. Windows spot check: install/run from the repo on Windows (`uv sync`, `uv run ctstudio`) and
    repeat steps 1–2 briefly.
 

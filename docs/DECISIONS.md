@@ -118,8 +118,25 @@ Single entry point `scripts/check.py` (cross-platform, no Makefile).
 **Decision:** watchfiles (Rust-backed, cross-platform) in core, bridged to Qt in gui.
 
 ## ADR-012 — Preserve external material edits by capture-and-reapply
-**Status:** Provisional (mechanism chosen by spike S4, confirmed with real BrawlCrate edits at HC2)
-**Decision:** See ARCHITECTURE §8. Always back up before overwrite.
+**Status:** Accepted for the mechanism (spike S4, P0-T07); the *coverage* of that
+mechanism stays provisional until HC2 confirms it against a real BrawlCrate edit.
+**Decision:** Capture with `rszst dump-presets` into `overrides/captured/<component>/`;
+reapply with `import-brres --preset-path` on the next regenerate. See ARCHITECTURE §8.
+Always back up before overwrite.
+**Why not the alternatives** (evidence: [SPIKES.md §S4](dev/SPIKES.md)): all three
+candidate routes restore the edit, so the decision is made by failure modes, not
+capability. ABMatt `copy`/`paste material` is **rejected as the primary mechanism**:
+pasting onto a renamed material leaves the edit applied but deletes the orphaned
+texture, exit code 0, and ABMatt 1.3.2's `-a`/`--auto-fix` flag cannot be used to
+disable that (`-a 0` parses the value as a command). The JSON merge route is kept as
+the **inspection/diff format**, not the capture format: its `.json` is not
+self-contained (a `<stem>.bin` geometry sidecar must travel with it) and a
+material-only merge silently drops SRT0 animations.
+**Consequence the app must implement:** presets match on material name, and an
+unmatched preset is skipped **silently**. Renaming a material in Blender therefore
+orphans its captured edits with no warning from any tool. The regenerate step must
+diff captured preset names against the regenerated material list and surface orphans
+to the user.
 
 ## ADR-013 — Packaging with PyInstaller one-folder
 **Status:** Provisional

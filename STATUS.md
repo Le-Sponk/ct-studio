@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T07 — Spike S4: preserving external material edits
+**Next task:** P0-T08 — Spike S5: headless minimap
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 5f96d10 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,13 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T07` — Spike S4 (preserving external material edits): **ADR-012 Accepted** —
+  capture with `rszst dump-presets`, reapply with `import-brres --preset-path`. All three
+  candidate routes restore the edit, so failure modes decided it: ABMatt copy/paste
+  **deletes the orphaned texture** on a renamed material at exit 0 and its `-a` flag
+  cannot disable that in 1.3.2. Presets miss silently, so P7-T07 must report orphans
+  itself. 10 integration tests, 5/5 mutations caught.
+  [SPIKES.md §S4](docs/dev/SPIKES.md#s4--preserving-external-material-edits-p0-t07) — commit P0T07_COMMIT
 - `P0-T06b` — Spike S3b (BRRES backend bake-off): **ADR-004 Accepted** — rszst imports,
   ABMatt post-processes, both platforms. Decided by a one-way interop wall: rszst cannot
   read an ABMatt BRRES. 14 integration tests, 4/4 mutations caught.
@@ -53,6 +60,12 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-19 (S4): **ADR-012 names a concrete mechanism** (rszst presets) and explicitly
+  rejects ABMatt copy/paste, which the plan had listed as an equal candidate. Evidence:
+  its autofix silently deletes an orphaned texture and `-a`/`--auto-fix` is unusable in
+  1.3.2. ARCHITECTURE §8, P7-T07 and HC2 updated; P7-T07 gains an explicit
+  "diff captured presets against regenerated materials" requirement because no tool
+  reports an unmatched preset.
 - 2026-09-19: **P6-T01 rewritten** for the merged add-on export API (`ffa905f`). The
   bridge now calls `export_kcl` / `export_collada` / `export_minimap_brres` and reads
   counts from the returned dictionary; the planned stdout parsing and the pre-flight

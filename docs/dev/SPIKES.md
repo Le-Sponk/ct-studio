@@ -403,3 +403,74 @@ belongs to import options or a `wimgt` path.
 
 **Open questions for S4/P5:** whether presets survive a BrawlCrate-edited file; whether
 the JSON schema is stable across rszst releases; Windows behaviour of both backends.
+
+---
+
+## S4 — Preserving external material edits (P0-T07)
+**Script:** `spikes/s4_material_edits.py` → `spikes/out/s4/s4_findings.json`.
+Re-run: `uv run python spikes/s4_material_edits.py`
+**Versions:** RiiStudio CLI Alpha 5.11.5 (`09e5754`), ABMatt 1.3.2, fixture
+`spikes/out/s2/course_builtin.dae` (4 materials: fence, grass, road, water).
+**Tests:** `tests/integration/test_material_preservation.py` — 10 tests, 5/5 mutations caught.
+
+### The premise, confirmed
+A regenerate throws the user's work away. Editing `water` to
+`xlu:1 blend:1 cullmode:none` and re-importing the DAE returns it to
+`xlu:0 blend:0 cullmode:inside`. Something must capture and reapply.
+
+### All three routes restore the edit
+| Route | Mechanism | Restores edit | SRT0 survives | Textures | Speed |
+|---|---|---|---|---|---|
+| **A** | `dump-presets` → `import-brres --preset-path` | yes | **yes** | 4, no dupes | 0.006 s dump + 0.013 s import |
+| **B** | ABMatt `copy`/`paste material` between two BRRES | yes | **yes** | 4, no dupes | 0.198 s |
+| **C** | `brres-to-json` → merge in Python → `json-to-brres` | yes | only if `srts` copied too | 4, no dupes | 0.005 s + 0.005 s |
+
+No route duplicated a texture. Route A is ~15x faster than B and needs no
+second tool; A and C are within noise of each other.
+
+### What separates them
+1. **Route B has a destructive failure mode.** Paste to a name that no longer
+   exists and ABMatt's autofix removes the now-unused texture: pasting `water`
+   onto a regenerate whose material was renamed `waterB` leaves the material
+   holding the edit but **deletes the `waterB` texture**, exit code 0. The
+   `-a`/`--auto-fix` flag that would disable this is **broken in 1.3.2** —
+   `-a 0` parses `0` as a command and aborts, `-a0` and `--auto-fix=0` are both
+   rejected. There is no way to turn the autofix off from the CLI.
+2. **Route A fails safe on the same input.** An unmatched preset is skipped
+   silently: the renamed material comes back pristine, nothing is deleted,
+   exit 0. Silent, but non-destructive.
+3. **Presets are matched by material name** — the same coupling S3b found for
+   MDL0 naming. Renaming a material in Blender orphans its captured edits under
+   every route; the app must detect this and tell the user, because no tool will.
+4. **Route C's JSON is not self-contained.** `brres-to-json` writes a `<stem>.bin`
+   sidecar (magic `RBUF`) holding geometry. `json-to-brres` reads it from beside
+   the `.json`; without it the write fails with exit **255** and produces no file.
+   Loudly, at least. Any capture format based on this must keep both files.
+5. **Animations live outside the material list.** SRT0 is authorable headlessly
+   (`add srt0 for water`). Routes A and B carry it automatically. A material-only
+   JSON merge **silently drops it** — `srts` must be copied as a separate step.
+
+### Recommendation for ADR-012
+**Route A (rszst presets) as the capture/reapply mechanism**, with route C
+(JSON merge) as the inspection and diffing format. Route A is the fastest, needs
+one tool, carries animations for free, and its failure mode is a no-op rather
+than data loss. Route B is rejected as the primary mechanism specifically because
+its autofix can delete textures and cannot be disabled in 1.3.2.
+
+Capture = `dump-presets` into `overrides/captured/<component>/`; reapply =
+`--preset-path` on the next import. Because an unmatched preset is silent, the
+app must diff captured preset names against the regenerated material list and
+warn on any orphan — that check is ours to write, not the tool's.
+
+### Must be re-verified at HC2 with a real BrawlCrate-edited file
+- Whether `dump-presets` captures **everything** BrawlCrate can change. This spike
+  exercised xlu, blend mode, cull mode and one SRT0 on a 4-material synthetic
+  model. TEV stages, indirect textures, PAT0/CLR0 animations, multi-layer
+  materials and LightSet/FogSet indices are **unverified**.
+- Whether a BrawlCrate-saved BRRES re-imports into rszst at all (S3b already found
+  rszst rejects ABMatt output: `Invalid quantization for normal data: U16`). If
+  BrawlCrate output hits the same wall, capture must happen before the edit, not
+  after — a significant change to the §8 reconciliation flow.
+- Whether `.rspreset` files are stable across rszst releases (they are opaque
+  binary; no schema is published).
+- Real-world material counts and timings; 4 materials is not a track.

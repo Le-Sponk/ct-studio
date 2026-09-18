@@ -80,6 +80,8 @@ S3b must characterize those before any backend/default decision.
 | rszst | BRRES → JSON | `rszst brres-to-json IN.brres OUT.json` | 0 ok, 255 fail | real run, P0-T06b |
 | rszst | JSON → BRRES | `rszst json-to-brres IN.json OUT.brres` | 0 ok | real run, P0-T06b |
 | rszst | dump material presets | `rszst dump-presets IN.brres OUTDIR` | 0 ok | real run, P0-T06b |
+| rszst | reapply presets at import | `rszst import-brres IN.dae OUT.brres --model-name NAME --preset-path DIR` | 0 ok | real run, P0-T07 |
+| abmatt | copy material between files | `abmatt -b SRC.brres -b DST.brres -f CMDS.txt -o` with `copy material for X in SRC.brres` / `paste material for X in DST.brres` | 0 ok | real run, P0-T07 |
 | abmatt | DAE → BRRES | `abmatt convert IN.dae to OUT.brres -o` | 0 ok, 1 fail | real run, P0-T06b |
 | abmatt | edit materials | `abmatt -b FILE.brres -o -f COMMANDS.txt` | 0 ok, 1 fail | real run, P0-T06b |
 | abmatt | inspect | `abmatt -b FILE.brres -c info` | 0 | real run, P0-T06b |
@@ -103,6 +105,26 @@ on success and 255 on a genuine failure (verified against garbage input).
   `--min-mip` too. Default mipmap counts differ between backends (rszst 1, ABMatt 3).
 - Material selectors use **material** names (`for water`), not object names; a bad
   selector fails loudly with `No items found in selection!`.
+
+#### Material capture / reapply behaviour (S4, P0-T07)
+- **Presets match on material name, and a miss is silent.** `import-brres --preset-path`
+  skips any preset whose material is absent from the regenerated model and still exits 0.
+  Renaming a material orphans its captured edits with no warning — the app must diff
+  preset names against the model's materials itself.
+- **`dump-presets` writes one opaque binary `<material>.rspreset` per material.** No
+  published schema; treat as tool-version-coupled and re-verify after an rszst bump.
+- **ABMatt's paste autofix deletes orphaned textures.** Pasting a material onto a file
+  where the target name no longer exists applies the settings and then removes the
+  unused texture (`Unused textures: {...}` / `(FIXED): Remove textures`), exit 0.
+- **ABMatt's `-a`/`--auto-fix` cannot disable that in 1.3.2**: `-a 0` parses `0` as a
+  command (`Unknown command '0'`, exit non-zero), `-a0` gives `option -0 not recognized`,
+  and `--auto-fix=0` gives `option --auto-fix must not have an argument`.
+- **`brres-to-json` output is not self-contained.** It writes a `<stem>.bin` sidecar
+  (magic `RBUF`) holding geometry; `json-to-brres` reads it from beside the `.json` and
+  exits **255** writing nothing if it is missing. Keep the pair together.
+- **SRT0 animations live outside the material list.** `dump-presets` and ABMatt
+  copy/paste carry them; a material-only JSON merge drops them unless the top-level
+  `srts` array is copied too. `add srt0 for <material>` authors one headlessly.
 
 ## ABMatt (ANoob's BRRES Material Tool)
 - Repo: https://github.com/Robert-N7/abmatt · Licence: GPL-3.0 **[doc]** · Latest: **v1.3.2 (2022-06-06)** **[doc]**
