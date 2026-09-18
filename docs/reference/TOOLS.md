@@ -135,3 +135,42 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
 ## Verified command table (fill in; adapters must only use rows marked verified)
 | Tool | Version | Operation | Exact argv template | Exit codes | Output parsed? | Verified how |
 |---|---|---|---|---|---|---|
+| wszst | 2.42a r8989 | version banner | `wszst version` | 0 | not yet | real run, P0-T02 |
+| wkclt | 2.42a r8989 | version banner | `wkclt version` | 0 | not yet | real run, P0-T02 |
+| wkmpt | 2.42a r8989 | version banner | `wkmpt version` | 0 | not yet | real run, P0-T02 |
+| wimgt | 2.42a r8989 | version banner | `wimgt version` | 0 | not yet | real run, P0-T02 |
+| blender | 5.2.2 LTS | version | `blender --version` | 0 | not yet | real run, P0-T02 |
+| abmatt | 1.3.2 (release) | usage banner | `abmatt --help` | 0 | not yet | real run, P0-T02 |
+
+## Bootstrap pins (P0-T02, verified 2026-09-17 by real download + run)
+Machine-readable source of truth: `scripts/tool_catalogue.py`. Installed into `.tools/`
+by `uv run python scripts/bootstrap_tools.py` (idempotent; second run ≈0.35 s, no network).
+
+| Tool | Version | Linux asset | SHA-256 | Publishes checksums? |
+|---|---|---|---|---|
+| Wiimms SZS Tools | 2.42a (r8989) | `szs-v2.42a-r8989-x86_64.tar.gz` | `45c07b8e…393ccc` | **No** — ours recorded on first download |
+| Blender | 5.2.2 LTS | `blender-5.2.2-linux-x64.tar.xz` | `84098912…06a168` | Yes, `blender-5.2.2.sha256` (verified match) |
+| Blender (compat) | 4.5.14 LTS | `blender-4.5.14-linux-x64.tar.xz` | `9ba871ff…06da3` | Yes; optional, `--only blender-4.5` |
+| ABMatt | 1.3.2 | `abmatt_linux-5.13.0-44-generic_x64-1.3.2.tar.gz` | `7a2b03dd…15fe3` | **No** — ours recorded on first download |
+
+Windows assets are pinned in the same file (Wiimms Cygwin64 zip, Blender windows-x64 zip,
+ABMatt windows-10 zip) but have not been run — Windows CI (P1-T07) is where they get proved.
+
+Facts worth knowing (all from real runs, not docs):
+- **Both Wiimms and ABMatt put their executables in `bin/`**, not at the archive root.
+  Wiimms ships 10 tools (`wszst wkclt wkmpt wimgt wbmgt wstrt wctct wlect wmdlt wpatt`).
+- **ABMatt v1.3.2's binary reports `Version 1.3.1`** in its own banner. Trust the release
+  tag, not the banner. `abmatt --help` exits **0** (an earlier assumption of non-zero was wrong).
+- Wiimms tools use `wszst version`, not `--version`; the banner line is
+  `wszst: Wiimms SZS Tool v2.42a r8989 x86_64 - Dirk Clemens - 2024-03-26`.
+- szs.wiimm.de publishes **no checksums or signatures** anywhere on the download page, so
+  integrity rests on HTTPS plus our recorded hash; a changed upstream file fails the next run.
+- The ABMatt Linux build is a PyInstaller bundle named for the **5.13 kernel** it was built
+  on (2022). It runs fine on this container's 7.0 kernel.
+- Python 3.12 is not in the image; `uv python install 3.12` fetches 3.12.13 in ~4 s.
+
+### Lorenzi's KMP Editor — no Linux build (plan change)
+v0.7.7 (2025-01-14) ships only `Lorenzi.s.KMP.Editor.0.7.7.exe` and a macOS arm64 zip.
+Checked every release back to v0.7.0: no Linux asset has ever been published. The phase
+file assumed a Linux release, so the editor is **not** auto-installed; P0-T10 must test it
+under Wine, and the Linux launch contract depends on that. Evidence: GitHub releases API.

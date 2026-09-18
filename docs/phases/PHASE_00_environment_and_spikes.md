@@ -28,7 +28,7 @@ item asking the human to rebuild/restart the sandbox with it.
 Audit evidence: [ENVIRONMENT.md](../dev/ENVIRONMENT.md). System installation, all four
 network probes and software EGL/GLX contexts passed. No Dockerfile fallback was needed.
 
-### [ ] P0-T02 — Toolchain bootstrap script (timebox 3 h)
+### [x] P0-T02 — Toolchain bootstrap script (timebox 3 h) (commit fbefb21)
 `scripts/bootstrap_tools.py` (idempotent, cross-platform where possible, downloads into `.tools/`
 which is gitignored, prints a version table, `--only <tool>`):
 - **uv** (if missing) and Python 3.12 via uv.
@@ -40,6 +40,13 @@ which is gitignored, prints a version table, `--only <tool>`):
 - **Lorenzi's KMP Editor** latest release (only needed for the launch-contract spike).
 **Acceptance:** fresh run installs everything; second run is a no-op; `wszst version`,
 `wkclt version`, `blender --version`, ABMatt help all succeed; versions + URLs recorded in TOOLS.md.
+
+Done. Fresh run installed all three tools (59 s); second run is a 0.35 s no-op. All four
+acceptance commands verified, plus `wkmpt`/`wimgt`/`wbmgt`/`wstrt`. Pins, checksums and
+the surprises are in [TOOLS.md](../reference/TOOLS.md#bootstrap-pins-p0-t02-verified-2026-09-17-by-real-download--run).
+Two plan corrections: **Lorenzi's KMP Editor has no Linux build ever published**, so it is
+not auto-installed (P0-T10 must use Wine); and Python 3.12 comes from `uv python install`,
+not the image. `--only`, `--force` and `--list` work; unknown tool names exit 2.
 
 ### [ ] P0-T03 — Synthetic fixture track (timebox 4 h)
 `scripts/fixtures/make_fixture_blend.py`, run via `blender -b --factory-startup --python`, writes
@@ -118,6 +125,9 @@ From source code/docs (and runs where possible) determine for BrawlCrate, RiiStu
 KMP Editor, KMP Cloud, Blender, Dolphin: does a file path argument open the file? single-instance
 behaviour? Wine invocation for BrawlCrate on Linux (prefix, `winetricks dotnet48`, `win10`, 32-bit,
 `winepath -w` conversion). Lorenzi's editor auto-loads `course.kcl` from the KMP's folder — confirm.
+**Updated by P0-T02:** Lorenzi's KMP Editor publishes no Linux build (only Windows `.exe` and
+macOS arm64, checked back to v0.7.0), so treat it as a Wine target on Linux like BrawlCrate,
+and budget for that. It is not installed by `bootstrap_tools.py`.
 **Acceptance:** "Launch contracts" table in TOOLS.md with evidence links; unknowns listed for HC0/HC2.
 
 ### [ ] P0-T11 — Spike S8: Dolphin test-launch options (research only, timebox 2 h)
