@@ -134,7 +134,7 @@ tests; 68 tests pass. Help/version and bad arguments all exit 255.
 [Build recipe and limitations](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
 Overall licence grant remains unconfirmed; no binary redistribution. S3b remains open.
 
-#### [x] P0-T06b — Fixture comparison and backend decision (timebox 4 h) (commit P0T06B_COMMIT)
+#### [x] P0-T06b — Fixture comparison and backend decision (timebox 4 h) (commit 5f96d10)
 Depends on P0-T06a. Acceptance: the comparison and ADR/interface decision below.
 For each backend on the fixture DAE (course + skybox) measure and record:
 success; time; BRRES size; material/texture counts; control over per-texture format & mipmaps;
