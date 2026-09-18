@@ -6,10 +6,12 @@
 **Rules for spikes:** timebox each (stated per task). Record commands, versions, exit codes, output
 snippets, timings, and a recommendation. Spike code is throwaway: never imported by `src/`.
 If a timebox expires, write down what's known, pick the safest fallback, flag it, move on.
+Before P1-T02 creates `scripts/check.py`, use the evidence gate in ADR-016, not a placeholder
+quality script. Record task-specific checks and run `git diff --check` before committing.
 
 ---
 
-### [ ] P0-T01 — Environment audit (timebox 1 h)
+### [x] P0-T01 — Environment audit (timebox 1 h)
 Determine: OS/distro, CPU arch, Python availability, whether you can install system packages
 (apt/sudo), network access to szs.wiimm.de / github.com / download.blender.org / pypi, free disk,
 presence of EGL/Mesa (for offscreen GL), git + git identity, whether the repo dir is a bind mount
@@ -22,6 +24,9 @@ toolchain).
 **Acceptance:** `docs/dev/ENVIRONMENT.md` lists findings. If packages cannot be installed, write
 `docker/dev.Dockerfile` (based on the current image) that adds them and add a BLOCKING "Needs human"
 item asking the human to rebuild/restart the sandbox with it.
+
+Audit evidence: [ENVIRONMENT.md](../dev/ENVIRONMENT.md). System installation, all four
+network probes and software EGL/GLX contexts passed. No Dockerfile fallback was needed.
 
 ### [ ] P0-T02 — Toolchain bootstrap script (timebox 3 h)
 `scripts/bootstrap_tools.py` (idempotent, cross-platform where possible, downloads into `.tools/`

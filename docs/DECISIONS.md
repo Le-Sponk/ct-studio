@@ -108,3 +108,18 @@ Nuitka for start-up/size in P13.
 
 ## ADR-015 — Working name "MKW Track Studio", package `trackstudio`
 **Status:** Provisional — the human may rename at HC0. Renaming is a single search/replace task.
+
+## ADR-016: Evidence gate before P1-T02
+**Status:** Accepted
+**Context:** P0-T01 confirmed that the planning-only repository has no `scripts/check.py`,
+`pyproject.toml` or `uv.lock`. Running the mandatory command exits 2 (missing script).
+P1-T02 creates the gate, so requiring it for earlier commits creates a dependency cycle.
+Evidence: [environment audit](dev/ENVIRONMENT.md#quality-gate-and-remaining-boundaries).
+**Decision:** Supplement ADR-010: until P1-T02, each task records real commands, versions,
+exit codes and acceptance evidence, runs any task-specific tests, reviews its diff, and
+passes `git diff --check`. Documentation-only tasks also validate local file links.
+Do not create a no-op check script or report the absent gate as green. From P1-T02 onward,
+the full `check.py` requirement applies, including to P1-T02 itself.
+**Consequences:** Phase 0 remains evidence-driven without pulling application scaffolding
+forward. No exemption for skipped/weak tests, runtime dependencies or application layering.
+**Revisit when:** P1-T02 is implemented; use the full gate thereafter.

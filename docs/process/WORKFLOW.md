@@ -32,6 +32,10 @@
 - Budgets respected (AGENTS.md rule 8/9). Cross-platform concerns considered (paths, processes).
 - Docs updated. STATUS.md updated. Committed.
 
+Before P1-T02, apply ADR-016: recorded acceptance commands and task-specific tests,
+diff review, `git diff --check`, and local file-link checks for documentation-only tasks.
+The missing `check.py` is not a green result; do not create a stub to satisfy this rule.
+
 ## 4. Context hygiene (Hermes-specific)
 - AGENTS.md is injected into every message: don't grow it; put detail in docs.
 - Don't paste large logs into the conversation — read tails (`tail -n 80`) or grep.

@@ -17,11 +17,12 @@ This file is injected into every message. Keep it short. Details live in `docs/`
 1. **One task ID per session.** Don't start the next phase until its review gate is recorded in STATUS.md.
 2. **Layering:** `trackstudio.core` never imports Qt, `gui`, or `cli` (import-linter enforces).
    `blender_bridge` imports only stdlib + `bpy`.
-3. **External tools only via `core/tools` adapters.** No `subprocess` anywhere else. Never `shell=True`.
+3. **External tools only via core/tools adapters.** In src/trackstudio/, subprocess may be imported only by core/tools/process.py; everything else calls an adapter. scripts/, spikes/ and tests/ may spawn processes directly, but still with argv lists, an explicit timeout and explicit exit-code handling. Never shell=True, anywhere. Spike code is never copied into src/ — record the findings in docs/reference/TOOLS.md and write the adapter fresh.
 4. **Never guess a tool's CLI flags or output format.** Verify with `--help`, docs, or a real run,
    then record it in `docs/reference/TOOLS.md` with the tool version.
 5. **No new runtime dependency** without an ADR entry in `docs/DECISIONS.md`.
-6. **Tests ship with the change.** `uv run python scripts/check.py` must pass before every commit.
+6. **Tests ship with the change.** `uv run python scripts/check.py` must pass before every commit
+   (before P1-T02, use the evidence gate in ADR-016).
    No skipped/xfail tests or `noqa`/`type: ignore` without a one-line justification.
 7. **No Nintendo game files or derived assets in git.** Fixtures are synthetic. Real files go in
    `local_fixtures/` (gitignored); tests needing them auto-skip.
