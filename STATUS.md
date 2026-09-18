@@ -112,18 +112,19 @@ _none_
 _none_
 
 ## Needs human — non-blocking
-- Before distributing RiiStudio with CT Studio, obtain/confirm the overall licence
-  grant and review component obligations (including GPL-2.0-or-later gctex). The
-  pinned source has no root licence grant; local S3b work can continue without this.
-- S2 add-on wishlist (your repo, so your call — **nothing is required**, all six exports
-  work today). In value order: (1) make `export.minimap`'s unavailability legible —
-  its `poll()` returning False surfaces as "context is incorrect", which sends you
-  looking in the wrong place; `poll_message_set()` or moving the ABMatt check into
-  `execute()` would fix it. (2) Have the export operators *return* counts (objects,
-  triangles, skipped names) instead of only printing them, so the bridge need not scrape
-  stdout. (3) A module-name-safe package directory would remove the bridge's
-  copy-to-`mkw_utilities` step. Recommendation: (1) only, if you want one; the bridge
-  works around all three. Details in [SPIKES.md §S2](docs/dev/SPIKES.md).
+- ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
+  detection + a link to the official releases page + an optional user-initiated
+  download from the upstream URL; keep it out of the installer. Asking the maintainer
+  for an explicit LICENSE is a **Phase 12** question, not a blocker. Recorded in
+  ADR-004 and P12-T01/T03.
+- ~~S2 add-on wishlist~~ **answered 2026-09-18.** (1) minimap poll message: **yes, do it
+  now** — done, see below. (2) return counts from the operators: **yes, but as a proper
+  refactor** (extract export logic into functions returning a result dict, operators
+  become wrappers, proven against the existing `blender -b` test scripts on 4.2 LTS and
+  5.2) — implemented on local submodule branch `ctstudio/export-result-api` at
+  `98ff857`. Push/PR is pending because this environment has no GitHub credentials.
+  (3) a module-name-safe package directory: **no**. Until (2) is merged and the
+  submodule pin is updated, the bridge keeps the stdout workaround.
 - Auto-add (from S1) still needs a library built from your own game files to test for
   real; I cannot create one here. HC0 question, relevant before P4.
 

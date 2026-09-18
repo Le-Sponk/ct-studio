@@ -115,6 +115,27 @@ BLENDER_LTS_4_5 = Tool(
     notes="Optional compatibility target; only installed with --only blender-4.5.",
 )
 
+BLENDER_LTS_4_2 = Tool(
+    name="blender-4.2",
+    version="4.2.23",
+    licence="GPL-2.0-or-later",
+    homepage="https://www.blender.org/",
+    downloads={
+        "linux-x86_64": Download(
+            url="https://download.blender.org/release/Blender4.2/blender-4.2.23-linux-x64.tar.xz",
+            archive="blender-4.2.23-linux-x64.tar.xz",
+            sha256="bea0eb3146be13eae6225409a117b215184f41b7f79e799f97cb3abb8f6dc404",
+            strip_prefix="blender-4.2.23-linux-x64",
+        ),
+    },
+    executables=("blender",),
+    verify=(("blender", "--version"), "Blender 4.2"),
+    notes=(
+        "The add-on's declared floor (blender_manifest.toml blender_version_min). "
+        "Only installed with --only blender-4.2; used for add-on compatibility runs."
+    ),
+)
+
 ABMATT = Tool(
     name="abmatt",
     version="1.3.2",
@@ -162,7 +183,7 @@ WINDOWS_ONLY: dict[str, dict[str, str]] = {
 }
 
 TOOLS: tuple[Tool, ...] = (WIIMMS, BLENDER, ABMATT)
-OPTIONAL_TOOLS: tuple[Tool, ...] = (BLENDER_LTS_4_5,)
+OPTIONAL_TOOLS: tuple[Tool, ...] = (BLENDER_LTS_4_5, BLENDER_LTS_4_2)
 ALL_TOOLS: dict[str, Tool] = {t.name: t for t in TOOLS + OPTIONAL_TOOLS}
 
 __all__ = [

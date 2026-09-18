@@ -69,8 +69,14 @@ must remain usable standalone; it converts, packs and validates on its own. The
 interface is `import_model`, `inspect`, `apply_materials`, `capture_presets`;
 `set_texture_formats` is deliberately **not** in the ABMatt implementation because
 `set tex0 format:` is a silent no-op there.
+**Distribution (human decision, 2026-09-18):** **never bundle RiiStudio.** CT Studio
+ships *detection* plus a link to the official releases page, and an optional
+**user-initiated** download from the upstream URL. It stays out of the installer, so
+the unresolved licence (S3a) does not block anything. Asking the maintainer for an
+explicit LICENSE is a **Phase 12 question**, not a prerequisite. This is why ABMatt
+must stay usable standalone: a user who never downloads rszst still gets a working app.
 **Revisit when:** a backend breaks on real tracks at HC2, rszst gains ABMatt-BRRES read
-support, or the licence question forces an ABMatt-only default.
+support, or the maintainer grants an explicit licence (P12).
 
 ## ADR-005 — Project = plain folder + `ctstudio.toml`; app data in `.ctstudio/`
 **Status:** Accepted
