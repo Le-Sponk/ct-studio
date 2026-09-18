@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T04 — Spike S1: Wiimms assemble & check
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** b7af3a0 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** 1d44633 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -18,7 +18,7 @@ _none_
 - `P0-T03` — synthetic fixture track: `scripts/fixtures/` generates two `.blend` variants,
   7 PNGs and a valid `course.kmp` in 0.85 s (budget 60 s), deterministically. Proved with
   the real tools: add-on exported 5 KCL objects / 292 triangles, `wkclt flags` confirmed
-  all five flag types. 38 unit tests, 3/3 mutations caught. — commit b7af3a0
+  all five flag types. 38 unit tests, 3/3 mutations caught. — commit 1d44633
 - `P0-T02` — `scripts/bootstrap_tools.py` + `scripts/tool_catalogue.py` install Wiimms
   2.42a, Blender 5.2.2 LTS and ABMatt 1.3.2 into `.tools/` with checksum verification.
   Fresh run 55 s, second run 0.35 s no-op; 22 unit tests, 3/3 mutations caught.

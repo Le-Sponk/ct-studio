@@ -48,7 +48,7 @@ Two plan corrections: **Lorenzi's KMP Editor has no Linux build ever published**
 not auto-installed (P0-T10 must use Wine); and Python 3.12 comes from `uv python install`,
 not the image. `--only`, `--force` and `--list` work; unknown tool names exit 2.
 
-### [x] P0-T03 — Synthetic fixture track (timebox 4 h) (commit b7af3a0)
+### [x] P0-T03 — Synthetic fixture track (timebox 4 h) (commit 1d44633)
 `scripts/fixtures/make_fixture_blend.py`, run via `blender -b --factory-startup --python`, writes
 `tests/fixtures/generated/` (gitignored, regenerated on demand; a small committed copy is fine if
 < 2 MB). Deterministic. Contents:
