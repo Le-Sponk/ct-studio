@@ -5,7 +5,7 @@
 
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T02 — toolchain bootstrap script
-**Last green commit:** —
+**Last green commit:** b69cc17 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -16,7 +16,7 @@ _none_
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P0-T01` — environment audit: Debian 13.4 x86_64 container, root apt works, all four
   download origins reachable, Mesa llvmpipe gives GL 4.5 core via surfaceless EGL and
-  Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit COMMIT_HASH
+  Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->

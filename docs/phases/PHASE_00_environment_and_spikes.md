@@ -11,7 +11,7 @@ quality script. Record task-specific checks and run `git diff --check` before co
 
 ---
 
-### [x] P0-T01 — Environment audit (timebox 1 h)
+### [x] P0-T01 — Environment audit (timebox 1 h) (commit b69cc17)
 Determine: OS/distro, CPU arch, Python availability, whether you can install system packages
 (apt/sudo), network access to szs.wiimm.de / github.com / download.blender.org / pypi, free disk,
 presence of EGL/Mesa (for offscreen GL), git + git identity, whether the repo dir is a bind mount
