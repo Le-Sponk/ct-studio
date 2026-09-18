@@ -11,7 +11,7 @@ STATUS.md under "Human checkpoint results" (or into the chat); the agent turns e
 ## HC0 — Kick-off decisions (≈10 min, end of Phase 0)
 Agent provides: spike summary (1 page), any Dockerfile changes needed, recommendations.
 Human confirms:
-1. Licence GPL-3.0-or-later OK? Working name OK (or new name)?
+1. Licence GPL-3.0-or-later OK? (Name settled before Phase 0 ended: ADR-015, CT Studio.)
 2. Is the repo on GitHub with Actions enabled (needed for Windows CI)? Can the agent push?
 3. Is the repo folder bind-mounted so the human can run the GUI on the Linux Mint host?
 4. Will you provide real track files in `local_fixtures/` (optional but valuable)? Which?
@@ -20,7 +20,7 @@ Human confirms:
 
 ## HC1 — Manual-mode MVP (≈15 min, end of Phase 5)
 On the Linux Mint host, in the repo folder:
-1. `uv sync` then `uv run trackstudio`.
+1. `uv sync` then `uv run ctstudio`.
 2. First launch: open Settings → Tools; confirm Wiimms tools are detected (point to them if not).
 3. New project → choose a folder → skip the `.blend` → pick a slot.
 4. Assign existing files from one of your tracks (course_model.brres, course.kcl, course.kmp,
@@ -38,10 +38,10 @@ Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
 3. Textures page: do the recommended formats match what you would choose? Change one; rebuild; check.
 4. Materials page: set a material to double-sided/cutout; rebuild; check in game.
 5. Open `course_model.brres` in **BrawlCrate** (Windows or Wine), change a material setting you care
-   about (e.g. transparency/blend/shader), save. In Track Studio choose "Keep & capture".
+   about (e.g. transparency/blend/shader), save. In CT Studio choose "Keep & capture".
 6. Change something in Blender (move a mesh), save — auto-rebuild — confirm your BrawlCrate edit
    survived in game.
-7. Windows spot check: install/run from the repo on Windows (`uv sync`, `uv run trackstudio`) and
+7. Windows spot check: install/run from the repo on Windows (`uv sync`, `uv run ctstudio`) and
    repeat steps 1–2 briefly.
 
 ## HC3 — Full workflow (≈30 min, end of Phase 10)

@@ -50,7 +50,7 @@ The missing `check.py` is not a green result; do not create a stub to satisfy th
 - `main` must always pass `check.py`. Work directly on `main` in small commits, or on
   `phase-XX` branches merged at the gate — pick one at P1 and record it in DECISIONS.md.
 - Tag each passed gate: `phase-05-done`. Deep cleans: `deepclean-1-done`.
-- Never rewrite published history. Never commit `.tools/`, `.ts/`, game files, or large binaries.
+- Never rewrite published history. Never commit `.tools/`, `.ctstudio/`, game files, or large binaries.
 
 ## 6. When stuck
 1. Timebox: 45 minutes of failed attempts on the same problem → stop.

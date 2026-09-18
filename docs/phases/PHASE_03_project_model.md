@@ -1,7 +1,7 @@
 # Phase 3 — Project model & component status
 
 **Goal:** projects can be created, opened, and every component reports an accurate status fast.
-**Exit:** `trackstudio new` + `trackstudio status [--json]` work on fixture projects; status of a
+**Exit:** `ctstudio new` + `ctstudio status [--json]` work on fixture projects; status of a
 typical project evaluates in < 300 ms (benchmark).
 
 ### [ ] P3-T01 — Manifest model & TOML I/O
@@ -14,7 +14,7 @@ not keep comments; say so in user docs), invalid-value tests, migration framewor
 
 ### [ ] P3-T02 — Project layout, create/open, lock
 `Project.create(dir, name, blend=None, slot="beginner_course")` creates folders from ARCHITECTURE §5,
-default manifest, `.gitignore` (`.ts/`, `build/`). `Project.open(dir)`. Lock file `.ts/lock` with pid
+default manifest, `.gitignore` (`.ctstudio/`, `build/`). `Project.open(dir)`. Lock file `.ctstudio/lock` with pid
 + hostname; stale-lock detection; read-only open when locked.
 **Acceptance:** tests for create/open/lock/stale lock; refuses to create inside a non-empty folder
 unless `--force`.
@@ -27,7 +27,7 @@ wiki link (mkwiiki.org), modes, stage outputs, required (bool), which tools each
 ### [ ] P3-T04 — Status evaluation
 `core/components/status.py`: `evaluate(project, tools) -> dict[component_id, ComponentStatus]` with
 reasons (`["course_model.brres missing", "Blender export older than .blend"]`).
-Uses `.ts/state.json` (last generated output hash + input fingerprints) and the stat fast path.
+Uses `.ctstudio/state.json` (last generated output hash + input fingerprints) and the stat fast path.
 `EditedExternally` when a generated file's hash differs from state. `Manual` when mode is manual and
 file exists & has the right magic bytes.
 **Acceptance:** table-driven tests covering every status for every component; benchmark with 20
@@ -45,8 +45,8 @@ typed by hand: internal file name, display name, cup, race/arena. Loader + looku
 **Acceptance:** 32 race tracks + 10 arenas; test asserts counts and that `beginner_course` exists.
 
 ### [ ] P3-T07 — CLI: `new`, `status`, `open`
-`trackstudio new <dir> --name --blend --slot`, `trackstudio status [dir] [--json]` (table with status
-icons + reasons), `trackstudio open <file> [--with tool]` (uses editors adapter).
+`ctstudio new <dir> --name --blend --slot`, `ctstudio status [dir] [--json]` (table with status
+icons + reasons), `ctstudio open <file> [--with tool]` (uses editors adapter).
 **Acceptance:** CLI tests via `subprocess` against fakes; JSON schema documented in `docs/dev/CLI.md`.
 
 ### [ ] P3-GATE — Phase review

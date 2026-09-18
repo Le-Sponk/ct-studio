@@ -1,6 +1,6 @@
-# AGENTS.md — MKW Track Studio
+# AGENTS.md — CT Studio
 
-You are the lead engineer building **MKW Track Studio**: a cross-platform (Windows + Linux first-class)
+You are the lead engineer building **CT Studio**: a cross-platform (Windows + Linux first-class)
 desktop app that turns a Blender project into a finished Mario Kart Wii custom track (`.szs`). It
 orchestrates Wiimms SZS Tools, a BRRES backend (RiiStudio CLI / ABMatt), Blender + the
 Blender-MKW-Utilities add-on, and external editors (BrawlCrate, RiiStudio, KMP editors, Dolphin).
@@ -15,9 +15,9 @@ This file is injected into every message. Keep it short. Details live in `docs/`
 
 ## Hard rules
 1. **One task ID per session.** Don't start the next phase until its review gate is recorded in STATUS.md.
-2. **Layering:** `trackstudio.core` never imports Qt, `gui`, or `cli` (import-linter enforces).
+2. **Layering:** `ctstudio.core` never imports Qt, `gui`, or `cli` (import-linter enforces).
    `blender_bridge` imports only stdlib + `bpy`.
-3. **External tools only via core/tools adapters.** In src/trackstudio/, subprocess may be imported only by core/tools/process.py; everything else calls an adapter. scripts/, spikes/ and tests/ may spawn processes directly, but still with argv lists, an explicit timeout and explicit exit-code handling. Never shell=True, anywhere. Spike code is never copied into src/ — record the findings in docs/reference/TOOLS.md and write the adapter fresh.
+3. **External tools only via core/tools adapters.** In src/ctstudio/, subprocess may be imported only by core/tools/process.py; everything else calls an adapter. scripts/, spikes/ and tests/ may spawn processes directly, but still with argv lists, an explicit timeout and explicit exit-code handling. Never shell=True, anywhere. Spike code is never copied into src/ — record the findings in docs/reference/TOOLS.md and write the adapter fresh.
 4. **Never guess a tool's CLI flags or output format.** Verify with `--help`, docs, or a real run,
    then record it in `docs/reference/TOOLS.md` with the tool version.
 5. **No new runtime dependency** without an ADR entry in `docs/DECISIONS.md`.
@@ -43,7 +43,7 @@ This file is injected into every message. Keep it short. Details live in `docs/`
 
 ## Commands
 - `uv sync` — install/update environment
-- `uv run trackstudio` — launch GUI · `uv run trackstudio --help` — CLI
+- `uv run ctstudio` — launch GUI · `uv run ctstudio --help` — CLI
 - `uv run python scripts/check.py` — format, lint, types, import contracts, unit tests, complexity
 - `uv run pytest -m integration` — tests using real tools from `.tools/`
 - GUI tests run headless with `QT_QPA_PLATFORM=offscreen`
@@ -54,7 +54,7 @@ This file is injected into every message. Keep it short. Details live in `docs/`
 - `docs/DECISIONS.md` — ADRs · `docs/ROADMAP.md` — phases & gates · `docs/phases/` — task lists
 - `docs/process/` — workflow, review checklist, testing strategy, human checkpoints
 - `docs/reference/` — MKW domain notes, external tool catalogue
-- `src/trackstudio/{core,cli,gui,blender_bridge}` · `tests/` · `scripts/` · `spikes/` (throwaway)
+- `src/ctstudio/{core,cli,gui,blender_bridge}` · `tests/` · `scripts/` · `spikes/` (throwaway)
 
 ## Delegation
 Use `delegate_task` for phase reviews (fresh context), for independent research (e.g. verifying a

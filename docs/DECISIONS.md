@@ -24,7 +24,7 @@ what moderngl in Qt can do.
 
 ## ADR-002 — Qt-free core with CLI parity
 **Status:** Accepted
-**Decision:** All logic in `trackstudio.core` (no Qt). CLI exposes `new`, `status`, `build`, `doctor`,
+**Decision:** All logic in `ctstudio.core` (no Qt). CLI exposes `new`, `status`, `build`, `doctor`,
 `open`. GUI is a thin layer. import-linter enforces.
 **Consequences:** Agent can test nearly everything without a display; power users can script builds.
 
@@ -55,10 +55,10 @@ fallback where rszst is unavailable and for minimap creation.
 formats, capture/reapply material state). Pick default per platform from S3 evidence.
 **Revisit when:** S3 completes (mandatory), or a backend breaks on real tracks at HC2.
 
-## ADR-005 — Project = plain folder + `trackstudio.toml`; app data in `.ts/`
+## ADR-005 — Project = plain folder + `ctstudio.toml`; app data in `.ctstudio/`
 **Status:** Accepted
 **Decision:** See ARCHITECTURE §5–6. Stage folder is directly consumable by `wszst create`.
-**Consequences:** Projects are git-friendly and usable without the app; `.ts/` can be deleted.
+**Consequences:** Projects are git-friendly and usable without the app; `.ctstudio/` can be deleted.
 
 ## ADR-006 — Incremental build graph with content-hash cache
 **Status:** Accepted
@@ -106,8 +106,15 @@ Nuitka for start-up/size in P13.
 ## ADR-014 — TOML for human-edited files, JSON for machine state
 **Status:** Accepted
 
-## ADR-015 — Working name "MKW Track Studio", package `trackstudio`
-**Status:** Provisional — the human may rename at HC0. Renaming is a single search/replace task.
+## ADR-015 — Name "CT Studio", package `ctstudio`
+**Status:** Accepted (superseded the provisional working name "MKW Track Studio")
+**Context:** The planning kit used the working name "MKW Track Studio" with package
+`trackstudio` and project data in `.ts/`, pending the human's decision at HC0.
+**Decision:** The project is **CT Studio**. Python package and CLI `ctstudio`, project
+manifest `ctstudio.toml`, app-managed folder `.ctstudio/`, dev flag `CTSTUDIO_DEV`, base
+error `CTStudioError`. Done before P1-T01 writes `pyproject.toml`, so no code changed.
+**Consequences:** Docs use the new names throughout; nothing else is pending at HC0 for
+the name. `.ts/` never shipped, so no migration path is needed for user projects.
 
 ## ADR-016: Evidence gate before P1-T02
 **Status:** Accepted

@@ -26,7 +26,7 @@ collection).
 **Acceptance:** inspection integration test; dialog pytest-qt test with a recorded inspection JSON.
 
 ### [ ] P6-T03 — Export node
-Single node `blender_export` producing all requested exports into `.ts/exports/`. Inputs: `.blend`
+Single node `blender_export` producing all requested exports into `.ctstudio/exports/`. Inputs: `.blend`
 fingerprint, external images referenced by the previous export manifest, mapping + export options,
 bridge version, add-on commit, Blender version. Resource tag `blender`. Downstream nodes depend on
 specific files from the manifest.
@@ -51,8 +51,8 @@ weekly compatibility job.
 **Acceptance:** both OS green.
 
 ### [ ] P6-T07 — (stretch, needs human approval) Live link in the add-on
-Propose a small, isolated change to the add-on repo: a "Track Studio" panel with "Export to project"
-and "Auto-export on save", writing the same export manifest into the project's `.ts/exports/`.
+Propose a small, isolated change to the add-on repo: a "CT Studio" panel with "Export to project"
+and "Auto-export on save", writing the same export manifest into the project's `.ctstudio/exports/`.
 Write the proposal in `docs/dev/ADDON_LIVE_LINK.md` and add a non-blocking "Needs human" item. Only
 implement (on a branch in the submodule) after approval.
 

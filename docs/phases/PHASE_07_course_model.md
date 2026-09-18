@@ -31,7 +31,7 @@ Table: thumbnail, name, dimensions, alpha class, recommended, chosen format (dro
 estimated size; multi-select bulk edit; "Reset to recommended"; total size footer; filter "only
 overridden / only warnings". Only overrides are written to the manifest.
 **Acceptance:** pytest-qt: override persists, rebuild uses it (verified via `inspect`); thumbnails are
-generated off the UI thread and cached in `.ts/thumbs/`.
+generated off the UI thread and cached in `.ctstudio/thumbs/`.
 
 ### [ ] P7-T04 — Material rules & Materials page
 Per material: transparency (auto/opaque/cutout/translucent; auto derives from the texture alpha
@@ -65,7 +65,7 @@ edit persists; renamed material reported.
 
 ### [ ] P7-T08 — Open-in for course model (incl. Wine)
 Wire BrawlCrate/RiiStudio launch for `course_model.brres` with Linux Wine support and a clear
-explanation panel: "Edit and save in BrawlCrate. Track Studio will detect the change and ask
+explanation panel: "Edit and save in BrawlCrate. CT Studio will detect the change and ask
 what to keep."
 **Acceptance:** argument construction tests; manual verification scheduled for HC2.
 

@@ -8,9 +8,9 @@ Work continues on unblocked tasks while waiting for a human checkpoint response.
 |---|---|---|---|
 | 0 | Environment, toolchain & spikes | Tools run in the container; provisional decisions resolved with evidence | Review · **HC0** |
 | 1 | Skeleton & quality gates | Empty app launches; `check.py` + CI (Linux & Windows) green | Review |
-| 2 | Tools: registry, runner, doctor | `trackstudio doctor` finds and versions every tool | Review |
-| 3 | Project model & status | `trackstudio new/status` with component statuses | Review |
-| 4 | Build engine & SZS assembly | `trackstudio build` makes a valid SZS from manual files; no-op rebuild < 1 s | Review |
+| 2 | Tools: registry, runner, doctor | `ctstudio doctor` finds and versions every tool | Review |
+| 3 | Project model & status | `ctstudio new/status` with component statuses | Review |
+| 4 | Build engine & SZS assembly | `ctstudio build` makes a valid SZS from manual files; no-op rebuild < 1 s | Review |
 | 5 | GUI shell & dashboard | Same as P4 in the GUI: cards, open-in-tool, issues, logs | Review · **HC1** · **Deep Clean #1** |
 | 6 | Blender bridge | Saving the `.blend` produces fresh exports automatically | Review |
 | 7 | Course model pipeline | DAE → BRRES with texture formats, material rules, preserved external edits | Review · **HC2** |

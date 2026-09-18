@@ -35,7 +35,7 @@ as polylines with direction arrows, respawns, cannons, objects as markers, areas
 
 ### [ ] P10-T05 — Editor workspace & round-trip
 "Edit KMP" prepares the editing location according to the launch contract (e.g. ensure `course.kcl`
-sits next to `course.kmp` for Lorenzi's editor — use a workspace folder under `.ts/kmp_workspace/` with
+sits next to `course.kmp` for Lorenzi's editor — use a workspace folder under `.ctstudio/kmp_workspace/` with
 the KCL copied and the KMP either edited in place in `files/` or copied back on save), launches the
 preferred editor, shows an instruction panel, watches for saves, validates, updates status. If the
 editor can't take a file argument: reveal the folder, copy the path to the clipboard, explain.

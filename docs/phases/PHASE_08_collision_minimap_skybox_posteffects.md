@@ -25,7 +25,7 @@ Modes: auto from KCL (default), from Blender collection, manual file. Implement 
 path; KCL type filter from manifest (`include_kcl_types`, sensible defaults: road-like, boost, jump,
 excluding walls, invisible walls, fall boundaries, triggers). Always finish with
 `wszst minimap --auto` unless the user disables it. Thumbnail: simple numpy→Pillow top-down
-rasteriser (upgrade to GL preview in P9) saved to `.ts/thumbs/minimap.png`.
+rasteriser (upgrade to GL preview in P9) saved to `.ctstudio/thumbs/minimap.png`.
 **Acceptance:** fixture minimap builds headless; changing the filter invalidates only minimap +
 assemble; thumbnail generated < 300 ms.
 
@@ -40,7 +40,7 @@ tests marked `realdata`.
 
 ### [ ] P8-T05 — Skybox template & manual modes
 Template: extract `vrcorn_model.brres` from a chosen original track SZS in the game files (via
-`wszst` extract to `.ts/templates/<track>/`, cached). Manual: user file. Card shows source.
+`wszst` extract to `.ctstudio/templates/<track>/`, cached). Manual: user file. Card shows source.
 **Acceptance:** fake-tool tests; `realdata` integration test.
 
 ### [ ] P8-T06 — Post-effects

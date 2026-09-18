@@ -37,7 +37,7 @@ one when GL is available.
 
 ### [ ] P9-T06 — Integration into the app
 Preview dock/tab; card buttons ("Preview") focus the right layer; state (camera, toggles) remembered
-per project in `.ts/ui_state.json`.
+per project in `.ctstudio/ui_state.json`.
 **Acceptance:** pytest-qt flow; UI remains responsive while loading (watchdog clean).
 
 ### [ ] P9-T07 — Performance & leak tests

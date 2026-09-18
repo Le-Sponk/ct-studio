@@ -1,4 +1,4 @@
-# Project Brief — MKW Track Studio (working name)
+# Project Brief — CT Studio
 
 ## 1. The problem
 Making a Mario Kart Wii custom track means juggling a 3D editor, a KCL exporter, a BRRES converter
@@ -28,7 +28,7 @@ automated step stays inspectable, configurable and overridable.
    component can be switched to *Manual* ("I'll supply this file").
 3. **Never destroy manual work.** Detect external edits, offer to capture/keep them, back up before
    overwriting.
-4. **Plain files.** A project is a normal folder with a readable `trackstudio.toml`. The staging
+4. **Plain files.** A project is a normal folder with a readable `ctstudio.toml`. The staging
    folder is a valid `wszst create` input. The project remains usable without the app.
 5. **Transparent.** The log shows the exact command lines run; each can be copied.
 6. **Fast feedback.** Incremental builds with content hashing; a no-change rebuild takes < 1 s.
@@ -52,7 +52,7 @@ Component status values: **Missing · Stale · Ready · Warning · Error · Manu
 
 ## 6. UX concept (dashboard)
 ```
-┌ MKW Track Studio — Sponk Speedway ───────────────────────── Slot: Luigi Circuit ▾ ┐
+┌ CT Studio — Sponk Speedway ──────────────────────────────── Slot: Luigi Circuit ▾ ┐
 │ Source: track.blend   [Open in Blender]   Rebuild when .blend is saved: ●          │
 │                                                                                    │
 │ ✔ Course model   12 materials · 18 textures · 2.1 MB  [Rebuild][Textures][Materials][Open in ▾] │

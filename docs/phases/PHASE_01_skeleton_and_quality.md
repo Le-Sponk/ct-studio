@@ -4,18 +4,18 @@
 **Exit:** `scripts/check.py` green locally and in CI on ubuntu-latest + windows-latest.
 
 ### [ ] P1-T01 — Project metadata & environment
-`pyproject.toml` (src layout, package `trackstudio`, Python `>=3.12,<3.14`, entry point
-`trackstudio = "trackstudio.__main__:main"`). Runtime deps now: `PySide6`, `numpy`, `Pillow`,
+`pyproject.toml` (src layout, package `ctstudio`, Python `>=3.12,<3.14`, entry point
+`ctstudio = "ctstudio.__main__:main"`). Runtime deps now: `PySide6`, `numpy`, `Pillow`,
 `tomli-w`, `platformdirs`, `watchfiles`. Dev group: ruff, pyright, pytest, pytest-qt,
 pytest-timeout, pytest-cov, pytest-benchmark, import-linter, vulture, radon, xenon, pylint.
-Commit `uv.lock`. `.gitignore`: `.tools/`, `.ts/`, `build/`, `dist/`, `local_fixtures/`,
+Commit `uv.lock`. `.gitignore`: `.tools/`, `.ctstudio/`, `build/`, `dist/`, `local_fixtures/`,
 `tests/fixtures/generated/`, `tests/artifacts/`, `spikes/out/`.
-**Acceptance:** `uv sync` then `uv run trackstudio --version` works on Linux and in Windows CI.
+**Acceptance:** `uv sync` then `uv run ctstudio --version` works on Linux and in Windows CI.
 
 ### [ ] P1-T02 — `scripts/check.py`
 Runs in order, fails fast unless `--all`: `ruff format --check`, `ruff check`, `pyright`,
 `lint-imports`, `pytest -m "not integration and not slow and not realdata"` with coverage,
-`xenon --max-absolute B --max-modules A --max-average A src/trackstudio/core` (tune once, document),
+`xenon --max-absolute B --max-modules A --max-average A src/ctstudio/core` (tune once, document),
 `vulture src/ vulture_whitelist.py --min-confidence 80`. `--fast` skips pyright + coverage.
 Prints a one-line summary per step with duration.
 **Acceptance:** passes on the skeleton; deliberately broken sample (in a test) makes it fail.
@@ -26,7 +26,7 @@ Prints a one-line summary per step with duration.
 **Acceptance:** adding `import PySide6` in core makes `check.py` fail (verified by a test fixture copy).
 
 ### [ ] P1-T04 — Errors & logging foundation
-`core/errors.py`: `TrackStudioError(user_message, hint=None, details=None)` → `ToolNotFound`,
+`core/errors.py`: `CTStudioError(user_message, hint=None, details=None)` → `ToolNotFound`,
 `ToolFailed(cmd, exit_code, stderr_tail, log_path)`, `ProjectError`, `ManifestError(key_path)`,
 `BuildError(node_id)`, `Cancelled`, `ParseError`. `core/logging.py`: stdlib logging, JSON-lines
 rotating file handler in `platformdirs.user_log_dir`, console handler for CLI, `get_logger(__name__)`.
@@ -42,9 +42,9 @@ hashing a 200 MB temp file (recorded, not asserted yet).
 
 ### [ ] P1-T06 — Minimal GUI shell
 `gui/app.py` + `main_window.py`: window with placeholder dashboard, About dialog (version, licence,
-third-party list placeholder), follows system light/dark. `trackstudio --offscreen-smoke <png>`
+third-party list placeholder), follows system light/dark. `ctstudio --offscreen-smoke <png>`
 starts, renders, saves a screenshot, exits 0. Lazy-import PySide6 only on GUI paths.
-**Acceptance:** pytest-qt test passes headless; `python -X importtime -m trackstudio --version` shows
+**Acceptance:** pytest-qt test passes headless; `python -X importtime -m ctstudio --version` shows
 no Qt import.
 
 ### [ ] P1-T07 — CI

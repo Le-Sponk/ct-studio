@@ -8,7 +8,7 @@ Use a fresh session for each prompt below (`/new`), then name it (`/title ...`).
 ## 1. First session (paste once)
 
 ```
-You are starting a new project: MKW Track Studio. The repository currently contains only planning
+You are starting a new project: CT Studio. The repository currently contains only planning
 documents; no application code exists yet.
 
 Before doing anything else:
@@ -29,7 +29,7 @@ STATUS.md current. Stop at the end of the task.
 ## 2. Every following session
 
 ```
-Continue MKW Track Studio. Use the mkw-task-loop skill: read STATUS.md, take the next task,
+Continue CT Studio. Use the mkw-task-loop skill: read STATUS.md, take the next task,
 complete it fully (tests, checks, docs, STATUS.md, commit), then stop and summarise in 5 lines:
 what was done, evidence it works, what's next, and anything you need from me.
 ```

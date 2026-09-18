@@ -1,6 +1,6 @@
 # Starter ignores (P1-T01 extends this)
 .tools/
-.ts/
+.ctstudio/
 build/
 dist/
 local_fixtures/

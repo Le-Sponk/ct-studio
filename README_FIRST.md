@@ -1,4 +1,4 @@
-# READ ME FIRST — MKW Track Studio handoff kit
+# READ ME FIRST — CT Studio handoff kit
 
 This kit is everything an agent needs to build the app without coming back to the planner. You set
 it up once (≈20 minutes), then mostly paste "Continue" and answer occasional checkpoints.
@@ -20,12 +20,12 @@ it up once (≈20 minutes), then mostly paste "Continue" and answer occasional c
 | `skills/mkw/` | Hermes | Two skills: `mkw-task-loop`, `mkw-phase-review` |
 
 ## Setup (once)
-1. **Create a new repository** (separate from the Blender add-on), e.g. `mkw-track-studio`, and push it
+1. **Create a new repository** (separate from the Blender add-on), e.g. `ct-studio`, and push it
    to GitHub. Enable GitHub Actions — this is how Windows gets tested continuously without you.
 2. **Copy the kit into the repo root** (everything except the `skills/` folder can live in the repo;
    keeping `skills/` in the repo too is fine as a backup). Commit: `chore: add planning kit`.
 3. **Make the repo visible to both Hermes and your desktop.** Keep the repo in a host folder (e.g.
-   `~/dev/mkw-track-studio`) and bind-mount it into the Hermes container/sandbox. That way the agent
+   `~/dev/ct-studio`) and bind-mount it into the Hermes container/sandbox. That way the agent
    works inside Docker while you can run the GUI on Linux Mint for checkpoints.
 4. **Install the skills.** Copy `skills/mkw/` into your Hermes skills directory: on the host that's
    `~/.hermes/skills/mkw/` (the official Docker image maps `~/.hermes` to `/opt/data`, so inside the
@@ -52,7 +52,7 @@ it up once (≈20 minutes), then mostly paste "Continue" and answer occasional c
 ## Your time commitment
 | Checkpoint | When | Time | What you do |
 |---|---|---|---|
-| HC0 | End of Phase 0 | ~10 min | Confirm licence/name, GitHub, bind mount, backend choice |
+| HC0 | End of Phase 0 | ~10 min | Confirm licence, GitHub, backend choice |
 | HC1 | End of Phase 5 | ~15 min | Build an SZS from existing files in the GUI, race it |
 | HC2 | End of Phase 7 | ~25 min | Blender → course model; edit in BrawlCrate; confirm edits survive rebuild |
 | HC3 | End of Phase 10 | ~30 min | Full workflow incl. collision, minimap, KMP editing |
@@ -61,7 +61,7 @@ Exact steps and a feedback template are in `docs/process/HUMAN_CHECKPOINTS.md`.
 
 ## Assumptions I made (change them at HC0 if wrong)
 - "Compatible" means **Windows and Linux are first-class**; macOS is best-effort.
-- Working name **MKW Track Studio** (Python package `trackstudio`) — renaming later is a single task.
+- Name **CT Studio** (Python package `ctstudio`) — settled in ADR-015.
 - Licence **GPL-3.0-or-later** (compatible with reusing GPL-2.0-or-later code from your add-on).
 - The app lives in a **new repo**; your add-on is pulled in as a pinned git submodule. Any changes to the
   add-on itself (e.g. a live-link panel) are proposed to you first, because that repo is yours.
@@ -72,7 +72,7 @@ Exact steps and a feedback template are in `docs/process/HUMAN_CHECKPOINTS.md`.
 - **Python 3.12 + PySide6 (Qt).** Your add-on and ABMatt are Python; agents are most reliable in Python;
   Qt is mature on Windows/Linux and can be tested headless. The slow work happens in native tools, so
   Python isn't the bottleneck.
-- **Logic separate from the GUI, with a matching command line** (`trackstudio build/status/doctor`).
+- **Logic separate from the GUI, with a matching command line** (`ctstudio build/status/doctor`).
   This lets the agent test nearly everything without a screen, and gives veterans scripting.
 - **Incremental builds with content hashing.** Only changed parts rebuild; a no-change rebuild should take
   under a second. This is the biggest efficiency win in the whole app.

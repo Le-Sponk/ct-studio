@@ -5,6 +5,7 @@
 
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T02 — toolchain bootstrap script
+**Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** b69cc17 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
@@ -24,21 +25,21 @@ _none_
   does not exist yet (real invocation exited 2). Evidence: ENVIRONMENT.md, quality gate
   section. Phase 0, WORKFLOW and AGENTS rule 6 now reference this bounded exception.
 - 2026-09-17: human rewrote AGENTS rule 3 — `subprocess` is confined to
-  `core/tools/process.py` inside `src/trackstudio/`, while `scripts/`, `spikes/` and
+  `core/tools/process.py` inside `src/ctstudio/`, while `scripts/`, `spikes/` and
   `tests/` may spawn processes directly with argv lists, explicit timeouts and exit-code
   handling; never `shell=True`; spike code is never copied into `src/`. P0-T02 onward
   follows this. No ADR needed (it tightens the wording of an existing accepted rule).
+- 2026-09-17: name settled as **CT Studio** (ADR-015 now Accepted). Docs renamed:
+  package/CLI `trackstudio` → `ctstudio`, manifest `ctstudio.toml`, app folder
+  `.ts/` → `.ctstudio/`, `TRACKSTUDIO_DEV` → `CTSTUDIO_DEV`, `TrackStudioError` →
+  `CTStudioError`. Done before any code exists, so P1-T01 writes the new names directly.
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
 _none_
 
 ## Needs human — non-blocking
-- Name: the repo and the pending `KICKOFF_PROMPT.md` edit say "CT Studio", ADR-015 still
-  says "MKW Track Studio" with package `trackstudio`. Options: keep `trackstudio` as the
-  package and use "CT Studio" as the display name (recommended — no code churn, matches
-  the repo), or rename the package too (touches every import path). Needed before P1-T01
-  writes `pyproject.toml`; not blocking P0.
+_none_
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

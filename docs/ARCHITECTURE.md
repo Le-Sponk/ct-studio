@@ -35,13 +35,13 @@ When code and this document disagree, fix one of them in the same commit.
 blender_bridge/  → runs INSIDE Blender; stdlib + bpy only; talks to core via JSON files
 ```
 Contracts (import-linter): `core` ↛ `gui`,`cli`,`PySide6`; `cli` ↛ `gui`; nothing imports `spikes`.
-Every GUI feature must be reachable through core APIs, and most through the CLI (`trackstudio build`,
+Every GUI feature must be reachable through core APIs, and most through the CLI (`ctstudio build`,
 `status`, `doctor`, `open`) — this is what lets the agent test without a screen.
 
 ## 3. Source tree
 ```
-src/trackstudio/
-  __main__.py            # `trackstudio` with no args → GUI; with subcommand → CLI
+src/ctstudio/
+  __main__.py            # `ctstudio` with no args → GUI; with subcommand → CLI
   core/
     errors.py  logging.py  platform.py  fsutil.py  events.py
     project/     manifest.py  layout.py  migrations.py  settings.py (user-level)
@@ -65,12 +65,12 @@ docs/
 ```
 
 ## 4. Core concepts
-- **Project** — a folder + `trackstudio.toml`. Loaded into an immutable `Manifest` snapshot; edits
+- **Project** — a folder + `ctstudio.toml`. Loaded into an immutable `Manifest` snapshot; edits
   produce a new snapshot and are written atomically. Unknown TOML keys are preserved.
 - **Component** — a track part (course_model, kcl, minimap, skybox, kmp, posteffect, objects,
   track_info). Declares modes (`auto`/`manual`/`template`), inputs, stage outputs, help text, wiki link.
 - **ComponentStatus** — `Missing | Stale | Ready | Warning | Error | Manual | EditedExternally`
-  plus reasons. Computed from manifest + filesystem fingerprints + `.ts/state.json`.
+  plus reasons. Computed from manifest + filesystem fingerprints + `.ctstudio/state.json`.
 - **Node** — a build step with declared inputs (files, params, tool versions), outputs, and an
   `impl_version`. Pure w.r.t. declared inputs so it can be cached.
 - **BuildGraph / Runner** — topologically ordered nodes, bounded parallel execution, cancellation,
@@ -86,11 +86,11 @@ docs/
 ## 5. Project folder on disk
 ```
 MyTrack/
-  trackstudio.toml
+  ctstudio.toml
   files/            # user-supplied manual files (course.kmp, vrcorn_model.brres, …)
   overrides/        # material/texture overrides, captured edits, ABMatt command files, hooks
   build/            # outputs: <slot>.szs, <slot>_d.szs, release/
-  .ts/              # app-managed; safe to delete (rebuilt)
+  .ctstudio/        # app-managed; safe to delete (rebuilt)
     exports/        # Blender exports (DAE, OBJ, PNG, preview_mesh.npz, export_manifest.json)
     stage/          # U8 directory tree → `wszst create` input
     state.json      # last generated output hashes, input fingerprints
@@ -99,7 +99,7 @@ MyTrack/
 ```
 The `.blend` may live anywhere; the manifest stores its path (relative when inside the project).
 
-## 6. Manifest sketch (`trackstudio.toml`)
+## 6. Manifest sketch (`ctstudio.toml`)
 ```toml
 schema_version = 1
 
@@ -164,7 +164,7 @@ post_stage = ""
 post_build = ""
 ```
 Machine-specific settings (tool paths, game files folder, recent projects, theme) live in the
-user settings file under `platformdirs.user_config_dir("trackstudio")`, never in the project.
+user settings file under `platformdirs.user_config_dir("ctstudio")`, never in the project.
 
 ## 7. Build graph
 ```
@@ -194,7 +194,7 @@ generated file hash == state.json hash ? → normal
                  else → status EditedExternally → user chooses:
    1 Keep & capture  → capture material state into overrides/captured/<component>/  → reapplied after every regenerate
    2 Lock as manual  → copy file to files/, component.mode = manual
-   3 Discard         → backup to .ts/backups/<timestamp>/, regenerate
+   3 Discard         → backup to .ctstudio/backups/<timestamp>/, regenerate
 ```
 The capture/reapply mechanism (RiiStudio presets, ABMatt same-name material inheritance, or JSON
 material merge) is chosen by **spike S4**. Before any overwrite of a file whose hash differs from
@@ -219,7 +219,7 @@ what the app last wrote, a timestamped backup is made — no exceptions.
   worker thread for builds). Results return via signals.
 - `gui/services.py` owns the current `Project`, the build controller, the watcher bridge and the
   tool registry; views get what they need by injection, not globals.
-- Dev mode (`TRACKSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
+- Dev mode (`CTSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
 - Log view is virtualised and capped (e.g. last 20k lines in memory; full log on disk).
 
 ## 11. File watching
@@ -235,7 +235,7 @@ exports, writes `export_manifest.json` (files, objects, materials, textures, cou
 skipped objects, warnings, timings, Blender + add-on versions) and exits non-zero with a structured
 error JSON on failure. It also writes `preview_mesh.npz` (positions, normals, uvs, material ids)
 so the preview never needs a COLLADA parser. Exact operator/function entry points: **spike S2**.
-Optional later: a live link panel in the add-on ("Export to Track Studio", auto-export on save).
+Optional later: a live link panel in the add-on ("Export to CT Studio", auto-export on save).
 
 ## 13. Preview
 `QOpenGLWidget` + moderngl. Layers: collision (colour by KCL base type, per-type toggles, hover
@@ -244,9 +244,9 @@ orthographic), KMP overlay (points, routes, checkpoint pairs, objects). No BRRES
 GL resources created lazily and released on project close. `paintGL` only draws.
 
 ## 14. Diagnostics
-Structured logging (JSON lines) to the user log dir; one log file per build in `.ts/logs/`;
+Structured logging (JSON lines) to the user log dir; one log file per build in `.ctstudio/logs/`;
 "Copy diagnostics" in Help (versions, tool table, last build log tail, no personal paths beyond
-what the user approves); `trackstudio doctor [--json]`.
+what the user approves); `ctstudio doctor [--json]`.
 
 ## 15. Performance budgets (checked by benchmarks / tests)
 | Metric | Budget |

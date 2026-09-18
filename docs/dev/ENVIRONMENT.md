@@ -174,6 +174,4 @@ Still unverified or deferred:
 - Python 3.12 and exact tool releases/downloads: P0-T02.
 - QOpenGLWidget/Qt platform choice and preview performance: P0-T09.
 - Native Windows behaviour: future Windows CI and human checkpoints.
-- Working name and package name: ADR-015 still says "MKW Track Studio"/`trackstudio`
-  while the repository and the pending kickoff edit say "CT Studio". Settle before
-  P1-T01 writes `pyproject.toml`.
+- Tool versions and install URLs: P0-T02 verifies them against real downloads.

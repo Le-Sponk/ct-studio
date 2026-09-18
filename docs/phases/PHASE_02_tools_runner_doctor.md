@@ -1,7 +1,7 @@
 # Phase 2 — Tools: registry, discovery, process runner, doctor
 
 **Goal:** the app can find, version, and safely run every external tool on Windows and Linux.
-**Exit:** `trackstudio doctor` shows a correct table using real tools in `.tools/`; integration CI
+**Exit:** `ctstudio doctor` shows a correct table using real tools in `.tools/`; integration CI
 runs on both OSes.
 
 ### [ ] P2-T01 — ToolSpec & registry
@@ -56,7 +56,7 @@ Parsers produce dataclasses/Issues; parsing code has unit tests against recordin
 **Acceptance:** unit tests with recordings; `-m integration` tests run each adapter against real tools
 on the fixture.
 
-### [ ] P2-T06 — `trackstudio doctor`
+### [ ] P2-T06 — `ctstudio doctor`
 Table: tool, status (found/missing/too old/sandboxed), version, path, launcher, used for, fix hint.
 `--json` for machines. Exit 0 even if optional tools are missing; non-zero only if required-for-core
 tools (wszst) missing.
