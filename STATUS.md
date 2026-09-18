@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T06 — Spike S3: BRRES backend bake-off
+**Next task:** P0-T06b — Fixture comparison and backend decision
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 3a6a453 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,11 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T06a` — built RiiStudio Alpha 5.11.5 CLI on Linux without source patches;
+  pinned build recipe, nine CLI recordings and ten integration tests. 68 tests pass,
+  ruff clean, overwrite mutation caught. [SPIKES.md S3](docs/dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
+  Help and argument errors both exit 255; conversion/default decision stays in S3b.
+  Overall redistribution licence unconfirmed. — commit P0T06A_COMMIT
 - `P0-T05` — Spike S2 (headless Blender exports): add-on pinned as a submodule at
   v1.12.0; all six exports (KCL x2, DAE x2, OBJ, minimap BRRES) run headlessly via
   operators. [SPIKES.md §S2](docs/dev/SPIKES.md). 10 integration tests, 2/2 mutations
@@ -37,6 +42,10 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- P0-T06 split under the task-loop size rule: P0-T06a obtains/probes the CLI;
+  P0-T06b runs the fixture bake-off and decides ADR-004. The six-hour total is unchanged.
+  Native build troubleshooting plus both backends' material/JSON round-trips is too
+  large for one bounded change. No backend recommendation is inferred from CLI help.
 - 2026-09-17: ADR-016 adds the pre-P1-T02 evidence gate because the mandatory script
   does not exist yet (real invocation exited 2). Evidence: ENVIRONMENT.md, quality gate
   section. Phase 0, WORKFLOW and AGENTS rule 6 now reference this bounded exception.
@@ -89,6 +98,9 @@ _none_
 _none_
 
 ## Needs human — non-blocking
+- Before distributing RiiStudio with CT Studio, obtain/confirm the overall licence
+  grant and review component obligations (including GPL-2.0-or-later gctex). The
+  pinned source has no root licence grant; local S3b work can continue without this.
 - S2 add-on wishlist (your repo, so your call — **nothing is required**, all six exports
   work today). In value order: (1) make `export.minimap`'s unavailability legible —
   its `poll()` returning False surfaces as "context is incorrect", which sends you

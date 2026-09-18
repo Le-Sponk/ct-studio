@@ -77,6 +77,10 @@ Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI
 `integration.yml` (nightly + manual): Linux + Windows; downloads Wiimms tools + Blender (cached by
 version key) using `scripts/bootstrap_tools.py`; runs `-m integration`. Windows also evaluates the
 rszst prebuilt if S3 required it.
+**From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the
+Windows release ZIP checksum, retain bundled DLLs, record help/version/invalid-argument
+exit codes independently (Linux returns 255 for all three) and run S3b's synthetic
+course/skybox tests. See [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
 **Acceptance:** green on both OSes (or blocked item if repo not on GitHub yet).
 
 ### [ ] P2-GATE — Phase review

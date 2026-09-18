@@ -54,6 +54,12 @@ fallback where rszst is unavailable and for minimap creation.
 **Decision:** Define `BrresBackend` interface (import, inspect, apply material settings, set texture
 formats, capture/reapply material state). Pick default per platform from S3 evidence.
 **Revisit when:** S3 completes (mandatory), or a backend breaks on real tracks at HC2.
+**S3a evidence:** Alpha 5.11.5 (`09e5754`) builds on Linux with pinned Corrosion 0.4.10,
+explicit `<memory>` inclusion and `libstdc++exp` linkage; no source patches.
+Help/version and invalid arguments all exit 255 on Linux. See [SPIKES.md S3](dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
+This supersedes the acquisition uncertainty only. ADR-004 remains Provisional until
+P0-T06b measures fixture imports and confirms the interface; a successful build does
+not establish a backend default or redistribution permission.
 
 ## ADR-005 — Project = plain folder + `ctstudio.toml`; app data in `.ctstudio/`
 **Status:** Accepted

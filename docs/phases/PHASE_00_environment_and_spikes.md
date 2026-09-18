@@ -119,9 +119,23 @@ minimap BRRES. See [SPIKES.md §S2](../dev/SPIKES.md) and the operator table in
 `method=AUTO` silently equals `BUILTIN` on Linux (FbxConverter is a Windows binary), so
 DAE bytes will differ on Windows CI. Add-on wishlist is in §S2 — nothing is required.
 
-### [ ] P0-T06 — Spike S3: BRRES backend bake-off (timebox 6 h)
-Obtain `rszst`: (a) build RiiStudio CLI from source in the container (timebox 2 h of the 6), or
-(b) if impossible, plan to evaluate the Windows prebuilt in the Windows CI runner and note it.
+### P0-T06 — Spike S3: BRRES backend bake-off (timebox 6 h total)
+
+#### [x] P0-T06a — Obtain and probe RiiStudio CLI (timebox 2 h) (commit P0T06A_COMMIT)
+Pin source and build prerequisites; attempt a Linux CLI build and record reproducible
+commands, licence, version, exit codes and command help in SPIKES.md §S3 and TOOLS.md.
+Attempt the Linux build first; if blocked, record a Windows prebuilt evaluation for P2-T08.
+Acceptance: a runnable CLI with recorded help, or an evidenced build blocker and a
+specific Windows CI fallback. No backend default is chosen from help alone.
+
+Done: Alpha 5.11.5 builds on Linux without source patches, with Corrosion 0.4.10,
+explicit `<memory>` and `libstdc++exp`. Nine live query recordings and ten integration
+tests; 68 tests pass. Help/version and bad arguments all exit 255.
+[Build recipe and limitations](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
+Overall licence grant remains unconfirmed; no binary redistribution. S3b remains open.
+
+#### [ ] P0-T06b — Fixture comparison and backend decision (timebox 4 h)
+Depends on P0-T06a. Acceptance: the comparison and ADR/interface decision below.
 For each backend on the fixture DAE (course + skybox) measure and record:
 success; time; BRRES size; material/texture counts; control over per-texture format & mipmaps;
 control over per-material transparency (opaque/alpha-test/translucent) and culling; ability to set

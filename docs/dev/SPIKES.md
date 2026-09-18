@@ -241,3 +241,89 @@ None are required — everything needed works today. In rough order of value:
 - Windows: the FBX/FbxConverter DAE route is untested here (Windows CI, P1-T07).
 - Flatpak Blender on the human's host uses `flatpak-spawn --host`; the bridge's `PATH`
   injection needs re-checking there (HC1/HC2).
+
+---
+
+## S3: BRRES backend bake-off (P0-T06a / P0-T06b)
+
+### S3a: Linux CLI build and discovery (P0-T06a)
+
+RiiStudio **Alpha 5.11.5**, source commit
+`09e5754d56562219c87390c8d64ef31110725ccd`, builds a working Linux CLI without
+source patches. This proves startup and command discovery, **not BRRES conversion**.
+The course/skybox comparison, material controls and ADR-004 decision remain P0-T06b.
+
+Prerequisites tested: Debian 13, CMake 3.31.6, Clang 19.1.7 with GCC 14's libstdc++,
+Cargo/Rust 1.85.1, Assimp 5.4.3. Install build-only packages:
+
+```sh
+apt-get update
+apt-get install -y build-essential cmake clang cargo rustc pkg-config \
+  mesa-common-dev libglfw3-dev libassimp-dev libfreetype-dev libbz2-dev libssl-dev
+```
+
+From the repository root, with fresh destination directories:
+
+```sh
+git clone --branch Alpha-5.11.5 --depth 1 https://github.com/snailspeed3/RiiStudio.git .tools/riistudio-source
+git -C .tools/riistudio-source checkout --detach 09e5754d56562219c87390c8d64ef31110725ccd
+git clone --branch v0.4.10 --depth 1 https://github.com/corrosion-rs/corrosion.git .tools/corrosion-0.4.10
+git -C .tools/corrosion-0.4.10 checkout --detach 9943de73df25ddb06bf6105baeca002ae54e45f3
+cmake -S .tools/riistudio-source -B .tools/riistudio-build-pinned \
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+  '-DCMAKE_CXX_FLAGS=-include memory' -DCMAKE_CXX_STANDARD_LIBRARIES=-lstdc++exp \
+  -DCPM_corrosion_SOURCE="$PWD/.tools/corrosion-0.4.10"
+CXXFLAGS='-include memory' cmake --build .tools/riistudio-build-pinned --target cli --parallel 4
+python spikes/s3_rszst_probe.py --output spikes/out/s3a/linux-cli.json
+```
+
+The probe refuses to overwrite a recording. Use a fresh output path on subsequent runs.
+The source checkout, dependencies and executable stay under ignored `.tools/`; do not
+copy upstream sample assets into CT Studio fixtures. CMake downloads CPM 0.36.0; Cargo
+uses the upstream lockfiles. This is a verified development recipe, not an offline or
+bit-reproducible distribution build. The dynamically linked executable needs Assimp,
+GLFW, FreeType, OpenSSL and their system dependencies even for CLI use.
+
+| Attempt | Result | Evidence / correction |
+|---|---|---|
+| Initial upstream HEAD `c5a7cd8` + current Corrosion master | build exit 2 | Missing `std::unique_ptr` declaration in bundled BRRES code; switched to released source. |
+| Alpha 5.11.5, ordinary CMake configuration | configure 0, build 2 | `source/oishii/reader/binary_reader.hxx:166` uses `std::unique_ptr` without `<memory>`. |
+| Explicit `<memory>` with Corrosion master `c4786e7` | build 2 | Cargo 1.85.1 panics in fingerprinting after duplicate static-library output warnings. |
+| Corrosion v0.4.10, explicit `<memory>` | compilation reaches final link | Undefined `std::__stacktrace_impl::_S_current` / `_Info::_M_populate`; GCC 14 needs `libstdc++exp`. |
+| Above plus `-DCMAKE_CXX_STANDARD_LIBRARIES=-lstdc++exp` | configure 0, build 0 | `source/cli/rszst` launches; source checkout remains clean. |
+
+The main compile took approximately nine minutes with four build jobs; linking was
+then retried successfully. Local diagnostic logs: `.tools/release-build*.log`.
+No conversion timing is claimed here.
+
+Licence: **overall grant unconfirmed; mixed component licences**. The pinned tree
+has no root LICENSE/COPYING and its README has credits but no blanket grant.
+`source/gctex/Cargo.toml:3` declares GPL-2.0-or-later; several other Rust components
+have MIT declarations. Those do not establish a licence for the whole CLI.
+Do not bundle or redistribute this build until the overall grant and linked-component
+obligations have been reviewed. This does not block the local S3b comparison.
+
+Nine real query outputs, argv and exit codes are committed in
+[linux-cli.json](../../tests/fakes/recordings/rszst/5.11.5/linux-cli.json).
+They cover version, top-level help, five subcommand help queries, an unknown command
+and missing import arguments. All exit **255** and write to **stdout**, not stderr.
+`--version` prints both `rszst_arg_parser 0.1.6` and `RiiStudio CLI Alpha 5.11.5`;
+the parser version alone is not the application version. The banner follows help text.
+Do not treat 255 as general success: conversion exit codes remain unmeasured.
+
+The help verifies `--model-name`, `--mipmaps`, `--min-mip`, `--max-mip`,
+`--auto-transparency`, `--preset-path` and **`--cull-degenerates` (plural)**.
+Their effects require fixture runs in S3b. JSON help contains misleading descriptions
+(`brres-to-json` calls its input `.kmp`; `json-to-brres` reverses its summary).
+Test actual round-trips rather than relying on those descriptions.
+
+Verification: `tests/integration/test_rszst_cli.py` runs all nine queries with display
+variables removed, from a directory containing spaces and non-ASCII text, comparing
+exit codes and output to the recordings while excluding the variable build banner.
+An initial assertion that help exits 0 failed twice against the live CLI.
+
+Windows remains untested. Upstream Alpha-5.11.5 publishes `RiiStudio_Windows.zip`
+and a macOS DMG, not a Linux release asset. P2-T08 (integration CI after P1-T07)
+must pin the Windows ZIP checksum,
+keep its bundled DLLs with `rszst.exe`, record its help/exit codes independently and
+repeat S3b's synthetic fixture tests. Do not impose Linux's 255 status on Windows.

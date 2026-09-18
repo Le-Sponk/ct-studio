@@ -34,10 +34,14 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
   how auto-add reports inserted files; Cygwin path handling on Windows with spaces/unicode.
 
 ## RiiStudio CLI (`rszst`)
-- Repo: https://github.com/riidefi/RiiStudio (now served from github.com/snailspeed3/RiiStudio) · Licence: **[unverified — check before any redistribution]**
-- Latest release seen: **Alpha 5.11.3** (adds `--model-name` to `import-brres`, macOS builds) **[doc]**.
-  Last commits observed Oct 2024. Prebuilt Windows/macOS; **no Linux prebuilt** (build from source with
-  CMake + assimp + glfw + freetype, plus Rust) **[doc]**.
+- Repo: https://github.com/riidefi/RiiStudio (now served from github.com/snailspeed3/RiiStudio).
+  Licence: **overall grant unconfirmed; do not redistribute yet**. At the S3a pin,
+  no root licence grant was found; `source/gctex/Cargo.toml` declares GPL-2.0-or-later.
+  Component MIT declarations do not license the entire CLI.
+- Latest release verified in S3a: **Alpha 5.11.5**, commit
+  `09e5754d56562219c87390c8d64ef31110725ccd`. GitHub release API lists Windows/macOS
+  assets only. Linux CLI builds from source using the recipe in [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
+  Older desk research below describes 5.11.3; only S3a rows are verified on 5.11.5.
 - Commands **[doc]**: `import-brres`, `import-bmd`, `decompress`, `compress --algorithm {nintendo,
   worst-case-encoding,mkw-sp,ctgp,haroohie,ct-lib,mk8,lib-yaz0}`, `extract`, `create`, `kmp-to-json`,
   `json-to-kmp`, `kcl-to-json`, `dump-presets <model> <folder>`, `optimize <brres|bmd>`,
@@ -50,6 +54,23 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
   to material-name stability **[doc]**.
 - **Open questions (S3/S4):** per-texture format control on import; transparency/cull flags; exit codes;
   whether presets survive BrawlCrate-edited files; JSON schema stability across versions.
+
+### RiiStudio CLI discovery (S3a, verified Alpha 5.11.5 Linux build)
+
+| Exact argv after executable | Exit | Observed output |
+|---|---|---|
+| `--version` | 255 | stdout: parser 0.1.6 **and** application Alpha 5.11.5 |
+| `--help` | 255 | stdout: subcommands and application banner |
+| `import-brres --help` | 255 | `<FROM> [TO]`; `--model-name`, mipmaps/min/max, `--auto-transparency`, `--preset-path`, `--cull-degenerates` |
+| `brres-to-json --help`, `json-to-brres --help` | 255 | `<FROM> [TO]`; descriptions contain copy/paste errors |
+| `dump-presets --help`, `import-tex0 --help` | 255 | positional input and optional destination |
+| `nonsense`, `import-brres` (no input) | 255 | stdout: `error:` plus usage; stderr empty |
+
+Recordings: [linux-cli.json](../../tests/fakes/recordings/rszst/5.11.5/linux-cli.json).
+Discovery must require the application banner and expected help content, not exit 0
+or the parser's version alone. All commands above ran without display variables.
+This does **not** verify conversion effects, conversion failure codes or Windows.
+S3b must characterize those before any backend/default decision.
 
 ## ABMatt (ANoob's BRRES Material Tool)
 - Repo: https://github.com/Robert-N7/abmatt · Licence: GPL-3.0 **[doc]** · Latest: **v1.3.2 (2022-06-06)** **[doc]**

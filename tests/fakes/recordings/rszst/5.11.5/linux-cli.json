@@ -1,0 +1,88 @@
+[
+  {
+    "argv": [
+      "--version"
+    ],
+    "exit_code": 255,
+    "stdout": "rszst_arg_parser 0.1.6\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0051
+  },
+  {
+    "argv": [
+      "--help"
+    ],
+    "exit_code": 255,
+    "stdout": "Usage: rszst <COMMAND>\n\nCommands:\n  import-command    DEPRECATED: Use import-brres\n  import-brres      Import a .dae/.fbx file as .brres\n  import-bmd        Import a .dae/.fbx file as .bmd\n  decompress        Decompress a .szs file\n  compress          Compress a file as .szs\n  rhst2-brres       Convert a .rhst file to a .brres file\n  rhst2-bmd         Convert a .rhst file to a .bmd file\n  extract           Extract a .szs file to a folder\n  create            Create a .szs file from a folder\n  kmp-to-json       Dump a kmp as json\n  json-to-kmp       Convert to kmp from json\n  kcl-to-json       Dump a kcl as json\n  json-to-kcl       Convert to kcl from json\n  brres-to-json     Dump a brres as json\n  json-to-brres     Convert to json from brres\n  dump-presets      Dump presets of a model to a folder\n  precise-bmd-dump  [Deep cut, debug] For generating KCL testing suite data, we dump \"Jmp2Bmd\" files to .obj to recover original triangle data -- kcl files, on their own, are quite lossy\n  optimize          Optimize a BRRES or BMD file\n  import-tex0       Import a .png/etc file as .tex0\n  help              Print this message or the help of the given subcommand(s)\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0042
+  },
+  {
+    "argv": [
+      "import-brres",
+      "--help"
+    ],
+    "exit_code": 255,
+    "stdout": "Import a .dae/.fbx file as .brres\n\nUsage: rszst import-brres [OPTIONS] <FROM> [TO]\n\nArguments:\n  <FROM>  File to import from: .dae or .fbx\n  [TO]    File to export to\n\nOptions:\n  -s, --scale <SCALE>              Scale to apply to the model [default: 1.0]\n      --brawlbox-scale             Whether to apply the Brawlbox scale fix\n      --mipmaps                    Whether to generate mipmaps for textures\n      --min-mip <MIN_MIP>          Minimum mipmap dimension to generate [default: 32]\n      --max-mip <MAX_MIP>          Maximum number of mipmaps to generate [default: 5]\n      --auto-transparency          Whether to automatically set transparency\n      --merge-mats                 Whether to merge materials with identical properties\n      --bake-uvs                   Whether to bake UV transforms into vertices\n      --tint <TINT>                Tint to apply to the model in hex format (#RRGGBB) [default: #FFFFFF]\n      --cull-degenerates           Whether to cull degenerate triangles\n      --cull-invalid               Whether to cull triangles with invalid vertices\n      --recompute-normals          Whether to recompute normals\n      --fuse-vertices              Whether to fuse identical vertices\n      --no-tristrip                Disable triangle stripification\n      --ai-json                    \n      --model-name <MODEL_NAME>    (BRRES) MDL0 name (default: \"course\") [default: course]\n      --preset-path <PRESET_PATH>  Read preset material/animation overrides from this folder\n  -v, --verbose                    \n  -h, --help                       Print help\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0039
+  },
+  {
+    "argv": [
+      "brres-to-json",
+      "--help"
+    ],
+    "exit_code": 255,
+    "stdout": "Dump a brres as json\n\nUsage: rszst brres-to-json [OPTIONS] <FROM> [TO]\n\nArguments:\n  <FROM>  File to dump (.kmp)\n  [TO]    Output file for json (.json)\n\nOptions:\n  -v, --verbose  \n  -h, --help     Print help\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0036
+  },
+  {
+    "argv": [
+      "json-to-brres",
+      "--help"
+    ],
+    "exit_code": 255,
+    "stdout": "Convert to json from brres\n\nUsage: rszst json-to-brres [OPTIONS] <FROM> [TO]\n\nArguments:\n  <FROM>  File to read (.json)\n  [TO]    Output file for brres (.brres)\n\nOptions:\n  -v, --verbose  \n  -h, --help     Print help\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0045
+  },
+  {
+    "argv": [
+      "dump-presets",
+      "--help"
+    ],
+    "exit_code": 255,
+    "stdout": "Dump presets of a model to a folder\n\nUsage: rszst dump-presets [OPTIONS] <FROM> [TO]\n\nArguments:\n  <FROM>  BRRES archive to read\n  [TO]    Output folder (or none for default)\n\nOptions:\n  -v, --verbose  \n  -h, --help     Print help\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0044
+  },
+  {
+    "argv": [
+      "import-tex0",
+      "--help"
+    ],
+    "exit_code": 255,
+    "stdout": "Import a .png/etc file as .tex0\n\nUsage: rszst import-tex0 [OPTIONS] <FROM> [TO]\n\nArguments:\n  <FROM>  File to import from: .png, .jpg, etc\n  [TO]    File to export to\n\nOptions:\n      --mipmaps            Whether to generate mipmaps for textures\n      --min-mip <MIN_MIP>  Minimum mipmap dimension to generate [default: 32]\n      --max-mip <MAX_MIP>  Maximum number of mipmaps to generate [default: 5]\n      --format <FORMAT>    Texture format to use [default: 14]\n  -v, --verbose            \n  -h, --help               Print help\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.004
+  },
+  {
+    "argv": [
+      "nonsense"
+    ],
+    "exit_code": 255,
+    "stdout": "error: unrecognized subcommand 'nonsense'\n\nUsage: rszst <COMMAND>\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0046
+  },
+  {
+    "argv": [
+      "import-brres"
+    ],
+    "exit_code": 255,
+    "stdout": "error: the following required arguments were not provided:\n  <FROM>\n\nUsage: rszst import-brres <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built Sep 18 2026 at 11:37:32, GCC Debian Clang 19.1.7 (3+b1))\n::\n",
+    "stderr": "",
+    "seconds": 0.0041
+  }
+]
