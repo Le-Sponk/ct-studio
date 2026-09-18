@@ -211,24 +211,34 @@ def build_course(collection: bpy.types.Collection, images: dict[str, bpy.types.I
 
 
 def build_kcl(collection: bpy.types.Collection) -> list[str]:
-    """Collision meshes, each named with the `_F####` suffix the add-on requires."""
+    """Collision meshes, each named with the `_F####` suffix the add-on requires.
+
+    Every mesh gets a material even though collision has no visual appearance: the
+    add-on's minimap export runs through ABMatt, which fails on material-less meshes
+    (verified in spike S2, P0-T05).
+    """
     built: list[str] = []
 
+    def add(name: str, verts: list, faces: list) -> None:
+        obj = mesh_from_data(name, verts, faces, collection)
+        obj.data.materials.append(make_material(f"kcl_{name.split('_F')[0]}", None, "OPAQUE"))
+        built.append(obj.name)
+
     verts, faces = ring_strip(RING_RADIUS, ROAD_HALF_WIDTH, 0.0, RING_SEGMENTS)
-    built.append(mesh_from_data(f"road_F{KCL_FLAGS['road']}", verts, faces, collection).name)
+    add(f"road_F{KCL_FLAGS['road']}", verts, faces)
 
     verts, faces = ring_strip(RING_RADIUS + ROAD_HALF_WIDTH + 6.0, 6.0, 0.0, RING_SEGMENTS)
-    built.append(mesh_from_data(f"offroad_F{KCL_FLAGS['offroad']}", verts, faces, collection).name)
+    add(f"offroad_F{KCL_FLAGS['offroad']}", verts, faces)
 
     verts, faces = ring_wall(RING_RADIUS + ROAD_HALF_WIDTH + 2.0, 10.0, RING_SEGMENTS)
-    built.append(mesh_from_data(f"wall_F{KCL_FLAGS['wall']}", verts, faces, collection).name)
+    add(f"wall_F{KCL_FLAGS['wall']}", verts, faces)
 
     # Boost panel: one short section of the ring, offset slightly to avoid z-fighting.
     verts, faces = quad(RING_RADIUS, 0.0, 0.05, 6.0, ROAD_HALF_WIDTH * 0.8)
-    built.append(mesh_from_data(f"boost_F{KCL_FLAGS['boost']}", verts, faces, collection).name)
+    add(f"boost_F{KCL_FLAGS['boost']}", verts, faces)
 
     verts, faces = quad(0.0, 0.0, -40.0, RING_RADIUS * 2.0, RING_RADIUS * 2.0)
-    built.append(mesh_from_data(f"fall_F{KCL_FLAGS['fall']}", verts, faces, collection).name)
+    add(f"fall_F{KCL_FLAGS['fall']}", verts, faces)
 
     return built
 

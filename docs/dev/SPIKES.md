@@ -135,3 +135,109 @@ and skip `slots` entirely.
 - Auto-add behaviour *with* a real library is untestable here: it needs the user's own
   game files (HC0 question).
 - Cygwin path handling on Windows with spaces/unicode: Windows CI (P1-T07).
+
+---
+
+## S2 — Headless Blender exports with Blender-MKW-Utilities (P0-T05)
+
+**Scripts:** `spikes/s2_blender.py` (driver) → `spikes/blender_export_spike.py` (runs
+inside Blender). Re-run: `uv run python spikes/s2_blender.py`
+**Versions:** Blender 5.2.2 LTS, add-on v1.12.0 pinned as the submodule
+`vendor/blender-mkw-utilities` (commit 244ecfd).
+
+### Result: every export works headlessly
+
+All six run under `blender -b --factory-startup` with no GUI context. Timings are on
+the P0-T03 fixture (292 collision triangles, 4 course meshes):
+
+| Export | Operator | Seconds | Output |
+|---|---|---|---|
+| Collision | `kcl.export` (`kclExportUnBeanCorner=LOWER`) | 0.007 | 16250 B `.kcl` |
+| Collision, no un-bean | `kcl.export` (`=NONE`) | 0.006 | 16250 B `.kcl` |
+| Course model | `export.autodesk_dae` (`method=AUTO`) | 0.003 | 36485 B `.dae` + 4 PNGs |
+| Course model | `export.autodesk_dae` (`method=BUILTIN`) | 0.003 | identical bytes |
+| Collision as OBJ | `export_scene.objkcl` | 0.003 | 19123 B `.obj` |
+| Minimap | `export.minimap` | 1.0 | 17088 B `.brres` |
+
+Blender itself starts in ~0.9 s, which dominates: **one launch per build** (ARCHITECTURE
+§7) is the right call, not one per export.
+
+### Operator vs internal function
+
+Calling the operators directly is enough — no `context.window` juggling, no
+`bpy.ops.object.mode_set` dance. Two preconditions do apply, and both are ordinary
+`poll()`/validation failures rather than context problems:
+
+- `export.minimap` has `poll(): return _detect_abmatt()`. With ABMatt absent the call
+  raises `RuntimeError: ... poll() failed, context is incorrect`, **which is misleading**:
+  the fix is putting `abmatt` on `PATH`, not fixing the context.
+- The minimap export refuses meshes without a material, with a clear message from the
+  add-on: `ABMatt requires every exported mesh to have a material. Missing on: …`.
+
+So the bridge should call operators, and should surface these two preconditions as
+its own checks so the user gets a real explanation instead of a Blender error.
+
+### Tool discovery under `--factory-startup`
+
+The add-on resolves tools in the order **preference folder → `PATH` → standard install
+locations** (`_resolve_tool`, `_build_tool_search_dirs`). `--factory-startup` discards
+user preferences, so the first source is unavailable and the bridge must pass tools via
+the environment: prepend `.tools/wiimms-szs-tools/bin` **and** `.tools/abmatt/bin` to
+`PATH` before launching Blender. Detection is a real subprocess call: `_detect_abmatt()`
+runs `abmatt` and requires the output to start with `USAGE: abmatt`.
+The add-on also handles Flatpak/Snap (`flatpak-spawn --host`), which does not apply here
+but will on the human's Flatpak Blender.
+
+### Findings worth designing around
+
+1. **`kclExportUnBeanCorner` genuinely changes the output.** LOWER and NONE produce the
+   same byte *count* but different content (verified by hash), so the option is live and
+   worth exposing; do not compare sizes to detect a change.
+2. **`method=AUTO` equals `BUILTIN` on Linux.** AUTO prefers a bundled
+   `bin/FbxConverter.exe`, a Windows binary that is absent here, so it silently falls back
+   to the add-on's own COLLADA writer. Expect Windows CI to produce *different* DAE bytes
+   via the FBX route — do not write tests that assume byte-identical DAEs across OSes.
+3. **The DAE export copies its textures next to the file** (`road.png`, `grass.png`,
+   `fence.png`, `water.png`) with `daeExportCopyTextures=True`, which is what the BRRES
+   importers expect in S3.
+4. **The minimap BRRES is correct out of the box.** `wszst list` shows a single MDL0
+   named `map`, and `wszst minimap` finds `posLD`/`posRU` and prints recommended
+   translations — the whole minimap path in MKW_DOMAIN §5 works headlessly today.
+5. **Stdout markers are stable and worth parsing** (already recorded in TOOLS.md):
+   `[MKW Utilities] KCL export: N object(s), M triangle(s)`, the `KCL extent` line, and
+   `SKIPPED (no valid KCL flag in name): …`.
+
+### Fixture change this forced
+
+The P0-T03 KCL meshes had no materials, so the minimap export failed. `build_kcl` now
+gives every collision mesh a material. Collision has no visual appearance, so this is
+purely to satisfy ABMatt; the test `test_minimap_export_produces_a_brres` keeps it honest.
+
+### Recommended bridge approach (P6)
+
+- Launch once: `blender -b <blend> --factory-startup --python run_job.py -- <job.json>`,
+  with `PATH` extended to the tools, as `spikes/s2_blender.py` does.
+- Register the add-on from the submodule by putting its **parent** on `sys.path` and
+  importing it by directory name. Note the checkout is `blender-mkw-utilities`, which is
+  **not a valid Python module name**: the spike copies it to `mkw_utilities` first. P6
+  should either keep that staging step or vendor it under an importable name.
+- Call the operators (not internals) and parse the `[MKW Utilities]` markers.
+- Check ABMatt and materials up front so minimap failures are explained properly.
+
+### Add-on changes that would help (for the human to decide)
+
+None are required — everything needed works today. In rough order of value:
+
+1. **Make `export.minimap`'s unavailability legible.** A `poll()` returning False turns
+   into "context is incorrect", which sends you looking in the wrong place. Either report
+   the reason via `poll_message_set()` or move the ABMatt check into `execute()`.
+2. **Return counts from the operators** (objects, triangles, skipped names) instead of
+   only printing them, so a bridge does not have to scrape stdout.
+3. **A module-name-safe package directory** (or an `__init__.py` shim) would remove the
+   copy-to-`mkw_utilities` step.
+
+### Open questions
+
+- Windows: the FBX/FbxConverter DAE route is untested here (Windows CI, P1-T07).
+- Flatpak Blender on the human's host uses `flatpak-spawn --host`; the bridge's `PATH`
+  injection needs re-checking there (HC1/HC2).

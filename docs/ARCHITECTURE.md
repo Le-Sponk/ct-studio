@@ -234,7 +234,9 @@ by the add-on's own tests). `run_job.py` registers the add-on from `vendor/`, pe
 exports, writes `export_manifest.json` (files, objects, materials, textures, counts, extents,
 skipped objects, warnings, timings, Blender + add-on versions) and exits non-zero with a structured
 error JSON on failure. It also writes `preview_mesh.npz` (positions, normals, uvs, material ids)
-so the preview never needs a COLLADA parser. Exact operator/function entry points: **spike S2**.
+so the preview never needs a COLLADA parser. Entry points confirmed by **spike S2**: the
+operators `kcl.export`, `export.autodesk_dae`, `export_scene.objkcl` and `export.minimap`
+all work headlessly; tools reach the add-on through `PATH` (see TOOLS.md / SPIKES.md §S2).
 Optional later: a live link panel in the add-on ("Export to CT Studio", auto-export on save).
 
 ## 13. Preview

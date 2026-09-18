@@ -97,7 +97,7 @@ machine-readable path and supersedes `slots` (it carries `slot_info`, `lap_count
 `n_ckpt0`, coordinate ranges and per-component SHA1s that are empty when a file is
 missing). `create` never validates, and `--auto-add` is a silent no-op with no library.
 
-### [ ] P0-T05 — Spike S2: headless Blender exports with Blender-MKW-Utilities (timebox 3 h)
+### [x] P0-T05 — Spike S2: headless Blender exports with Blender-MKW-Utilities (timebox 3 h) (commit COMMIT_HASH)
 Add the add-on as submodule `vendor/blender-mkw-utilities` (github.com/Le-Sponk/Blender-MKW-Utilities,
 pin the commit). Read its source to list operator `bl_idname`s and internal export functions for:
 KCL export (incl. un-bean modes / `lower-walls.txt`), Collada export (built-in method + copy
@@ -107,6 +107,17 @@ Record: arguments, outputs, stdout markers (e.g. the "[MKW Utilities] KCL export
 failure modes, timing, and how the add-on locates wszst/wkclt/ABMatt when run headless.
 **Acceptance:** `spikes/blender_export_spike.py` reproduces all exports; SPIKES.md §S2 with the
 recommended bridge approach; list of add-on changes that would help (for the human to decide).
+
+Done. Add-on pinned as submodule `vendor/blender-mkw-utilities` at v1.12.0 (244ecfd).
+`uv run python spikes/s2_blender.py` reproduces **all six exports headlessly**: KCL
+(LOWER + NONE), DAE (AUTO + BUILTIN, with textures copied alongside), OBJ, and the
+minimap BRRES. See [SPIKES.md §S2](../dev/SPIKES.md) and the operator table in
+[TOOLS.md](../reference/TOOLS.md). 10 integration tests, 2/2 mutations caught.
+**Calling operators is enough** — no context juggling. Two preconditions bite though:
+`export.minimap` reports a missing ABMatt as `poll() failed, context is incorrect`
+(misleading), and it refuses meshes without materials, which forced a fixture change.
+`method=AUTO` silently equals `BUILTIN` on Linux (FbxConverter is a Windows binary), so
+DAE bytes will differ on Windows CI. Add-on wishlist is in §S2 — nothing is required.
 
 ### [ ] P0-T06 — Spike S3: BRRES backend bake-off (timebox 6 h)
 Obtain `rszst`: (a) build RiiStudio CLI from source in the container (timebox 2 h of the 6), or

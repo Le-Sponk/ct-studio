@@ -222,6 +222,31 @@ Hand-writing KMP text is easy to get wrong; these cost real debugging time:
 - `kclExportScale` default is **100** (confirmed in the add-on source), matching the
   project convention.
 
+### Export operators (P0-T05 / S2, add-on v1.12.0, Blender 5.2.2)
+All verified headless under `blender -b --factory-startup`; no GUI context needed.
+
+| Export | Operator | Key arguments |
+|---|---|---|
+| Collision | `bpy.ops.kcl.export` | `filepath`, `kclExportScale=100.0`, `kclExportUnBeanCorner` (`NONE`/`WEAK`/`LOWER`) |
+| Course model | `bpy.ops.export.autodesk_dae` | `filepath`, `daeExportScale=100.0`, `daeExportSelection`, `daeExportCollection`, `daeExportMethod` (`AUTO`/`BUILTIN`), `daeExportCopyTextures` |
+| Collision as OBJ | `bpy.ops.export_scene.objkcl` | `filepath`, `use_selection`, `use_materials`, `use_normals`, `use_triangles`, `global_scale` |
+| Minimap BRRES | `bpy.ops.export.minimap` | `filepath`, `exportScale=100.0`, `exportSelection`, `exportCollection` |
+
+Preconditions that are easy to misdiagnose:
+- `export.minimap` has `poll(): _detect_abmatt()`, so without `abmatt` on `PATH` it
+  raises **`poll() failed, context is incorrect`** — a misleading message: the real cause
+  is the missing tool, not the context.
+- The minimap export rejects meshes with no material:
+  `ABMatt requires every exported mesh to have a material. Missing on: …`.
+- `--factory-startup` discards add-on preferences, so tool discovery falls back to
+  `PATH`: prepend both `.tools/wiimms-szs-tools/bin` and `.tools/abmatt/bin`.
+  `_detect_abmatt()` runs `abmatt` and requires output starting `USAGE: abmatt`.
+- `daeExportMethod=AUTO` prefers a bundled **`bin/FbxConverter.exe`** (Windows only) and
+  otherwise falls back to the built-in writer, so on Linux AUTO and BUILTIN are
+  byte-identical. Do not assume DAE bytes match across operating systems.
+- The add-on package directory is `blender-mkw-utilities`, which is not a valid Python
+  module name; stage or vendor it under an importable name before `import`.
+
 ## Bootstrap pins (P0-T02, verified 2026-09-17 by real download + run)
 Machine-readable source of truth: `scripts/tool_catalogue.py`. Installed into `.tools/`
 by `uv run python scripts/bootstrap_tools.py` (idempotent; second run ≈0.35 s, no network).

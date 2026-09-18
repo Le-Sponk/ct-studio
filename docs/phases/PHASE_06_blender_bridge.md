@@ -6,6 +6,15 @@ Blender launch, on Linux and Windows CI; errors become actionable Issues.
 **Read first:** SPIKES.md §S2, ARCHITECTURE §12.
 
 ### [ ] P6-T01 — Bridge job runner
+**From S2 (P0-T05), already proven:** call the operators directly (`kcl.export`,
+`export.autodesk_dae`, `export_scene.objkcl`, `export.minimap`) — all six export variants
+run under `-b --factory-startup` with no context setup. Two things the runner must do
+itself, because the add-on's own errors are misleading or late:
+extend `PATH` with both `.tools/wiimms-szs-tools/bin` and `.tools/abmatt/bin` before
+launching (factory startup discards add-on preferences), and check ABMatt availability
+plus "every mesh has a material" *before* calling `export.minimap`, whose `poll()`
+failure surfaces as `context is incorrect`. The add-on directory name
+`blender-mkw-utilities` is not importable: stage/vendor it under a valid module name.
 `blender_bridge/run_job.py` (stdlib + bpy only): parse `job.json` (schema versioned: blend path,
 add-on dir, output dir, list of exports with options), register the add-on from `vendor/`, run the
 exports using the entry points chosen in S2, write `export_manifest.json` (per export: files, object

@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T05 — Spike S2: headless Blender exports
+**Next task:** P0-T06 — Spike S3: BRRES backend bake-off
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 5688ad1 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,10 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T05` — Spike S2 (headless Blender exports): add-on pinned as a submodule at
+  v1.12.0; all six exports (KCL x2, DAE x2, OBJ, minimap BRRES) run headlessly via
+  operators. [SPIKES.md §S2](docs/dev/SPIKES.md). 10 integration tests, 2/2 mutations
+  caught. Minimap BRRES verified by `wszst minimap`. — commit COMMIT_HASH
 - `P0-T04` — Spike S1 (Wiimms assemble & check): `spikes/s1_wszst.py` +
   [SPIKES.md §S1](docs/dev/SPIKES.md) + adapter command table in TOOLS.md.
   Found that `wszst check`'s exit code is not pass/fail and that `analyze --json`
@@ -69,13 +73,33 @@ _none_
   `slots()` is dropped from the P2-T05 adapter surface in favour of `analyze()`.
 - 2026-09-18 (S1): `wszst create` never validates (it builds from an empty directory),
   and `--auto-add` is a **silent no-op** without a library. The app must guard both.
+- 2026-09-18 (S2): **calling the add-on's operators is enough** — no context juggling
+  needed headless, so the P6 bridge does not need internal-function access. ARCHITECTURE
+  §12 and P6-T01 updated with the confirmed entry points.
+- 2026-09-18 (S2): `export.minimap` reports a **missing ABMatt as `poll() failed, context
+  is incorrect`**, which points at the wrong cause, and it refuses meshes without
+  materials. The bridge must check both itself. This also **changed the P0-T03 fixture**:
+  KCL meshes now carry a material (collision has no appearance; it is purely for ABMatt).
+- 2026-09-18 (S2): `daeExportMethod=AUTO` equals `BUILTIN` on Linux because the bundled
+  FbxConverter is a Windows binary. **DAE bytes will differ on Windows CI** — no
+  cross-OS byte-comparison tests.
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
 _none_
 
 ## Needs human — non-blocking
-_none_
+- S2 add-on wishlist (your repo, so your call — **nothing is required**, all six exports
+  work today). In value order: (1) make `export.minimap`'s unavailability legible —
+  its `poll()` returning False surfaces as "context is incorrect", which sends you
+  looking in the wrong place; `poll_message_set()` or moving the ABMatt check into
+  `execute()` would fix it. (2) Have the export operators *return* counts (objects,
+  triangles, skipped names) instead of only printing them, so the bridge need not scrape
+  stdout. (3) A module-name-safe package directory would remove the bridge's
+  copy-to-`mkw_utilities` step. Recommendation: (1) only, if you want one; the bridge
+  works around all three. Details in [SPIKES.md §S2](docs/dev/SPIKES.md).
+- Auto-add (from S1) still needs a library built from your own game files to test for
+  real; I cannot create one here. HC0 question, relevant before P4.
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

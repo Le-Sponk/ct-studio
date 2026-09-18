@@ -1,0 +1,3 @@
+[submodule "vendor/blender-mkw-utilities"]
+	path = vendor/blender-mkw-utilities
+	url = https://github.com/Le-Sponk/Blender-MKW-Utilities.git
