@@ -28,7 +28,7 @@ item asking the human to rebuild/restart the sandbox with it.
 Audit evidence: [ENVIRONMENT.md](../dev/ENVIRONMENT.md). System installation, all four
 network probes and software EGL/GLX contexts passed. No Dockerfile fallback was needed.
 
-### [x] P0-T02 — Toolchain bootstrap script (timebox 3 h) (commit fbefb21)
+### [x] P0-T02 — Toolchain bootstrap script (timebox 3 h) (commit cbbb5f4)
 `scripts/bootstrap_tools.py` (idempotent, cross-platform where possible, downloads into `.tools/`
 which is gitignored, prints a version table, `--only <tool>`):
 - **uv** (if missing) and Python 3.12 via uv.
@@ -41,7 +41,7 @@ which is gitignored, prints a version table, `--only <tool>`):
 **Acceptance:** fresh run installs everything; second run is a no-op; `wszst version`,
 `wkclt version`, `blender --version`, ABMatt help all succeed; versions + URLs recorded in TOOLS.md.
 
-Done. Fresh run installed all three tools (59 s); second run is a 0.35 s no-op. All four
+Done. Fresh run installed all three tools (55 s); second run is a 0.35 s no-op. All four
 acceptance commands verified, plus `wkmpt`/`wimgt`/`wbmgt`/`wstrt`. Pins, checksums and
 the surprises are in [TOOLS.md](../reference/TOOLS.md#bootstrap-pins-p0-t02-verified-2026-09-17-by-real-download--run).
 Two plan corrections: **Lorenzi's KMP Editor has no Linux build ever published**, so it is

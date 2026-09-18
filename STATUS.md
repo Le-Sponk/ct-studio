@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T03 — synthetic fixture track
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** fbefb21 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** cbbb5f4 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -17,8 +17,8 @@ _none_
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P0-T02` — `scripts/bootstrap_tools.py` + `scripts/tool_catalogue.py` install Wiimms
   2.42a, Blender 5.2.2 LTS and ABMatt 1.3.2 into `.tools/` with checksum verification.
-  Fresh run 59 s, second run 0.35 s no-op; 21 unit tests, 3/3 mutations caught.
-  [TOOLS.md](docs/reference/TOOLS.md) — commit fbefb21
+  Fresh run 55 s, second run 0.35 s no-op; 22 unit tests, 3/3 mutations caught.
+  [TOOLS.md](docs/reference/TOOLS.md) — commit cbbb5f4
 - `P0-T01` — environment audit: Debian 13.4 x86_64 container, root apt works, all four
   download origins reachable, Mesa llvmpipe gives GL 4.5 core via surfaceless EGL and
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
