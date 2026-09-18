@@ -141,6 +141,44 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
 | wimgt | 2.42a r8989 | version banner | `wimgt version` | 0 | not yet | real run, P0-T02 |
 | blender | 5.2.2 LTS | version | `blender --version` | 0 | not yet | real run, P0-T02 |
 | abmatt | 1.3.2 (release) | usage banner | `abmatt --help` | 0 | not yet | real run, P0-T02 |
+| wkclt | 2.42a r8989 | analyze KCL | `wkclt analyze FILE.kcl` | 0 | not yet | real run, P0-T03 |
+| wkclt | 2.42a r8989 | per-flag triangle table | `wkclt flags FILE.kcl` | 0 | not yet | real run, P0-T03 |
+| wkmpt | 2.42a r8989 | compile KMP text | `wkmpt encode SRC.txt --dest OUT.kmp --overwrite` | 0 (warnings do not fail) | not yet | real run, P0-T03 |
+| wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0 | not yet | real run, P0-T03 |
+
+## KMP text format (P0-T03, verified against wkmpt 2.42a)
+Hand-writing KMP text is easy to get wrong; these cost real debugging time:
+- Sections are `[KTPT]`, `[ENPT]`, … in **square brackets**. `#SECT# NAME` is not the
+  syntax and silently yields empty sections.
+- The first line must be exactly `#KMP` (the magic). Directives inside a section start
+  with `@`, e.g. `@AUTO-CONNECT`, `@AUTO-NEXT`.
+- `[ENPH]`, `[ITPH]`, `[CKPH]` are **informational only** when reading: they are
+  regenerated from the point sections. Writing a group table there has no effect.
+- Group links come from `@AUTO-CONNECT = AC$PREV | ACF$FIX` (ENPT/ITPT) or an explicit
+  `$GROUP G1,  next: G1` line inside the point section (CKPT, which rejects AUTO-CONNECT).
+  `M` is **not** a valid link token in source files, despite appearing in decoded output.
+- `CKPT` rows take **8** values: `left.x left.y right.x right.y respawn mode prev next`.
+  Positions are 2D (game x,z). Mode `0` marks the lap counter; `-1` is a normal point.
+  The first checkpoint of a group needs `prev = -1` and the last needs `next = -1`.
+- `[CAME]` uses a **four-lines-per-camera** block. Getting it wrong makes wkmpt read each
+  line as a separate camera. The fixture ships without a camera on purpose (see below).
+- Useful when stuck: compile, then `wkmpt decode … --brief` and copy the syntax the tool
+  itself emits. `wkmpt symbols` lists predefined constants. There is no `analyze` command.
+
+## Blender-MKW-Utilities headless export (P0-T03, verified on Blender 5.2.2)
+- Registering the add-on from a plain directory works: put its parent on `sys.path`,
+  `import addon`, call `register()`. Operator `bpy.ops.kcl.export(filepath=…,
+  kclExportScale=100.0)` then runs with no UI context and returns `{'FINISHED'}`.
+- It finds `wkclt` through `PATH`, so exporting headlessly only needs
+  `.tools/wiimms-szs-tools/bin` prepended to `PATH`.
+- Stdout markers are stable and worth parsing in P6:
+  `[MKW Utilities] KCL export: N object(s), M triangle(s)`,
+  `[MKW Utilities] KCL extent (game units): X=… Y=… Z=…  (scale=100)`,
+  `[MKW Utilities] SKIPPED (no valid KCL flag in name): …`.
+- It invokes: `wkclt encode <tmp> --dest <out> -o --kcl=MEDIUM
+  --kcl-script=<plugin>/lower-walls.txt --const lower=30,degree=45,`.
+- `kclExportScale` default is **100** (confirmed in the add-on source), matching the
+  project convention.
 
 ## Bootstrap pins (P0-T02, verified 2026-09-17 by real download + run)
 Machine-readable source of truth: `scripts/tool_catalogue.py`. Installed into `.tools/`

@@ -4,9 +4,9 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T03 — synthetic fixture track
+**Next task:** P0-T04 — Spike S1: Wiimms assemble & check
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** cbbb5f4 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** b7af3a0 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -15,6 +15,10 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T03` — synthetic fixture track: `scripts/fixtures/` generates two `.blend` variants,
+  7 PNGs and a valid `course.kmp` in 0.85 s (budget 60 s), deterministically. Proved with
+  the real tools: add-on exported 5 KCL objects / 292 triangles, `wkclt flags` confirmed
+  all five flag types. 38 unit tests, 3/3 mutations caught. — commit b7af3a0
 - `P0-T02` — `scripts/bootstrap_tools.py` + `scripts/tool_catalogue.py` install Wiimms
   2.42a, Blender 5.2.2 LTS and ABMatt 1.3.2 into `.tools/` with checksum verification.
   Fresh run 55 s, second run 0.35 s no-op; 22 unit tests, 3/3 mutations caught.
@@ -44,6 +48,13 @@ _none_
 - 2026-09-17: bootstrap installs **3 tools, not 5**. uv itself is already present and
   Python 3.12 comes from `uv python install 3.12` (3.12.13, ~4 s), so neither needs a
   catalogue entry. Recorded in TOOLS.md; P0-T02 wording updated.
+- 2026-09-18: fixture KMP is complete **except the `[CAME]` opening camera**, which needs
+  the four-lines-per-camera layout; compiling therefore reports 2 expected camera warnings
+  (asserted by the generator and a test, so a third warning fails the build). P0-T03 allowed
+  this deferral; the note landed on **P10-T01**, not P10-T05, because P10-T05 is about
+  editor round-trips while P10-T01 is where KMP sections are actually handled.
+- 2026-09-18: added `pytest.ini` (marker registry from TESTING_STRATEGY §1) and extended
+  `ruff.toml`, both pre-P1 stand-ins that P1-T01/P1-T02 fold into `pyproject.toml`.
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->

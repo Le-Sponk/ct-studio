@@ -48,7 +48,7 @@ Two plan corrections: **Lorenzi's KMP Editor has no Linux build ever published**
 not auto-installed (P0-T10 must use Wine); and Python 3.12 comes from `uv python install`,
 not the image. `--only`, `--force` and `--list` work; unknown tool names exit 2.
 
-### [ ] P0-T03 — Synthetic fixture track (timebox 4 h)
+### [x] P0-T03 — Synthetic fixture track (timebox 4 h) (commit b7af3a0)
 `scripts/fixtures/make_fixture_blend.py`, run via `blender -b --factory-startup --python`, writes
 `tests/fixtures/generated/` (gitignored, regenerated on demand; a small committed copy is fine if
 < 2 MB). Deterministic. Contents:
@@ -64,6 +64,17 @@ not the image. `--only`, `--force` and `--list` work; unknown tool names exit 2.
   exceeds the timebox, defer to P10-T05 and note it.
 **Acceptance:** one command regenerates all fixtures in < 60 s; add-on exports and Wiimms tools
 accept them (checked in S1/S2).
+
+Done. `uv run python scripts/fixtures/make_fixtures.py` regenerates everything in **0.85 s**
+(budget 60 s): both `.blend` variants (~102 KB each, under the 2 MB commit limit), seven PNGs
+and `course.kmp`. Textures and manifests are byte-identical across runs.
+Already proved against the real tools rather than waiting for S1/S2: the add-on registered
+headlessly and `bpy.ops.kcl.export` exported 5 objects / 292 triangles, skipping the 5 unflagged
+visual meshes; `wkclt flags` then reported exactly the five intended types (Road, Off-road,
+Boost Pad, Wall, Fall Boundary). 38 unit tests, 3/3 mutations caught.
+**KMP partially deferred:** KTPT/ENPT/ENPH/ITPT/ITPH/CKPT/CKPH/JGPT/STGI are all present and
+valid, but the `[CAME]` opening camera is not, so compiling reports 2 expected camera warnings.
+Writing a valid CAME block is deferred to P10-T05 as the task allows.
 
 ### [ ] P0-T04 — Spike S1: Wiimms assemble & check (timebox 2 h)
 Stage a folder (`course.kcl`, a placeholder or ABMatt-made `course_model.brres`, `map_model.brres`,

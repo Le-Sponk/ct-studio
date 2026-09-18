@@ -6,6 +6,11 @@ editor with the right files, picks up saves automatically, and presents every pr
 **Exit:** fixture KMP checklist accurate; editor workflow verified at HC3.
 
 ### [ ] P10-T01 — KMP reader (read-only)
+**From P0-T03:** the fixture KMP (`scripts/fixtures/course.kmp.txt`, compiled to
+`tests/fixtures/generated/course.kmp`) already exercises KTPT, ENPT/ENPH, ITPT/ITPH,
+CKPT/CKPH, JGPT and STGI. Its `[CAME]` section is deliberately empty, so add the opening
+camera here (four-lines-per-camera layout, see TOOLS.md) and drop the 2 expected camera
+warnings from `EXPECTED_KMP_WARNINGS` in `scripts/fixtures/make_fixtures.py` when you do.
 `core/formats/kmp.py`: header + section table; records for KTPT, ENPT/ENPH, ITPT/ITPH, CKPT/CKPH, GOBJ,
 POTI, AREA, CAME, JGPT, CNPT, MSPT, STGI into numpy structured arrays / small dataclasses. Record
 layouts taken from authoritative documentation (Wiimms KMP guide, mkwiiki KMP page) and

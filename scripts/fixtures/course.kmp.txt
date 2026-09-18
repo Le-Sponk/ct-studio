@@ -1,0 +1,72 @@
+#KMP
+
+# CT Studio synthetic fixture KMP (P0-T03).
+#
+# Minimal but valid racing track: one start position, a four-point checkpoint loop
+# whose first checkpoint is the lap counter, matching enemy and item routes, one
+# respawn point, and stage info for a 3-lap race. No GOBJ entries, because objects
+# would need files from the user's own game (AGENTS.md rule 7).
+#
+# Geometry matches the fixture .blend: a ring of radius 120 Blender units exported at
+# scale 100, i.e. radius 12000 game units, centred on the origin, road half-width 1400.
+#
+# Compile with:
+#   wkmpt encode scripts/fixtures/course.kmp.txt --dest <out>/course.kmp --overwrite
+# Syntax reference: https://szs.wiimm.de/doc/kmp/syntax
+
+[SETUP]
+UNKNOWN-0x0c = 0
+
+[KTPT]
+# Start position: on the ring at +X, facing -Y so the lap runs clockwise in plan view.
+#idx         x           y           z         x       y       z    index unknown
+  0     12000.0       200.0         0.0      0.0   180.0     0.0       -1       0
+
+[ENPT]
+# Enemy (CPU) route around the ring. One self-linked group: AUTO-CONNECT adds the
+# prev/next self-links, so the [ENPH] table does not need to be written by hand.
+@AUTO-CONNECT = AC$PREV | ACF$FIX
+#idx         x           y           z       range  set1 set2 set3
+  0     12000.0       200.0         0.0     2000.0     0    0    0
+  1         0.0       200.0    -12000.0     2000.0     0    0    0
+  2    -12000.0       200.0         0.0     2000.0     0    0    0
+  3         0.0       200.0     12000.0     2000.0     0    0    0
+
+[ITPT]
+# Item route: same ring as the enemy route.
+@AUTO-CONNECT = AC$PREV | ACF$FIX
+#idx         x           y           z       range  set1 set2
+  0     12000.0       200.0         0.0     2000.0     0    0
+  1         0.0       200.0    -12000.0     2000.0     0    0
+  2    -12000.0       200.0         0.0     2000.0     0    0
+  3         0.0       200.0     12000.0     2000.0     0    0
+
+[CKPT]
+# Checkpoints span the road (inner 10600 .. outer 13400 game units). Positions are
+# 2D (x,y = ground plane x,z). Mode 0 on checkpoint 0 makes it the lap counter;
+# -1 means "not a key checkpoint". Group links are self-linked to close the loop.
+$GROUP G1,  next: G1
+#      _____left point_____    ____right point_____  respawn  mode  prev  next
+#idx        x           y           x           y
+  0    10600.0         0.0     13400.0         0.0        0     0    -1     1
+  1        0.0    -10600.0         0.0    -13400.0        0    -1     0     2
+  2   -10600.0         0.0    -13400.0         0.0        0    -1     1     3
+  3        0.0     10600.0         0.0     13400.0        0    -1     2    -1
+
+[CAME]
+# Intentionally empty. A real opening camera is needed before this KMP can be raced;
+# writing one by hand needs the exact 4-lines-per-camera CAME layout, which is
+# deferred to P10-T05 together with the rest of the KMP authoring work.
+# wkmpt therefore reports 2 CAME warnings when compiling this fixture: that is
+# expected and asserted by the tests, not an accident.
+
+[JGPT]
+# One respawn point at the start line.
+@AUTO-ID = 1
+#idx         x           y           z         x       y       z     id  range
+  0     12000.0       300.0         0.0      0.0   180.0     0.0      0     -1
+
+[STGI]
+# 3 laps, pole position left, narrow start spread, no speed modifier.
+#idx  laps  pole  narrow  flare  color     alpha   unk  speed-mod
+  0      3     0       0      0  0xffffff  0x00      0        0.0

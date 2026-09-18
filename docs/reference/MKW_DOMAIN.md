@@ -56,14 +56,30 @@ Minimap*, *Creating a BRRES with RiiStudio*, *KMP*, *KCL*, *Common Crash Causes*
 - Blender-MKW-Utilities exports objects whose names end in `_F` + exactly 4 uppercase hex digits
   (e.g. `road_F0000`, `wall_F000C`); others are skipped by default (the exporter reports them).
 - A KCL flag = base type (lowest 5 bits, values 0x00–0x1F per wszst's `T<type>` syntax) + variant/
-  other bits. Base type examples (**verify every name against the add-on's flag table or wkclt
-  output; do not hard-code from this list**): road, slippery road, weak/normal/heavy off-road, boost
-  panel, boost ramp, jump pad, item road, solid fall, moving water, wall, invisible wall, item wall,
-  fall boundary, cannon activator, force recalculation, half-pipe ramp, player-only wall, moving road,
-  sound/effect triggers, rotating road, special walls.
+  other bits. The add-on's own `labelDict` in `__init__.py` is the authoritative name table;
+  `decodeFlag()` there shows the bit layout (type = low 5 bits, variant = next 3, then shadow,
+  depth, trickable, drivable, soft-wall). **Verified P0-T03** against both the add-on source and
+  `wkclt flags` output on the generated fixture:
+
+  | Flag | Base type | Add-on label | `wkclt flags` description |
+  |---|---|---|---|
+  | `0x0000` | T00 | ROAD | Road |
+  | `0x0003` | T03 | OFFROAD | Off-road |
+  | `0x0006` | T06 | BOOST_PANEL | Boost Pad |
+  | `0x000C` | T0C | WALL | Wall |
+  | `0x0010` | T10 | FALL_BOUNDARY | Fall Boundary |
+
+  Other base types in the add-on's table (names not yet cross-checked against wkclt):
+  T01 SLIPPERY1, T02 WEAK_OFFROAD, T04 HEAVY_OFFROAD, T05 SLIPPERY2, T07 BOOST_RAMP,
+  T08 JUMP_PAD, T09 ITEM_ROAD, T0A SOLID_FALL, T0B/T15/T1D MOVING_ROAD, T0D INVISIBLE_WALL,
+  T0E ITEM_WALL, T0F WALL_3, T11 CANNON, T12 FORCE_RECALCULATION, T13 HALFPIPE, T14 WALL_4,
+  T16 STICKY_ROAD, T17 ROAD, T18 SOUND_TRIGGER, T19 WEAK_WALL, T1A EFFECT_TRIGGER,
+  T1B ITEM_STATE_MODIFIER, T1C HALFPIPE_WALL, T1E SPECIAL_WALL, T1F WALL_5.
 - The add-on's "un-bean corner" default mode passes `--kcl-script=lower-walls.txt` to `wkclt`.
 - **Coordinate limit:** keep drivable geometry within ±131071 on each axis, otherwise items misbehave
   (LEX `HIPT` can work around it but not all distributions support it).
+  The fixture track asserts this (`tests/unit/test_fixtures.py`); at export scale 100 its ring
+  reaches 36000 game units, comfortably inside the limit.
 - Inspect with `wkclt analyze course.kcl` (triangles, bounds) and `wkclt flags course.kcl`.
 
 ## 5. Minimap (`map_model.brres`)
