@@ -228,13 +228,21 @@ purely to satisfy ABMatt; the test `test_minimap_export_produces_a_brres` keeps 
 
 None are required — everything needed works today. In rough order of value:
 
-1. **Make `export.minimap`'s unavailability legible.** A `poll()` returning False turns
-   into "context is incorrect", which sends you looking in the wrong place. Either report
-   the reason via `poll_message_set()` or move the ABMatt check into `execute()`.
-2. **Return counts from the operators** (objects, triangles, skipped names) instead of
-   only printing them, so a bridge does not have to scrape stdout.
+1. ~~**Make `export.minimap`'s unavailability legible.**~~ **Done** (add-on PR #1,
+   merged as `ffa905f`): `poll()` now sets a `poll_message_set()` naming ABMatt, and
+   the callable path returns the same reason instead of "context is incorrect".
+2. ~~**Return counts from the operators**~~ **Done** (same PR): the add-on exposes
+   `export_kcl`, `export_collada` and `export_minimap_brres`, each returning a result
+   dictionary with `ok`, `filepath`, `objects`, `triangles`, `skipped_objects` and
+   `error`. The bridge (P6) calls these directly and never scrapes stdout.
 3. **A module-name-safe package directory** (or an `__init__.py` shim) would remove the
-   copy-to-`mkw_utilities` step.
+   copy-to-`mkw_utilities` step. **Declined** by the human; the bridge keeps the copy.
+
+The refactor also fixed five defects the extraction exposed: a shell-injection path via
+`os.popen` in KCL encoding (now argv + exit-code check + timeout), ABMatt exit codes
+being ignored so a failed conversion republished a stale BRRES, active-collection
+minimap exports skipping child collections, selection-only KCL counting non-mesh
+objects, and the three `blender -b` scripts exiting 0 on failure.
 
 ### Open questions
 

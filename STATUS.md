@@ -28,6 +28,13 @@ _none_
   v1.12.0; all six exports (KCL x2, DAE x2, OBJ, minimap BRRES) run headlessly via
   operators. [SPIKES.md §S2](docs/dev/SPIKES.md). 10 integration tests, 2/2 mutations
   caught. Minimap BRRES verified by `wszst minimap`. — commit 3a6a453
+  **Follow-up (2026-09-19):** the two accepted wishlist items were implemented upstream
+  and merged as add-on PR #1 (`ffa905f`); submodule pin bumped and P6-T01 rewritten to
+  use the callable API. Also fixed five latent add-on defects — `os.popen` shell
+  injection in KCL encoding, ABMatt exit codes ignored (stale BRRES republished),
+  child collections skipped by active-collection minimap export, non-mesh objects
+  counted in selection-only KCL, and the `blender -b` scripts exiting 0 on failure.
+  Verified on Blender 4.2.23 LTS **and** 5.2.2 LTS.
 - `P0-T04` — Spike S1 (Wiimms assemble & check): `spikes/s1_wszst.py` +
   [SPIKES.md §S1](docs/dev/SPIKES.md) + adapter command table in TOOLS.md.
   Found that `wszst check`'s exit code is not pass/fail and that `analyze --json`
@@ -46,6 +53,17 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-19: **P6-T01 rewritten** for the merged add-on export API (`ffa905f`). The
+  bridge now calls `export_kcl` / `export_collada` / `export_minimap_brres` and reads
+  counts from the returned dictionary; the planned stdout parsing and the pre-flight
+  ABMatt / material checks are dropped, because the add-on returns a typed reason.
+  `export_scene.objkcl` still goes through `bpy.ops` (no extracted form). Evidence:
+  [SPIKES.md §S2 wishlist](docs/dev/SPIKES.md), TOOLS.md "Callable export API".
+  Affects PHASE_06, TOOLS.md, SPIKES.md, submodule pin.
+- 2026-09-19: Blender **4.2.23 LTS** added to `scripts/tool_catalogue.py` as an optional
+  tool (`--only blender-4.2`). It is the add-on manifest's declared floor, so
+  compatibility runs need it reproducibly rather than by hand. Published checksum
+  verified on download.
 - P0-T06 split under the task-loop size rule: P0-T06a obtains/probes the CLI;
   P0-T06b runs the fixture bake-off and decides ADR-004. The six-hour total is unchanged.
   Native build troubleshooting plus both backends' material/JSON round-trips is too
@@ -117,14 +135,11 @@ _none_
   download from the upstream URL; keep it out of the installer. Asking the maintainer
   for an explicit LICENSE is a **Phase 12** question, not a blocker. Recorded in
   ADR-004 and P12-T01/T03.
-- ~~S2 add-on wishlist~~ **answered 2026-09-18.** (1) minimap poll message: **yes, do it
-  now** — done, see below. (2) return counts from the operators: **yes, but as a proper
-  refactor** (extract export logic into functions returning a result dict, operators
-  become wrappers, proven against the existing `blender -b` test scripts on 4.2 LTS and
-  5.2) — implemented on local submodule branch `ctstudio/export-result-api` at
-  `98ff857`. Push/PR is pending because this environment has no GitHub credentials.
-  (3) a module-name-safe package directory: **no**. Until (2) is merged and the
-  submodule pin is updated, the bridge keeps the stdout workaround.
+- ~~S2 add-on wishlist~~ **answered and closed 2026-09-19.** (1) minimap poll message and
+  (2) callable export functions returning result dictionaries: both **merged** as add-on
+  PR #1 (`ffa905f`); the submodule pin is updated and P6-T01 now specifies the callable
+  API with no stdout scraping. (3) a module-name-safe package directory: **declined**;
+  the bridge keeps the copy-to-`mkw_utilities` step.
 - Auto-add (from S1) still needs a library built from your own game files to test for
   real; I cannot create one here. HC0 question, relevant before P4.
 

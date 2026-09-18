@@ -108,7 +108,8 @@ failure modes, timing, and how the add-on locates wszst/wkclt/ABMatt when run he
 **Acceptance:** `spikes/blender_export_spike.py` reproduces all exports; SPIKES.md §S2 with the
 recommended bridge approach; list of add-on changes that would help (for the human to decide).
 
-Done. Add-on pinned as submodule `vendor/blender-mkw-utilities` at v1.12.0 (244ecfd).
+Done. Add-on pinned as submodule `vendor/blender-mkw-utilities`, originally v1.12.0
+(244ecfd), now `ffa905f` after the merged export-API refactor (add-on PR #1).
 `uv run python spikes/s2_blender.py` reproduces **all six exports headlessly**: KCL
 (LOWER + NONE), DAE (AUTO + BUILTIN, with textures copied alongside), OBJ, and the
 minimap BRRES. See [SPIKES.md §S2](../dev/SPIKES.md) and the operator table in

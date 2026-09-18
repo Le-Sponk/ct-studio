@@ -6,15 +6,23 @@ Blender launch, on Linux and Windows CI; errors become actionable Issues.
 **Read first:** SPIKES.md §S2, ARCHITECTURE §12.
 
 ### [ ] P6-T01 — Bridge job runner
-**From S2 (P0-T05), already proven:** call the operators directly (`kcl.export`,
-`export.autodesk_dae`, `export_scene.objkcl`, `export.minimap`) — all six export variants
-run under `-b --factory-startup` with no context setup. Two things the runner must do
-itself, because the add-on's own errors are misleading or late:
-extend `PATH` with both `.tools/wiimms-szs-tools/bin` and `.tools/abmatt/bin` before
-launching (factory startup discards add-on preferences), and check ABMatt availability
-plus "every mesh has a material" *before* calling `export.minimap`, whose `poll()`
-failure surfaces as `context is incorrect`. The add-on directory name
-`blender-mkw-utilities` is not importable: stage/vendor it under a valid module name.
+**From S2 (P0-T05) and the merged add-on refactor, already proven:** call the add-on's
+export *functions* directly — `export_kcl`, `export_collada` and `export_minimap_brres`
+(add-on `ffa905f` or later) — passing `KclExportOptions` / `ColladaExportOptions` /
+`MinimapExportOptions` and a `report(level, message)` collector. Each returns a result
+dictionary (`ok`, `filepath`, `objects`, `triangles`, `skipped_objects`, `error`, plus
+KCL `extent`, Collada `method`/`textures`/`texture_conflicts`, minimap `method`), so the
+runner reads counts and skipped names from the return value and **must not parse stdout**.
+The `bpy.ops` operators (`kcl.export`, `export.autodesk_dae`, `export_scene.objkcl`,
+`export.minimap`) remain as wrappers and still work under `-b --factory-startup`; prefer
+the functions, and use `export_scene.objkcl` via `bpy.ops` since it has no extracted form.
+One thing the runner must still do itself: extend `PATH` with both
+`.tools/wiimms-szs-tools/bin` and `.tools/abmatt/bin` before launching, because factory
+startup discards add-on preferences. The pre-flight ABMatt and "every mesh has a material"
+checks are no longer required — the add-on now returns a typed reason for both — but the
+runner should map a failed result onto `error.json` rather than assuming success. The
+add-on directory name `blender-mkw-utilities` is not importable: stage/vendor it under a
+valid module name.
 `blender_bridge/run_job.py` (stdlib + bpy only): parse `job.json` (schema versioned: blend path,
 add-on dir, output dir, list of exports with options), register the add-on from `vendor/`, run the
 exports using the entry points chosen in S2, write `export_manifest.json` (per export: files, object

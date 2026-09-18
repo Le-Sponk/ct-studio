@@ -277,6 +277,8 @@ Hand-writing KMP text is easy to get wrong; these cost real debugging time:
 
 ### Export operators (P0-T05 / S2, add-on v1.12.0, Blender 5.2.2)
 All verified headless under `blender -b --factory-startup`; no GUI context needed.
+Since add-on `ffa905f` the operators are wrappers around callable functions — prefer
+those from automation (see "Callable export API" below).
 
 | Export | Operator | Key arguments |
 |---|---|---|
@@ -288,7 +290,8 @@ All verified headless under `blender -b --factory-startup`; no GUI context neede
 Preconditions that are easy to misdiagnose:
 - `export.minimap` has `poll(): _detect_abmatt()`, so without `abmatt` on `PATH` it
   raises **`poll() failed, context is incorrect`** — a misleading message: the real cause
-  is the missing tool, not the context.
+  is the missing tool, not the context. **Fixed in `ffa905f`:** `poll()` now sets a
+  `poll_message_set()` naming ABMatt, and `export_minimap_brres` returns the same reason.
 - The minimap export rejects meshes with no material:
   `ABMatt requires every exported mesh to have a material. Missing on: …`.
 - `--factory-startup` discards add-on preferences, so tool discovery falls back to
@@ -299,6 +302,33 @@ Preconditions that are easy to misdiagnose:
   byte-identical. Do not assume DAE bytes match across operating systems.
 - The add-on package directory is `blender-mkw-utilities`, which is not a valid Python
   module name; stage or vendor it under an importable name before `import`.
+
+### Callable export API (add-on `ffa905f`, verified on Blender 4.2.23 + 5.2.2)
+Preferred entry points for the bridge. Options are plain dataclasses, not Blender
+properties, so no operator instance is needed; `report` takes Blender's
+`report(level, message)` signature.
+
+| Function | Options dataclass | Format-specific result keys |
+|---|---|---|
+| `export_kcl(context, options, report)` | `KclExportOptions` | `extent` (game units, 3-tuple) |
+| `export_collada(context, options, report)` | `ColladaExportOptions` | `method` (`builtin`/`fbx_converter`), `textures`, `texture_conflicts` |
+| `export_minimap_brres(context, options, report)` | `MinimapExportOptions` | `method` |
+
+Every result — success or failure — carries `ok`, `filepath`, `objects`, `triangles`,
+`skipped_objects` and `error`. The functions never raise: exceptions are caught and
+returned as `ok: False` with `error` set. `export_scene.objkcl` has **no** extracted
+form; call it via `bpy.ops`.
+
+Behaviour worth knowing:
+- Counts come from the return value. Do **not** parse the `[MKW Utilities]` stdout lines;
+  they remain for humans only.
+- KCL encoding now runs `wkclt` as an argv list via `subprocess.run` with a 120 s timeout
+  and a checked exit code (it previously used `os.popen` on a quoted string, which broke
+  on paths containing quotes or shell metacharacters).
+- A failed ABMatt conversion no longer republishes an existing BRRES: the destination is
+  restored and the result reports the tool's own error text.
+- `exportCollection=True` includes meshes in **child** collections.
+- `kclExportSelection=True` counts only mesh objects.
 
 ## Bootstrap pins (P0-T02, verified 2026-09-17 by real download + run)
 Machine-readable source of truth: `scripts/tool_catalogue.py`. Installed into `.tools/`
