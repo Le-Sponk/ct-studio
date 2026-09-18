@@ -76,7 +76,7 @@ Boost Pad, Wall, Fall Boundary). 38 unit tests, 3/3 mutations caught.
 valid, but the `[CAME]` opening camera is not, so compiling reports 2 expected camera warnings.
 Writing a valid CAME block is deferred to P10-T05 as the task allows.
 
-### [x] P0-T04 — Spike S1: Wiimms assemble & check (timebox 2 h) (commit COMMIT_HASH)
+### [x] P0-T04 — Spike S1: Wiimms assemble & check (timebox 2 h) (commit 5688ad1)
 Stage a folder (`course.kcl`, a placeholder or ABMatt-made `course_model.brres`, `map_model.brres`,
 `vrcorn_model.brres`, `course.kmp`, empty/absent `posteffect/`) → `wszst create` with fastest and
 best compression → `wszst check` → `wszst slots` → `wszst list`.

@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T05 — Spike S2: headless Blender exports
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 1d44633 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** 5688ad1 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -18,7 +18,7 @@ _none_
 - `P0-T04` — Spike S1 (Wiimms assemble & check): `spikes/s1_wszst.py` +
   [SPIKES.md §S1](docs/dev/SPIKES.md) + adapter command table in TOOLS.md.
   Found that `wszst check`'s exit code is not pass/fail and that `analyze --json`
-  supersedes `slots`. 11 integration tests, 3/3 mutations caught. — commit COMMIT_HASH
+  supersedes `slots`. 11 integration tests, 3/3 mutations caught. — commit 5688ad1
 - `P0-T03` — synthetic fixture track: `scripts/fixtures/` generates two `.blend` variants,
   7 PNGs and a valid `course.kmp` in 0.85 s (budget 60 s), deterministically. Proved with
   the real tools: add-on exported 5 KCL objects / 292 triangles, `wkclt flags` confirmed
