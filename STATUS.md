@@ -21,7 +21,7 @@ _none_
   **deletes the orphaned texture** on a renamed material at exit 0 and its `-a` flag
   cannot disable that in 1.3.2. Presets miss silently, so P7-T07 must report orphans
   itself. 10 integration tests, 5/5 mutations caught.
-  [SPIKES.md §S4](docs/dev/SPIKES.md#s4--preserving-external-material-edits-p0-t07) — commit P0T07_COMMIT
+  [SPIKES.md §S4](docs/dev/SPIKES.md#s4--preserving-external-material-edits-p0-t07) — commit eae0ba3
 - `P0-T06b` — Spike S3b (BRRES backend bake-off): **ADR-004 Accepted** — rszst imports,
   ABMatt post-processes, both platforms. Decided by a one-way interop wall: rszst cannot
   read an ABMatt BRRES. 14 integration tests, 4/4 mutations caught.

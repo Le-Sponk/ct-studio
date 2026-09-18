@@ -162,7 +162,7 @@ lowered to do anything. Interface confirmed, minus `set_texture_formats` for ABM
 Skybox note: the fixture's `vrcorn` model is covered via `--model-name vrcorn`
 (naming is the part that differs per slot); the geometry path is identical to `course`.
 
-### [x] P0-T07 — Spike S4: preserving external material edits (timebox 3 h) (commit P0T07_COMMIT)
+### [x] P0-T07 — Spike S4: preserving external material edits (timebox 3 h) (commit eae0ba3)
 Simulate an external edit on a generated BRRES (change transparency, culling, a TEV/blend setting,
 add an SRT0 animation if feasible). Regenerate from the DAE and try to restore the edit via:
 (a) `rszst dump-presets` + `import-brres --preset-path`; (b) ABMatt replace-with-matching-names /
