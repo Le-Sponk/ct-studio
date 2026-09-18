@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T06b — Fixture comparison and backend decision
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 3a6a453 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** 08bf2dd (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -19,7 +19,7 @@ _none_
   pinned build recipe, nine CLI recordings and ten integration tests. 68 tests pass,
   ruff clean, overwrite mutation caught. [SPIKES.md S3](docs/dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
   Help and argument errors both exit 255; conversion/default decision stays in S3b.
-  Overall redistribution licence unconfirmed. — commit P0T06A_COMMIT
+  Overall redistribution licence unconfirmed. — commit 08bf2dd
 - `P0-T05` — Spike S2 (headless Blender exports): add-on pinned as a submodule at
   v1.12.0; all six exports (KCL x2, DAE x2, OBJ, minimap BRRES) run headlessly via
   operators. [SPIKES.md §S2](docs/dev/SPIKES.md). 10 integration tests, 2/2 mutations

@@ -121,7 +121,7 @@ DAE bytes will differ on Windows CI. Add-on wishlist is in §S2 — nothing is r
 
 ### P0-T06 — Spike S3: BRRES backend bake-off (timebox 6 h total)
 
-#### [x] P0-T06a — Obtain and probe RiiStudio CLI (timebox 2 h) (commit P0T06A_COMMIT)
+#### [x] P0-T06a — Obtain and probe RiiStudio CLI (timebox 2 h) (commit 08bf2dd)
 Pin source and build prerequisites; attempt a Linux CLI build and record reproducible
 commands, licence, version, exit codes and command help in SPIKES.md §S3 and TOOLS.md.
 Attempt the Linux build first; if blocked, record a Windows prebuilt evaluation for P2-T08.
