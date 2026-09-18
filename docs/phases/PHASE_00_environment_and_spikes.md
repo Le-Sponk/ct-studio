@@ -97,7 +97,7 @@ machine-readable path and supersedes `slots` (it carries `slot_info`, `lap_count
 `n_ckpt0`, coordinate ranges and per-component SHA1s that are empty when a file is
 missing). `create` never validates, and `--auto-add` is a silent no-op with no library.
 
-### [x] P0-T05 — Spike S2: headless Blender exports with Blender-MKW-Utilities (timebox 3 h) (commit COMMIT_HASH)
+### [x] P0-T05 — Spike S2: headless Blender exports with Blender-MKW-Utilities (timebox 3 h) (commit 3a6a453)
 Add the add-on as submodule `vendor/blender-mkw-utilities` (github.com/Le-Sponk/Blender-MKW-Utilities,
 pin the commit). Read its source to list operator `bl_idname`s and internal export functions for:
 KCL export (incl. un-bean modes / `lower-walls.txt`), Collada export (built-in method + copy

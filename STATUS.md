@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T06 — Spike S3: BRRES backend bake-off
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 5688ad1 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** 3a6a453 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -18,7 +18,7 @@ _none_
 - `P0-T05` — Spike S2 (headless Blender exports): add-on pinned as a submodule at
   v1.12.0; all six exports (KCL x2, DAE x2, OBJ, minimap BRRES) run headlessly via
   operators. [SPIKES.md §S2](docs/dev/SPIKES.md). 10 integration tests, 2/2 mutations
-  caught. Minimap BRRES verified by `wszst minimap`. — commit COMMIT_HASH
+  caught. Minimap BRRES verified by `wszst minimap`. — commit 3a6a453
 - `P0-T04` — Spike S1 (Wiimms assemble & check): `spikes/s1_wszst.py` +
   [SPIKES.md §S1](docs/dev/SPIKES.md) + adapter command table in TOOLS.md.
   Found that `wszst check`'s exit code is not pass/fail and that `analyze --json`
