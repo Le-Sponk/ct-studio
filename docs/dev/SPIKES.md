@@ -327,3 +327,71 @@ and a macOS DMG, not a Linux release asset. P2-T08 (integration CI after P1-T07)
 must pin the Windows ZIP checksum,
 keep its bundled DLLs with `rszst.exe`, record its help/exit codes independently and
 repeat S3b's synthetic fixture tests. Do not impose Linux's 255 status on Windows.
+
+### S3b: fixture bake-off and backend decision (P0-T06b)
+
+**Script:** `uv run python spikes/s3_backend_bakeoff.py` → `spikes/out/s3b/s3b_findings.json`.
+Both backends import the same S2 fixture DAE (`course_builtin.dae` + its four PNGs).
+Tests: `tests/integration/test_brres_backends.py` (14 tests, 4/4 mutations caught).
+
+| | rszst (Alpha 5.11.5) | ABMatt 1.3.2 |
+|---|---|---|
+| Import exit / size | 0 · 25728 B | 0 · 25440 B |
+| Median import time | **0.013 s** | 0.293 s (~22x slower) |
+| MDL0 name | `--model-name course\|vrcorn\|map` | **from the source filename stem** |
+| Textures | 4/4, CMPR | 4/4, CMPR |
+| Default mipmaps (road) | 1 | **3** |
+| Reads the other's BRRES | **no** | yes |
+| Material editing | `--preset-path` / `dump-presets` only | full command language |
+| JSON round-trip | `brres-to-json` → `json-to-brres`, both exit 0 | n/a |
+| `wszst create` + `check` | clean (2 known fixture camera warnings) | clean (same 2) |
+
+**The decisive finding: the interop wall is one-way.** ABMatt opens an rszst BRRES and
+reports its materials fine, but rszst **cannot read an ABMatt BRRES** at all:
+
+```
+Failed to read MDL0 course: Invalid quantization for normal data: U16   (exit 255)
+```
+
+So the order matters: **rszst imports, ABMatt post-processes**. The reverse pipeline is
+impossible with these versions, not merely slower. Note this also means `brres-to-json`
+is only available for models rszst itself produced.
+
+**Traps that cost real time here:**
+
+1. **ABMatt has no model-name flag.** The MDL0 name comes from the *source file stem* up
+   to the first `_` (`vrcorn_xyz.dae` → `vrcorn`, `zzz.dae` → `zzz`, `coursey.dae` →
+   `course`). It then *validates* that against a `<slot>_model.brres` destination:
+   `course_builtin.dae` → `map_model.brres` fails with `Model name does not match file`
+   and writes nothing. An adapter must stage the DAE under the right name, not just pick
+   an output path. `-o` does not override this.
+2. **`abmatt -c "set material xlu:true for *"` is broken.** The argument gets mangled into
+   `'set material xlu:true for *  for *'` and the run dies with a parse error. A command
+   **file** (`-f cmds.txt`) with the same text works and the change verifiably lands
+   (`xlu:0` → `xlu:1`). The Blender add-on uses the same file-based route.
+3. **`set tex0 format:IA8` is a silent no-op.** It exits 0, prints `Wrote file`, and the
+   stored format is still CMPR (confirmed by both `wimgt list` and ABMatt's own `info`).
+   Per-texture format control therefore is *not* available through this path — texture
+   formats must be decided at import time or via `wimgt`.
+4. **rszst's `--mipmaps` alone does nothing** on 64x64 textures, because `--min-mip`
+   defaults to 32. `--mipmaps --min-mip 8` gives 3 mip levels. Passing `--mipmaps` and
+   assuming mipmaps exist would be wrong.
+5. **Material selectors use material names, not object names** (`for water`, not
+   `for course_water`); a wrong selector fails loudly with `No items found in selection!`.
+6. Unlike the help output recorded in S3a, rszst's **conversion commands do use exit
+   codes meaningfully**: 0 on success, 255 on a real failure (verified with garbage input).
+
+**Recommendation for ADR-004 (both platforms the same):** `rszst` is the import backend
+and ABMatt is the material/minimap post-processor. This is driven by the one-way read
+wall and the 22x speed difference, not by preference. Because Linux rszst must be built
+from source (S3a) and its licence is unresolved, the `BrresBackend` interface must keep
+ABMatt viable as a standalone fallback: it converts, packs and validates perfectly well
+on its own, it just cannot hand its output to rszst.
+
+**Interface confirmed by this spike** — `import_model(dae, out, *, model_name, mipmaps)`,
+`inspect(brres)`, `apply_materials(brres, commands)`, `capture_presets(brres, dir)`.
+`set_texture_formats` must **not** be part of the ABMatt implementation (trap 3); it
+belongs to import options or a `wimgt` path.
+
+**Open questions for S4/P5:** whether presets survive a BrawlCrate-edited file; whether
+the JSON schema is stable across rszst releases; Windows behaviour of both backends.

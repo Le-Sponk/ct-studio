@@ -13,6 +13,20 @@ if available), `apply_material_settings(brres, settings)`, `set_texture_formats(
 `capture_material_state(brres, dest_dir)`, `reapply_material_state(brres, src_dir)`.
 Implement the default backend chosen in S3 fully; implement the fallback backend for
 `import_model` + `inspect` at minimum. Backend selection per platform from ADR-004.
+**From S3b (P0-T06b), already measured — see [SPIKES.md §S3b](../dev/SPIKES.md#s3b-fixture-bake-off-and-backend-decision-p0-t06b):**
+- Direction is fixed on **both** platforms: **rszst imports, ABMatt post-processes**.
+  rszst cannot read an ABMatt BRRES at all (exit 255, `Invalid quantization for normal
+  data: U16`), so never feed one to the other in that order.
+- `set_texture_formats` is **unsupported on ABMatt** — `set tex0 format:` exits 0 and
+  silently changes nothing. It must raise the typed "not supported by this backend"
+  error rather than appear to work; per-texture formats come from import options.
+- The ABMatt implementation must **stage the DAE under the target model name** (the MDL0
+  name comes from the source filename stem, there is no flag) and must use a **command
+  file** (`-f`), because `-c` mangles multi-word commands.
+- rszst's `--mipmaps` needs `--min-mip` lowered to have any effect; the two backends'
+  default mipmap counts differ (1 vs 3), so set it explicitly instead of inheriting.
+- ABMatt must stay viable standalone: Linux rszst is a source build with an unresolved
+  licence, and ABMatt alone converts, packs and passes `wszst check`.
 **Acceptance:** integration tests for each method on the fixture; unsupported operations raise a typed
 error that the GUI can explain ("not supported by ABMatt backend — switch backend or open in …").
 

@@ -134,7 +134,7 @@ tests; 68 tests pass. Help/version and bad arguments all exit 255.
 [Build recipe and limitations](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
 Overall licence grant remains unconfirmed; no binary redistribution. S3b remains open.
 
-#### [ ] P0-T06b — Fixture comparison and backend decision (timebox 4 h)
+#### [x] P0-T06b — Fixture comparison and backend decision (timebox 4 h) (commit P0T06B_COMMIT)
 Depends on P0-T06a. Acceptance: the comparison and ADR/interface decision below.
 For each backend on the fixture DAE (course + skybox) measure and record:
 success; time; BRRES size; material/texture counts; control over per-texture format & mipmaps;
@@ -144,6 +144,22 @@ statistics if obtainable (e.g. via `rszst brres-to-json`); whether ABMatt can op
 rszst-made BRRES without damage; whether `brres-to-json` → edit material → `json-to-brres` works.
 **Acceptance:** SPIKES.md §S3 with a comparison table and per-platform default recommendation;
 ADR-004 moved to Accepted (or re-scoped) with evidence; BrresBackend interface sketch confirmed.
+
+Done. [SPIKES.md §S3b](../dev/SPIKES.md#s3b-fixture-bake-off-and-backend-decision-p0-t06b)
+has the comparison table; ADR-004 is **Accepted**: rszst imports, ABMatt post-processes,
+same on both platforms. Reproduce with `uv run python spikes/s3_backend_bakeoff.py`;
+14 integration tests in `tests/integration/test_brres_backends.py` (4/4 mutations caught).
+**Headline:** the interop wall is one-way — ABMatt reads rszst output, but **rszst cannot
+read an ABMatt BRRES** (`Invalid quantization for normal data: U16`, exit 255), which
+fixes the pipeline order regardless of preference. rszst is also ~22x faster
+(0.013 s vs 0.293 s). Both pack into an SZS that passes `wszst check`.
+Three traps recorded: ABMatt takes the MDL0 name from the **source filename** and
+rejects a mismatched `<slot>_model.brres` destination; `abmatt -c` mangles multi-word
+commands (use `-f`); `set tex0 format:` is a **silent no-op**, so per-texture format
+control is excluded from the ABMatt backend. rszst's `--mipmaps` needs `--min-mip`
+lowered to do anything. Interface confirmed, minus `set_texture_formats` for ABMatt.
+Skybox note: the fixture's `vrcorn` model is covered via `--model-name vrcorn`
+(naming is the part that differs per slot); the geometry path is identical to `course`.
 
 ### [ ] P0-T07 — Spike S4: preserving external material edits (timebox 3 h)
 Simulate an external edit on a generated BRRES (change transparency, culling, a TEV/blend setting,

@@ -4,9 +4,9 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T06b — Fixture comparison and backend decision
+**Next task:** P0-T07 — Spike S4: preserving external material edits
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 08bf2dd (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** P0T06B_COMMIT (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -15,6 +15,10 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T06b` — Spike S3b (BRRES backend bake-off): **ADR-004 Accepted** — rszst imports,
+  ABMatt post-processes, both platforms. Decided by a one-way interop wall: rszst cannot
+  read an ABMatt BRRES. 14 integration tests, 4/4 mutations caught.
+  [SPIKES.md §S3b](docs/dev/SPIKES.md#s3b-fixture-bake-off-and-backend-decision-p0-t06b) — commit P0T06B_COMMIT
 - `P0-T06a` — built RiiStudio Alpha 5.11.5 CLI on Linux without source patches;
   pinned build recipe, nine CLI recordings and ten integration tests. 68 tests pass,
   ruff clean, overwrite mutation caught. [SPIKES.md S3](docs/dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
@@ -92,6 +96,16 @@ _none_
 - 2026-09-18 (S2): `daeExportMethod=AUTO` equals `BUILTIN` on Linux because the bundled
   FbxConverter is a Windows binary. **DAE bytes will differ on Windows CI** — no
   cross-OS byte-comparison tests.
+- 2026-09-18 (S3b): **rszst cannot read an ABMatt BRRES** (`Invalid quantization for
+  normal data: U16`, exit 255) while ABMatt reads rszst output fine. This one-way wall,
+  not a preference, fixes the pipeline order in ADR-004 (now Accepted) and is recorded
+  in P7-T01.
+- 2026-09-18 (S3b): **`set_texture_formats` is dropped from the ABMatt backend** —
+  `set tex0 format:` exits 0 and changes nothing. ADR-004's interface list and P7-T01
+  updated; the operation must raise the typed unsupported error instead.
+- 2026-09-18 (S3b): ABMatt takes the MDL0 name from the **source filename stem** (no
+  flag) and rejects a `<slot>_model.brres` destination that disagrees; `abmatt -c`
+  mangles multi-word commands, so command files (`-f`) are the supported route.
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->

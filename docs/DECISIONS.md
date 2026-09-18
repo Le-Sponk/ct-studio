@@ -36,8 +36,8 @@ stack; RiiStudio and Wiimms are native binaries; licences vary.
 typed adapters. ABMatt runs from its release binary or an isolated environment.
 **Consequences:** Clean dependency tree and licence separation; small per-call overhead (acceptable).
 
-## ADR-004 — Pluggable BRRES backend; default decided by spike S3
-**Status:** Provisional
+## ADR-004 — Pluggable BRRES backend; rszst imports, ABMatt post-processes
+**Status:** Accepted (decided by spike S3; was Provisional)
 **Context:** Candidates:
 - *RiiStudio CLI (`rszst`)*: `import-brres` from DAE/FBX, `--preset-path` material presets,
   `dump-presets`, `optimize`, `--model-name` (5.11.3+), `brres-to-json`/`json-to-brres` (5.11.2+,
@@ -51,15 +51,26 @@ typed adapters. ABMatt runs from its release binary or an isolated environment.
 - *BrawlCrate*: GUI only, no headless automation → escape hatch, not a backend.
 **Hypothesis to test:** rszst for import (quality) + JSON or preset-based material edits; ABMatt as
 fallback where rszst is unavailable and for minimap creation.
-**Decision:** Define `BrresBackend` interface (import, inspect, apply material settings, set texture
-formats, capture/reapply material state). Pick default per platform from S3 evidence.
-**Revisit when:** S3 completes (mandatory), or a backend breaks on real tracks at HC2.
+**Decision:** Define `BrresBackend` interface (import, inspect, apply material settings,
+capture/reapply material state). Pick default per platform from S3 evidence.
 **S3a evidence:** Alpha 5.11.5 (`09e5754`) builds on Linux with pinned Corrosion 0.4.10,
 explicit `<memory>` inclusion and `libstdc++exp` linkage; no source patches.
 Help/version and invalid arguments all exit 255 on Linux. See [SPIKES.md S3](dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
-This supersedes the acquisition uncertainty only. ADR-004 remains Provisional until
-P0-T06b measures fixture imports and confirms the interface; a successful build does
-not establish a backend default or redistribution permission.
+**S3b decision (evidence: [SPIKES.md S3b](dev/SPIKES.md#s3b-fixture-bake-off-and-backend-decision-p0-t06b),
+`tests/integration/test_brres_backends.py`):** `rszst` **imports**, ABMatt
+**post-processes materials and builds minimaps**, on every platform. Decided by a
+one-way interop wall, not preference: ABMatt reads an rszst BRRES, but rszst fails to
+read an ABMatt BRRES (`Invalid quantization for normal data: U16`, exit 255). rszst is
+also ~22x faster (0.013 s vs 0.293 s) and is the only one with a model-name flag and a
+JSON round-trip. Both produce SZS files that pass `wszst check`.
+**Consequences:** the pipeline direction is fixed — never feed ABMatt output to rszst.
+Because Linux rszst needs a source build (S3a) and its licence is unresolved, ABMatt
+must remain usable standalone; it converts, packs and validates on its own. The
+interface is `import_model`, `inspect`, `apply_materials`, `capture_presets`;
+`set_texture_formats` is deliberately **not** in the ABMatt implementation because
+`set tex0 format:` is a silent no-op there.
+**Revisit when:** a backend breaks on real tracks at HC2, rszst gains ABMatt-BRRES read
+support, or the licence question forces an ABMatt-only default.
 
 ## ADR-005 — Project = plain folder + `ctstudio.toml`; app data in `.ctstudio/`
 **Status:** Accepted

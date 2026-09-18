@@ -72,6 +72,38 @@ or the parser's version alone. All commands above ran without display variables.
 This does **not** verify conversion effects, conversion failure codes or Windows.
 S3b must characterize those before any backend/default decision.
 
+### Verified conversion commands (S3b, rszst Alpha 5.11.5 / ABMatt 1.3.2, Linux)
+
+| Tool | Operation | Exact argv template | Exit codes | Verified how |
+|---|---|---|---|---|
+| rszst | DAE → BRRES | `rszst import-brres IN.dae OUT.brres [--model-name NAME] [--mipmaps --min-mip N]` | 0 ok, 255 fail | real run, P0-T06b |
+| rszst | BRRES → JSON | `rszst brres-to-json IN.brres OUT.json` | 0 ok, 255 fail | real run, P0-T06b |
+| rszst | JSON → BRRES | `rszst json-to-brres IN.json OUT.brres` | 0 ok | real run, P0-T06b |
+| rszst | dump material presets | `rszst dump-presets IN.brres OUTDIR` | 0 ok | real run, P0-T06b |
+| abmatt | DAE → BRRES | `abmatt convert IN.dae to OUT.brres -o` | 0 ok, 1 fail | real run, P0-T06b |
+| abmatt | edit materials | `abmatt -b FILE.brres -o -f COMMANDS.txt` | 0 ok, 1 fail | real run, P0-T06b |
+| abmatt | inspect | `abmatt -b FILE.brres -c info` | 0 | real run, P0-T06b |
+
+Unlike the help output above, **conversion exit codes are meaningful**: rszst returns 0
+on success and 255 on a genuine failure (verified against garbage input).
+
+#### Backend behaviour the adapter must encode (S3b)
+- **rszst cannot read an ABMatt BRRES**: `Failed to read MDL0 course: Invalid
+  quantization for normal data: U16`, exit 255. ABMatt reads rszst output fine. The
+  pipeline direction is therefore fixed: rszst imports, ABMatt post-processes.
+- **ABMatt has no model-name option.** The MDL0 name is taken from the source file stem
+  up to the first `_` (`vrcorn_xyz.dae` → `vrcorn`). Writing to `<slot>_model.brres`
+  whose stem disagrees fails with `Model name does not match file` and writes nothing.
+  Stage the DAE under the intended name. rszst uses `--model-name` instead.
+- **`abmatt -c "<multi-word command>"` is broken** (the argument is mangled and the run
+  dies in the parser). Use a command file with `-f`.
+- **`set tex0 format:IA8` exits 0 but changes nothing** — a silent no-op. Do not expose
+  per-texture format control through ABMatt.
+- **`--mipmaps` alone is a no-op** at the default `--min-mip 32` for 64x64 textures; pass
+  `--min-mip` too. Default mipmap counts differ between backends (rszst 1, ABMatt 3).
+- Material selectors use **material** names (`for water`), not object names; a bad
+  selector fails loudly with `No items found in selection!`.
+
 ## ABMatt (ANoob's BRRES Material Tool)
 - Repo: https://github.com/Robert-N7/abmatt · Licence: GPL-3.0 **[doc]** · Latest: **v1.3.2 (2022-06-06)** **[doc]**
 - Releases for Linux and Windows; or `pip install git+https://github.com/Robert-N7/abmatt.git` **[doc]**
