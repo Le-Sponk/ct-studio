@@ -76,7 +76,7 @@ Boost Pad, Wall, Fall Boundary). 38 unit tests, 3/3 mutations caught.
 valid, but the `[CAME]` opening camera is not, so compiling reports 2 expected camera warnings.
 Writing a valid CAME block is deferred to P10-T05 as the task allows.
 
-### [ ] P0-T04 — Spike S1: Wiimms assemble & check (timebox 2 h)
+### [x] P0-T04 — Spike S1: Wiimms assemble & check (timebox 2 h) (commit COMMIT_HASH)
 Stage a folder (`course.kcl`, a placeholder or ABMatt-made `course_model.brres`, `map_model.brres`,
 `vrcorn_model.brres`, `course.kmp`, empty/absent `posteffect/`) → `wszst create` with fastest and
 best compression → `wszst check` → `wszst slots` → `wszst list`.
@@ -84,6 +84,18 @@ Find: exact flags for destination/overwrite/compression levels/auto-add; whether
 machine-readable mode (`--json`/`--sections`?) or what text format to parse; exit codes; how missing
 components are reported; timings for fast vs best.
 **Acceptance:** SPIKES.md §S1; adapter-ready command table in TOOLS.md.
+
+Done. [SPIKES.md §S1](../dev/SPIKES.md) + command table and caveats in
+[TOOLS.md](../reference/TOOLS.md). Reproduce with `uv run python spikes/s1_wszst.py`;
+11 integration tests in `tests/integration/test_wszst_contract.py` pin the behaviour
+(3/3 mutations caught).
+**Headline:** `wszst check`'s exit code is not pass/fail — a valid track, a track with
+warnings and an empty archive all exit **2**, while a **corrupt file exits 0** with
+`ERROR #39` on stdout. Adapters must parse output and treat `ERROR #` as failure.
+`check --sections` and `slots --sections` are rejected; **`analyze --json`** is the
+machine-readable path and supersedes `slots` (it carries `slot_info`, `lap_count`,
+`n_ckpt0`, coordinate ranges and per-component SHA1s that are empty when a file is
+missing). `create` never validates, and `--auto-add` is a silent no-op with no library.
 
 ### [ ] P0-T05 — Spike S2: headless Blender exports with Blender-MKW-Utilities (timebox 3 h)
 Add the add-on as submodule `vendor/blender-mkw-utilities` (github.com/Le-Sponk/Blender-MKW-Utilities,

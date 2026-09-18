@@ -145,6 +145,48 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
 | wkclt | 2.42a r8989 | per-flag triangle table | `wkclt flags FILE.kcl` | 0 | not yet | real run, P0-T03 |
 | wkmpt | 2.42a r8989 | compile KMP text | `wkmpt encode SRC.txt --dest OUT.kmp --overwrite` | 0 (warnings do not fail) | not yet | real run, P0-T03 |
 | wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0 | not yet | real run, P0-T03 |
+| wszst | 2.42a r8989 | build SZS from a stage dir | `wszst create DIR --dest OUT.szs --overwrite [--compr=LEVEL]` | 0 = ok | no | real run, P0-T04 |
+| wszst | 2.42a r8989 | validate a track | `wszst check FILE.szs [--brief]` | **see warning below** | yes, text | real run, P0-T04 |
+| wszst | 2.42a r8989 | structured analysis | `wszst analyze --json FILE.szs` | 0 | yes, JSON | real run, P0-T04 |
+| wszst | 2.42a r8989 | list archive contents | `wszst list [--long] FILE.szs` | 0 | yes, text | real run, P0-T04 |
+| wszst | 2.42a r8989 | slot proposals | `wszst slots FILE.szs` | 0 | yes, text | real run, P0-T04 |
+
+### wszst check: the exit code is NOT pass/fail (P0-T04)
+Verified by real runs; see [SPIKES.md §S1](../dev/SPIKES.md#s1--wiimms-assemble--check-p0-t04).
+
+| Input | Exit | Prints `ERROR #`? |
+|---|---|---|
+| Valid track, and track with 5 warnings, and empty archive | **2** (`DIFFER`) | no |
+| **Corrupt / unrecognised file** | **0** | **yes** (`ERROR #39`) |
+| File not on disk | 78 (`CAN'T OPEN FILE`) | yes |
+
+The adapter must parse output and treat `ERROR #` as failure regardless of exit code.
+`wszst create` is normal (0 = success); only `check` behaves this way.
+
+Output severities are prefixed `+ WARNING:`, `- HINT:`, `* INFO:`, and the run ends with
+`=> N warnings, M hints and K info for <type>:<path>`. `-B/--brief` drops hints.
+Missing components are only reported when a KMP is present:
+`+ WARNING: Missing file:    ./course_model.brres (or '_d' variant)`.
+
+### wszst machine-readable output (P0-T04)
+`check --sections` and `slots --sections` are **rejected** (`ERROR #108`, exit 108).
+Only `analyze` is structured: `--json` (one JSON object) or `--sections` (`key = value`).
+Useful keys: `valid_track`, `valid`, `lap_count`, `n_ckpt0`, `slot_info`, `used_x_pos`/
+`used_y_pos`/`used_z_pos` (range check), `missed_subfiles`, `warn`, and per-component
+hashes `sha1_kcl`/`sha1_kmp`/`sha1_course`/`sha1_vrcorn`/`sha1_minimap` (empty string when
+that component is absent — the reliable way to detect missing files).
+Prefer `analyze --json` over `slots`: `slot_info` carries the same data.
+
+### wszst create (P0-T04)
+- Builds from a plain directory and **does not validate**: it produced an SZS from a
+  KCL+KMP only, and from a completely empty directory. Always follow with `check`.
+- Compression on the fixture (payload 16928 B): `--no-compress` 16928 B/0.001 s,
+  `--fast` = `--compr=FAST` 10118 B/0.002 s, default = `--compr=BEST` 8486 B/0.007 s,
+  `--compr=ULTRA` 8247 B/0.009 s. Re-measure on a real track before setting defaults.
+- `-d/--dest` supports `%N` (source name) and `%T` (default extension); `-D/--DEST` also
+  creates directories (`--DEST 'out/%N%T'` produced `out/minimal.szs`).
+- `--auto-add` is a **silent no-op** without an auto-add library: no warning even with
+  `-v`. The app must check for a configured library itself.
 
 ## KMP text format (P0-T03, verified against wkmpt 2.42a)
 Hand-writing KMP text is easy to get wrong; these cost real debugging time:

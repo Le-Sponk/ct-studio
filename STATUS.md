@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T04 — Spike S1: Wiimms assemble & check
+**Next task:** P0-T05 — Spike S2: headless Blender exports
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 1d44633 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,10 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T04` — Spike S1 (Wiimms assemble & check): `spikes/s1_wszst.py` +
+  [SPIKES.md §S1](docs/dev/SPIKES.md) + adapter command table in TOOLS.md.
+  Found that `wszst check`'s exit code is not pass/fail and that `analyze --json`
+  supersedes `slots`. 11 integration tests, 3/3 mutations caught. — commit COMMIT_HASH
 - `P0-T03` — synthetic fixture track: `scripts/fixtures/` generates two `.blend` variants,
   7 PNGs and a valid `course.kmp` in 0.85 s (budget 60 s), deterministically. Proved with
   the real tools: add-on exported 5 KCL objects / 292 triangles, `wkclt flags` confirmed
@@ -55,6 +59,16 @@ _none_
   editor round-trips while P10-T01 is where KMP sections are actually handled.
 - 2026-09-18: added `pytest.ini` (marker registry from TESTING_STRATEGY §1) and extended
   `ruff.toml`, both pre-P1 stand-ins that P1-T01/P1-T02 fold into `pyproject.toml`.
+- 2026-09-18 (S1): **`wszst check` exit codes are not a pass/fail signal** — valid track,
+  warning-laden track and empty archive all exit 2 (`DIFFER`), but a corrupt file exits
+  **0** while printing `ERROR #39`. The adapter must parse output and treat `ERROR #` as
+  failure. Affects P2-T05 (`wiimm.py`) and P4-T06 (validate node); both updated.
+- 2026-09-18 (S1): `check --sections` and `slots --sections` are rejected; **only
+  `analyze` is machine-readable** (`--json`/`--sections`). `analyze --json` carries
+  `slot_info`, `lap_count`, `n_ckpt0`, coordinate ranges and per-component SHA1s, so
+  `slots()` is dropped from the P2-T05 adapter surface in favour of `analyze()`.
+- 2026-09-18 (S1): `wszst create` never validates (it builds from an empty directory),
+  and `--auto-add` is a **silent no-op** without a library. The app must guard both.
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->

@@ -43,6 +43,12 @@ Post-check with `wszst list` that expected files are inside.
 ### [ ] P4-T06 — Validate node
 `wszst check` → Issues (parser from S1 findings) → `.ctstudio/issues.json`. Warnings never fail test builds;
 `--strict`/release profile fails on errors.
+**From S1 (P0-T04):** severities come from the line prefixes `+ WARNING:` / `- HINT:` /
+`* INFO:`, with a `=> N warnings, M hints and K info for …` summary line. Missing
+components appear as `+ WARNING: Missing file:    ./course_model.brres (or '_d' variant)`
+but **only when a KMP is present**, so do not rely on `check` alone to detect a missing
+component — use the empty `sha1_course`/`sha1_vrcorn`/`sha1_minimap` fields from
+`wszst analyze --json`. Never treat `check`'s exit code as pass/fail (see TOOLS.md).
 **Acceptance:** parser tests on recorded outputs (clean, warnings, errors); integration test.
 
 ### [ ] P4-T07 — `ctstudio build`
