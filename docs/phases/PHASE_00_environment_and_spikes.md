@@ -209,7 +209,7 @@ Blender-authored minimap collection. 8 integration tests, 5/5 mutations caught.
 Visual correctness (orientation, grayscale, shading) is not verifiable on a synthetic
 194-triangle fixture — deferred to HC3.
 
-### [x] P0-T09 — Spike S6: preview rendering stack (timebox 3 h) (commit P0T09_COMMIT)
+### [x] P0-T09 — Spike S6: preview rendering stack (timebox 3 h) (commit 26a2c5e)
 PySide6 `QOpenGLWidget` + moderngl: render a 200k-triangle coloured mesh; offscreen in the container
 (EGL/llvmpipe or Xvfb); save a screenshot; measure mesh upload time and frame time. Check GL version
 available on llvmpipe and minimum GL we will require (target 3.3 core).

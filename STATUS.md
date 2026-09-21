@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T10 — Spike S7: external editor launch contracts
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** c09be45 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** 26a2c5e (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -21,7 +21,7 @@ _none_
   so viewport tests need `xvfb-run` + `xcb` (TESTING_STRATEGY §5 and P9-T01 updated).
   ~10 fps on llvmpipe is a software-rasteriser floor, **not** a verdict on the §15
   budget — that needs real hardware at HC3. 6 integration tests, 4/4 mutations caught.
-  [SPIKES.md §S6](docs/dev/SPIKES.md#s6--preview-rendering-stack-p0-t09) — commit P0T09_COMMIT
+  [SPIKES.md §S6](docs/dev/SPIKES.md#s6--preview-rendering-stack-p0-t09) — commit 26a2c5e
 - `P0-T08` — Spike S5 (headless minimap): KCL → `wkclt decode --kcl-script` filter →
   ABMatt is the recommended path for P8-T03; the add-on export is the Blender-authored
   alternative. **rszst cannot make minimap bones at all**, so ADR-004 gains a
