@@ -46,8 +46,13 @@ upload these to CI or commit them.
   (`widget.grab().save(...)`), uploaded as a CI artefact. Screens are reviewed at gates (§5 of
   REVIEW_CHECKLIST) by the agent if it can view images, otherwise listed for the human at HCs.
 - The dev watchdog is enabled in GUI tests; any UI stall > 100 ms fails the test (allowlist startup).
-- GL/preview tests use offscreen contexts (EGL/llvmpipe on Linux CI). Skip with a clear reason if GL
-  is unavailable on a runner, but never on the Linux integration job.
+- GL/preview tests **cannot use `QT_QPA_PLATFORM=offscreen`** — it cannot create a GL context at all
+  (`QOpenGLWidget is not supported on this platform`, verified in S6/P0-T09). Run them under
+  `xvfb-run` with `QT_QPA_PLATFORM=xcb`, which gives GL 4.5 core on llvmpipe. Non-GL widget tests keep
+  using offscreen. A standalone `moderngl.create_context(standalone=True, backend="egl")` also works
+  and needs no X server, so use it for pure-render checks with no Qt widget involved. Linux runners
+  need `libgl-dev` (the unversioned `libGL.so`) as well as the runtime library. Skip with a clear
+  reason if GL is unavailable on a runner, but never on the Linux integration job.
 
 ## 6. CI matrix
 - `ci.yml` (every push/PR): ubuntu-latest + windows-latest · `check.py` (unit, contract, gui).

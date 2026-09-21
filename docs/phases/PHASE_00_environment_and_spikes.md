@@ -209,11 +209,26 @@ Blender-authored minimap collection. 8 integration tests, 5/5 mutations caught.
 Visual correctness (orientation, grayscale, shading) is not verifiable on a synthetic
 194-triangle fixture — deferred to HC3.
 
-### [ ] P0-T09 — Spike S6: preview rendering stack (timebox 3 h)
+### [x] P0-T09 — Spike S6: preview rendering stack (timebox 3 h) (commit P0T09_COMMIT)
 PySide6 `QOpenGLWidget` + moderngl: render a 200k-triangle coloured mesh; offscreen in the container
 (EGL/llvmpipe or Xvfb); save a screenshot; measure mesh upload time and frame time. Check GL version
 available on llvmpipe and minimum GL we will require (target 3.3 core).
 **Acceptance:** screenshot in `spikes/out/`, numbers in SPIKES.md §S6, ADR-008 confirmed or changed.
+
+Done. [SPIKES.md §S6](../dev/SPIKES.md#s6--preview-rendering-stack-p0-t09).
+`uv run --with moderngl --with numpy --with pillow --with PySide6 --no-project python
+spikes/s6_preview.py` reproduces it; screenshot at `spikes/out/s6/s6_standalone_200k.png`.
+**ADR-008 Accepted.** Headless GL is **4.5 core** (Mesa/llvmpipe), past the 3.3 target;
+a 200k-triangle interleaved VBO is 13.7 MB and uploads in under 0.04 s; the render drew
+719 263 of 921 600 pixels (verified visually, not just by pixel count).
+**The finding that changes P9:** `QT_QPA_PLATFORM=offscreen` **cannot create a GL context
+at all**; viewport tests need `xvfb-run` + `QT_QPA_PLATFORM=xcb`, which gives GL 4.5 core
+in ~0.2 s. TESTING_STRATEGY §5 and P9-T01 updated; that same failure is the exact code
+path P9-T01's fallback panel must handle. Linux also needs `libgl-dev` (unversioned
+`libGL.so`) or moderngl fails *after* Qt succeeds.
+Frame time was ~0.10 s (≈10 fps) at 200k triangles — a **software-rasteriser floor** that
+neither confirms nor refutes the ARCHITECTURE §15 budget (≥60 fps on an integrated GPU);
+deferred to HC3. 6 integration tests, 4/4 mutations caught.
 
 ### [ ] P0-T10 — Spike S7: external editor launch contracts (timebox 2 h)
 From source code/docs (and runs where possible) determine for BrawlCrate, RiiStudio GUI, Lorenzi's

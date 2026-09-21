@@ -550,3 +550,64 @@ conversion rather than trusting the MDL0 name, and then run `wszst minimap --aut
 - The KMP **Minimap Control AREA** (type 0x05) alternative to `posLD`/`posRU`
   (MKW_DOMAIN §5) — not exercised; still the documented fallback.
 - Real track scale: 292 triangles is not a track, and ABMatt's 0.277 s will grow.
+
+---
+
+## S6 — Preview rendering stack (P0-T09)
+**Script:** `spikes/s6_preview.py` → `spikes/out/s6/s6_findings.json` +
+`spikes/out/s6/s6_standalone_200k.png`.
+Re-run: `uv run --with moderngl --with numpy --with pillow --with PySide6 --no-project
+python spikes/s6_preview.py`
+**Versions:** Mesa 25.0.7 (llvmpipe, LLVM 19.1.7), moderngl 5.12.0, PySide6 6.x,
+numpy 2.5.3, Pillow 12.3.0.
+**Tests:** `tests/integration/test_preview_stack.py` — 6 tests, 4/4 mutations caught.
+
+### ADR-008 confirmed: moderngl + QOpenGLWidget works
+| Check | Result |
+|---|---|
+| Headless GL version | **4.5 core** (Mesa/llvmpipe) — exceeds the 3.3 core target |
+| Standalone EGL context | created in **0.026 s** |
+| 200k triangles, one interleaved VBO | **13.7 MB**, uploaded in **0.006–0.035 s** |
+| Offscreen render of 200k triangles | **719 263 of 921 600 pixels** drawn (1280×720) |
+| Qt `QOpenGLWidget` + moderngl sharing a context | **works under Xvfb** |
+
+The screenshot is a genuine dense triangle soup, confirmed by eye, not a cleared
+buffer — the check counts pixels differing from the clear colour, because
+"non-black" would pass trivially against a non-black clear colour.
+
+### The finding that changes how P9 is tested
+**`QT_QPA_PLATFORM=offscreen` cannot create a GL context at all:**
+`QOpenGLWidget is not supported on this platform.` / `Failed to create context`.
+Under `xvfb-run` with `QT_QPA_PLATFORM=xcb` the same code gets GL 4.5 core and a
+valid framebuffer, in ~0.2 s.
+
+This contradicts the standing convention (AGENTS.md, TESTING_STRATEGY §1) that GUI
+tests run with `QT_QPA_PLATFORM=offscreen`. That convention still holds for ordinary
+widget tests; **preview/viewport tests are the exception and need `xvfb-run` + `xcb`.**
+P9-T01 and the GUI test harness must account for this, and it is also exactly the
+condition P9-T01's "graceful fallback panel" exists to handle — a user on a machine
+without a usable GL context hits the same failure.
+
+`libGL.so` (the dev symlink, from `libgl-dev`) is required in addition to
+`libGL.so.1`: moderngl loads it by that name, so a container with only the runtime
+package gets `OSError: libGL.so: cannot open shared object file` *after* Qt has
+successfully created the context.
+
+### Performance: what these numbers do and do not mean
+Median frame at 200k triangles: **0.10 s ≈ 10 fps**, 1280×720, on **llvmpipe**.
+
+That is a software rasteriser with no GPU in this container. It is a **floor, not a
+measurement of the budget**: ARCHITECTURE §15 asks for ≥60 fps at 200k triangles on an
+*integrated GPU*, which cannot be confirmed or refuted here. What the number does show
+is that the CPU-side pipeline (numpy → single VBO → one `vao.render()`) is not the
+bottleneck: upload is ~0.03 s and the remaining cost is fragment shading, which is
+precisely the part hardware does thousands of times faster.
+
+**Do not treat 10 fps as a failure of ADR-008, and do not treat it as passing §15.**
+The budget must be re-measured on the human's RTX 4070 host at HC3 (P9 exit).
+
+### Not verified here
+- Real GPU frame times, hence the §15 preview budget (HC3).
+- Windows GL behaviour and the Qt/ANGLE path.
+- `QOpenGLWidget` resize/reallocation behaviour and multi-widget context sharing,
+  which P9-T01 needs but which a single 64×64 probe cannot exercise.

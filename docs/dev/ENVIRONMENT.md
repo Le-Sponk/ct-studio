@@ -175,3 +175,38 @@ Still unverified or deferred:
 - QOpenGLWidget/Qt platform choice and preview performance: P0-T09.
 - Native Windows behaviour: future Windows CI and human checkpoints.
 - Tool versions and install URLs: P0-T02 verifies them against real downloads.
+
+## Preview stack verification (S6, P0-T09)
+
+Confirmed by real render, not just `eglinfo`:
+
+- `moderngl.create_context(standalone=True, require=330, backend="egl")` succeeds in
+  0.026 s and reports **GL 4.5 core** on llvmpipe. A 200k-triangle scene renders to a
+  1280x720 framebuffer with 719 263 of 921 600 pixels drawn.
+- **`QT_QPA_PLATFORM=offscreen` cannot create a GL context**: `QOpenGLWidget is not
+  supported on this platform` / `Failed to create context`. Use `xvfb-run` with
+  `QT_QPA_PLATFORM=xcb` for anything involving `QOpenGLWidget`; it yields GL 4.5 core
+  and a valid framebuffer in about 0.2 s.
+- **`libgl-dev` is required**, not just `libgl1`: moderngl loads the unversioned
+  `libGL.so`, so with only the runtime package the failure appears as
+  `OSError: libGL.so: cannot open shared object file` *after* Qt has already created
+  the context successfully.
+- Preview Python dependencies used: moderngl 5.12.0, numpy 2.5.3, Pillow 12.3.0,
+  PySide6 (essentials + addons).
+
+Frame time at 200k triangles was ~0.10 s (about 10 fps) on llvmpipe. That is a
+**software-rasteriser floor** and says nothing about the ARCHITECTURE §15 budget of
+>=60 fps on an integrated GPU; upload was ~0.03 s, so the CPU-side path is not the
+constraint. Re-measure on real hardware at HC3.
+
+### Container rebuild note
+This sandbox is periodically rebuilt and loses apt-installed packages. Two sessions
+in a row lost GL/Blender runtime libraries, which surfaced as `libGL.so.1`,
+`libglfw.so.3` and `libassimp.so.5` load failures, and as a test run reporting
+skips rather than failures. Reinstall before trusting a green run:
+
+```bash
+apt-get install -y libgl1 libgl-dev libegl1 libegl-mesa0 libgl1-mesa-dri \
+  libglx-mesa0 xvfb xauth mesa-utils libglfw3 libassimp5 \
+  libxi6 libxfixes3 libxrender1 libxxf86vm1 libsm6 libice6
+```

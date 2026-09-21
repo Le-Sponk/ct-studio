@@ -13,6 +13,7 @@ textures) and, for the rszst half, the Linux build from S3a.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import statistics
 import subprocess
@@ -31,10 +32,16 @@ TIMEOUT_S = 180
 
 
 def run(argv: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
+    # ABMatt shells out to `wimgt` for texture work and silently produces a
+    # texture-less BRRES when it is missing, so put the pinned tools on PATH
+    # rather than inheriting whatever the caller happens to have.
+    env = dict(os.environ)
+    env["PATH"] = f"{WSZST.parent}{os.pathsep}{env.get('PATH', '')}"
     return subprocess.run(  # noqa: S603 - local pinned tools, argv only
         [str(a) for a in argv],
         cwd=str(cwd),
         capture_output=True,
+        env=env,
         text=True,
         encoding="utf-8",
         errors="replace",

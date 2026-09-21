@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T09 — Spike S6: preview rendering stack
+**Next task:** P0-T10 — Spike S7: external editor launch contracts
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** c09be45 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,13 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T09` — Spike S6 (preview rendering stack): **ADR-008 Accepted** — moderngl in a
+  `QOpenGLWidget` works; headless GL is 4.5 core, a 200k-triangle VBO is 13.7 MB and
+  uploads in <0.04 s. **`QT_QPA_PLATFORM=offscreen` cannot create a GL context at all**,
+  so viewport tests need `xvfb-run` + `xcb` (TESTING_STRATEGY §5 and P9-T01 updated).
+  ~10 fps on llvmpipe is a software-rasteriser floor, **not** a verdict on the §15
+  budget — that needs real hardware at HC3. 6 integration tests, 4/4 mutations caught.
+  [SPIKES.md §S6](docs/dev/SPIKES.md#s6--preview-rendering-stack-p0-t09) — commit P0T09_COMMIT
 - `P0-T08` — Spike S5 (headless minimap): KCL → `wkclt decode --kcl-script` filter →
   ABMatt is the recommended path for P8-T03; the add-on export is the Blender-authored
   alternative. **rszst cannot make minimap bones at all**, so ADR-004 gains a
@@ -68,6 +75,16 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-21 (S6): **GL/preview tests cannot use `QT_QPA_PLATFORM=offscreen`** — it
+  cannot create a GL context at all. They must run under `xvfb-run` with
+  `QT_QPA_PLATFORM=xcb`; plain widget tests keep using offscreen. TESTING_STRATEGY §5,
+  P9-T01 and ADR-008 updated. **AGENTS.md line 49 still says GUI tests run offscreen
+  without this caveat — that file is yours to edit, see "Needs human".** Evidence:
+  [SPIKES.md §S6](docs/dev/SPIKES.md).
+- 2026-09-21 (S6): ARCHITECTURE §15's preview budget (≥60 fps at 200k tris) is
+  **not measurable in this container**. llvmpipe gives ~10 fps, a software floor with no
+  GPU; upload is ~0.03 s so the CPU path is not the constraint. Recorded as an HC3 item
+  rather than treating the budget as met or missed.
 - 2026-09-21 (S5): **ADR-004 gains a minimap exception** — that component uses ABMatt,
   not rszst, because rszst produces no `posLD`/`posRU` bones. P8-T03 rewritten with the
   verified recipe plus a mandatory post-conversion bone check (a boneless minimap is
@@ -169,6 +186,12 @@ _none_
   the bridge keeps the copy-to-`mkw_utilities` step.
 - Auto-add (from S1) still needs a library built from your own game files to test for
   real; I cannot create one here. HC0 question, relevant before P4.
+- **One-line AGENTS.md edit for you** (I am not permitted to write that file): line 49
+  reads "GUI tests run headless with `QT_QPA_PLATFORM=offscreen`". S6 proved that is
+  false for GL/preview tests — offscreen cannot create a GL context. Suggested wording:
+  "GUI tests run headless with `QT_QPA_PLATFORM=offscreen`; GL/preview tests instead need
+  `xvfb-run` + `QT_QPA_PLATFORM=xcb` (offscreen cannot create a GL context — S6)".
+  Not blocking: TESTING_STRATEGY §5, ADR-008 and P9-T01 all carry the correct rule.
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

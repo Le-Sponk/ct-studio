@@ -102,9 +102,21 @@ exports to the project on demand/on save) is a later, optional task coordinated 
 because the add-on repo is theirs.
 
 ## ADR-008 — Preview with moderngl inside QOpenGLWidget; no BRRES rendering in v1
-**Status:** Provisional (confirmed by spike S6)
+**Status:** Accepted (confirmed by spike S6, P0-T09)
 **Decision:** Render collision, source geometry (`preview_mesh.npz`), minimap and KMP overlay.
-**Revisit when:** users need to see final BRRES materials in-app (consider `rszst brres-to-json`).
+**S6 evidence** ([SPIKES.md §S6](dev/SPIKES.md)): headless GL is **4.5 core** (Mesa/llvmpipe),
+well past the 3.3 core target; a 200k-triangle interleaved VBO is 13.7 MB and uploads in
+under 0.04 s; `QOpenGLWidget` hands moderngl a working context.
+**Constraint this imposes on testing:** `QT_QPA_PLATFORM=offscreen` **cannot create a GL
+context** (`QOpenGLWidget is not supported on this platform`). Viewport tests must run under
+`xvfb-run` with `QT_QPA_PLATFORM=xcb`; the offscreen convention still applies to ordinary
+widget tests. `libgl-dev` (for the `libGL.so` symlink) is required alongside the runtime
+library or moderngl fails after Qt has already succeeded.
+**Not settled by S6:** the ARCHITECTURE §15 preview budget (≥60 fps at 200k triangles on an
+integrated GPU). llvmpipe managed ~10 fps, which is a software-rasteriser floor and neither
+confirms nor refutes the budget — re-measure on real hardware at HC3.
+**Revisit when:** users need to see final BRRES materials in-app (consider `rszst brres-to-json`),
+or HC3 shows the §15 budget is missed on real hardware.
 
 ## ADR-009 — Licence GPL-3.0-or-later
 **Status:** Provisional — confirm at HC0

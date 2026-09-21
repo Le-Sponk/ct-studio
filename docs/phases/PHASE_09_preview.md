@@ -10,6 +10,16 @@ way to spot wrong flags, holes, or a broken minimap without launching the game.
 top/front views; Blender-like mouse defaults, configurable), grid/axes, lazy resource creation,
 explicit release on project close, `paintGL` only draws. Graceful fallback panel if GL context creation
 fails (message + "Copy diagnostics"), never a crash.
+**From S6 (P0-T09):** the stack is confirmed — headless GL is 4.5 core, well past the 3.3 target.
+Two constraints:
+- **Viewport tests cannot use `QT_QPA_PLATFORM=offscreen`**, which fails with
+  `QOpenGLWidget is not supported on this platform`. Run them under `xvfb-run` with
+  `QT_QPA_PLATFORM=xcb`. Ordinary widget tests keep using offscreen.
+- The fallback panel is not hypothetical: the offscreen failure above is exactly the
+  code path it must handle, so test it by launching with `QT_QPA_PLATFORM=offscreen`
+  and asserting the panel appears instead of a crash.
+- Linux packaging needs `libGL.so` (the `libgl-dev` symlink), not just `libGL.so.1`;
+  moderngl loads it by the unversioned name *after* Qt has created the context.
 **Acceptance:** offscreen render test produces a non-empty image; GL-failure fallback test (mock).
 
 ### [ ] P9-T02 — Mesh upload pipeline
