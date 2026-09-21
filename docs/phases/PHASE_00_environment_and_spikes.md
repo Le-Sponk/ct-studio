@@ -186,7 +186,7 @@ unmatched preset is skipped silently, so P7-T07 must diff and report orphans its
 HUMAN_CHECKPOINTS.md (TEV/indirect/multi-layer/PAT0/CLR0 coverage, and whether a
 BrawlCrate-saved BRRES re-imports into rszst at all).
 
-### [x] P0-T08 — Spike S5: headless minimap (timebox 3 h) (commit P0T08_COMMIT)
+### [x] P0-T08 — Spike S5: headless minimap (timebox 3 h) (commit c09be45)
 Paths to evaluate: (1) KCL → OBJ filtered by KCL types (`wkclt` options) → ABMatt convert as map
 model; (2) Blender minimap collection → DAE/OBJ → backend with model name `map` + bones;
 (3) add-on's own minimap export. Then `wszst minimap --auto`. Verify model named `map`, bone `map`

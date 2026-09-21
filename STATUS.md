@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T09 — Spike S6: preview rendering stack
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** eae0ba3 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** c09be45 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -22,7 +22,7 @@ _none_
   filename**, so an MDL0 named `map` is not evidence of a working minimap, and
   `wszst minimap` reports a boneless file only by printing nothing at exit 0.
   8 integration tests, 5/5 mutations caught.
-  [SPIKES.md §S5](docs/dev/SPIKES.md#s5--headless-minimap-p0-t08) — commit P0T08_COMMIT
+  [SPIKES.md §S5](docs/dev/SPIKES.md#s5--headless-minimap-p0-t08) — commit c09be45
 - `P0-T07` — Spike S4 (preserving external material edits): **ADR-012 Accepted** —
   capture with `rszst dump-presets`, reapply with `import-brres --preset-path`. All three
   candidate routes restore the edit, so failure modes decided it: ABMatt copy/paste
