@@ -35,10 +35,17 @@ recursively. Skipped when unchanged.
 **Acceptance:** tests incl. wrong file type → clear Issue + failure.
 
 ### [ ] P4-T05 — Assemble node
-Stage → `wszst create` via adapter using the profile's compression, `--auto-add` when enabled and
-the library is configured, output to `build/<slot>.szs`; `_d` variant copy when enabled.
+Stage → `wszst create` via adapter using the profile's compression. Auto-add is optional: fixtures
+and the default manual-mode path do not require it; pass `--auto-add` only when the user enabled it
+and the library passed the adapter's usability check. If the staged KMP references objects that are
+absent from both the stage and the configured library, emit a clear warning naming every missing
+object; never silently accept wszst's no-op behavior when the library is unavailable. Output to
+`build/<slot>.szs`; `_d` variant copy when enabled.
 Post-check with `wszst list` that expected files are inside.
-**Acceptance:** integration test on fixture; fake-tools unit test of argument construction per profile.
+**Acceptance:** integration test on the synthetic fixture with no auto-add library; fake-tools unit
+tests for argument construction per profile, unavailable/empty-library behavior, and named
+missing-object warnings. Add a `realdata` test for a user-owned library and run it at HC1; it skips
+when the local library/game fixtures are absent.
 
 ### [ ] P4-T06 — Validate node
 `wszst check` → Issues (parser from S1 findings) → `.ctstudio/issues.json`. Warnings never fail test builds;

@@ -27,7 +27,11 @@ On the Linux Mint host, in the repo folder:
    map_model.brres, vrcorn_model.brres, posteffect folder) by drag & drop.
 5. Build test SZS. Check the Issues panel makes sense.
 6. Put the SZS in your usual test setup (Riivolution / extracted game / My Stuff) and race one lap.
-7. Try "Open in…" for the BRRES and the KMP. Edit and save something in an editor; confirm the card
+7. Auto-add real-data check: configure the library you built from your own `Race/Course/`, then run
+   the `realdata` auto-add test documented by P4-T05. Build a KMP that references at least one object
+   not staged manually and confirm it is inserted. Temporarily disable the library and confirm the
+   build warns clearly with the missing object name(s), rather than succeeding silently.
+8. Try "Open in…" for the BRRES and the KMP. Edit and save something in an editor; confirm the card
    notices and the choices make sense.
 Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
 

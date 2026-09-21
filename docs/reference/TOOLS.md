@@ -29,9 +29,8 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
 - `wkclt analyze course.kcl` (triangle count, bounds), `wkclt flags course.kcl` (per-flag breakdown) **[doc: add-on README]**
 - `wkmpt` decode/encode KMP text; text format guide: https://szs.wiimm.de/info/kmp-guide.html **[doc]**
 - `wimgt` converts TPL/TEX/BTI/BREFT/PNG **[doc]**; ABMatt requires it on PATH **[doc]**
-- **Open questions (S1):** exact `create` invocation from a folder to a named `.szs`; whether `check`
-  supports a machine-readable mode or which text format to parse; exit codes for warnings vs errors;
-  how auto-add reports inserted files; Cygwin path handling on Windows with spaces/unicode.
+- **Remaining open question:** Cygwin path handling on Windows with spaces/unicode. The create,
+  check and auto-add contracts are recorded below.
 
 ## RiiStudio CLI (`rszst`)
 - Repo: https://github.com/riidefi/RiiStudio (now served from github.com/snailspeed3/RiiStudio).
@@ -289,6 +288,44 @@ Prefer `analyze --json` over `slots`: `slot_info` carries the same data.
   creates directories (`--DEST 'out/%N%T'` produced `out/minimal.szs`).
 - `--auto-add` is a **silent no-op** without an auto-add library: no warning even with
   `-v`. The app must check for a configured library itself.
+
+### wszst auto-add (human recording, Wiimms SZS Tools 2.42a)
+The library was built from the user's own extracted `Race/Course/` directory. That directory
+contained the SZS files plus an `Object/` subdirectory; `wszst autoadd <Race/Course dir>` accepted
+that layout and exited 0. Its stdout has no summary:
+
+```text
+CURRENT AUTO-ADD PATH: /usr/local/share/szs/auto-add/
+ANALYZE YAZ0.U8:<path>
+...one ANALYZE line per processed SZS...
+```
+
+The measured run emitted 47 `ANALYZE` lines: 32 race tracks, 10 arenas and 5 demo/cutscene files.
+The adapter must count/parse those lines rather than look for a nonexistent summary.
+
+`wszst autoadd` with no source is only a path-discovery command:
+
+```text
+CURRENT AUTO-ADD PATH: /usr/local/share/szs/auto-add/
+SEARCH PATH[0]: <path>
+SEARCH PATH[1]: <path>
+```
+
+Whitespace before `SEARCH PATH` is not significant. There is no count or `library OK` line, and it
+exits 0. Local verification found the same success status and line shape when the current path was
+absent, empty, or populated; merely creating the directory can add a duplicate spelling of the same
+location to the search-path list. Therefore:
+
+- parse `CURRENT AUTO-ADD PATH` and zero or more indexed search paths, but do not deduce readiness
+  from exit 0, path count, duplicate paths or directory existence alone;
+- treat auto-add as an optional capability and enable `wszst create --auto-add` only after a separate
+  library-content check;
+- fixtures never depend on the library; the real create/use test is `realdata` and runs at HC1;
+- when a KMP references objects unavailable from both the stage and a configured library, emit a
+  warning that names the missing objects. Never allow `wszst`'s silent no-op to become a silent build.
+
+Parser/fake recordings may use synthetic SZS paths but must preserve the real grammar above. The
+user's game data and complete filenames remain local and must not be committed.
 
 ## KMP text format (P0-T03, verified against wkmpt 2.42a)
 Hand-writing KMP text is easy to get wrong; these cost real debugging time:

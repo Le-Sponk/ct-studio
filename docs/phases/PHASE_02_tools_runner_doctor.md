@@ -52,9 +52,13 @@ broken tracks but 0 for a corrupt file, so `check()` must parse output and raise
 and prefer it for status; it supersedes `slots()`.
 - `wiimm.py`: `create_szs(stage, dest, compression, auto_add, extra)`, `check(szs|dir) -> list[Issue]`,
   `analyze(szs) -> dict`, `minimap_auto(file)`, `kcl_analyze(kcl)`, `kcl_flags(kcl)`, `kmp_to_text/ from_text`,
-  `img_encode(png, dest, format, mipmaps)`, `autoadd_create(race_course_dir, dest)`.
-  `auto_add=True` must fail loudly when no auto-add library is configured: wszst ignores
-  the flag silently.
+  `img_encode(png, dest, format, mipmaps)`, `autoadd_status()`, and
+  `autoadd_create(race_course_dir, dest)`. The auto-add parser follows the human recording in
+  TOOLS.md: status returns the current path plus indexed search paths, while create success is exit
+  0 plus one `ANALYZE YAZ0.U8:<path>` line per processed archive (there is no summary). Add fake-tool
+  outputs with synthetic paths for both forms. `auto_add=True` must fail loudly unless a separate
+  content check says the library is usable: status exit 0, directory existence, and search-path
+  count do **not** establish that (wszst otherwise ignores the flag silently).
 - `abmatt.py`, `rszst.py`: only the operations S3/S4/S5 proved useful.
 - `blender.py`: `run_script(blend, script, args, timeout)`.
 - `editors.py`: `open_in(tool_id, file)` using launch contracts; `wine.py`: prefix handling, `winepath`.

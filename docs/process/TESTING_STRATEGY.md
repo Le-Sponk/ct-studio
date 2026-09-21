@@ -37,8 +37,10 @@ Every test file sets a timeout (`pytest-timeout`, default 30 s unit, 600 s integ
 
 ## 4. Real data (optional, local only)
 The human may place their own track projects/SZS files in `local_fixtures/` (gitignored) with a
-`local_fixtures/README.md` describing each. Tests marked `realdata` auto-skip when absent. Never
-upload these to CI or commit them.
+`local_fixtures/README.md` describing each. Tests marked `realdata` auto-skip when absent. The real
+Wiimms auto-add build/use test also carries this marker and runs at HC1; synthetic fixture builds
+must not require an auto-add library. Never upload game-derived inputs or auto-add contents to CI
+or commit them.
 
 ## 5. GUI testing
 - `QT_QPA_PLATFORM=offscreen`, pytest-qt `qtbot`, wait on signals (`qtbot.waitSignal`) — never sleep.

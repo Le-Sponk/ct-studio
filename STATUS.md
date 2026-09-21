@@ -75,6 +75,13 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-22 (human auto-add recording): **auto-add does not gate P4.** Synthetic fixture builds
+  omit it; `--auto-add` is opt-in and only emitted after a separate library usability check. Status
+  output is path discovery, not health: absent, empty and populated paths all return 0 with the same
+  basic lines. P2 must parse the reported `CURRENT AUTO-ADD PATH` / `SEARCH PATH[N]` grammar and the
+  create form's 47 `ANALYZE YAZ0.U8:<path>` lines using fakes. P4-T05 must warn with the names of KMP
+  objects missing from both the stage and library. The real end-to-end test is `realdata` at HC1.
+  Affects TOOLS, P2-T05, P4-T05, TESTING_STRATEGY and HC1.
 - 2026-09-21 (S6): **GL/preview tests cannot use `QT_QPA_PLATFORM=offscreen`** — it
   cannot create a GL context at all. They must run under `xvfb-run` with
   `QT_QPA_PLATFORM=xcb`; plain widget tests keep using offscreen. TESTING_STRATEGY §5,
@@ -184,8 +191,10 @@ _none_
   PR #1 (`ffa905f`); the submodule pin is updated and P6-T01 now specifies the callable
   API with no stdout scraping. (3) a module-name-safe package directory: **declined**;
   the bridge keeps the copy-to-`mkw_utilities` step.
-- Auto-add (from S1) still needs a library built from your own game files to test for
-  real; I cannot create one here. HC0 question, relevant before P4.
+- ~~Auto-add library/output~~ **answered 2026-09-22.** The user's library is built and working.
+  `wszst autoadd <Race/Course dir>` emits 47 `ANALYZE YAZ0.U8:<path>` lines and no summary;
+  status emits current/search paths but no health/count signal. P2 parser/fakes and P4's optional
+  behavior are now specified; the real end-to-end test is `realdata` at HC1. Not a P4 gate.
 - **One-line AGENTS.md edit for you** (I am not permitted to write that file): line 49
   reads "GUI tests run headless with `QT_QPA_PLATFORM=offscreen`". S6 proved that is
   false for GL/preview tests — offscreen cannot create a GL context. Suggested wording:
@@ -202,4 +211,6 @@ _none_
 
 ## Human checkpoint results
 <!-- HC0..HC4: date · outcome · issues filed as task IDs -->
-_none_
+- HC0 supporting input · 2026-09-22 · Auto-add library built successfully from the user's own
+  `Race/Course/`; output contract supplied and incorporated. Real-data use deferred to HC1 as
+  requested; no P4 blocker.
