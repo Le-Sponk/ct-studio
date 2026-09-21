@@ -82,6 +82,9 @@ S3b must characterize those before any backend/default decision.
 | rszst | dump material presets | `rszst dump-presets IN.brres OUTDIR` | 0 ok | real run, P0-T06b |
 | rszst | reapply presets at import | `rszst import-brres IN.dae OUT.brres --model-name NAME --preset-path DIR` | 0 ok | real run, P0-T07 |
 | abmatt | copy material between files | `abmatt -b SRC.brres -b DST.brres -f CMDS.txt -o` with `copy material for X in SRC.brres` / `paste material for X in DST.brres` | 0 ok | real run, P0-T07 |
+| wkclt | KCL → filtered OBJ | `wkclt decode IN.kcl --dest OUT.obj --kcl-script FILTER.txt` | 0 ok, 64 if dest exists | real run, P0-T08 |
+| abmatt | OBJ → minimap BRRES | `abmatt convert IN.obj to map_model.brres -o` (destination **must** contain lowercase `map`) | 0 ok | real run, P0-T08 |
+| wszst | patch minimap translations | `wszst minimap --auto FILE` | 0 ok (also 0 when it does nothing) | real run, P0-T08 |
 | abmatt | DAE → BRRES | `abmatt convert IN.dae to OUT.brres -o` | 0 ok, 1 fail | real run, P0-T06b |
 | abmatt | edit materials | `abmatt -b FILE.brres -o -f COMMANDS.txt` | 0 ok, 1 fail | real run, P0-T06b |
 | abmatt | inspect | `abmatt -b FILE.brres -c info` | 0 | real run, P0-T06b |
@@ -125,6 +128,30 @@ on success and 255 on a genuine failure (verified against garbage input).
 - **SRT0 animations live outside the material list.** `dump-presets` and ABMatt
   copy/paste carry them; a material-only JSON merge drops them unless the top-level
   `srts` array is copied too. `add srt0 for <material>` authors one headlessly.
+
+#### Minimap generation (S5, P0-T08)
+- **`wszst minimap FILE` prints a header and no data rows when `posLD`/`posRU` are
+  missing, exit 0.** Absence of `Translation:` rows is the only failure signal.
+- **ABMatt creates the `map`/`posLD`/`posRU` bones from the DESTINATION filename**, not
+  the model name: it looks for a lowercase `map` substring in the output path
+  (`map_model.brres`, `mymap.brres`, `roadmapping.brres` all match; `MAP.brres` does
+  not). A *source* file named `map*` renames the MDL0 to `map` but creates **no bones**
+  — a file that passes a name check and is useless in game. Always verify the bones.
+- **rszst cannot produce minimap bones.** `import-brres --model-name map` names the MDL0
+  and leaves a single `$MergedNode_0` bone; `wszst minimap --auto` then no-ops at exit 0.
+  The minimap is the one component that must use ABMatt, not rszst (contra ADR-004's
+  general default).
+- **`wszst minimap --auto FILE` patches translations in place**, exit 0, rewriting the
+  bone flags (observed `0x11c` → `0x31f`) and tightening the bounding box to the
+  recommended values. Run it after every minimap conversion.
+- **`wkclt decode --kcl-script SCRIPT`** filters triangles during decode; `tri$remove()`
+  over wall/boundary types yields a drivable-surface OBJ for the minimap. Script syntax
+  is Wiimms' own parser (`@for`, `@function`, `tri$*()`), documented at
+  https://szs.wiimm.de/opt/kcl-script; `vendor/blender-mkw-utilities/lower-walls.txt` is
+  a working reference.
+- **ABMatt crashes on a DAE whose stem disagrees with a `*_model.brres` destination**:
+  `AttributeError: 'Brres' object has no attribute 'srt0'`, exit 1. Stage the source
+  under the intended stem first.
 
 ## ABMatt (ANoob's BRRES Material Tool)
 - Repo: https://github.com/Robert-N7/abmatt · Licence: GPL-3.0 **[doc]** · Latest: **v1.3.2 (2022-06-06)** **[doc]**

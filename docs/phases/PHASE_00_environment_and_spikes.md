@@ -186,13 +186,28 @@ unmatched preset is skipped silently, so P7-T07 must diff and report orphans its
 HUMAN_CHECKPOINTS.md (TEV/indirect/multi-layer/PAT0/CLR0 coverage, and whether a
 BrawlCrate-saved BRRES re-imports into rszst at all).
 
-### [ ] P0-T08 — Spike S5: headless minimap (timebox 3 h)
+### [x] P0-T08 — Spike S5: headless minimap (timebox 3 h) (commit P0T08_COMMIT)
 Paths to evaluate: (1) KCL → OBJ filtered by KCL types (`wkclt` options) → ABMatt convert as map
 model; (2) Blender minimap collection → DAE/OBJ → backend with model name `map` + bones;
 (3) add-on's own minimap export. Then `wszst minimap --auto`. Verify model named `map`, bone `map`
 with children `posLD`/`posRU` (or document reliance on a Minimap Control AREA instead).
 **Acceptance:** a `map_model.brres` produced headlessly; `wszst minimap` output recorded; recommended
 path in SPIKES.md §S5.
+
+Done. [SPIKES.md §S5](../dev/SPIKES.md#s5--headless-minimap-p0-t08).
+`uv run python spikes/s5_minimap.py` reproduces all three paths.
+Paths 1 and 3 work; **path 2 does not** — rszst's `--model-name map` names the MDL0 but
+creates no `posLD`/`posRU` bones, so ADR-004 gains a documented component-level
+exception: the minimap goes through ABMatt. The deciding trap: **ABMatt creates those
+bones from the DESTINATION filename** (lowercase `map` substring), so a source named
+`map*.obj` yields MDL0 `map` with no bones — a file that passes a name check and is
+useless in game, and `wszst minimap` reports it only by printing no data rows at exit 0.
+KCL type filtering works through `wkclt decode --kcl-script` (dropped 98 of 292 triangles,
+keeping the 194 drivable). `wszst minimap --auto` then tightened translations from ±20600
+to ±15284. **Recommended for P8-T03: path 1 (KCL-derived) by default**, path 3 for a
+Blender-authored minimap collection. 8 integration tests, 5/5 mutations caught.
+Visual correctness (orientation, grayscale, shading) is not verifiable on a synthetic
+194-triangle fixture — deferred to HC3.
 
 ### [ ] P0-T09 — Spike S6: preview rendering stack (timebox 3 h)
 PySide6 `QOpenGLWidget` + moderngl: render a 200k-triangle coloured mesh; offscreen in the container

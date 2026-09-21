@@ -26,8 +26,20 @@ path; KCL type filter from manifest (`include_kcl_types`, sensible defaults: roa
 excluding walls, invisible walls, fall boundaries, triggers). Always finish with
 `wszst minimap --auto` unless the user disables it. Thumbnail: simple numpy→Pillow top-down
 rasteriser (upgrade to GL preview in P9) saved to `.ctstudio/thumbs/minimap.png`.
+**From S5 (P0-T08), the concrete recipe and its traps:**
+- Auto-from-KCL is `wkclt decode IN.kcl --dest OUT.obj --kcl-script FILTER.txt` (the filter uses
+  `tri$remove()` over the excluded types; `vendor/blender-mkw-utilities/lower-walls.txt` is a
+  syntax reference) → `abmatt convert OUT.obj to map_model.brres -o`.
+- **Use ABMatt, not rszst, for this component** — rszst's `--model-name map` produces no
+  `posLD`/`posRU` bones at all, so the result is unusable however it is named. This is the
+  documented exception to ADR-004's "rszst imports" default.
+- **The destination filename decides whether the bones exist.** ABMatt looks for a lowercase
+  `map` substring in the *output path*; naming the *source* `map*` yields MDL0 `map` with no
+  bones. Write to `map_model.brres` and never rely on the MDL0 name as evidence.
+- **Verify `posLD`/`posRU` after conversion.** `wszst minimap` prints no data rows and exits 0
+  for a boneless file, so a missing minimap is otherwise silent. Raise a typed error instead.
 **Acceptance:** fixture minimap builds headless; changing the filter invalidates only minimap +
-assemble; thumbnail generated < 300 ms.
+assemble; thumbnail generated < 300 ms; a build whose output lacks `posLD`/`posRU` fails loudly.
 
 ### [ ] P8-T04 — Game files setup (optional feature, consent-gated)
 Settings → Game files: user selects their extracted `Race/Course` folder (or an extracted game root).

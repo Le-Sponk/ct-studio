@@ -88,8 +88,14 @@ Minimap*, *Creating a BRRES with RiiStudio*, *KMP*, *KCL*, *Common Crash Causes*
 - Scale must match the KCL.
 - Required structure (RiiStudio route per mkwiiki): MDL0 named `map`, bone `map` with two children
   `posLD` and `posRU`; fix their positions with `wszst minimap --auto FILE` (FILE = SZS, U8, BRRES or
-  MDL0). ABMatt creates the `map` bone automatically on import. Alternatively, a KMP **Minimap
-  Control AREA** (type 0x05) lets minimaps load without `posLD`/`posRU`.
+  MDL0). Alternatively, a KMP **Minimap Control AREA** (type 0x05) lets minimaps load without
+  `posLD`/`posRU`.
+- **Verified in S5 (P0-T08):** ABMatt creates `map`/`posLD`/`posRU` when the **destination
+  filename** contains a lowercase `map` — not when the model or source is named `map`. rszst
+  cannot create these bones at all, so the minimap is the one component that must go through
+  ABMatt. `wszst minimap` on a boneless file prints no data rows and still exits 0, so the
+  pipeline must check for the bones rather than trust the MDL0 name. Details in
+  [SPIKES.md §S5](../dev/SPIKES.md) and TOOLS.md.
 - Racing minimaps are forced grayscale; darker areas via vertex colours (recommended) or textures.
 
 ## 6. Course data (KMP)

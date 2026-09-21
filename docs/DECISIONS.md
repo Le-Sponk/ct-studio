@@ -77,6 +77,12 @@ explicit LICENSE is a **Phase 12 question**, not a prerequisite. This is why ABM
 must stay usable standalone: a user who never downloads rszst still gets a working app.
 **Revisit when:** a backend breaks on real tracks at HC2, rszst gains ABMatt-BRRES read
 support, or the maintainer grants an explicit licence (P12).
+**S5 exception (P0-T08):** the **minimap must use ABMatt, not rszst**. rszst's
+`import-brres --model-name map` names the MDL0 but creates no `posLD`/`posRU` bones,
+which the game requires; ABMatt creates them, keyed on the destination filename
+containing a lowercase `map`. This is a component-level exception to "rszst imports",
+recorded here so the P8-T03 implementation is not read as a violation.
+See [SPIKES.md §S5](dev/SPIKES.md).
 
 ## ADR-005 — Project = plain folder + `ctstudio.toml`; app data in `.ctstudio/`
 **Status:** Accepted

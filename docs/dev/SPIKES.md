@@ -474,3 +474,79 @@ warn on any orphan — that check is ours to write, not the tool's.
 - Whether `.rspreset` files are stable across rszst releases (they are opaque
   binary; no schema is published).
 - Real-world material counts and timings; 4 materials is not a track.
+
+---
+
+## S5 — Headless minimap (P0-T08)
+**Script:** `spikes/s5_minimap.py` → `spikes/out/s5/s5_findings.json`.
+Re-run: `uv run python spikes/s5_minimap.py`
+**Versions:** Wiimms SZS Tools 2.42a, ABMatt 1.3.2, RiiStudio CLI Alpha 5.11.5.
+**Tests:** `tests/integration/test_minimap_paths.py` — 8 tests, 5/5 mutations caught.
+
+### The three paths
+| Path | Route | MDL0 `map` | `posLD`/`posRU` | Usable minimap | Speed |
+|---|---|---|---|---|---|
+| **1** | `course.kcl` → filtered OBJ → ABMatt | yes | **yes** | **yes** | 0.003 s decode + 0.277 s convert |
+| **2** | Blender DAE → `rszst --model-name map` | yes | **no** | **no** | 0.011 s |
+| **3** | add-on `export_minimap_brres` (S2) | yes | **yes** | **yes** | one Blender launch |
+
+Paths 1 and 3 both work; path 2 does not, and fails in a way that looks like success.
+
+### The trap that decides this
+**`wszst list` showing `3DModels(NW4R)/map` does not mean you have a minimap.**
+The game needs the `posLD`/`posRU` bones, and ABMatt creates them based on the
+**destination filename**, not the model name:
+
+| source → destination | MDL0 name | position bones |
+|---|---|---|
+| `drivable.obj` → `map_model.brres` | `map` | **yes** |
+| `drivable.obj` → `mymap.brres` | `map` | **yes** |
+| `mapsource.obj` → `plain.brres` | `map` | **no** |
+| `drivable.obj` → `MAP.brres` | `drivable` | no |
+| `drivable.obj` → `vrcorn_model.brres` | `vrcorn` | no |
+
+So a *source* file called `map*.obj` renames the MDL0 and produces **no bones** —
+a file that passes a name check and is silently useless in game. The match is
+lowercase-only (`MAP.brres` does not count) and is a substring test, not a prefix:
+`roadmapping.brres`, `premap.brres` and `xmapx.brres` all trigger it.
+`wszst minimap` on a boneless file prints a header and **no data rows**, exit 0 —
+absence of output is the only signal.
+
+### Other findings
+1. **rszst cannot make minimap bones at all.** `--model-name map` names the MDL0
+   and nothing else; the single bone is `$MergedNode_0`. `wszst minimap --auto`
+   then has nothing to patch and exits 0 having done nothing. This is the one
+   component where **ADR-004's "rszst imports" default does not apply** — the
+   minimap must go through ABMatt.
+2. **`wszst minimap --auto` works and is worth running.** On the path-1 fixture it
+   tightened the translations from the model's bounding box (`±20600`) to the
+   recommended values (`±15284`), rewriting flags `0x11c` → `0x31f`.
+3. **KCL type filtering works via `--kcl-script`.** `wkclt decode --kcl-script`
+   with `tri$remove()` over the wall/boundary types dropped 98 of 292 triangles,
+   leaving the 194 drivable ones. This is how path 1 gets a minimap outline that
+   is the track surface rather than its surrounding walls. The script language is
+   Wiimms' own (`@for`, `@function`, `tri$*()`); `lower-walls.txt` in the add-on is
+   the reference example.
+4. **ABMatt crashes converting a DAE to a mismatched `*_model.brres`** with
+   `AttributeError: 'Brres' object has no attribute 'srt0'`, exit 1, on top of the
+   expected `Model name does not match file`. Stage the source under the intended
+   stem first (`map.dae` → `map_from_dae.brres` works and produces bones).
+5. **The add-on's export (path 3) is the same ABMatt route** with Blender doing the
+   mesh selection, which is why it also produces correct bones.
+
+### Recommendation for P9
+**Offer both working paths, defaulting to path 1 (KCL-derived).** It needs no
+Blender launch, follows the MKW convention of deriving the minimap from collision
+(MKW_DOMAIN §5), and the KCL is already built by then. Path 3 stays available for
+users who model a dedicated minimap collection in Blender. Path 2 is dead — record
+it so nobody retries `--model-name map` expecting it to work.
+
+Whichever path runs, the pipeline must **verify `posLD`/`posRU` exist** after
+conversion rather than trusting the MDL0 name, and then run `wszst minimap --auto`.
+
+### Not verified here
+- Whether the minimap *looks* right: the fixture is a synthetic 194-triangle plane,
+  so orientation, grayscale and vertex-colour shading are untested. HC3.
+- The KMP **Minimap Control AREA** (type 0x05) alternative to `posLD`/`posRU`
+  (MKW_DOMAIN §5) — not exercised; still the documented fallback.
+- Real track scale: 292 triangles is not a track, and ABMatt's 0.277 s will grow.

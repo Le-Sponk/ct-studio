@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T08 — Spike S5: headless minimap
+**Next task:** P0-T09 — Spike S6: preview rendering stack
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** eae0ba3 (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,14 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T08` — Spike S5 (headless minimap): KCL → `wkclt decode --kcl-script` filter →
+  ABMatt is the recommended path for P8-T03; the add-on export is the Blender-authored
+  alternative. **rszst cannot make minimap bones at all**, so ADR-004 gains a
+  component-level exception. Key trap: ABMatt keys `posLD`/`posRU` off the **destination
+  filename**, so an MDL0 named `map` is not evidence of a working minimap, and
+  `wszst minimap` reports a boneless file only by printing nothing at exit 0.
+  8 integration tests, 5/5 mutations caught.
+  [SPIKES.md §S5](docs/dev/SPIKES.md#s5--headless-minimap-p0-t08) — commit P0T08_COMMIT
 - `P0-T07` — Spike S4 (preserving external material edits): **ADR-012 Accepted** —
   capture with `rszst dump-presets`, reapply with `import-brres --preset-path`. All three
   candidate routes restore the edit, so failure modes decided it: ABMatt copy/paste
@@ -60,6 +68,12 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-21 (S5): **ADR-004 gains a minimap exception** — that component uses ABMatt,
+  not rszst, because rszst produces no `posLD`/`posRU` bones. P8-T03 rewritten with the
+  verified recipe plus a mandatory post-conversion bone check (a boneless minimap is
+  otherwise silent: `wszst minimap` prints no rows and exits 0). MKW_DOMAIN §5 corrected
+  — it said "ABMatt creates the `map` bone automatically on import", but the bones
+  actually key off the destination filename. Evidence: [SPIKES.md §S5](docs/dev/SPIKES.md).
 - 2026-09-19 (S4): **ADR-012 names a concrete mechanism** (rszst presets) and explicitly
   rejects ABMatt copy/paste, which the plan had listed as an equal candidate. Evidence:
   its autofix silently deletes an orphaned texture and `-a`/`--auto-fix` is unusable in
