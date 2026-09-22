@@ -79,6 +79,29 @@ Table: tool, status (found/missing/too old/sandboxed), version, path, launcher, 
 tools (wszst) missing.
 **Acceptance:** integration test in container; snapshot test of text layout with fakes.
 
+### [ ] P2-T06b — How Linux users get `rszst` (first-run setup)
+**Why this needs a task:** ADR-004 makes `rszst` the BRRES import backend, but RiiStudio publishes
+**Windows and macOS assets only** — there is no Linux release and no package. S3a built it from
+source in ~55 min (the recipe is in [SPIKES.md §S3](../dev/SPIKES.md)), which is not something a
+beginner will do, and the project-wide licence is unconfirmed so CT Studio **must not redistribute
+a build** (ADR-004, HC0 non-blocking answer).
+Design the first-run path around that. Each option must appear in `doctor` and the Tools page with
+an honest description of its cost:
+1. **Detect an existing `rszst`** (PATH, standard locations, user setting) — the happy path, and
+   the only one that is instant.
+2. **Windows/macOS: guided download** from the official releases page, user-initiated, never
+   bundled (already decided for the GUI; the CLI ships in the same archive).
+3. **Linux: offer to build from source** with the pinned S3a recipe, run as a visible, cancellable
+   background job with a realistic time estimate and a disk-space check, not a silent spinner.
+   Record the exact pin so the build is reproducible.
+4. **Linux fallback: Wine + the Windows `rszst.exe`.** Cheaper than a source build and the prefix
+   machinery already exists for the editors — but **unverified**: S7 ran RiiStudio's *GUI* under
+   Wine, never the CLI. Must be measured before it is offered (see P0-T13).
+5. **Degrade honestly:** with no `rszst`, BRRES import is unavailable. Say which features are
+   affected, do not fail deep in a build with a confusing error.
+**Acceptance:** tests with fakes for each branch; the Linux build path has an integration test that
+is `slow` + `realdata`-style opt-in (it takes ~1 h); `doctor --json` reports which route was used.
+
 ### [ ] P2-T07 — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
 "Open download page". Changes persist to user settings.

@@ -41,6 +41,41 @@ the game".
 **Acceptance:** descriptor/XML generation tests; a validation step with its own tests; HC3 confirms
 the patch actually lands.
 
+### [ ] P11-T02c — Wheel Wizard / Retro Rewind as a test route (HC0 follow-up)
+The human's actual test setup is **Wheel Wizard** (Dolphin + Retro Rewind), so "Build & launch"
+must work there or it is not useful to them. Evaluate it alongside the extracted-folder route
+(ADR-018) rather than instead of it — plain-game testing stays the reference.
+
+**What desk research established** (verify before implementing; sources: mkwiiki
+[Patches](https://mkwiiki.org/wiki/Patches), [Wheel Wizard](https://mkwiiki.org/wiki/Wheel_Wizard);
+Wheel Wizard is GPL-3.0, C#, Windows/Linux/macOS):
+- Retro Rewind uses **Patches**, patchzy's loose-file override system, which **supersedes the
+  My Stuff folder**. Drop a file in the `Patches` folder and the game loads it instead of its own.
+  The `/patches` folder ships in the distribution; on SD/Dolphin-channel builds it also looks for a
+  `Patches` folder inside the active mod folder.
+- **Overrides are matched by base name**: `Patches/beginner_course.szs` replaces
+  `/Race/Course/beginner_course.szs`. So installing a build is a copy, like route 1 — but see the
+  trap below.
+- The feature **must be enabled in the game's settings**; if it is off or the folder is missing the
+  game silently uses its own files. That is another "looks like success, track absent" failure,
+  exactly the class ADR-018 already warns about.
+- It also supports patching files *inside* an archive and replacing BRSAR sounds — out of scope
+  for a track build, but it means the folder may contain entries CT Studio did not write.
+
+**The trap that makes this not just route 1 with a different folder:** Retro Rewind **renames
+tracks relative to the vanilla game**, so a slot file named for a vanilla course may not be the
+file the distribution actually loads. A build that works on the plain game can silently do nothing
+here. Any Wheel Wizard support must resolve the *distribution's* name for the target slot, not
+assume the vanilla name, and say which it used.
+
+**Deliverables:** detect a Wheel Wizard install and its Dolphin user path (it manages Dolphin
+settings itself, and the Riivolution/game folder is reportedly not configurable — upstream issue
+#88); locate the active mod's `Patches` folder; install the built SZS under the correct name;
+warn — not fail silently — when Patches is disabled in-game or the name cannot be resolved.
+**Acceptance:** fake-driven tests for detection, name resolution and install; a `realdata` test the
+human runs at HC1/HC3 on their own setup; TOOLS.md records the folder layout and the version it was
+verified against. **Do not gate P11 on this** — the extracted-folder route must work standalone.
+
 ### [ ] P11-T03 — Slot helper
 Run `wszst slots` on the built SZS; show compatible slots in the slot picker (badge "compatible"/
 "may not work"); warn when the chosen slot is flagged; short explanation + wiki link.

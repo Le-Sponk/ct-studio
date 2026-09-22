@@ -20,21 +20,61 @@ STATUS.md "Needs human — BLOCKING".** The six standing questions are:
 6. Approve BRRES backend recommendation and any scope changes from spikes.
 
 ## HC1 — Manual-mode MVP (≈15 min, end of Phase 5)
-On the Linux Mint host, in the repo folder:
-1. `uv sync` then `uv run ctstudio`.
+
+### Running it on the Mint host
+The agent's container and your host share the same folder, so the **only** things that must not
+collide are the Python environment and any root-owned files. Both are handled below.
+
+The repo is visible on your host at:
+```
+~/.hermes/sandboxes/docker/default/workspace/ct-studio
+```
+
+`uv` keeps the virtualenv inside the project as `.venv/`, which the container also uses, so point
+the host at its **own** environment directory instead of sharing one (the container's `.venv` is
+built for its Python and its libc):
+
+```bash
+cd ~/.hermes/sandboxes/docker/default/workspace/ct-studio
+export UV_PROJECT_ENVIRONMENT=~/.venvs/ctstudio-host   # host-only; never inside the repo
+uv sync
+uv run ctstudio
+```
+
+Put that `export` in your shell profile, or prefix every command with it — if you forget it once,
+`uv sync` overwrites the container's `.venv` and the agent's next session rebuilds it. Nothing is
+lost either way, it just wastes a few minutes.
+
+**Root-owned files.** Everything the agent writes is chowned to uid 1000 (your user) at the end of
+each session, so a plain `git status`, `git pull` and editing should all work. If you ever hit
+`Permission denied` or git complains it cannot write `.git/index`:
+```bash
+sudo chown -R "$USER:$USER" ~/.hermes/sandboxes/docker/default/workspace/ct-studio
+```
+That is safe to run at any time. Tell the agent if it happens — it means a session ended without
+chowning and that is a bug to fix, not a routine step.
+
+**Gitignored machine-local folders** (`.tools/`, `spikes/out/`, `.venv/`) are built for the
+container: Linux ELF binaries, container paths. They are not yours to run and `uv sync` does not
+touch them. Your own tools come from `bootstrap_tools.py` if you ever want them on the host.
+
+### The checkpoint itself
+1. `uv sync` then `uv run ctstudio` (with `UV_PROJECT_ENVIRONMENT` set, as above).
 2. First launch: open Settings → Tools; confirm Wiimms tools are detected (point to them if not).
 3. New project → choose a folder → skip the `.blend` → pick a slot.
 4. Assign existing files from one of your tracks (course_model.brres, course.kcl, course.kmp,
    map_model.brres, vrcorn_model.brres, posteffect folder) by drag & drop.
 5. Build test SZS. Check the Issues panel makes sense.
-6. Put the SZS in your usual test setup (Riivolution / extracted game / My Stuff) and race one lap.
+6. Put the SZS in your usual test setup (Wheel Wizard, extracted game, Riivolution) and race one lap.
 7. Auto-add real-data check: configure the library you built from your own `Race/Course/`, then run
    the `realdata` auto-add test documented by P4-T05. Build a KMP that references at least one object
    not staged manually and confirm it is inserted. Temporarily disable the library and confirm the
    build warns clearly with the missing object name(s), rather than succeeding silently.
 8. Try "Open in…" for the BRRES and the KMP. Edit and save something in an editor; confirm the card
    notices and the choices make sense.
-9. From S7 (P0-T10), these are the editor behaviours only you can settle, on your own machines:
+9. From S7 (P0-T10), these are the editor behaviours only you can settle, on your own machines.
+   **Native Windows is the reference for the Windows editors** (ADR-019), so these answers replace
+   the Wine-derived rows in TOOLS.md rather than supplementing them:
    - **Native Windows**: does launching each editor with a file path behave as it does under Wine,
      and does a file-association / double-click launch differ from CT Studio's argv launch?
    - **Non-ASCII paths** (accents, kana) for all four Windows editors — only spaces were tested.

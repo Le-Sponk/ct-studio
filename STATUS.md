@@ -3,8 +3,9 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (Phase 0 complete)
-**Next task:** P1-T01 — Project metadata & environment (`pyproject.toml`, src layout, `uv.lock`)
+**Current phase:** 0 → 1 (Phase 0 gate passed; **P0-T13 runs first on the new Windows machine**)
+**Next task:** P0-T13 — re-bootstrap and re-verify on Windows (redo S3 prebuilt + S7 native),
+then P1-T01 — project metadata & environment
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -117,6 +118,14 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-22 (HC0 answers): **Windows and Linux become equal targets (ADR-019)** — native Windows is
+  the reference for the Windows editors, Wine is the Linux reference, and single-platform facts are
+  tracked under "Platform verification gaps". Development moves to a Windows machine, so **P0-T13**
+  is inserted before P1-T01 to re-bootstrap and redo S3 (Windows prebuilt `rszst`) and S7 (native
+  editor launching). Three follow-ups became tasks: **P2-T06b** (how Linux users get `rszst`),
+  the preset-coverage table under ADR-012, and **P11-T02c** (Wheel Wizard / Retro Rewind Patches as
+  a test route). ADR-009 (GPL-3.0-or-later) is now Accepted. Affects ADR-009/012/019, PHASE_00,
+  PHASE_02, PHASE_11, HUMAN_CHECKPOINTS.
 - 2026-09-22 (P0 gate): **two Phase 0 claims were wrong and are corrected in place.** (1) The
   Dolphin executable-fallback is triggered by an invalid `sys/boot.bin`, **not** a bad DOL header —
   a DOL with a zeroed entry point still boots as a disc — so ADR-018, SPIKES §S8, PHASE_11 and the
@@ -244,41 +253,59 @@ _none_
   flag) and rejects a `<slot>_model.brres` destination that disagrees; `abmatt -c`
   mangles multi-word commands, so command files (`-f`) are the supported route.
 
+## Human checkpoint results
+### HC0 — answered 2026-09-22
+1. **Licence:** GPL-3.0-or-later **approved** → ADR-009 Accepted; `LICENSE` lands in P1-T08.
+2. **GitHub Actions enabled, direct push allowed** → P1-T07 is unblocked, Windows CI is real.
+3. **Host visibility:** the workspace is at `~/.hermes/sandboxes/docker/default/workspace` on Mint.
+   HC1 now carries host run instructions using a **separate** `UV_PROJECT_ENVIRONMENT`
+   (`~/.venvs/ctstudio-host`) so the container's `.venv` is not clobbered. **Found and fixed a real
+   blocker:** 303 tracked files and `.git/index` were root-owned, which would have broken `git` on
+   the host — the tree is now `chown`ed to uid 1000, and every future session must end the same way.
+4. **Real track files in `local_fixtures/`:** not for now. Synthetic fixtures stay the default;
+   `realdata` tests remain opt-in.
+5. **Platform parity:** Windows and Linux are **equal targets** → **ADR-019**. Native Windows is the
+   reference for the Windows editors (the human runs BrawlCrate natively); Wine is the reference on
+   Linux. Single-platform facts are flagged under "Platform verification gaps" below.
+6. **Spike scope changes approved**, with three follow-ups, all now planned:
+   - *How do Linux users get `rszst`?* → **P2-T06b**: detect → Windows/macOS guided download →
+     Linux source build (pinned S3a recipe, visible cancellable job) → Wine fallback (unverified,
+     must be measured first) → honest degradation. No redistribution (licence unconfirmed).
+   - *What does preset capture preserve?* → table in DECISIONS.md under ADR-012. `.rspreset` is a
+     **binary BRRES fragment** (`bres`/`MDL0`/`TEX0`), so coverage is probably broad, but only
+     xlu/blend/cull/one SRT0 are **measured**; TEV, indirect, multi-layer, PAT0/CLR0 and
+     LightSet/FogSet are **unverified** until HC2. A **renamed material loses its capture
+     silently** — measured, and the reason P7-T07 must diff preset names.
+   - *Wheel Wizard as a test route?* → **P11-T02c**, alongside (not instead of) the extracted-folder
+     route. Retro Rewind uses the **Patches** loose-file system (supersedes My Stuff), matched by
+     base name — but **Retro Rewind renames tracks**, so a vanilla slot name may silently do
+     nothing, and Patches can be disabled in-game with no error. Both are "looks fine, track
+     absent" failures.
+7. **Moving to a dedicated Windows machine with native Hermes before P1** → **P0-T13** runs first on
+   the new machine: re-bootstrap, redo **S3** (Windows `rszst` prebuilt — no 55 min source build)
+   and **S7** (native editor launching, plus the single-instance probe S7 never ran), update the
+   decisions. Linux stays fully supported via CI and Mint checkpoints; the Wine evidence is kept as
+   the Linux reference, not deleted.
+
+## Platform verification gaps (ADR-019)
+<!-- Fact · verified on · missing on · who closes it -->
+Everything in Phase 0 was measured on **Linux in a container**. These are the facts that currently
+have only one platform behind them:
+- **All four Windows editors** (BrawlCrate, RiiStudio GUI, Lorenzi's KMP Editor, KMP Cloud) — argv
+  contracts, titles, single-instance, `course.kcl` auto-load: **Wine only**. Native Windows: P0-T13.
+- **RiiStudio single-instance**: never probed on *any* platform — source read only. P0-T13.
+- **`rszst`**: built from source on Linux; the Windows prebuilt is unexercised. P0-T13 step 2.
+- **`bootstrap_tools.py`**: Linux only; never run on Windows. P0-T13 step 1.
+- **Blender headless export (S2)**, **Wiimms tools (S1)**, **minimap (S5)**: Linux only; CI covers
+  Windows from P1-T07.
+- **Preview stack (S6)**: llvmpipe software rendering only — no GPU anywhere. Real-hardware fps is
+  HC3, on both platforms.
+- **Dolphin launch routes (S8)**: Linux, `master 2503`, synthetic disc. Windows Dolphin and the real
+  game are P0-T13/HC3.
+
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
-**HC0 — kick-off decisions (~10 min).** Phase 0 is finished: 12 tasks, 8 spikes, 127 tests.
-Every technical question the spikes could answer is answered; these six need you. Answer inline
-or in chat — P1 can start on 1, 3, 4 and 6 alone, but **2 blocks P1-T07 (CI)**.
-
-1. **Licence GPL-3.0-or-later?** (ADR-009, currently Provisional.) *Recommendation: yes.* We reuse
-   `kcl_parse.py` from Blender-MKW-Utilities (GPL-2.0-or-later), which is compatible; external
-   tools are separate programs, so their licences do not propagate. Blocks: `LICENSE` in P1-T08.
-2. **Is the repo on GitHub with Actions enabled, and may I push to it?** Blocks **P1-T07**: the
-   Windows half of the matrix is the only way to verify Windows paths/argv before HC2, and none of
-   my Windows claims are testable here. If Actions are off, say so and I will keep P1-T07 as a
-   local-only script plus a "Needs human" item rather than pretending CI is green.
-3. **Is the repo folder bind-mounted onto the Mint host** so you can run the GUI at HC1?
-   *Recommendation: yes, before Phase 5.* Not urgent now; HC1 is the first time it matters.
-4. **Will you put real track files in `local_fixtures/`?** Optional. *Recommendation: one finished
-   custom track plus one in-progress `.blend`.* Everything so far runs on synthetic fixtures by
-   design; real data is only used by `realdata`-marked tests you run yourself. Nothing is blocked
-   either way — it improves HC1/HC2 coverage.
-5. **Windows machine for HC2/HC4, and do you run BrawlCrate natively or via Wine?** *Ask because*
-   S7 characterized all four Windows editors **under Wine only**; native argv/association
-   behaviour is unverified and is an HC1 item. Your answer decides whether P2-T08 targets native
-   Windows or treats Wine as the reference.
-6. **Approve the BRRES backend recommendation and the spike-driven scope changes?**
-   *Recommendation: approve.* The substantive ones: ADR-004 rszst-imports/ABMatt-post-processes
-   with a **minimap exception** (rszst cannot make `posLD`/`posRU` bones); ADR-012 capture presets
-   with `rszst dump-presets`; ADR-017 editors are **launch-only** (no editor gives a trustworthy
-   "opened" signal); ADR-018 test launches use an **extracted game folder**, with Riivolution as an
-   optional second route. Each is in DECISIONS.md with its evidence link.
-
-**One-line AGENTS.md edit I cannot make** (repeated from below, it is the only stale rule):
-line 49 says GUI tests run headless with `QT_QPA_PLATFORM=offscreen`; S6 proved offscreen cannot
-create a GL context. Suggested: "GUI tests run headless with `QT_QPA_PLATFORM=offscreen`;
-GL/preview tests instead need `xvfb-run` + `QT_QPA_PLATFORM=xcb` (offscreen cannot create a GL
-context — S6)."
+_none_ — **HC0 answered 2026-09-22** (see "Human checkpoint results" below).
 
 ## Needs human — non-blocking
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship

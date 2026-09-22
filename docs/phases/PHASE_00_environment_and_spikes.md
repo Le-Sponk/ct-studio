@@ -295,3 +295,38 @@ headed "verified by real GUI launches", and S8's self-reported counts were wrong
 **Evidence:** [PHASE_00_BRIEF.md](../reviews/PHASE_00_BRIEF.md),
 [PHASE_00_REVIEW.md](../reviews/PHASE_00_REVIEW.md); 125 passing + 2 wine-skipped, excluding `network`;
 `spikes/s8_mutation_check.sh` genuinely 6/6 (exit 0); TD-002..TD-004 logged in STATUS.
+
+---
+
+## Post-move re-verification (added at HC0, 2026-09-22)
+
+Development moves to a dedicated Windows machine with native Hermes before Phase 1. Phase 0's
+evidence was gathered in a Linux container, and under ADR-019 neither platform is secondary, so
+part of it must be re-established rather than assumed. **This runs first on the new machine, before
+P1-T01.**
+
+### [ ] P0-T13 — Re-bootstrap and re-verify on Windows (timebox 4 h)
+1. **Re-run the bootstrap.** `uv run python scripts/bootstrap_tools.py` on Windows. It was only
+   ever exercised on Linux: expect real differences in archive layout, executable extensions and
+   PATH handling. Fix what breaks, and record Windows tool versions in TOOLS.md beside the Linux
+   ones — not replacing them (ADR-019).
+2. **Redo S3a for `rszst`.** On Windows the official **prebuilt** is available, so the ~55 min
+   source build is unnecessary. Verify the prebuilt CLI's version, `--help` surface and the S3b
+   operations against the same fixture, and confirm `spikes/out/s3b` results still hold. Feed the
+   answer into **P2-T06b** (how Linux users get `rszst`) — the Linux story does not change, but the
+   Windows one becomes "download the release".
+3. **Redo S7 natively.** Launch BrawlCrate, RiiStudio, Lorenzi's KMP Editor and KMP Cloud with a
+   file path **natively**, and answer what Wine could not: does a file-association/double-click
+   launch differ from an argv launch; do non-ASCII paths work (RiiStudio uses narrow `std::string`
+   and is the likely failure); how does each editor *save* (in place, temp+rename, backup?), which
+   P5-T06 depends on; and does BrawlCrate's model preview work on real hardware. Re-probe
+   **RiiStudio's single-instance behaviour**, which S7 never measured (it is currently source-read
+   only, see the launch table).
+4. **Update the decisions.** ADR-017's evidence grades, the TOOLS.md launch table (native rows stop
+   being `[unverified — HC1]` and become measured), and STATUS "Platform verification gaps".
+5. **Keep Linux green.** CI must still run the Linux matrix (P1-T07) and the Wine-based editor
+   tests must keep working for Linux users; do not delete the Wine evidence, it is now the *Linux*
+   reference rather than a Windows stand-in.
+**Acceptance:** bootstrap succeeds on Windows; TOOLS.md carries both platforms' facts with
+platform-tagged markers; the S7 native findings are in SPIKES.md §S7 with the Wine findings intact;
+STATUS lists any remaining single-platform facts.

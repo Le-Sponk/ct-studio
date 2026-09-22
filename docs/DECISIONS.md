@@ -119,7 +119,7 @@ confirms nor refutes the budget — re-measure on real hardware at HC3.
 or HC3 shows the §15 budget is missed on real hardware.
 
 ## ADR-009 — Licence GPL-3.0-or-later
-**Status:** Provisional — confirm at HC0
+**Status:** Accepted (confirmed by the human at HC0, 2026-09-22)
 **Context:** Reusing code from Blender-MKW-Utilities (GPL-2.0-or-later) e.g. `kcl_parse.py` is
 compatible with GPL-3.0-or-later. Tools are invoked as separate programs.
 **Decision:** GPL-3.0-or-later; third-party notices maintained in `THIRD_PARTY_NOTICES.md`.
@@ -155,6 +155,34 @@ unmatched preset is skipped **silently**. Renaming a material in Blender therefo
 orphans its captured edits with no warning from any tool. The regenerate step must
 diff captured preset names against the regenerated material list and surface orphans
 to the user.
+
+### What preset capture preserves (HC0 follow-up, 2026-09-22)
+`.rspreset` is **not** a property list: it is a small binary BRRES fragment — the file starts
+`bres`/`root` and contains `MDL0` and `TEX0` sections. So capture copies the material subtree
+wholesale rather than enumerating fields, which is why the four properties S4 exercised all
+survived and why broad coverage is *plausible*. Plausible is not verified, and the format is
+opaque and undocumented, so the table below separates the two honestly.
+
+| BrawlCrate edit | Preserved? | Evidence |
+|---|---|---|
+| `xlu` (translucency flag) | **yes** | S4, measured — `xlu:0` → `xlu:1` survives regenerate |
+| Blend mode | **yes** | S4, measured |
+| Cull mode | **yes** | S4, measured (`cullmode:inside` → `none`) |
+| A single SRT0 texture animation | **yes** | S4, measured — survives route A, *dropped* by the JSON-merge route |
+| TEV stages / shader edits | **unverified** | not exercised; the MDL0 fragment suggests yes |
+| Indirect textures | **unverified** | as above |
+| Multi-layer materials | **unverified** | S4's fixture has single-layer materials |
+| PAT0 / CLR0 animations | **unverified** | only SRT0 was tested, and animations live *outside* the material list |
+| LightSet / FogSet indices | **unverified** | not exercised |
+| **A renamed material** | **NO — silently lost** | S4, measured: the preset no longer matches and is skipped at exit 0 |
+| **Anything outside the material** (geometry, bones, scene data) | **NO, by design** | presets are per-material |
+
+Two are certain and actionable today: a **rename destroys the capture silently** (hence the
+orphan-diff requirement above), and **animations are not part of a material**, so anything relying
+on PAT0/CLR0 surviving must be treated as unverified until HC2.
+**HC2 settles the unverified rows** on a real BrawlCrate edit — see HUMAN_CHECKPOINTS.md.
+Until then P7-T07 must not promise users that arbitrary BrawlCrate work is preserved; it should
+name what it captured and let the user verify.
 
 ## ADR-013 — Packaging with PyInstaller one-folder
 **Status:** Provisional
@@ -250,3 +278,21 @@ ships, validate the generated XML in-app, because Dolphin will not.
 point still boots as a disc. `IsValidDirectoryBlob` keys on `sys/boot.bin`.)*
 **Revisit when:** HC3 confirms a patched slot actually loads on the real game, or the user
 reports MKW-SP is their real test setup.
+
+## ADR-019 — Windows and Linux are equal targets; each platform is its own reference
+**Status:** Accepted (human decision at HC0, 2026-09-22)
+**Context:** Phase 0 ran entirely in a Linux container, so the four Windows-only editors were
+characterized under Wine and every Windows row in TOOLS.md was inference. Development is moving to
+a Windows machine with native Hermes, while the human keeps testing on Linux Mint.
+**Decision:** Neither platform is secondary.
+- **Native Windows is the reference** for the Windows editors (BrawlCrate, RiiStudio GUI, Lorenzi's
+  KMP Editor, KMP Cloud). Wine behaviour is the reference **on Linux**, not a stand-in for Windows.
+- A fact verified on only one platform is **marked with that platform** in TOOLS.md and listed under
+  STATUS "Platform verification gaps" until the other side is measured.
+- Linux is never deferred: CI covers both (P1-T07) and the human's Mint checkpoints stay in the
+  plan. "Works on the dev machine" is not evidence for the other platform.
+**Consequences:** S7's Wine-derived editor contracts become the *Linux* contracts; the Windows ones
+are re-measured natively after the move (P0-T13). Adapters must not assume a single launch style:
+`editors.py` needs a native path and a Wine path with the same surface. Every new tool fact carries
+its platform from now on.
+**Revisit when:** a third platform (macOS) is seriously considered, which is currently out of scope.
