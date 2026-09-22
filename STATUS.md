@@ -26,7 +26,7 @@ _none_
   measured: **win32 + dotnet48 + win10** for BrawlCrate/KMP Cloud, **win64** for RiiStudio
   and Lorenzi's Windows build. `course.kcl` auto-load confirmed by pixels.
   9 integration tests, 6/6 mutations caught.
-  [SPIKES.md §S7](docs/dev/SPIKES.md#s7--external-editor-launch-contracts-p0-t10) — commit TBD
+  [SPIKES.md §S7](docs/dev/SPIKES.md#s7--external-editor-launch-contracts-p0-t10) — commit 1307833
 - `P0-T09` — Spike S6 (preview rendering stack): **ADR-008 Accepted** — moderngl in a
   `QOpenGLWidget` works; headless GL is 4.5 core, a 200k-triangle VBO is 13.7 MB and
   uploads in <0.04 s. **`QT_QPA_PLATFORM=offscreen` cannot create a GL context at all**,

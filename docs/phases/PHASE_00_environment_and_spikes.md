@@ -230,7 +230,7 @@ Frame time was ~0.10 s (≈10 fps) at 200k triangles — a **software-rasteriser
 neither confirms nor refutes the ARCHITECTURE §15 budget (≥60 fps on an integrated GPU);
 deferred to HC3. 6 integration tests, 4/4 mutations caught.
 
-### [x] P0-T10 — Spike S7: external editor launch contracts (timebox 2 h) (commit TBD)
+### [x] P0-T10 — Spike S7: external editor launch contracts (timebox 2 h) (commit 1307833)
 From source code/docs (and runs where possible) determine for BrawlCrate, RiiStudio GUI, Lorenzi's
 KMP Editor, KMP Cloud, Blender, Dolphin: does a file path argument open the file? single-instance
 behaviour? Wine invocation for BrawlCrate on Linux (prefix, `winetricks dotnet48`, `win10`, 32-bit,
