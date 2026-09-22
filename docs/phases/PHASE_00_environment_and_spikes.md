@@ -257,11 +257,24 @@ for BrawlCrate and KMP Cloud, **win64** for RiiStudio and Lorenzi's Windows buil
 screen differs). Prefix recipes in [ENVIRONMENT.md](../dev/ENVIRONMENT.md#wine-prefixes-for-the-windows-only-editors-s7-p0-t10).
 9 integration tests, 6/6 mutations caught.
 
-### [ ] P0-T11 — Spike S8: Dolphin test-launch options (research only, timebox 2 h)
-Compare: booting an extracted game folder (`dolphin-tool extract`, then `-e <dir>/sys/main.dol`)
-with the slot SZS replaced; generated Riivolution XML + folder under Dolphin's `Load/Riivolution`;
-MKW-SP "My Stuff". Consider CLI flags (`-e`, `-b`, `-u`), whether Riivolution can be enabled from
-the command line, disk space, and user legal constraints (their own copy).
+### [x] P0-T11 — Spike S8: Dolphin test-launch options (timebox 2 h) — commit TBD
+Compare the routes from a built SZS to a running game and pick the one CT Studio can start without
+GUI clicks. **Done.** Both viable routes were measured against a real Dolphin (`master 2503`) using a
+synthetic disc-shaped directory, since no MKW data may be used here.
+**Result:** route 1 (extracted game folder, `--exec=<game>/sys/main.dol`, install = file copy) is the
+recommendation for P11-T01/T02; route 2 (Dolphin's `dolphin-game-mod-descriptor` JSON for
+Riivolution) works GUI-free and is now P11-T02b. MKW-SP "My Stuff" was not probed — it needs the
+MKW-SP distribution, so it stays a documented manual path.
+**Key risks recorded:** a broken Riivolution patch boots exit 0 in silence; `dolphin-emu --batch`
+hangs on a panic dialog instead of failing; a bad DOL header boots as an executable with no file
+system, which looks like success.
+**Evidence:** `spikes/s8_dolphin_launch.py` → `spikes/out/s8/s8_findings.json`;
+`tests/integration/test_dolphin_launch.py` (11 tests); `spikes/s8_mutation_check.sh`;
+[SPIKES.md §S8](../dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11);
+Dolphin section of [TOOLS.md](../reference/TOOLS.md#dolphin--dolphintool).
+**Original scope, for the record:** compare booting an extracted game folder, generated Riivolution
+XML under `Load/Riivolution`, and MKW-SP "My Stuff"; consider `-e`/`-b`/`-u`, whether Riivolution can
+be enabled from the command line, disk space, and the user's own-copy legal constraint.
 **Acceptance:** SPIKES.md §S8 recommendation + open questions. No implementation.
 
 ### [ ] P0-T12 — Phase wrap-up

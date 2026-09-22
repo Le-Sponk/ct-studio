@@ -707,3 +707,76 @@ single-instance path: every launch builds its own `QApplication`. Prefer
   works under Wine at all (llvmpipe here; the add-on README reports
   `glActiveTexture` failures in VMs).
 - macOS entirely.
+
+---
+
+## S8 — Getting a built SZS into a running game (P0-T11)
+**Question:** P11-T02 promises "Build & launch". Which route from a built `<slot>.szs`
+to racing it can CT Studio actually start without the user clicking through Dolphin's
+GUI, and what does each cost?
+
+**Script:** `spikes/s8_dolphin_launch.py` · **Output:** `spikes/out/s8/s8_findings.json`
+**Mutation check:** `spikes/s8_mutation_check.sh` · **Tests:** `tests/integration/test_dolphin_launch.py`
+**Re-run:** `uv run python spikes/s8_dolphin_launch.py` (needs `dolphin-emu` on PATH;
+on Debian the binaries live in `/usr/games`).
+
+**Fixture:** no Mario Kart Wii data exists here and none may be obtained, so every probe
+runs against a synthetic disc-shaped directory built by the spike: a `sys/boot.bin`
+header carrying only the *shape* of a game id, a stub `sys/main.dol`, and a fake
+`Race/Course/beginner_course.szs`. That exercises Dolphin's boot-path selection,
+descriptor parsing and exit codes. It cannot show a patched file reaching the game.
+
+**Version:** `Dolphin [master] 2503` (Debian `dolphin-emu 2503+dfsg-1+deb13u1`);
+source read at tag `2603a` = `5e7cc91d8c9a43ca189b288937f65c9763af9c22`.
+
+### Route 1 — extracted game folder
+Works, and is the cheap one. `--exec=<game>/sys/main.dol` boots as a disc
+(`DiscIO/DirectoryBlob.cpp` `IsValidDirectoryBlob`: `sys/boot.bin` must sit beside the
+DOL and be at least 0x20 bytes). Paths with spaces are fine. Installing a build is a
+plain file copy over `files/Race/Course/<slot>.szs` — no packing, no repack of the ISO.
+`dolphin-tool extract -i <game>/sys/main.dol -l` lists the same tree, which gives a
+pre-launch check that boots nothing.
+
+**Trap:** `--exec=<game folder>` is rejected (`Could not recognize file`, exit 1). The
+app must append `sys/main.dol` itself.
+
+### Route 2 — Dolphin's game-mod descriptor (Riivolution)
+Also works, leaves the user's game untouched, and needs no GUI. CT Studio writes a JSON
+(`DiscIO/GameModDescriptor.cpp`): `{"type": "dolphin-game-mod-descriptor", "version": 1,
+"base-file": ..., "riivolution": {"patches": [{"xml": ..., "root": ..., "options": [...]}]}}`
+and passes it to `--exec`. Both `type` and `version` are enforced: get either wrong and
+the whole file is rejected with `Could not recognize file`, exit 1. A relative `base-file`
+resolves against the descriptor's own directory.
+
+**The finding that matters:** a *broken* patch is invisible. A descriptor whose XML is
+missing, malformed, or scoped to a different game id still boots, exit 0, with zero log
+output at max verbosity across BOOT/DISCIO/OSHLE/FILEMON — `RiivolutionParser.cpp:352-354`
+does `if (!parsed || !parsed->IsValidForGame(...)) continue;`. The only Riivolution log
+lines in the codebase are memory-patch/HLE overlap warnings. So:
+- CT Studio must validate the XML it generates itself, before launching.
+- "Dolphin launched" must never be presented as "your track is in the game".
+
+### Route 3 — MKW-SP "My Stuff"
+Not probed: it needs the MKW-SP distribution, not plain Mario Kart Wii, so it cannot be
+characterized without the user's own setup. Documented as a manual path, not automation.
+
+### Exit codes and the GUI trap
+`dolphin-emu-nogui --exec=<missing>` exits **1** and prints `The specified file "..." does
+not exist` / `Could not boot the specified file`. `dolphin-emu --batch --exec=<missing>`
+does **not**: `--batch` hides the UI but not the panic dialog, so the GUI binary sits on a
+modal `Warning` box forever (probe timed out; screenshot confirmed the dialog).
+A successful boot never exits on its own — emulation runs until killed.
+
+**Consequence for P11:** drive `dolphin-emu-nogui` when CT Studio needs to *know* the
+result, and when launching the GUI for the user, either pass
+`-C Main.Interface.UsePanicHandlers=False` or accept that failures are silent.
+`-u <dir>` isolates the user directory and creates it on demand, including
+`Load/Riivolution`; the nogui binary creates fewer subdirectories than the GUI (no
+`Config` until something writes one), so do not probe for `Config` to validate a user dir.
+
+### Not verified here
+- That a patched slot file actually loads in-game — needs the real game (HC3).
+- MKW-SP "My Stuff" entirely.
+- Native Windows and macOS Dolphin builds.
+- Save-state and movie options (`--save_state`, `--movie`), which a future regression
+  harness might want.

@@ -245,17 +245,50 @@ on success and 255 on a genuine failure (verified against garbage input).
 - A first-run "Welcome" dialog appears on a fresh profile.
 
 ## Dolphin / DolphinTool
-- `dolphin-tool extract -i game.iso -o out [-p DATA|-g] [-s /sys/main.dol] [-l] [-q]` **[doc]**
+- Verified on **`Dolphin [master] 2503`** (Debian `dolphin-emu 2503+dfsg-1+deb13u1`); source read
+  at tag `2603a`. Debian installs the binaries in **`/usr/games`**, not `/usr/bin`.
+- `dolphin-tool extract -i game.iso -o out [-p DATA|-g] [-s /sys/main.dol] [-l] [-q]` **[doc]**;
+  it also reads an **extracted** game, so `dolphin-tool extract -i <game>/sys/main.dol -l` lists the
+  disc tree without booting anything **[verified S8, run]**.
 - Launch **[source `2603a`: `UICommon/CommandLineParse.cpp`, `DolphinQt/Main.cpp`]**:
   `-e/--exec` is repeatable and wins over positionals; a bare positional is used only when `--exec`
   is absent, and only the first one. `-u/--user` overrides the user directory for that run;
   `-b/--batch` hides the UI and needs a game. No single-instance path — each launch builds its own
   `QApplication`. Prefer `--exec=<absolute path>`.
-- Riivolution content folder: `<Dolphin user dir>/Load/Riivolution` (Windows `%APPDATA%\Dolphin Emulator\Load\Riivolution`;
-  Linux `~/.local/share/dolphin-emu/Load/Riivolution` or `~/.dolphin-emu/...`) **[doc]**; Riivolution
-  patches are started from the GUI ("Start with Riivolution Patches…") **[doc]**
-- **Open questions (S8, P0-T11):** booting an extracted game via `-e <dir>/sys/main.dol`; any CLI path
-  to enable Riivolution; batch-mode lifecycle and exit semantics.
+- **Two binaries, and the difference matters** **[verified S8, run]**:
+  - `dolphin-emu-nogui -p headless -v Null --exec=<missing>` exits **1** and prints
+    `The specified file "..." does not exist` / `Could not boot the specified file`.
+  - `dolphin-emu --batch --exec=<missing>` **hangs**: `--batch` hides the UI but not the panic
+    dialog, so it waits on a modal `Warning` box forever. Use the nogui binary when CT Studio needs
+    to know the outcome, or pass `-C Main.Interface.UsePanicHandlers=False`.
+  - A successful boot never exits on its own; emulation runs until the process is killed.
+- **Booting an extracted game** **[verified S8, run]**: `--exec=<game>/sys/main.dol` boots as a disc
+  when `sys/boot.bin` (≥ 0x20 bytes) sits beside the DOL (`DiscIO/DirectoryBlob.cpp`
+  `IsValidDirectoryBlob`). `--exec=<game folder>` is **rejected** (`Could not recognize file`,
+  exit 1) — the app must append `sys/main.dol`. Paths with spaces are fine.
+- **Riivolution from the CLI** **[verified S8, run]**: there is no Riivolution flag, but Dolphin
+  accepts its own **game-mod descriptor** JSON via `--exec` (`DiscIO/GameModDescriptor.cpp`):
+  ```json
+  {"type": "dolphin-game-mod-descriptor", "version": 1, "base-file": "<game>/sys/main.dol",
+   "display-name": "...",
+   "riivolution": {"patches": [{"xml": "<abs>.xml", "root": "<abs dir>",
+     "options": [{"section-name": "...", "option-id": "...", "choice": 1}]}]}}
+  ```
+  `type` and `version` are both enforced — either wrong rejects the whole file with
+  `Could not recognize file`, exit 1. A relative `base-file` resolves against the JSON's own folder.
+- **A broken Riivolution patch is silent** **[verified S8, run]**: a descriptor whose XML is missing,
+  malformed, or scoped to another game id still boots, **exit 0**, with no log line at max verbosity
+  (`RiivolutionParser.cpp:352-354` skips invalid patches with `continue`; the only Riivolution log
+  calls in the tree are memory-patch/HLE overlap warnings). CT Studio must validate its own XML and
+  must never report "launched" as "patched".
+- `-u <dir>` creates the user directory on demand including `Load/Riivolution`; the nogui binary
+  creates **fewer** subdirectories than the GUI (no `Config` until something writes one), so do not
+  probe for `Config` to decide a user dir is valid **[verified S8, run]**.
+- Riivolution content folder for GUI use: `<Dolphin user dir>/Load/Riivolution`
+  (Windows `%APPDATA%\Dolphin Emulator\Load\Riivolution`;
+  Linux `~/.local/share/dolphin-emu/Load/Riivolution`) **[doc]**.
+- **Not verified:** that a patched slot file actually loads in-game (needs the real game, HC3);
+  MKW-SP "My Stuff"; native Windows/macOS builds; `--save_state` / `--movie`.
 
 ## Wine / winetricks (Linux only)
 - Pass Windows program arguments after the program; set `WINEPREFIX`; convert paths with `winepath -w` **[doc]**

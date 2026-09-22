@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T11 — Spike S8: Dolphin test-launch options
+**Next task:** P0-T12 — Phase wrap-up (last task in Phase 0, then HC0/P0-GATE)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 26a2c5e (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,22 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T11` — Spike S8 (Dolphin test-launch options): both viable routes measured against a
+  real Dolphin (`master 2503`), not its README. **Recommendation: the extracted game folder**
+  — `--exec=<game>/sys/main.dol` boots as a disc and installing a build is a plain file copy
+  over `files/Race/Course/<slot>.szs`. Traps: `--exec=<folder>` is rejected outright, and a
+  bad DOL header boots as an *executable* with no file system, which looks like success, so
+  P11 must check the `Booting from disc:` log line rather than the exit code. Dolphin also
+  has a **GUI-free Riivolution route** (its own `dolphin-game-mod-descriptor` JSON, `type`
+  and `version` both enforced) — now P11-T02b, with one caveat that shapes the design: a
+  patch whose XML is missing, malformed, or scoped to another game id **still boots, exit 0,
+  silently**, so CT Studio must validate its own XML and never report "launched" as
+  "patched". Also measured: `dolphin-emu --batch` does **not** fail cleanly on a missing file
+  (it sits on a modal panic dialog), while `dolphin-emu-nogui` exits 1 with the message.
+  MKW-SP "My Stuff" was not probed — it needs the MKW-SP distribution, so it stays a manual
+  path. Fixture is synthetic: no MKW data exists here, so whether a patched slot actually
+  loads is an HC3 item. 11 integration tests, 6/6 mutations caught.
+  [SPIKES.md §S8](docs/dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11) — commit TBD
 - `P0-T10` — Spike S7 (external editor launch contracts): all five editors launched for
   real under Xvfb, four under Wine. **Every one opens a positional file path and none is
   single-instance**, so "Open in…" is one file and one process per launch — BrawlCrate's
@@ -87,6 +103,15 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-22 (S8): **"Build & launch" is the extracted game folder, and launching is not proof.**
+  P11-T01 now names `dolphin-tool extract` + `<game>/sys/main.dol` explicitly (the folder itself is
+  rejected), and P11-T02 must confirm `Booting from disc:` rather than an exit code, because a bad
+  DOL header boots as an executable with no file system. A GUI-free Riivolution route exists and
+  became **P11-T02b**, gated on CT Studio validating its own XML: Dolphin skips an invalid patch
+  silently at exit 0. `dolphin-emu --batch` is unusable for error detection (modal panic dialog);
+  use `dolphin-emu-nogui`. MKW-SP "My Stuff" stays a documented manual path, not automation.
+  Evidence: [SPIKES.md §S8](docs/dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11).
+  Affects TOOLS, PHASE_11 (T01/T02/T02b) and HC3.
 - 2026-09-22 (S7): **external editors are one-file, one-process, and cannot be asked whether they
   opened anything.** "Open in…" must never pass two paths (BrawlCrate's second argument selects a
   node *inside* the first file; Blender's replaces the first) and must not infer success from a live
@@ -227,6 +252,12 @@ _none_
   and RiiStudio handles paths as narrow `std::string`); how Lorenzi's editor and BrawlCrate
   **save** (in place, temp+rename, or backup?), which P5-T06's change detection depends on;
   and whether BrawlCrate's model preview works in your setup. Listed as HC1 step 9.
+- **S8 game-file unknowns for HC3** (added 2026-09-22, nothing to answer now — they need your
+  own game copy): whether an installed SZS actually loads (a `Booting from disc:` line proves the
+  disc mounted, not that your track is in it); whether a Riivolution-route patch really lands,
+  given Dolphin skips a broken one at exit 0 in silence; real `dolphin-tool extract` time and disk
+  use; and whether you use MKW-SP, which would make "My Stuff" worth automating rather than
+  documenting. Listed as HC3 step 6.
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

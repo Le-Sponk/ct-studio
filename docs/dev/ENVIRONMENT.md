@@ -250,3 +250,31 @@ Notes that cost time in S7:
   display: start `Xvfb :78` yourself and export `DISPLAY`, as the spike does.
 - Electron (Lorenzi's editor, built from source) additionally needs `libnss3` and
   `ELECTRON_DISABLE_SANDBOX=1` as root.
+
+## Dolphin for the S8 probes (P0-T11)
+
+```bash
+apt-get install -y dolphin-emu          # pulls dolphin-emu-data too
+export PATH=/usr/games:$PATH            # Debian puts the binaries in /usr/games
+dolphin-emu-nogui --version             # Dolphin [master] 2503
+```
+
+Three binaries matter: `dolphin-emu` (Qt GUI), `dolphin-emu-nogui` (the one to script) and
+`dolphin-tool` (offline disc operations). In this container the nogui binary needs
+`-p headless -v Null`; with the default video backend it exits with
+`Failed to initialize video backend!`, and ALSA noise on stderr is harmless. Dolphin also
+writes NUL bytes to stdout, so decode with `errors="replace"` and strip `\x00` before
+matching.
+
+To see what a boot actually did, turn on file logging per run rather than parsing stdout:
+
+```bash
+dolphin-emu-nogui -u <user-dir> -p headless -v Null \
+  -C Logger.Options.WriteToFile=True -C Logger.Options.Verbosity=4 \
+  -C Logger.Logs.BOOT=True -C Logger.Logs.DISCIO=True --exec=<file>
+# then read <user-dir>/Logs/dolphin.log
+```
+
+A successful boot never exits: kill it, or run it under `timeout`. The GUI binary needs
+`xvfb-run`, and `--batch` does **not** stop panic dialogs, so a GUI probe against a bad path
+hangs until killed.

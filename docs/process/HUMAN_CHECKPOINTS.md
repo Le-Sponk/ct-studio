@@ -74,6 +74,15 @@ Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
    editor; save; confirm the checklist updates.
 4. Build & race a full 3-lap race: lap counting, respawns, item boxes/objects (if game files set up).
 5. Is anything still forcing you to leave the app that shouldn't?
+6. From S8 (P0-T11), these can only be answered on your own game copy:
+   - Does the built SZS actually load once installed into the extracted game folder? A `Booting
+     from disc:` log line proves the disc mounted, **not** that your track is in it.
+   - If CT Studio offers the Riivolution route: does the patched slot really appear in-game?
+     Dolphin boots a broken patch exit 0 in silence, so this is the only way to know.
+   - How long does the one-time `dolphin-tool extract` take, and how much disk does the extracted
+     game use on your machine? (The synthetic S8 fixture proves nothing about size.)
+   - Do you use MKW-SP? If so, is "My Stuff" the route you would actually want CT Studio to target,
+     which would make it worth revisiting as automation rather than a manual note?
 
 ## HC4 — Installable release (≈30 min, end of Phase 12)
 1. Install the packaged app on Windows and on Linux Mint (from CI artefacts) on a profile without
