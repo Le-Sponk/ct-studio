@@ -277,7 +277,7 @@ XML under `Load/Riivolution`, and MKW-SP "My Stuff"; consider `-e`/`-b`/`-u`, wh
 be enabled from the command line, disk space, and the user's own-copy legal constraint.
 **Acceptance:** SPIKES.md §S8 recommendation + open questions. No implementation.
 
-### [x] P0-T12 — Phase wrap-up — commit TBD
+### [x] P0-T12 — Phase wrap-up — commit 53d432c
 Update DECISIONS.md statuses; amend later phase files where evidence changes the plan (log in STATUS
 "Plan changes"); update TOOLS.md; fill in HC0 questions in STATUS "Needs human — BLOCKING".
 Run `mkw-phase-review` (lightweight for P0: evidence completeness + plan consistency).

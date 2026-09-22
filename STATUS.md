@@ -6,7 +6,7 @@
 **Current phase:** 1 — Skeleton & quality gates (Phase 0 complete)
 **Next task:** P1-T01 — Project metadata & environment (`pyproject.toml`, src layout, `uv.lock`)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 754161f (P0-T11 Spike S8; `check.py` arrives in P1-T02)
+**Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -27,7 +27,7 @@ _none_
   native-Windows rows over-claimed in a table headed "verified by real GUI launches", and S8's
   counts were wrong (13 tests, not 11; 5/6 mutations, not 6/6 — now genuinely 6/6).
   125 passing + 2 wine-skipped, excluding `network`. TD-002..TD-004 logged.
-  [PHASE_00_REVIEW.md](docs/reviews/PHASE_00_REVIEW.md) — commit TBD
+  [PHASE_00_REVIEW.md](docs/reviews/PHASE_00_REVIEW.md) — commit 53d432c
 - `P0-T11` — Spike S8 (Dolphin test-launch options): both viable routes measured against a
   real Dolphin (`master 2503`), not its README. **Recommendation: the extracted game folder**
   — `--exec=<game>/sys/main.dol` boots as a disc and installing a build is a plain file copy
