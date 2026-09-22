@@ -13,6 +13,13 @@ a human with the real game and real habits can judge (see HUMAN_CHECKPOINTS.md).
 | End-to-end (fixture `.blend` → SZS) | `tests/e2e/` | `slow`, `integration` | before phase gates; nightly CI | minutes |
 | Real data (user's own tracks) | `tests/realdata/` | `realdata` | only when `local_fixtures/` exists | varies |
 | Benchmarks | `tests/benchmarks/` | `benchmark` | phase gates, deep cleans | — |
+| External-endpoint dependent | anywhere | `network` | nightly CI only, never `check.py` | varies |
+
+A `network` test depends on something outside the repo being reachable. It must **skip with a
+precise reason** naming the endpoint when that precondition fails, never fail and never pass
+vacuously — an offline machine is not a broken build. `check.py` excludes the marker (P1-T02);
+the nightly integration workflow is the only place it runs and must surface skip reasons rather
+than report green (P1-T07). First instance: TD-001, RiiStudio's update check.
 
 Every test file sets a timeout (`pytest-timeout`, default 30 s unit, 600 s integration).
 

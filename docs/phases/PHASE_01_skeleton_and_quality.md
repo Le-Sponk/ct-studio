@@ -14,11 +14,16 @@ Commit `uv.lock`. `.gitignore`: `.tools/`, `.ctstudio/`, `build/`, `dist/`, `loc
 
 ### [ ] P1-T02 — `scripts/check.py`
 Runs in order, fails fast unless `--all`: `ruff format --check`, `ruff check`, `pyright`,
-`lint-imports`, `pytest -m "not integration and not slow and not realdata"` with coverage,
-`xenon --max-absolute B --max-modules A --max-average A src/ctstudio/core` (tune once, document),
-`vulture src/ vulture_whitelist.py --min-confidence 80`. `--fast` skips pyright + coverage.
+`lint-imports`, `pytest -m "not integration and not slow and not realdata and not network"` with
+coverage, `xenon --max-absolute B --max-modules A --max-average A src/ctstudio/core`
+(tune once, document), `vulture src/ vulture_whitelist.py --min-confidence 80`.
+`--fast` skips pyright + coverage.
+`network` is excluded because a test with an external precondition cannot be a local gate — it must
+skip loudly with a reason rather than fail on an offline machine (see TD-001, and the `network`
+marker in `pytest.ini`). Nightly integration runs it (P1-T07).
 Prints a one-line summary per step with duration.
-**Acceptance:** passes on the skeleton; deliberately broken sample (in a test) makes it fail.
+**Acceptance:** passes on the skeleton; deliberately broken sample (in a test) makes it fail; a
+`network`-marked test is not collected by the default run.
 
 ### [ ] P1-T03 — Architecture contracts
 `.importlinter` contracts: core ↛ gui/cli/PySide6; cli ↛ gui; nothing ↛ spikes. A unit test asserts
@@ -51,8 +56,12 @@ no Qt import.
 `.github/workflows/ci.yml`: matrix ubuntu-latest/windows-latest, uv cache, `uv sync`,
 `python scripts/check.py`; Linux installs Qt runtime libs; uploads coverage + GUI screenshots as
 artifacts. `integration.yml` placeholder (manual dispatch) filled in P2-T08.
+`integration.yml` also runs **nightly on a schedule** and is the only place `network`-marked tests
+run: `pytest -m network` after the integration selection. A skip there is a signal (the external
+precondition moved), so the job must surface skip reasons in its summary rather than report green.
 **Acceptance:** green run on both OSes (if the repo isn't on GitHub yet, add a "Needs human" item and
-continue; verify later).
+continue; verify later); the nightly job's log shows either the `network` tests running or the exact
+skip reason.
 
 ### [ ] P1-T08 — Contributor basics
 `CONTRIBUTING.md` (short: commands, rules pointer to AGENTS.md), `LICENSE` (GPL-3.0-or-later pending

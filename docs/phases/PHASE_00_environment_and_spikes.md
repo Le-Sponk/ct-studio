@@ -257,7 +257,7 @@ for BrawlCrate and KMP Cloud, **win64** for RiiStudio and Lorenzi's Windows buil
 screen differs). Prefix recipes in [ENVIRONMENT.md](../dev/ENVIRONMENT.md#wine-prefixes-for-the-windows-only-editors-s7-p0-t10).
 9 integration tests, 6/6 mutations caught.
 
-### [x] P0-T11 — Spike S8: Dolphin test-launch options (timebox 2 h) — commit TBD
+### [x] P0-T11 — Spike S8: Dolphin test-launch options (timebox 2 h) — commit 754161f
 Compare the routes from a built SZS to a running game and pick the one CT Studio can start without
 GUI clicks. **Done.** Both viable routes were measured against a real Dolphin (`master 2503`) using a
 synthetic disc-shaped directory, since no MKW data may be used here.

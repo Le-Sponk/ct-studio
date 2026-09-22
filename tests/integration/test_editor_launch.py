@@ -58,6 +58,11 @@ needs_x = pytest.mark.skipif(XVFB is None or XDOTOOL is None, reason="Xvfb/xdoto
 needs_wine = pytest.mark.skipif(WINE is None, reason="wine not installed")
 needs_shots = pytest.mark.skipif(IMPORT is None, reason="ImageMagick import not installed")
 
+# RiiStudio's update endpoint. It checks this before loading anything; the
+# network-marked test below recognizes its own failure output and skips with the
+# exact endpoint rather than treating an offline machine as a product failure.
+RIISTUDIO_UPDATE_URL = "https://api.github.com/repos/riidefi/RiiStudio/releases/latest"
+
 
 @pytest.fixture
 def display():
@@ -306,6 +311,7 @@ def test_brawlcrate_opens_a_brres_and_starts_a_second_process(display, tmp_path:
 
 @needs_x
 @needs_wine
+@pytest.mark.network
 @pytest.mark.slow
 def test_riistudio_reports_the_file_it_opened_only_on_a_tty(display, tmp_path: Path) -> None:
     """RiiStudio's title never names the file; its `File:` line does, on a tty.
@@ -313,6 +319,12 @@ def test_riistudio_reports_the_file_it_opened_only_on_a_tty(display, tmp_path: P
     Also pins the S3b wall from the GUI's side: ABMatt output fails to load with
     the same U16 normal-quantisation error the CLI gives, and the window stays
     up regardless -- so "the process is alive" proves nothing.
+
+    Network precondition (measured in S8): RiiStudio contacts GitHub for an
+    update before it loads the file, and when that check fails the `File:` line
+    never appears at all. So this test needs that endpoint — hence the
+    `network` marker and the precise runtime skip. P5-T07's adapter must not
+    depend on this output for the same reason (TD-001 in STATUS).
     """
     if not (RIISTUDIO.is_file() and WINE64.is_dir()):
         pytest.skip("RiiStudio or its win64 prefix is missing")
@@ -325,8 +337,16 @@ def test_riistudio_reports_the_file_it_opened_only_on_a_tty(display, tmp_path: P
         staged = spaced(tmp_path, source, f"{label} model.brres")
         process, controller = start([WINE, str(RIISTUDIO), win_path(env, staged)], env, True)
         try:
-            # The load only happens after a GitHub update check, hence the extra wait.
-            output = drain(controller, SETTLE + 16)
+            # The load only happens after a GitHub update check. Give that
+            # request enough time to succeed or emit its failure; the failure
+            # is the explicit network precondition handled below.
+            output = drain(controller, SETTLE + 75)
+            if "Cannot connect to Github to check for updates:" in output:
+                pytest.skip(
+                    f"RiiStudio reported its update endpoint ({RIISTUDIO_UPDATE_URL}) unreachable; "
+                    "it emits the 'File:' line only after that check completes, so this test "
+                    "cannot observe a load without it"
+                )
             results[label] = {"alive": process.poll() is None, "output": output}
             results[label]["titles"] = titles(env, "RiiStudio")
         finally:

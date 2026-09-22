@@ -54,9 +54,13 @@ tools). Configurable in settings. Missing tool → dialog linking to Tools page.
 from TOOLS.md (Wine on Linux for Windows-only tools).
 **From S7 (P0-T10):** one file per launch and a new process every time — never offer "open both"
 and never expect an existing window to pick up a second file. The UI must not claim the file
-*opened*: RiiStudio keeps an empty window up after a failed load. Before offering "Edit KMP" with
-Lorenzi's editor, make sure `course.kcl` (that exact lowercase name) sits beside the KMP, or the
-user silently edits against a blank box.
+*opened*: RiiStudio keeps an empty window up after a failed load. **TD-001:** its `File:` stdout line
+is not a receipt — it disappears whenever the mandatory GitHub update check fails, and upstream
+offers no flag/setting/config to disable that check. The adapter must never parse or depend on the
+line; report only "launched". The network-marked characterization test is nightly-only, while HC1
+owns the no-tty observability question. Before offering "Edit KMP" with Lorenzi's editor, make sure
+`course.kcl` (that exact lowercase name) sits beside the KMP, or the user silently edits against a
+blank box.
 **Acceptance:** tests with fake GUI tools verifying argument construction per OS, including that
 options follow the path and that two files produce two launches; manual run noted for HC1.
 

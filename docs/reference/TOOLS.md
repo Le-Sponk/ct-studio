@@ -216,6 +216,21 @@ on success and 255 on a genuine failure (verified against garbage input).
   `Failed to read MDL0 course: Invalid quantization for normal data: U16` and the window stayed up,
   empty, with no dialog **[verified S7]**. The `File: <path>` line is printed **only when stdout is a
   tty**, so a pipe sees nothing.
+- **That `File:` output also depends on the update check** **[verified S7 + S8, run + source]**:
+  RiiStudio contacts `api.github.com/repos/riidefi/RiiStudio/releases/latest` at startup, before it
+  loads the file. When that fails (blocked network, dead proxy) the `File: <path>` line **never
+  appears** — only `Cannot connect to Github to check for updates: …`. Reproduced deterministically
+  twice.
+- **The update check cannot be disabled** **[verified S8, source at `Alpha-5.11.5`]**: `UpdaterView`
+  is a plain member of `RootWindow` (`source/frontend/root.hpp:63`) and its constructor calls
+  `Updater::Init()` → `InitRepoJSON()` unconditionally (`source/updater/updater.cpp:166-178`). The
+  only switch, `setCheckUpdate()` (`root.hpp:83`), is **never called anywhere in the tree** and
+  gates only whether the update *dialog* draws (`root.cpp:182`), not the network call. There is no
+  CLI flag, environment variable, config file or build define for it; RiiStudio writes no settings
+  file either (only `imgui.ini` for layout).
+- **Consequence for the `editors` adapter (P2-T05/P5-T07):** never infer "file opened" from
+  RiiStudio's `File:` output. It is absent on any offline machine, and absence means nothing about
+  whether the load succeeded. See TD-001.
 - Material presets import/export in the GUI **[doc]**.
 
 ## Lorenzi's KMP Editor
@@ -307,7 +322,7 @@ Evidence: [SPIKES.md §S7](../dev/SPIKES.md#s7--external-editor-launch-contracts
 |---|---|---|---|---|---|
 | BrawlCrate v0.42h1 | Win | direct | **yes** | **no** | title becomes the path |
 | BrawlCrate v0.42h1 | Linux | wine, **win32 + dotnet48 + win10** | **yes** | **no** | `winepath -w`; a POSIX path also worked (Wine's `Z:` mapping) |
-| RiiStudio 5.11.5 | Linux/Win | wine **win64** (x86-64 exe) | **yes** | **no** | title never names the file; `File: <path>` on stdout, tty only |
+| RiiStudio 5.11.5 | Linux/Win | wine **win64** (x86-64 exe) | **yes** | **no** | title never names the file; `File: <path>` on stdout, tty only — **and only when its GitHub update check completes** (see below) |
 | Lorenzi KMP Editor 0.7.7 | Linux | wine win64, or source build | **yes** | **no** | title `[<path>] -- …`; `course.kcl` auto-load confirmed |
 | KMP Cloud 1.2.0.1 | Linux/Win | wine **win32 + dotnet48** | **yes** | **no** | title is fixed; the file name appears only in the tree pane |
 | Blender 5.2.2 | all | direct/flatpak | **yes** (`blender file.blend`) | **no** | a second positional replaces the first |

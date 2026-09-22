@@ -6,7 +6,7 @@
 **Current phase:** 0 — Environment, toolchain & spikes
 **Next task:** P0-T12 — Phase wrap-up (last task in Phase 0, then HC0/P0-GATE)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 26a2c5e (ADR-016 evidence gate; `check.py` arrives in P1-T02)
+**Last green commit:** 754161f (P0-T11 Spike S8; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
 
 ## In progress
@@ -30,7 +30,7 @@ _none_
   MKW-SP "My Stuff" was not probed — it needs the MKW-SP distribution, so it stays a manual
   path. Fixture is synthetic: no MKW data exists here, so whether a patched slot actually
   loads is an HC3 item. 11 integration tests, 6/6 mutations caught.
-  [SPIKES.md §S8](docs/dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11) — commit TBD
+  [SPIKES.md §S8](docs/dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11) — commit 754161f
 - `P0-T10` — Spike S7 (external editor launch contracts): all five editors launched for
   real under Xvfb, four under Wine. **Every one opens a positional file path and none is
   single-instance**, so "Open in…" is one file and one process per launch — BrawlCrate's
@@ -258,6 +258,18 @@ _none_
   given Dolphin skips a broken one at exit 0 in silence; real `dolphin-tool extract` time and disk
   use; and whether you use MKW-SP, which would make "My Stuff" worth automating rather than
   documenting. Listed as HC3 step 6.
+
+## Tech debt
+- **TD-001 · P5-T07/editor-launch adapter · RiiStudio load output has an undeclared network
+  precondition.** `File: <path>` appears only after RiiStudio's mandatory GitHub update check
+  completes; when the endpoint is unreachable the line never appears. Upstream Alpha-5.11.5 has no
+  usable disable switch: `UpdaterView` constructs `Updater` unconditionally; the unused
+  `setCheckUpdate(false)` would suppress only drawing, not the request; no flag/env/config/build
+  define exists. The adapter must report only "launched" and never consume this line as proof.
+  `test_riistudio_reports_the_file_it_opened_only_on_a_tty` now carries `network` and precisely
+  skips if `https://api.github.com/repos/riidefi/RiiStudio/releases/latest` is unreachable;
+  `check.py` must exclude `network` (P1-T02), nightly integration must include it (P1-T07). The
+  no-tty observability question remains HC1.
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
