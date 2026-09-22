@@ -278,3 +278,39 @@ dolphin-emu-nogui -u <user-dir> -p headless -v Null \
 A successful boot never exits: kill it, or run it under `timeout`. The GUI binary needs
 `xvfb-run`, and `--batch` does **not** stop panic dialogs, so a GUI probe against a bad path
 hangs until killed.
+
+## Rebuilding the container's system packages (confirmed at P0-T12)
+
+The sandbox recreates the container between sessions and **apt-installed system libraries do not
+survive**, while the repo, `.tools/` and `spikes/out/` do. Symptom: a suite that passed last
+session fails with `error while loading shared libraries: …` — a missing library, not a
+regression. Observed at P0-T12: 15 failures, all of that shape, restored to 124 passing by
+reinstalling alone with no code change.
+
+One command restores everything Phase 0 needs:
+
+```bash
+DEBIAN_FRONTEND=noninteractive apt-get update -qq
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  libxfixes3 libxi6 libgl1 libglfw3 libassimp5 libxrender1 libxkbcommon0 libsm6 libice6 \
+  libgl-dev libegl-dev libegl1 libgles2 libosmesa6 \
+  libnss3 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 libgtk-3-0t64 \
+  libxcb-cursor0 libxcb-xinerama0 \
+  xvfb xdotool imagemagick dolphin-emu
+export PATH=/usr/games:$PATH
+```
+
+Which library each consumer needs, so a future failure is diagnosable rather than guessable:
+
+| Missing library | Breaks |
+|---|---|
+| `libXfixes.so.3`, `libXi.so.6` | `.tools/blender/blender` (exit 127) — S2 export tests |
+| `libglfw.so.3`, `libassimp.so.5` | `.tools/riistudio-build-pinned/…/rszst` (exit 127) — S3/S4 |
+| **`libGL.so`, `libEGL.so`** (the `-dev` packages) | moderngl (`ctypes.CDLL` needs the unversioned symlink; the runtime `.so.1` is not enough) — S6 preview |
+| `libnss3`, GTK/ATK/CUPS set | the Electron build of Lorenzi's editor — S7 |
+| `xvfb`, `xdotool`, `imagemagick` | every GUI probe (display, window titles, screenshots) |
+| `dolphin-emu` | S8; binaries land in `/usr/games`, not on the default `PATH` |
+
+Wine is **not** in that list: it is a large multi-arch install (`dpkg --add-architecture i386`)
+and its prefixes in `/root/s7-wine{32,64}` are lost with the container too, so the four Wine
+editor tests skip cleanly instead. Rebuild it only when re-running S7 (recipe above).

@@ -19,8 +19,9 @@ Dolphin detached with the right arguments → optionally close the previous Dolp
 (ask once, remember).
 Constraints S8 measured, all in `tests/integration/test_dolphin_launch.py`:
 - **Install is a plain file copy** over `files/Race/Course/<slot>.szs`. No repack.
-- **Launch `<game>/sys/main.dol`** and confirm the log says `Booting from disc:`. A DOL with a bad
-  header boots as an *executable* with no file system — success-looking, track absent.
+- **Launch `<game>/sys/main.dol`** and confirm the log says `Booting from disc:`. A folder whose
+  `sys/boot.bin` is missing or under 0x20 bytes (half-extracted, or the wrong folder) boots the DOL
+  as a bare *executable* with no file system — success-looking, track absent.
 - **`dolphin-emu --batch` does not fail cleanly**: a missing file leaves it on a modal panic dialog
   forever. Either use `dolphin-emu-nogui` for anything the app must check, or pass
   `-C Main.Interface.UsePanicHandlers=False`, and never wait on the process for a result.

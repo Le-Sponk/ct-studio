@@ -188,3 +188,65 @@ the full `check.py` requirement applies, including to P1-T02 itself.
 **Consequences:** Phase 0 remains evidence-driven without pulling application scaffolding
 forward. No exemption for skipped/weak tests, runtime dependencies or application layering.
 **Revisit when:** P1-T02 is implemented; use the full gate thereafter.
+
+## ADR-017 — External editors are launch-only; the app never claims a file opened
+**Status:** Accepted (decided by spikes S7 and S8, P0-T10/P0-T11)
+**Context:** "Open in…" (P5-T07) and the `editors` adapter (P2-T05) need to know what an
+editor launch can be observed to have done. S7 launched all five editors for real; S8 added
+the RiiStudio finding that closed the question.
+**Decision:** `open_in(tool_id, file)` reports **launched**, never **opened**. One filesystem
+path per launch and one process per launch. No success inference from process liveness, window
+titles, or editor stdout.
+**Why** (evidence: [SPIKES.md §S7](dev/SPIKES.md), [§S8](dev/SPIKES.md), TOOLS.md launch table):
+- **Liveness proves nothing.** RiiStudio kept an empty window up after failing to load ABMatt's
+  BRRES (`Invalid quantization for normal data: U16`), with no dialog and no exit.
+- **Titles prove nothing** for two of five: RiiStudio's is version-only, KMP Cloud's is a fixed
+  product name. BrawlCrate and Lorenzi do put the path in the title, but a rule that holds for
+  three of five tools is not a contract.
+- **RiiStudio's `File:` line is not a receipt either** (TD-001): it is printed only when stdout is
+  a tty *and* only after its mandatory GitHub update check completes. With the endpoint
+  unreachable the line never appears at all, and upstream Alpha-5.11.5 exposes no flag,
+  environment variable, config file or build define to disable that check.
+- **No editor we could probe is single-instance** (BrawlCrate, KMP Cloud, Lorenzi measured;
+  **RiiStudio is source-read only** — the S7 spike never probed it), so a second launch is a second
+  process, never a hand-off.
+**Evidence grades, so a later reader does not over-trust this:** bullets 1-2 are pinned by
+integration tests; bullet 3 rests on a `network`-marked test that is excluded from the default
+suite and skips when GitHub is unreachable (TD-001); bullet 4 is three-of-five measured.
+**Consequences:** the adapter surface has no "did it open" query; the UI says "Opened in
+BrawlCrate…" only as a past-tense launch statement and offers a Re-check/refresh path instead of
+a completion signal; P5-T06 change detection watches the *file*, not the editor. BrawlCrate must
+never receive two paths (its `argv[1]` is a node path inside `argv[0]`'s file) and Lorenzi's
+editor must receive the path first (it parses no flags).
+**Revisit when:** HC1 answers whether a load is observable at all without a tty on the user's own
+machines, or an upstream release adds a machine-readable status.
+
+## ADR-018 — Test launches use an extracted game folder, not a patched image
+**Status:** Accepted (decided by spike S8, P0-T11)
+**Context:** P11's "Build & launch" needs one route from a built `<slot>.szs` to racing it that
+CT Studio can start without the user clicking through Dolphin's GUI.
+**Decision:** The primary route is the **extracted game folder**: the user's own disc image is
+extracted once with `dolphin-tool extract`, installing a build is a plain file copy over
+`files/Race/Course/<slot>.szs`, and the launch target is `<game>/sys/main.dol`. Dolphin's
+**game-mod descriptor** JSON (Riivolution without the GUI) is kept as an optional second route
+(P11-T02b). MKW-SP "My Stuff" stays a documented manual path, not automation.
+**Why** (evidence: [SPIKES.md §S8](dev/SPIKES.md), Dolphin section of
+[TOOLS.md](reference/TOOLS.md)): route 1 needs no packing step and no XML generation, and
+`dolphin-tool extract -i <game>/sys/main.dol -l` verifies the slot path without booting anything.
+Route 2 leaves the user's game untouched, which is why it survives as an option, but it carries a
+failure mode route 1 does not: a descriptor whose XML is missing, malformed, or scoped to another
+game id **still boots, exit 0, silently** (`RiivolutionParser.cpp:352-354` skips invalid patches
+with `continue`; no Riivolution log line exists at any verbosity).
+**Consequences the app must implement:** never pass the game *folder* to `--exec` (rejected,
+exit 1 — append `sys/main.dol`); confirm the `Booting from disc:` log line rather than an exit
+code, because a game folder whose `sys/boot.bin` is missing or shorter than 0x20 bytes (a
+half-extracted or wrong folder) is **not** rejected — Dolphin silently boots the DOL as a bare
+*executable* with no file system, so the track is absent while everything looks fine; create
+`Logs/` before trusting file logging, since Dolphin never creates it; drive
+`dolphin-emu-nogui` when the app must know an outcome, because `dolphin-emu --batch` sits on a
+modal panic dialog instead of failing; treat a successful boot as never-exiting; and if route 2
+ships, validate the generated XML in-app, because Dolphin will not.
+*(Measured precisely: the DOL header is not what selects the path — a DOL with a zeroed entry
+point still boots as a disc. `IsValidDirectoryBlob` keys on `sys/boot.bin`.)*
+**Revisit when:** HC3 confirms a patched slot actually loads on the real game, or the user
+reports MKW-SP is their real test setup.

@@ -21,7 +21,12 @@ vacuously — an offline machine is not a broken build. `check.py` excludes the 
 the nightly integration workflow is the only place it runs and must surface skip reasons rather
 than report green (P1-T07). First instance: TD-001, RiiStudio's update check.
 
-Every test file sets a timeout (`pytest-timeout`, default 30 s unit, 600 s integration).
+Every test file sets a timeout (`pytest-timeout`, default 30 s unit, 600 s integration; 900 s for
+the Wine/emulator suites that drive GUIs). **`pytest-timeout` must be installed for those marks to
+do anything** — without the plugin pytest reports `PytestUnknownMarkWarning` and the marks are
+silently inert, which is how they shipped through P0 (found at the P0 gate). It is in P1-T01's dev
+group and every documented run command; if a run warns about an unknown `timeout` mark, the plugin
+is missing and nothing is protected.
 
 ## 2. Fake tools and recordings
 - `tests/fakes/<tool>.py` implement only the CLI surface we use, log received argv to JSON, and

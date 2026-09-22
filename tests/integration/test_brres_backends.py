@@ -39,6 +39,13 @@ pytestmark = [
 
 @pytest.fixture(scope="module")
 def findings() -> dict:
+    """Run the bake-off probe, then assert against what *this* run recorded.
+
+    `spikes/out/` is gitignored and survives between sessions, so a stale
+    findings file would satisfy every test below even with a broken probe.
+    Delete it first and check the exit code.
+    """
+    FINDINGS.unlink(missing_ok=True)
     proc = subprocess.run(  # noqa: S603 - local probe, argv only
         [sys.executable, str(DRIVER)],
         capture_output=True,
@@ -47,9 +54,9 @@ def findings() -> dict:
         cwd=str(REPO_ROOT),
         check=False,
     )
-    assert FINDINGS.exists(), (
-        f"probe wrote no findings:\n{proc.stdout[-2000:]}\n{proc.stderr[-1000:]}"
-    )
+    detail = f"exit={proc.returncode}\n{proc.stdout[-2000:]}\n{proc.stderr[-1000:]}"
+    assert proc.returncode == 0, f"probe failed:\n{detail}"
+    assert FINDINGS.exists(), f"probe wrote no findings:\n{detail}"
     return json.loads(FINDINGS.read_text(encoding="utf-8"))
 
 

@@ -15,6 +15,7 @@ Marked `slow` because each boot costs a second or two and several run per test.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 import struct
@@ -29,6 +30,7 @@ GUI = shutil.which("dolphin-emu") or "/usr/games/dolphin-emu"
 TOOL = shutil.which("dolphin-tool") or "/usr/games/dolphin-tool"
 
 pytestmark = [
+    pytest.mark.timeout(900),
     pytest.mark.slow,
     pytest.mark.skipif(not Path(NOGUI).exists(), reason="dolphin-emu-nogui not installed"),
 ]
@@ -111,9 +113,13 @@ def boot_log(target: Path | str, user_dir: Path, timeout: int = 30) -> str:
         "Logger.Logs.BOOT=True",
         f"--exec={target}",
     ]
-    subprocess.run(  # noqa: S603 - local tool, argv only
-        argv, capture_output=True, text=True, timeout=timeout, check=False
-    )
+    with contextlib.suppress(subprocess.TimeoutExpired):
+        # A boot that works never exits on its own, and neither does the
+        # executable-fallback path, so a timeout here is normal: the log has
+        # already recorded which one happened.
+        subprocess.run(  # noqa: S603 - local tool, argv only
+            argv, capture_output=True, text=True, timeout=timeout, check=False
+        )
     return log.read_text(encoding="utf-8", errors="replace") if log.is_file() else ""
 
 
@@ -155,15 +161,37 @@ def riivolution_xml(path: Path, root_name: str, game: str = "RMC") -> Path:
 def test_extracted_folder_boots_as_a_disc_not_as_an_executable(disc: Path, user_dir: Path) -> None:
     """Route 1 must boot the *disc*, or the slot files are never mounted.
 
-    Dolphin will happily accept a DOL with a broken header and boot it as a bare
-    executable ("Booting from executable:"), which looks like success but gives
-    the game no file system at all. Only "Booting from disc:" means
-    `files/Race/Course/<slot>.szs` is reachable. CT Studio must check this line,
-    not the exit code.
+    When `sys/boot.bin` is missing or shorter than 0x20 bytes the directory is
+    not a valid blob (DiscIO/DirectoryBlob.cpp `IsValidDirectoryBlob`), and
+    Dolphin silently falls back to booting the DOL as a bare executable — the
+    game then has no file system, so `files/Race/Course/<slot>.szs` is
+    unreachable. Only `Booting from disc:` means the track can load, which is
+    why P11 must check this line rather than the exit code.
+
+    Note the DOL header itself is *not* what decides this: a DOL with a zeroed
+    entry point still boots as a disc.
     """
     log = boot_log(disc / "sys" / "main.dol", user_dir)
     assert "Booting from disc:" in log
     assert "Booting from executable:" not in log
+
+
+def test_a_short_boot_bin_silently_downgrades_to_an_executable_boot(
+    disc: Path, tmp_path: Path
+) -> None:
+    """The failure the disc check above exists to catch, exercised for real.
+
+    A truncated `sys/boot.bin` is the realistic form of a half-extracted or
+    wrong-folder game. Dolphin does not refuse it: it boots the DOL with no
+    file system and never says the disc was rejected.
+    """
+    broken = tmp_path / "half extracted game"
+    shutil.copytree(disc, broken)
+    (broken / "sys" / "boot.bin").write_bytes(bytes(0x10))  # below the 0x20 minimum
+
+    log = boot_log(broken / "sys" / "main.dol", tmp_path / "user")
+    assert "Booting from executable:" in log
+    assert "Booting from disc:" not in log
 
 
 def test_file_logging_needs_the_logs_directory_to_exist(disc: Path, tmp_path: Path) -> None:
@@ -362,9 +390,10 @@ def test_user_directory_is_isolated_and_created_on_demand(tmp_path: Path) -> Non
     """`-u` gives each launch its own directory, so CT Studio never edits the user's.
 
     It also creates `Load/Riivolution` on the spot, which is where a
-    Riivolution-route install would land. Note the nogui binary creates fewer
-    subdirectories than the GUI does (no `Config` until it writes one), so the
-    app must not probe for `Config` to decide whether a user dir is usable.
+    Riivolution-route install would land. Note `Config` is **not** created at
+    startup, so the app must not probe for it to decide whether a user
+    directory is usable. (This says nothing about the GUI binary, which was not
+    measured here.)
     """
     fresh = tmp_path / "dolphin-user"
     boot("/nonexistent/x.rvz", fresh)

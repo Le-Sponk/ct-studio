@@ -39,7 +39,15 @@ pytestmark = [
 
 @pytest.fixture(scope="module")
 def findings() -> dict:
-    """Run the export probe once, then assert against what it recorded."""
+    """Run the export probe once, then assert against what it recorded.
+
+    The stale-artefact trap: `spikes/out/` is gitignored and survives between
+    sessions, so a findings file from a previous run will satisfy these tests
+    even when the probe is broken or cannot start. Delete it first and check the
+    exit code, so what is asserted is always what this run produced.
+    """
+    path = OUT / "s2_findings.json"
+    path.unlink(missing_ok=True)
     proc = subprocess.run(  # noqa: S603
         [sys.executable, str(DRIVER)],
         capture_output=True,
@@ -48,8 +56,9 @@ def findings() -> dict:
         cwd=str(REPO_ROOT),
         check=False,
     )
-    path = OUT / "s2_findings.json"
-    assert path.exists(), f"probe wrote no findings:\n{proc.stdout[-2000:]}\n{proc.stderr[-1000:]}"
+    detail = f"exit={proc.returncode}\n{proc.stdout[-2000:]}\n{proc.stderr[-1000:]}"
+    assert proc.returncode == 0, f"probe failed:\n{detail}"
+    assert path.exists(), f"probe wrote no findings:\n{detail}"
     return json.loads(path.read_text(encoding="utf-8"))
 
 

@@ -51,10 +51,11 @@ mutate "descriptor version 2" \
 mutate "boot the folder, not the DOL" \
   'result = boot(disc / "sys" / "main.dol", user_dir)' \
   'result = boot(disc, user_dir)'
-# 5. Truncate the DOL header: Dolphin falls back to executable boot, not disc.
-mutate "malformed main.dol" \
-  'struct.pack_into(">I", dol, 0xE0, 0x80003100)' \
-  'struct.pack_into(">I", dol, 0xE0, 0)'
+# 5. Truncate sys/boot.bin below 0x20: the directory blob is no longer valid, so
+#    Dolphin silently boots the DOL as a bare executable with no file system.
+mutate "short sys/boot.bin" \
+  '(root / "sys" / "boot.bin").write_bytes(bytes(header))' \
+  '(root / "sys" / "boot.bin").write_bytes(bytes(0x10))'
 # 6. Claim the missing-file case exits 0.
 mutate "missing file exits 0" \
   'assert result.returncode == 1

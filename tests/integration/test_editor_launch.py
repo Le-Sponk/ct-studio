@@ -52,7 +52,7 @@ DISPLAY = ":78"
 SETTLE = 14.0
 SHOW_PATH = "import bpy; print('S7_FILE=' + bpy.data.filepath)"
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.integration, pytest.mark.timeout(900)]
 
 needs_x = pytest.mark.skipif(XVFB is None or XDOTOOL is None, reason="Xvfb/xdotool not installed")
 needs_wine = pytest.mark.skipif(WINE is None, reason="wine not installed")

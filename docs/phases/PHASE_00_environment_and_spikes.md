@@ -266,10 +266,10 @@ recommendation for P11-T01/T02; route 2 (Dolphin's `dolphin-game-mod-descriptor`
 Riivolution) works GUI-free and is now P11-T02b. MKW-SP "My Stuff" was not probed — it needs the
 MKW-SP distribution, so it stays a documented manual path.
 **Key risks recorded:** a broken Riivolution patch boots exit 0 in silence; `dolphin-emu --batch`
-hangs on a panic dialog instead of failing; a bad DOL header boots as an executable with no file
-system, which looks like success.
+hangs on a panic dialog instead of failing; an invalid `sys/boot.bin` makes Dolphin boot the DOL
+as a bare executable with no file system, which looks like success.
 **Evidence:** `spikes/s8_dolphin_launch.py` → `spikes/out/s8/s8_findings.json`;
-`tests/integration/test_dolphin_launch.py` (11 tests); `spikes/s8_mutation_check.sh`;
+`tests/integration/test_dolphin_launch.py` (13 tests); `spikes/s8_mutation_check.sh` (6/6);
 [SPIKES.md §S8](../dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11);
 Dolphin section of [TOOLS.md](../reference/TOOLS.md#dolphin--dolphintool).
 **Original scope, for the record:** compare booting an extracted game folder, generated Riivolution
@@ -277,7 +277,21 @@ XML under `Load/Riivolution`, and MKW-SP "My Stuff"; consider `-e`/`-b`/`-u`, wh
 be enabled from the command line, disk space, and the user's own-copy legal constraint.
 **Acceptance:** SPIKES.md §S8 recommendation + open questions. No implementation.
 
-### [ ] P0-T12 — Phase wrap-up
+### [x] P0-T12 — Phase wrap-up — commit TBD
 Update DECISIONS.md statuses; amend later phase files where evidence changes the plan (log in STATUS
 "Plan changes"); update TOOLS.md; fill in HC0 questions in STATUS "Needs human — BLOCKING".
 Run `mkw-phase-review` (lightweight for P0: evidence completeness + plan consistency).
+**Done.** Added **ADR-017** (editors are launch-only) and **ADR-018** (test launches use an
+extracted game folder) from the S7/S8 evidence, synced ARCHITECTURE §9, and wrote the six HC0
+questions into STATUS with a recommendation and a blocked-by note for each.
+**The independent review ([PHASE_00_REVIEW.md](../reviews/PHASE_00_REVIEW.md)) found two surviving
+mutations**, both fixed: ADR-018's "a bad DOL header boots as an executable" was false — the
+fallback is selected by an invalid `sys/boot.bin`, not the DOL header, and a DOL with a zeroed
+entry point still boots as a disc — and the nine S2 tests were passing against a stale gitignored
+findings file (the probe could be made unrunnable and they stayed green in 0.02 s). Also fixed:
+`pytest.mark.timeout` was inert everywhere (plugin never installed, five files had no mark),
+RiiStudio's "single instance: no" was never probed, native-Windows rows were unmarked in a table
+headed "verified by real GUI launches", and S8's self-reported counts were wrong.
+**Evidence:** [PHASE_00_BRIEF.md](../reviews/PHASE_00_BRIEF.md),
+[PHASE_00_REVIEW.md](../reviews/PHASE_00_REVIEW.md); 125 passing + 2 wine-skipped, excluding `network`;
+`spikes/s8_mutation_check.sh` genuinely 6/6 (exit 0); TD-002..TD-004 logged in STATUS.

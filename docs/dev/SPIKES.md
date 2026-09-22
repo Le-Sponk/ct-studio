@@ -740,6 +740,15 @@ pre-launch check that boots nothing.
 **Trap:** `--exec=<game folder>` is rejected (`Could not recognize file`, exit 1). The
 app must append `sys/main.dol` itself.
 
+**The trap that matters more:** if `sys/boot.bin` is missing or shorter than 0x20 bytes — a
+half-extracted game, or the wrong folder — Dolphin does **not** refuse it. `IsValidDirectoryBlob`
+fails, and it quietly boots the DOL as a bare executable instead: `Booting from executable:`,
+no file system, so the slot SZS is unreachable while nothing reports an error. Measured both
+ways at the P0 gate: a short `boot.bin` with a *valid* DOL gives the executable path, while a
+DOL with a **zeroed entry point** beside a valid `boot.bin` still gives `Booting from disc:`.
+So the DOL header does not select the path and must not be used to check the install — only the
+`Booting from disc:` line distinguishes a usable game folder from a broken one.
+
 ### Route 2 — Dolphin's game-mod descriptor (Riivolution)
 Also works, leaves the user's game untouched, and needs no GUI. CT Studio writes a JSON
 (`DiscIO/GameModDescriptor.cpp`): `{"type": "dolphin-game-mod-descriptor", "version": 1,

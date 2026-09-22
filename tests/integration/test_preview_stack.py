@@ -23,7 +23,7 @@ SPIKE = REPO / "spikes" / "s6_preview.py"
 moderngl = pytest.importorskip("moderngl", reason="moderngl not installed")
 numpy = pytest.importorskip("numpy", reason="numpy not installed")
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.integration, pytest.mark.timeout(600)]
 
 
 def make_context():

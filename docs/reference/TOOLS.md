@@ -296,9 +296,11 @@ on success and 255 on a genuine failure (verified against garbage input).
   (`RiivolutionParser.cpp:352-354` skips invalid patches with `continue`; the only Riivolution log
   calls in the tree are memory-patch/HLE overlap warnings). CT Studio must validate its own XML and
   must never report "launched" as "patched".
-- `-u <dir>` creates the user directory on demand including `Load/Riivolution`; the nogui binary
-  creates **fewer** subdirectories than the GUI (no `Config` until something writes one), so do not
-  probe for `Config` to decide a user dir is valid **[verified S8, run]**.
+- `-u <dir>` creates the user directory on demand, including `Load/Riivolution`, but
+  `dolphin-emu-nogui` does **not** create `Config` at startup (observed: `Dump GBA Load Wii` only).
+  So never probe for `Config` to decide whether a user directory is usable **[verified S8, run]**.
+  *(How the GUI binary populates the same directory was not measured — it creates nothing on a
+  `--version` run — so no nogui-versus-GUI comparison is claimed here.)*
 - Riivolution content folder for GUI use: `<Dolphin user dir>/Load/Riivolution`
   (Windows `%APPDATA%\Dolphin Emulator\Load\Riivolution`;
   Linux `~/.local/share/dolphin-emu/Load/Riivolution`) **[doc]**.
@@ -320,13 +322,20 @@ Evidence: [SPIKES.md §S7](../dev/SPIKES.md#s7--external-editor-launch-contracts
 
 | Tool | OS | Launcher | File arg opens file? | Single instance? | Notes / evidence |
 |---|---|---|---|---|---|
-| BrawlCrate v0.42h1 | Win | direct | **yes** | **no** | title becomes the path |
-| BrawlCrate v0.42h1 | Linux | wine, **win32 + dotnet48 + win10** | **yes** | **no** | `winepath -w`; a POSIX path also worked (Wine's `Z:` mapping) |
-| RiiStudio 5.11.5 | Linux/Win | wine **win64** (x86-64 exe) | **yes** | **no** | title never names the file; `File: <path>` on stdout, tty only — **and only when its GitHub update check completes** (see below) |
+| BrawlCrate v0.42h1 | Win *[unverified — HC1]* | direct | yes | no | inferred from the Wine row + `Program.cs`; no Windows machine existed |
+| BrawlCrate v0.42h1 | Linux | wine, **win32 + dotnet48 + win10** | **yes** | **no** | `winepath -w`; a POSIX path also worked (Wine's `Z:` mapping); title becomes the path |
+| RiiStudio 5.11.5 | Linux (wine **win64**) | wine, x86-64 exe | **yes** | **no** *[source only]* | title never names the file; `File: <path>` on stdout, tty only — **and only when its GitHub update check completes** (see below) |
+| RiiStudio 5.11.5 | Win *[unverified — HC1]* | direct | yes | no | same binary, but native console/tty behaviour is untested |
 | Lorenzi KMP Editor 0.7.7 | Linux | wine win64, or source build | **yes** | **no** | title `[<path>] -- …`; `course.kcl` auto-load confirmed |
-| KMP Cloud 1.2.0.1 | Linux/Win | wine **win32 + dotnet48** | **yes** | **no** | title is fixed; the file name appears only in the tree pane |
-| Blender 5.2.2 | all | direct/flatpak | **yes** (`blender file.blend`) | **no** | a second positional replaces the first |
-| Dolphin `2603a` | all | direct | `--exec=<file>` **[source]** | **no** **[source]** | bare positional works only without `--exec`; P0-T11 owns boot |
+| KMP Cloud 1.2.0.1 | Linux (wine **win32 + dotnet48**) | wine | **yes** | **no** | title is fixed; the file name appears only in the tree pane |
+| KMP Cloud 1.2.0.1 | Win *[unverified — HC1]* | direct | yes | no | inferred from the Wine row + IL of `Form1` |
+| Blender 5.2.2 | Linux | direct/flatpak | **yes** (`blender file.blend`) | **no** | a second positional replaces the first |
+| Dolphin `2503`/`2603a` | Linux | direct | `--exec=<file>` **[run S8]** | **no** **[source]** | bare positional works only without `--exec`; see ADR-018 |
+
+**Every Windows-editor row is inference, not measurement.** All four Windows tools were
+characterized **under Wine on Linux**; no Windows or macOS machine existed in Phase 0. Native argv
+handling, file-association/`ShellExecute` launches and native console behaviour are **HC1**
+questions (HUMAN_CHECKPOINTS.md step 9) and P2-T08 work — do not treat the `Win` rows as settled.
 
 **One path per launch.** No tool accepts two documents:
 - BrawlCrate's `argv[1]` is a **node path inside** `argv[0]`'s file, not a second file.

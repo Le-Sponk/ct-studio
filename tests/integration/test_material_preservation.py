@@ -24,6 +24,7 @@ WIIMMS_BIN = TOOLS / "wiimms-szs-tools" / "bin"
 FIXTURE_DAE = REPO / "spikes" / "out" / "s2" / "course_builtin.dae"
 
 pytestmark = [
+    pytest.mark.timeout(600),
     pytest.mark.integration,
     pytest.mark.skipif(not RSZST.is_file(), reason="rszst not built (P0-T06a)"),
     pytest.mark.skipif(not ABMATT.is_file(), reason="abmatt not installed"),

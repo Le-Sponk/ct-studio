@@ -10,7 +10,8 @@ STATUS.md under "Human checkpoint results" (or into the chat); the agent turns e
 
 ## HC0 — Kick-off decisions (≈10 min, end of Phase 0)
 Agent provides: spike summary (1 page), any Dockerfile changes needed, recommendations.
-Human confirms:
+**The live question list, with the agent's recommendation and what each one blocks, is in
+STATUS.md "Needs human — BLOCKING".** The six standing questions are:
 1. Licence GPL-3.0-or-later OK? (Name settled before Phase 0 ended: ADR-015, CT Studio.)
 2. Is the repo on GitHub with Actions enabled (needed for Windows CI)? Can the agent push?
 3. Is the repo folder bind-mounted so the human can run the GUI on the Linux Mint host?

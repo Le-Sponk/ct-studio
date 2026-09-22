@@ -3,11 +3,11 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T12 — Phase wrap-up (last task in Phase 0, then HC0/P0-GATE)
+**Current phase:** 1 — Skeleton & quality gates (Phase 0 complete)
+**Next task:** P1-T01 — Project metadata & environment (`pyproject.toml`, src layout, `uv.lock`)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 754161f (P0-T11 Spike S8; `check.py` arrives in P1-T02)
-**Last phase gate passed:** —
+**Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
@@ -15,12 +15,26 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T12` — Phase 0 wrap-up **and gate**. Added ADR-017 (editors are launch-only) and
+  ADR-018 (test launches use an extracted game folder); synced ARCHITECTURE §9; wrote the six
+  HC0 questions with recommendations. **An independent fresh-context review found two
+  surviving mutations**, both now fixed: ADR-018's "a bad DOL header boots as an executable"
+  was **false** — the executable fallback is selected by an invalid `sys/boot.bin`, and a DOL
+  with a zeroed entry point still boots as a disc — and the nine S2 tests were passing against
+  a **stale gitignored findings file** (probe made unrunnable, still green in 0.02 s; S3b had
+  the same trap). Also fixed: `pytest.mark.timeout` was inert project-wide (plugin never
+  installed, 5 files had no mark), RiiStudio's "single instance" cell was never probed, the
+  native-Windows rows over-claimed in a table headed "verified by real GUI launches", and S8's
+  counts were wrong (13 tests, not 11; 5/6 mutations, not 6/6 — now genuinely 6/6).
+  125 passing + 2 wine-skipped, excluding `network`. TD-002..TD-004 logged.
+  [PHASE_00_REVIEW.md](docs/reviews/PHASE_00_REVIEW.md) — commit TBD
 - `P0-T11` — Spike S8 (Dolphin test-launch options): both viable routes measured against a
   real Dolphin (`master 2503`), not its README. **Recommendation: the extracted game folder**
   — `--exec=<game>/sys/main.dol` boots as a disc and installing a build is a plain file copy
   over `files/Race/Course/<slot>.szs`. Traps: `--exec=<folder>` is rejected outright, and a
-  bad DOL header boots as an *executable* with no file system, which looks like success, so
-  P11 must check the `Booting from disc:` log line rather than the exit code. Dolphin also
+  half-extracted folder (short/missing `sys/boot.bin`) boots the DOL as a bare *executable* with
+  no file system, which looks like success, so P11 must check the `Booting from disc:` log line
+  rather than the exit code. Dolphin also
   has a **GUI-free Riivolution route** (its own `dolphin-game-mod-descriptor` JSON, `type`
   and `version` both enforced) — now P11-T02b, with one caveat that shapes the design: a
   patch whose XML is missing, malformed, or scoped to another game id **still boots, exit 0,
@@ -29,7 +43,7 @@ _none_
   (it sits on a modal panic dialog), while `dolphin-emu-nogui` exits 1 with the message.
   MKW-SP "My Stuff" was not probed — it needs the MKW-SP distribution, so it stays a manual
   path. Fixture is synthetic: no MKW data exists here, so whether a patched slot actually
-  loads is an HC3 item. 11 integration tests, 6/6 mutations caught.
+  loads is an HC3 item. 13 integration tests, 6/6 mutations caught.
   [SPIKES.md §S8](docs/dev/SPIKES.md#s8--getting-a-built-szs-into-a-running-game-p0-t11) — commit 754161f
 - `P0-T10` — Spike S7 (external editor launch contracts): all five editors launched for
   real under Xvfb, four under Wine. **Every one opens a positional file path and none is
@@ -103,10 +117,19 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-22 (P0 gate): **two Phase 0 claims were wrong and are corrected in place.** (1) The
+  Dolphin executable-fallback is triggered by an invalid `sys/boot.bin`, **not** a bad DOL header —
+  a DOL with a zeroed entry point still boots as a disc — so ADR-018, SPIKES §S8, PHASE_11 and the
+  mutation harness now name the real cause. (2) `pytest.mark.timeout` was inert project-wide
+  (`pytest-timeout` was never installed), so TESTING_STRATEGY's "every test file sets a timeout"
+  was untrue; the plugin is now in every documented run command and the five unmarked files have
+  marks. Both found by the independent review, not by me.
+  Evidence: [PHASE_00_REVIEW.md](docs/reviews/PHASE_00_REVIEW.md).
+  Affects ADR-018, ARCHITECTURE §9, SPIKES §S8, TOOLS, TESTING_STRATEGY, PHASE_00, PHASE_11.
 - 2026-09-22 (S8): **"Build & launch" is the extracted game folder, and launching is not proof.**
   P11-T01 now names `dolphin-tool extract` + `<game>/sys/main.dol` explicitly (the folder itself is
-  rejected), and P11-T02 must confirm `Booting from disc:` rather than an exit code, because a bad
-  DOL header boots as an executable with no file system. A GUI-free Riivolution route exists and
+  rejected), and P11-T02 must confirm `Booting from disc:` rather than an exit code, because a
+  half-extracted folder boots the DOL as a bare executable with no file system. A GUI-free Riivolution route exists and
   became **P11-T02b**, gated on CT Studio validating its own XML: Dolphin skips an invalid patch
   silently at exit 0. `dolphin-emu --batch` is unusable for error detection (modal panic dialog);
   use `dolphin-emu-nogui`. MKW-SP "My Stuff" stays a documented manual path, not automation.
@@ -223,7 +246,39 @@ _none_
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
-_none_
+**HC0 — kick-off decisions (~10 min).** Phase 0 is finished: 12 tasks, 8 spikes, 127 tests.
+Every technical question the spikes could answer is answered; these six need you. Answer inline
+or in chat — P1 can start on 1, 3, 4 and 6 alone, but **2 blocks P1-T07 (CI)**.
+
+1. **Licence GPL-3.0-or-later?** (ADR-009, currently Provisional.) *Recommendation: yes.* We reuse
+   `kcl_parse.py` from Blender-MKW-Utilities (GPL-2.0-or-later), which is compatible; external
+   tools are separate programs, so their licences do not propagate. Blocks: `LICENSE` in P1-T08.
+2. **Is the repo on GitHub with Actions enabled, and may I push to it?** Blocks **P1-T07**: the
+   Windows half of the matrix is the only way to verify Windows paths/argv before HC2, and none of
+   my Windows claims are testable here. If Actions are off, say so and I will keep P1-T07 as a
+   local-only script plus a "Needs human" item rather than pretending CI is green.
+3. **Is the repo folder bind-mounted onto the Mint host** so you can run the GUI at HC1?
+   *Recommendation: yes, before Phase 5.* Not urgent now; HC1 is the first time it matters.
+4. **Will you put real track files in `local_fixtures/`?** Optional. *Recommendation: one finished
+   custom track plus one in-progress `.blend`.* Everything so far runs on synthetic fixtures by
+   design; real data is only used by `realdata`-marked tests you run yourself. Nothing is blocked
+   either way — it improves HC1/HC2 coverage.
+5. **Windows machine for HC2/HC4, and do you run BrawlCrate natively or via Wine?** *Ask because*
+   S7 characterized all four Windows editors **under Wine only**; native argv/association
+   behaviour is unverified and is an HC1 item. Your answer decides whether P2-T08 targets native
+   Windows or treats Wine as the reference.
+6. **Approve the BRRES backend recommendation and the spike-driven scope changes?**
+   *Recommendation: approve.* The substantive ones: ADR-004 rszst-imports/ABMatt-post-processes
+   with a **minimap exception** (rszst cannot make `posLD`/`posRU` bones); ADR-012 capture presets
+   with `rszst dump-presets`; ADR-017 editors are **launch-only** (no editor gives a trustworthy
+   "opened" signal); ADR-018 test launches use an **extracted game folder**, with Riivolution as an
+   optional second route. Each is in DECISIONS.md with its evidence link.
+
+**One-line AGENTS.md edit I cannot make** (repeated from below, it is the only stale rule):
+line 49 says GUI tests run headless with `QT_QPA_PLATFORM=offscreen`; S6 proved offscreen cannot
+create a GL context. Suggested: "GUI tests run headless with `QT_QPA_PLATFORM=offscreen`;
+GL/preview tests instead need `xvfb-run` + `QT_QPA_PLATFORM=xcb` (offscreen cannot create a GL
+context — S6)."
 
 ## Needs human — non-blocking
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
@@ -270,6 +325,25 @@ _none_
   skips if `https://api.github.com/repos/riidefi/RiiStudio/releases/latest` is unreachable;
   `check.py` must exclude `network` (P1-T02), nightly integration must include it (P1-T07). The
   no-tty observability question remains HC1.
+- **TD-002 · P8-T03/minimap · the KCL filter fixture exercises 2 of its 7 conditions.** The
+  drivable-surface filter removes types 0x0c, 0x0d, 0x0f, 0x10, 0x14, 0x1e, 0x1f, but the synthetic
+  fixture contains only 0x00, 0x03, 0x06, 0x0c, 0x10 — so deleting `t == 0x1f` survives while
+  deleting `t == 0x0c` is caught (the logic is right, the fixture is thin). P8-T03 must extend the
+  P0-T03 generator to emit one triangle of each filtered type, and move the filter script to a
+  single shared file: it is currently duplicated verbatim between `spikes/s5_minimap.py` and
+  `tests/integration/test_minimap_paths.py` with only a comment holding them in step.
+- **TD-003 · P2/P9 · spike-script tests assert on source text, not behaviour.**
+  `test_the_spike_script_is_runnable_and_self_describing` (in `test_editor_launch.py` and
+  `test_preview_stack.py`) greps the spike source for identifiers; it passes on a completely broken
+  script and its name overpromises. Rename to `..._still_parses` and use `ast.parse`, or delete
+  them — spikes are throwaway per AGENTS.md rule 3. Same visit should revisit the fixed
+  `SETTLE = 14.0` sleeps, which exist only because Wine GUIs give no readiness signal.
+- **TD-004 · P1 docs pass · TOOLS.md marker convention has four spellings.** The header defines
+  `[doc]`/`[unverified]`/`[verified vX, run]`, but the file also uses `[verified S7]`,
+  `[verified S8, run]`, `[verified S7 + source …]`, `[verified S7 + IL of …]`, and there is no
+  marker for "read the source at a pinned tag" — which is how several of the strongest claims were
+  established. Define `[run S<n>]`, `[source <file>@<tag>]`, `[doc]` and apply them uniformly so
+  the next phase review can grep instead of read.
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

@@ -216,6 +216,15 @@ wrote, a timestamped backup is made — no exceptions.
 - Discovery order: explicit user setting → PATH → standard install locations → `.tools/` (dev).
   Results cached with invalidation; "Re-check" always available.
 - Adapters own all flag knowledge. Flags are verified and recorded in `docs/reference/TOOLS.md`.
+- **GUI editor launches are launch-only (ADR-017).** `editors.open_in` takes exactly one filesystem
+  path and starts one detached process; there is no "did it open" query, because S7/S8 showed no
+  editor offers a trustworthy signal (liveness, title and stdout all fail on at least one tool).
+  Wine prefix architecture is dictated by the executable: **win32 + dotnet48 + win10** for
+  BrawlCrate and KMP Cloud, **win64** for RiiStudio and Lorenzi's Windows build.
+- **Dolphin is driven through `core/tools/dolphin.py` (ADR-018).** Launch target is
+  `<extracted game>/sys/main.dol`, never the folder; `dolphin-emu-nogui` is used whenever the app
+  must observe an outcome, since `dolphin-emu --batch` blocks on a modal panic dialog; a boot is
+  confirmed by the `Booting from disc:` log line, not an exit code.
 
 ## 10. GUI integration & threading
 - The GUI thread only renders and reacts. Disk access beyond trivial reads, hashing, parsing,

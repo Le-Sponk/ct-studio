@@ -26,6 +26,7 @@ FIXTURE_DAE = REPO / "spikes" / "out" / "s2" / "course_builtin.dae"
 KCL_FILTER = REPO / "spikes" / "s5_minimap.py"
 
 pytestmark = [
+    pytest.mark.timeout(600),
     pytest.mark.integration,
     pytest.mark.skipif(not ABMATT.is_file(), reason="abmatt not installed"),
     pytest.mark.skipif(not (WIIMMS_BIN / "wszst").is_file(), reason="wiimms tools not installed"),
