@@ -187,51 +187,112 @@ on success and 255 on a genuine failure (verified against garbage input).
   pass tool paths when `--factory-startup` ignores user preferences.
 
 ## BrawlCrate
-- Windows .NET WinForms app; **32-bit only** **[doc: add-on README]**.
-- Linux via Wine: separate prefix, `winetricks --unattended dotnet48`, then `winetricks win10` (plugins
-  are disabled on Windows ≤ 7), run `wine BrawlCrate.exe`; Mono is not usable (unreadable UI) **[doc: Roadhog360/BrawlToolsSetupLinux]**
+- **v0.42 Hotfix 1** (`v0.42h1`, commit `86520de`), x86, .NET Framework **4.7.2** **[doc: csproj]**;
+  the add-on README's "32-bit only" is confirmed by the release asset.
+- Linux via Wine, **verified S7**: `WINEARCH=win32` prefix + `winetricks -q win10 dotnet48`, then
+  `wine BrawlCrate.exe <path>`. Wine Mono is not enough (`Wine Mono is not installed`, exit 255).
+- argv **[verified S7 + source `BrawlCrate/Program.cs:413-554`]**:
+  `BrawlCrate.exe [/audio:directsound|/audio:openal|/audio:none ...] [file] [node path in that file]`.
+  First-argument special modes: `/changelog` (writes files and exits), `/gct [file]`, and a first
+  argument ending `.gct`/`.txt` opens the GCT editor instead.
+- **No single-instance logic**: `Main` always reaches `Application.Run`, so every launch is a new
+  window **[verified S7]**. The window title becomes the opened path.
 - VM/no-GPU error "Unable to find an entry point named 'glActiveTexture'" → needs a real GL driver or
   Mesa llvmpipe (system-wide) **[doc: add-on README]**
 - Plugin system (BrawlAPI, Python scripts in Loaders/Plugins folders; e.g. EasyReplace automates model
   importing) → basis for optional P14 bridge **[doc]**
-- **Open questions (S7):** file path as first argument opens the file? single-instance behaviour?
+- **Not verified:** KMP support (no `KMP`/`RKMD` entry in `FileFilters.cs`/`ResourceType.cs`; an
+  unknown file falls back to a raw-data node), and whether the model preview works under Wine.
 
 ## RiiStudio (GUI)
-- Opens BRRES/BMD/KMP and post-effect formats `.bblm .bdof .bfg .blight .blmap`; drag-drop DAE/FBX opens
-  the importer **[doc]**. Material presets import/export in the GUI **[doc]**.
-- **Open question (S7):** file path argument support.
+- **Alpha 5.11.5** (`09e5754`), Windows build is **PE32+ x86-64, console subsystem** — so on Linux it
+  needs a **win64** Wine prefix; a win32 one fails with `Bad EXE format` **[verified S7]**.
+- Opens BRRES/BMD/KMP and post-effect formats `.bblm .bdof .bfg .blight .blmap` **[doc]**; the
+  positional path is dispatched by suffix (`source/frontend/EditorFactory.cpp`).
+- argv **[verified S7 + source `source/frontend/Frontend.cpp:35-57`]**: only `argv[1]` is read;
+  `--update` forces an update, anything else is a file path. Extra arguments are ignored.
+  No single-instance mechanism.
+- **A failed load looks like a success**: opening ABMatt's BRRES printed
+  `Failed to read MDL0 course: Invalid quantization for normal data: U16` and the window stayed up,
+  empty, with no dialog **[verified S7]**. The `File: <path>` line is printed **only when stdout is a
+  tty**, so a pipe sees nothing.
+- Material presets import/export in the GUI **[doc]**.
 
 ## Lorenzi's KMP Editor
-- https://github.com/hlorenzi/kmp-editor · Electron/Node · prebuilt releases (latest seen v0.7.7) **[doc]**
-- Automatically loads `course.kcl` from the same folder as the KMP and shows it in 3D **[doc: mkwiiki]**
-- **Open question (S7):** file path argument; save behaviour (in place? atomic?).
+- https://github.com/hlorenzi/kmp-editor · Electron/Node · **v0.7.7** (`34b7016`) **[doc]**
+- **No Linux release, ever** (checked back to v0.7.0: Windows `.exe` + macOS arm64 only) **[doc]**.
+  Two working routes **[verified S7]**: the Windows installer, which unpacks an **x86-64** Electron
+  app (so: win64 prefix, not win32), or `npm install && npx electron-builder --linux dir`, which
+  additionally needs `libnss3`.
+- argv **[verified S7 + source `src/mainWindow.js:180-184`]**: `process.argv[1]` is opened
+  unconditionally, with **no flag parsing**. `editor --no-sandbox track.kmp` therefore opens
+  `--no-sandbox`, fails, and silently shows `[New File]`. Pass the path first, or set
+  `ELECTRON_DISABLE_SANDBOX=1`. Window title is `[<path>] -- Lorenzi's KMP Editor v0.7.7`.
+- **`course.kcl` auto-load confirmed** **[verified S7]**: it loads `<KMP directory>/course.kcl` —
+  a hard-coded, all-lowercase name, which matters on Linux — and silently falls back to a default
+  box when it is absent (58 % of the screen differs between the two).
+- No `requestSingleInstanceLock`: each launch is its own window **[verified S7]**.
+- **Open question:** save behaviour (in place? atomic? backup?) — P5-T06 needs it.
 
 ## KMP Cloud
-- Windows, 2D editor with spreadsheet views **[doc: mkwiiki]** · **Open question:** CLI args, Wine viability.
+- **v1.2.0.1** (2012-11-25), Windows C# WinForms, **.NET Framework 4.0** (`KMP Cloud.exe.config`);
+  unmaintained, distributed as a ZIP from the wiki's Google Drive link **[doc: mkwiiki]**
+- Runs on the same **win32 + dotnet48** prefix as BrawlCrate **[verified S7]**.
+- argv **[verified S7 + IL of `KmpCloud.Form1`]**: `args[0]` is opened via `LoadX.Open`; later
+  arguments are ignored. No single-instance logic.
+- **The window title is always `VulcSoft KMP Cloud`** — the opened file appears only as a node in
+  the tree pane, so a title check cannot tell "opened" from "failed" **[verified S7]**.
+- A first-run "Welcome" dialog appears on a fresh profile.
 
 ## Dolphin / DolphinTool
 - `dolphin-tool extract -i game.iso -o out [-p DATA|-g] [-s /sys/main.dol] [-l] [-q]` **[doc]**
+- Launch **[source `2603a`: `UICommon/CommandLineParse.cpp`, `DolphinQt/Main.cpp`]**:
+  `-e/--exec` is repeatable and wins over positionals; a bare positional is used only when `--exec`
+  is absent, and only the first one. `-u/--user` overrides the user directory for that run;
+  `-b/--batch` hides the UI and needs a game. No single-instance path — each launch builds its own
+  `QApplication`. Prefer `--exec=<absolute path>`.
 - Riivolution content folder: `<Dolphin user dir>/Load/Riivolution` (Windows `%APPDATA%\Dolphin Emulator\Load\Riivolution`;
   Linux `~/.local/share/dolphin-emu/Load/Riivolution` or `~/.dolphin-emu/...`) **[doc]**; Riivolution
   patches are started from the GUI ("Start with Riivolution Patches…") **[doc]**
-- **Open questions (S8):** booting an extracted game via `-e <dir>/sys/main.dol`; any CLI path to enable
-  Riivolution; `-b` batch mode; user dir override `-u`.
+- **Open questions (S8, P0-T11):** booting an extracted game via `-e <dir>/sys/main.dol`; any CLI path
+  to enable Riivolution; batch-mode lifecycle and exit semantics.
 
 ## Wine / winetricks (Linux only)
 - Pass Windows program arguments after the program; set `WINEPREFIX`; convert paths with `winepath -w` **[doc]**
+- **Prefix architecture is not a preference** **[verified S7]**: a PE32 (x86) app needs `WINEARCH=win32`,
+  a PE32+ (x86-64) app needs win64, and the mismatch fails with `Bad EXE format`. Check with `file`.
+- `winepath -w` works and is what the adapter should use, **but** Wine also accepts a raw POSIX path
+  through its `Z:` mapping (BrawlCrate opened one). Convert anyway; do not rely on the accident.
 
 ---
 
-## Launch contracts (fill in during S7; the `editors` adapter reads this table's decisions)
+## Launch contracts (S7, P0-T10 — verified by real GUI launches unless marked)
+Evidence: [SPIKES.md §S7](../dev/SPIKES.md#s7--external-editor-launch-contracts-p0-t10),
+`spikes/out/s7/s7_findings.json`, `tests/integration/test_editor_launch.py`.
+
 | Tool | OS | Launcher | File arg opens file? | Single instance? | Notes / evidence |
 |---|---|---|---|---|---|
-| BrawlCrate | Win | direct | ? | ? | |
-| BrawlCrate | Linux | wine (prefix) | ? | ? | path via `winepath -w` |
-| RiiStudio | Win/mac | direct | ? | ? | |
-| Lorenzi KMP Editor | all | direct | ? | ? | KCL auto-load from folder |
-| KMP Cloud | Win | direct | ? | ? | |
-| Blender | all | direct/flatpak | yes (`blender file.blend`) **[doc: standard]** | no | |
-| Dolphin | all | direct | `-e file` **[unverified]** | no | |
+| BrawlCrate v0.42h1 | Win | direct | **yes** | **no** | title becomes the path |
+| BrawlCrate v0.42h1 | Linux | wine, **win32 + dotnet48 + win10** | **yes** | **no** | `winepath -w`; a POSIX path also worked (Wine's `Z:` mapping) |
+| RiiStudio 5.11.5 | Linux/Win | wine **win64** (x86-64 exe) | **yes** | **no** | title never names the file; `File: <path>` on stdout, tty only |
+| Lorenzi KMP Editor 0.7.7 | Linux | wine win64, or source build | **yes** | **no** | title `[<path>] -- …`; `course.kcl` auto-load confirmed |
+| KMP Cloud 1.2.0.1 | Linux/Win | wine **win32 + dotnet48** | **yes** | **no** | title is fixed; the file name appears only in the tree pane |
+| Blender 5.2.2 | all | direct/flatpak | **yes** (`blender file.blend`) | **no** | a second positional replaces the first |
+| Dolphin `2603a` | all | direct | `--exec=<file>` **[source]** | **no** **[source]** | bare positional works only without `--exec`; P0-T11 owns boot |
+
+**One path per launch.** No tool accepts two documents:
+- BrawlCrate's `argv[1]` is a **node path inside** `argv[0]`'s file, not a second file.
+- RiiStudio reads `argv[1]` only (`--update` is the one reserved value).
+- Lorenzi reads `process.argv[1]` only, with **no flag parsing** — a flag before the path
+  is opened as if it were the file, and the editor silently shows `[New File]`.
+  Put options after the path, or use `ELECTRON_DISABLE_SANDBOX=1`.
+- Blender loads the last positional.
+- Dolphin's `--exec` is repeatable (multi-disc), which is not "two documents".
+
+**A running process is not a loaded file.** RiiStudio opened ABMatt's BRRES, printed
+`Failed to read MDL0 course: Invalid quantization for normal data: U16` (the S3b wall) and
+stayed up with an empty editor and no dialog. `open_in()` must not report success from a
+healthy process, and must not check window titles (two of five never name the file).
 
 ## Verified command table (fill in; adapters must only use rows marked verified)
 | Tool | Version | Operation | Exact argv template | Exit codes | Output parsed? | Verified how |

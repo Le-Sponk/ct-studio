@@ -33,6 +33,14 @@ On the Linux Mint host, in the repo folder:
    build warns clearly with the missing object name(s), rather than succeeding silently.
 8. Try "Open in…" for the BRRES and the KMP. Edit and save something in an editor; confirm the card
    notices and the choices make sense.
+9. From S7 (P0-T10), these are the editor behaviours only you can settle, on your own machines:
+   - **Native Windows**: does launching each editor with a file path behave as it does under Wine,
+     and does a file-association / double-click launch differ from CT Studio's argv launch?
+   - **Non-ASCII paths** (accents, kana) for all four Windows editors — only spaces were tested.
+     RiiStudio is the likely failure: it handles paths as narrow `std::string`.
+   - **Save behaviour** in Lorenzi's editor and BrawlCrate: does saving rewrite in place, write a
+     temp file and rename, or leave a backup? P5-T06's change detection depends on the answer.
+   - Whether BrawlCrate's model preview works at all in your setup (native, or Wine with a real GPU).
 Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
 
 ## HC2 — Course model automation (≈25 min, end of Phase 7)

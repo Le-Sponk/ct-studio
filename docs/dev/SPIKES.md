@@ -611,3 +611,99 @@ The budget must be re-measured on the human's RTX 4070 host at HC3 (P9 exit).
 - Windows GL behaviour and the Qt/ANGLE path.
 - `QOpenGLWidget` resize/reallocation behaviour and multi-widget context sharing,
   which P9-T01 needs but which a single 64×64 probe cannot exercise.
+
+---
+
+## S7 — External editor launch contracts (P0-T10)
+**Script:** `spikes/s7_editor_launch.py` → `spikes/out/s7/s7_findings.json` + screenshots.
+Re-run: `uv run --with numpy --with pillow python spikes/s7_editor_launch.py`
+**Tests:** `tests/integration/test_editor_launch.py` — 9 tests, 6/6 mutations caught.
+**Versions:** BrawlCrate v0.42h1 (x86, net472), RiiStudio Alpha 5.11.5 (Windows x86-64),
+Lorenzi's KMP Editor v0.7.7 (built from source, `34b7016`), KMP Cloud v1.2.0.1 (2012,
+.NET 4.0), Blender 5.2.2 LTS, Dolphin (source `2603a`, read only).
+All GUI probes ran on a private Xvfb display with software GL; the Windows tools ran
+under Wine 10.0 prefixes built outside the repo.
+
+### Every editor takes one file path, and none of them is single-instance
+| Tool | Launch | File arg opens it? | Evidence | Second launch |
+|---|---|---|---|---|
+| BrawlCrate 0.42h1 | `wine BrawlCrate.exe <win path> [/audio:none]` | **yes** | window title *is* the path | **new window** |
+| RiiStudio 5.11.5 | `wine RiiStudio.exe <win path>` | **yes** | `File: <path>` on stdout **(tty only)** | new window |
+| Lorenzi 0.7.7 | `<exe> <path>` | **yes** | title `[<path>] -- Lorenzi's KMP Editor` | new window |
+| KMP Cloud 1.2.0.1 | `wine "KMP Cloud.exe" <win path>` | **yes** | file name in its tree pane only | new window |
+| Blender 5.2.2 | `blender <file.blend>` | **yes** | `bpy.data.filepath` | new process |
+
+So "Open in…" must assume a **new process per launch** and must never pass two documents
+in one invocation. Each tool reads exactly one path, and the extra arguments mean
+something else entirely:
+- **BrawlCrate's second argument is a node path inside the first file**
+  (`ResourceNode.FindNode`), not a second document — passing two files pops
+  `Error: Unable to find node or path '<file2>'`.
+- **Blender's second positional replaces the first** in the same process.
+- **RiiStudio reads only `argv[1]`**; `--update` is the one reserved value.
+- **Lorenzi reads only `process.argv[1]`**, with no flag parsing at all.
+
+### The three traps worth designing around
+1. **Options must come *after* the path for Lorenzi's editor.** It opens `argv[1]`
+   whatever it is, so `editor --no-sandbox track.kmp` opens `--no-sandbox`, fails
+   silently and shows `[New File]`. Verified both ways.
+2. **A live process is not a loaded file.** RiiStudio opened ABMatt's BRRES, failed with
+   `Failed to read MDL0 course: Invalid quantization for normal data: U16` — the same wall
+   S3b hit on the CLI side — and **kept running with an empty editor**. The GUI shows no
+   dialog. So the adapter cannot report success from a healthy process; for BRRES this is
+   another reason ADR-004 stages through rszst.
+3. **Two of the five never name the file in the window title.** RiiStudio's title is the
+   version banner and KMP Cloud's is `VulcSoft KMP Cloud`; KMP Cloud only shows the name
+   in its tree pane (confirmed by screenshot diff, 0.13 % of pixels). Any "did it open?"
+   check in the GUI must not be title-based.
+
+### Wine, measured
+| Fact | Value |
+|---|---|
+| BrawlCrate prefix | **win32 + `winetricks dotnet48`** (Wine Mono is not enough: `CLRRuntimeInfo_GetRuntimeHost Wine Mono is not installed`, exit 255) |
+| BrawlCrate Windows version | **win10** — under the default `win7` it starts but the API is disabled by design (v0.42h1 release note) |
+| KMP Cloud prefix | the same win32 + dotnet48 prefix; it targets .NET 4.0 |
+| RiiStudio prefix | **win64** (`PE32+ x86-64`): in a win32 prefix Wine refuses with `ShellExecuteEx failed: Bad EXE format` |
+| Path conversion | `winepath -w` works and is what the adapter should use — **but BrawlCrate also opened a raw POSIX path**, because Wine maps `/` onto `Z:`. Convert anyway; do not rely on the accident |
+| Paths with spaces | fine everywhere, as one argv element |
+
+`dotnet48` installs unattended under Xvfb and takes ~5 minutes; the prefix must be built
+before any of this works. Exact commands are in
+[ENVIRONMENT.md](ENVIRONMENT.md#wine-prefixes-for-the-windows-only-editors-s7-p0-t10).
+
+### Lorenzi's editor: `course.kcl` auto-load confirmed
+With a `course.kcl` beside the KMP the viewport draws the coloured collision mesh; without
+it the editor silently falls back to a default box. **58 % of the screen differs** between
+the two runs (`spikes/out/s7/lorenzi-path.png` vs `lorenzi-nokcl.png`). The filename is a
+hard-coded lowercase `course.kcl` in the KMP's own directory
+(`src/mainWindow.js` `openKmp`), which matters on Linux. CT Studio should therefore make
+sure the KCL is next to the KMP before offering "Edit KMP", or the user silently edits
+against a featureless box.
+
+### Linux packaging reality
+Lorenzi's editor publishes **no Linux binary** (checked every release back to v0.7.0:
+Windows `.exe` + macOS arm64 only), confirming the P0-T02 correction. Two routes work:
+the Windows `.exe` under Wine — note its installer unpacks an **x86-64** Electron app, so
+it needs the win64 prefix, not the win32 one — or an Electron build from source
+(`npm install && npx electron-builder --linux dir`), which is what the probes used because
+it needs no prefix. The built app needs `libnss3` and either `--no-sandbox` **after** the
+path or `ELECTRON_DISABLE_SANDBOX=1` (preferred, since the flag position is a trap).
+
+### Dolphin (source only, `2603a`)
+Confirmed from `Source/Core/UICommon/CommandLineParse.cpp` and `DolphinQt/Main.cpp`:
+`-e/--exec` is repeatable and takes precedence; a bare positional is only used when
+`--exec` is absent, and only the first one is read. `-u/--user` overrides the user
+directory per invocation. `-b/--batch` hides the UI and requires a game. There is no
+single-instance path: every launch builds its own `QApplication`. Prefer
+`--exec=<absolute path>` and treat P0-T11 as the place where boot/lifecycle is settled.
+
+### Not verified here
+- **Native Windows behaviour** for all four Windows tools, including whether an
+  association/`ShellExecute` launch differs from a direct argv launch (P2-T08).
+- **Non-ASCII paths** — only spaces were exercised; RiiStudio's narrow `std::string`
+  path handling makes it the likely failure.
+- **Save behaviour** (in place? atomic? backups?), which P5-T06's change-detection needs.
+- BrawlCrate's second argument as a node selector, and whether its OpenGL model preview
+  works under Wine at all (llvmpipe here; the add-on README reports
+  `glActiveTexture` failures in VMs).
+- macOS entirely.

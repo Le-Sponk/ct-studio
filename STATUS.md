@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 0 — Environment, toolchain & spikes
-**Next task:** P0-T10 — Spike S7: external editor launch contracts
+**Next task:** P0-T11 — Spike S8: Dolphin test-launch options
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 26a2c5e (ADR-016 evidence gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** —
@@ -15,6 +15,18 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T10` — Spike S7 (external editor launch contracts): all five editors launched for
+  real under Xvfb, four under Wine. **Every one opens a positional file path and none is
+  single-instance**, so "Open in…" is one file and one process per launch — BrawlCrate's
+  second argument is a *node path inside* the first file, Blender's replaces the first.
+  Three traps: Lorenzi's editor has **no flag parsing** (an option before the path is
+  opened as the file, silently showing `[New File]`); **a live process is not a loaded
+  file** (RiiStudio kept an empty window up after failing on ABMatt's BRRES with the S3b
+  U16 error, no dialog); and two of the five never name the file in the title. Wine is now
+  measured: **win32 + dotnet48 + win10** for BrawlCrate/KMP Cloud, **win64** for RiiStudio
+  and Lorenzi's Windows build. `course.kcl` auto-load confirmed by pixels.
+  9 integration tests, 6/6 mutations caught.
+  [SPIKES.md §S7](docs/dev/SPIKES.md#s7--external-editor-launch-contracts-p0-t10) — commit TBD
 - `P0-T09` — Spike S6 (preview rendering stack): **ADR-008 Accepted** — moderngl in a
   `QOpenGLWidget` works; headless GL is 4.5 core, a 200k-triangle VBO is 13.7 MB and
   uploads in <0.04 s. **`QT_QPA_PLATFORM=offscreen` cannot create a GL context at all**,
@@ -75,6 +87,14 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-22 (S7): **external editors are one-file, one-process, and cannot be asked whether they
+  opened anything.** "Open in…" must never pass two paths (BrawlCrate's second argument selects a
+  node *inside* the first file; Blender's replaces the first) and must not infer success from a live
+  process or a window title. Lorenzi's editor parses no flags, so options must follow the path.
+  Wine prefixes are dictated by executable architecture: win32 + dotnet48 + win10 for
+  BrawlCrate/KMP Cloud, win64 for RiiStudio and Lorenzi's Windows build. Evidence:
+  [SPIKES.md §S7](docs/dev/SPIKES.md#s7--external-editor-launch-contracts-p0-t10).
+  Affects TOOLS, P2-T05 (`editors.py`/`wine.py`), P5-T07, ENVIRONMENT and HC1.
 - 2026-09-22 (human auto-add recording): **auto-add does not gate P4.** Synthetic fixture builds
   omit it; `--auto-add` is opt-in and only emitted after a separate library usability check. Status
   output is path discovery, not health: absent, empty and populated paths all return 0 with the same
@@ -201,6 +221,12 @@ _none_
   "GUI tests run headless with `QT_QPA_PLATFORM=offscreen`; GL/preview tests instead need
   `xvfb-run` + `QT_QPA_PLATFORM=xcb` (offscreen cannot create a GL context — S6)".
   Not blocking: TESTING_STRATEGY §5, ADR-008 and P9-T01 all carry the correct rule.
+- **S7 editor unknowns for HC1** (added 2026-09-22, nothing to answer now — they need your
+  machines): native-Windows launch behaviour for all four Windows editors and whether a
+  file-association launch differs from an argv one; non-ASCII paths (only spaces were tested,
+  and RiiStudio handles paths as narrow `std::string`); how Lorenzi's editor and BrawlCrate
+  **save** (in place, temp+rename, or backup?), which P5-T06's change detection depends on;
+  and whether BrawlCrate's model preview works in your setup. Listed as HC1 step 9.
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

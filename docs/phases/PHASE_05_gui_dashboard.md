@@ -52,8 +52,13 @@ Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio
 Cloud; szs → BrawlCrate, RiiStudio; blend → Blender; folders → system file manager; any → custom
 tools). Configurable in settings. Missing tool → dialog linking to Tools page. Uses launch contracts
 from TOOLS.md (Wine on Linux for Windows-only tools).
-**Acceptance:** tests with fake GUI tools verifying argument construction per OS; manual run noted
-for HC1.
+**From S7 (P0-T10):** one file per launch and a new process every time — never offer "open both"
+and never expect an existing window to pick up a second file. The UI must not claim the file
+*opened*: RiiStudio keeps an empty window up after a failed load. Before offering "Edit KMP" with
+Lorenzi's editor, make sure `course.kcl` (that exact lowercase name) sits beside the KMP, or the
+user silently edits against a blank box.
+**Acceptance:** tests with fake GUI tools verifying argument construction per OS, including that
+options follow the path and that two files produce two launches; manual run noted for HC1.
 
 ### [ ] P5-T08 — Settings dialog
 Pages: Tools (from P2-T07), Build (compression profiles, parallelism, `_d` variant default, auto-add),

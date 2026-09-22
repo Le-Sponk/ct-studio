@@ -230,7 +230,7 @@ Frame time was ~0.10 s (≈10 fps) at 200k triangles — a **software-rasteriser
 neither confirms nor refutes the ARCHITECTURE §15 budget (≥60 fps on an integrated GPU);
 deferred to HC3. 6 integration tests, 4/4 mutations caught.
 
-### [ ] P0-T10 — Spike S7: external editor launch contracts (timebox 2 h)
+### [x] P0-T10 — Spike S7: external editor launch contracts (timebox 2 h) (commit TBD)
 From source code/docs (and runs where possible) determine for BrawlCrate, RiiStudio GUI, Lorenzi's
 KMP Editor, KMP Cloud, Blender, Dolphin: does a file path argument open the file? single-instance
 behaviour? Wine invocation for BrawlCrate on Linux (prefix, `winetricks dotnet48`, `win10`, 32-bit,
@@ -239,6 +239,23 @@ behaviour? Wine invocation for BrawlCrate on Linux (prefix, `winetricks dotnet48
 macOS arm64, checked back to v0.7.0), so treat it as a Wine target on Linux like BrawlCrate,
 and budget for that. It is not installed by `bootstrap_tools.py`.
 **Acceptance:** "Launch contracts" table in TOOLS.md with evidence links; unknowns listed for HC0/HC2.
+
+Done. [SPIKES.md §S7](../dev/SPIKES.md#s7--external-editor-launch-contracts-p0-t10);
+`uv run --with numpy --with pillow python spikes/s7_editor_launch.py` reproduces it.
+All five editors were launched for real under Xvfb, four of them under Wine.
+**Every one opens a positional file path, and none is single-instance** — so "Open in…"
+must assume a new process per launch and never pass two documents: BrawlCrate's second
+argument is a *node path inside* the first file, Blender's replaces the first, and
+RiiStudio/Lorenzi read `argv[1]` only. Three findings change the design: Lorenzi's editor
+has **no flag parsing**, so an option before the path is opened *as* the file and it
+silently shows `[New File]`; **a live process is not a loaded file** (RiiStudio kept an
+empty window up after failing on ABMatt's BRRES with the same U16 error S3b found, with
+no dialog); and **two of the five never name the file in the window title**, so the GUI
+cannot title-check. Wine needs are now measured, not assumed: **win32 + dotnet48 + win10**
+for BrawlCrate and KMP Cloud, **win64** for RiiStudio and Lorenzi's Windows build
+(`Bad EXE format` otherwise). `course.kcl` auto-load confirmed by pixels (58 % of the
+screen differs). Prefix recipes in [ENVIRONMENT.md](../dev/ENVIRONMENT.md#wine-prefixes-for-the-windows-only-editors-s7-p0-t10).
+9 integration tests, 6/6 mutations caught.
 
 ### [ ] P0-T11 — Spike S8: Dolphin test-launch options (research only, timebox 2 h)
 Compare: booting an extracted game folder (`dolphin-tool extract`, then `-e <dir>/sys/main.dol`)

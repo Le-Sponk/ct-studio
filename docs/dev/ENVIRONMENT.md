@@ -210,3 +210,43 @@ apt-get install -y libgl1 libgl-dev libegl1 libegl-mesa0 libgl1-mesa-dri \
   libglx-mesa0 xvfb xauth mesa-utils libglfw3 libassimp5 \
   libxi6 libxfixes3 libxrender1 libxxf86vm1 libsm6 libice6
 ```
+
+## Wine prefixes for the Windows-only editors (S7, P0-T10)
+
+BrawlCrate, RiiStudio's GUI and KMP Cloud have no Linux builds. S7 drove all three
+under Wine 10.0 (`wine` + `wine32:i386` + `wine64`, after `dpkg --add-architecture i386`),
+on a private Xvfb display with software GL. `xdotool` reads window titles,
+`imagemagick` (`import`) takes the screenshots two of the tools force us to rely on:
+
+```bash
+dpkg --add-architecture i386 && apt-get update
+apt-get install -y wine wine32:i386 wine64 cabextract xdotool imagemagick libnss3
+```
+
+**Prefix architecture is dictated by the executable, not by preference.** Check with
+`file`: PE32 needs win32, PE32+ needs win64, and a mismatch fails with
+`ShellExecuteEx failed: Bad EXE format`.
+
+```bash
+# win32 + .NET 4.8, for BrawlCrate (PE32) and KMP Cloud (PE32)
+export WINEPREFIX=$HOME/s7-wine32
+WINEARCH=win32 xvfb-run -a wineboot -u
+curl -LO https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+chmod +x winetricks && xvfb-run -a ./winetricks -q win10 dotnet48   # ~5 minutes
+
+# win64, for RiiStudio (PE32+) and the Windows build of Lorenzi's KMP Editor
+WINEARCH=win64 WINEPREFIX=$HOME/s7-wine64 xvfb-run -a wineboot -u
+```
+
+Notes that cost time in S7:
+- **Wine Mono is not a substitute for `dotnet48`.** Without it BrawlCrate exits 255 with
+  `CLRRuntimeInfo_GetRuntimeHost Wine Mono is not installed` and no window.
+- `winetricks dotnet48` leaves the prefix reporting **Windows 7**; re-run
+  `winetricks -q win10` afterwards, since BrawlCrate disables its API below Windows 8.
+- Build the prefix **outside the repository**: `wineboot` on a path under `/workspace`
+  failed here, and prefixes must never be committed. The spike and the tests read
+  `S7_WINE32`/`S7_WINE64`, defaulting to `/root/s7-wine32` and `/root/s7-wine64`.
+- `xvfb-run` is fine for a single launch, but concurrent launches need one shared
+  display: start `Xvfb :78` yourself and export `DISPLAY`, as the spike does.
+- Electron (Lorenzi's editor, built from source) additionally needs `libnss3` and
+  `ELECTRON_DISABLE_SANDBOX=1` as root.

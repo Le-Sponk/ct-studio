@@ -61,7 +61,14 @@ and prefer it for status; it supersedes `slots()`.
   count do **not** establish that (wszst otherwise ignores the flag silently).
 - `abmatt.py`, `rszst.py`: only the operations S3/S4/S5 proved useful.
 - `blender.py`: `run_script(blend, script, args, timeout)`.
-- `editors.py`: `open_in(tool_id, file)` using launch contracts; `wine.py`: prefix handling, `winepath`.
+- `editors.py`: `open_in(tool_id, file)` using the S7 launch contracts (TOOLS.md); `wine.py`: prefix
+  handling, `winepath`. S7 pinned the shape: **one path per launch, one process per launch**, never
+  two documents (BrawlCrate's second argument is a node path *inside* the first file, Blender's
+  replaces the first). Options go **after** the path — Lorenzi's editor opens `argv[1]` whatever it
+  is. `wine.py` must select the prefix by executable architecture (PE32 → win32, PE32+ → win64;
+  `Bad EXE format` otherwise) and convert with `winepath -w`. `open_in` returns "launched", never
+  "opened": RiiStudio stays up with an empty window after a failed load, and two of the five editors
+  never name the file in their window title, so neither liveness nor titles can be checked.
 Parsers produce dataclasses/Issues; parsing code has unit tests against recordings.
 **Acceptance:** unit tests with recordings; `-m integration` tests run each adapter against real tools
 on the fixture.
