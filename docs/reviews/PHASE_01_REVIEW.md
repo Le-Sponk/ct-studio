@@ -54,6 +54,9 @@ None reported by the independent reviewer.
   broad non-network: **203 passed / 19 skipped**. `git diff --check` passed.
 
 ## Gate closeout
-Remote CI for the fix commit, STATUS/phase update, and `phase-01-done` tag
-remain pending at this point. There is **no human checkpoint at Phase 1**;
-HC1 is after Phase 5 (`docs/ROADMAP.md`, `docs/process/HUMAN_CHECKPOINTS.md`).
+Post-fix main [CI run 36353987367](https://github.com/Le-Sponk/ct-studio/actions/runs/36353987367)
+passed on Ubuntu and Windows with two artifacts. All three Should fixes and the
+Consider status correction are closed; no Must fixes needed re-review. The Phase 1
+exit criterion is met; STATUS and the phase checklist advance to P2-T01. Gate tag:
+`phase-01-done`. There is **no human checkpoint at Phase 1**; HC1 is after Phase 5
+(`docs/ROADMAP.md`, `docs/process/HUMAN_CHECKPOINTS.md`).

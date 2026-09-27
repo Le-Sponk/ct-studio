@@ -86,4 +86,12 @@ Verified by eight docs tests, actual uv sync/version/offscreen smoke and benchma
 Windows `check.py` (125 passed) and [Ubuntu + Windows CI](https://github.com/Le-Sponk/ct-studio/actions/runs/36343094142)
 (both jobs succeeded).
 
-### [ ] P1-GATE — Phase review (skill `mkw-phase-review`)
+### [x] P1-GATE — Phase review (skill `mkw-phase-review`)
+Fresh-context independent review: no Must fixes, three Should fixes closed and tested.
+Windows local gate **130 passed / 1 optional skip**, real-tool non-network integration
+**71 passed / 6 prerequisite skips**, broader non-network **203 passed / 19 optional
+skips**. [Post-fix CI run](https://github.com/Le-Sponk/ct-studio/actions/runs/36353987367)
+passed Ubuntu and Windows with artifacts. Windows light/dark/150% and About screenshots
+inspected; Linux Mint pixels remain an optional deferred check. See
+[Phase 1 review](../reviews/PHASE_01_REVIEW.md). Gate tag: `phase-01-done`.
+No human checkpoint until HC1 after Phase 5.

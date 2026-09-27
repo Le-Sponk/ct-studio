@@ -3,29 +3,32 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T08 done; review gate pending)
-**Next task:** P1-GATE — Phase review
+**Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
+**Next task:** P2-T01 — ToolSpec & registry
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 65887f7 (P1-T08 Windows gate and Ubuntu/Windows CI
-[run 36343094142](https://github.com/Le-Sponk/ct-studio/actions/runs/36343094142))
-**Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
+**Last green commit:** 35fc071 (P1-GATE fixes; Windows gate and Ubuntu/Windows CI
+[run 36353987367](https://github.com/Le-Sponk/ct-studio/actions/runs/36353987367))
+**Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P1-GATE` — Phase 1 review. (1) Run the full `check.py --all` gate plus relevant
-  non-network integration and GUI tests; (2) write `docs/reviews/PHASE_01_BRIEF.md`
-  with the P0-tag diff and known gaps; (3) delegate a fresh-context reviewer to
-  inspect code/docs/screenshots, independently run checks and mutation probes;
-  (4) record Must/Should/Consider in `PHASE_01_REVIEW.md`, fix Must/Should and
-  re-review Must fixes; (5) re-run checks, update STATUS/phase docs, commit, tag
-  `phase-01-done` and push. Acceptance: cross-platform CI and local gate green,
-  reviewer findings triaged, tag recorded. Risk: real-tool skips are not silently
-  called passes. HC1 is after Phase 5, not due at this gate; the optional Mint
-  screenshot spot-check was deferred by the user and must not be re-requested.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-GATE` — independent fresh-context review recorded in
+  [PHASE_01_REVIEW.md](docs/reviews/PHASE_01_REVIEW.md): no Must, three Should
+  fixed with tests (per-package coverage enforcement, logging on GUI startup,
+  atomic/no-clobber screenshot publication). Reviewer verified three scratch
+  mutations and inspected Windows light/dark/150%/About screenshots.
+  Post-fix Windows `check.py --all`: 130 passed / 1 optional skip, seven steps
+  green; integration 71 passed / 6 optional skips; broad non-network 203 passed /
+  19 optional skips. [CI run 36353987367](https://github.com/Le-Sponk/ct-studio/actions/runs/36353987367)
+  passed Ubuntu and Windows with two artifacts. Linux Mint screenshot pixels
+  remain optionally deferred; real-tool/network skips are not green integrations.
+  No human checkpoint at Phase 1: HC1 follows Phase 5. — fixes 35fc071,
+  gate tag `phase-01-done`
 - `P1-T08` — added a truthful 13-line project description and developer quick start
   (`README.md`), short `CONTRIBUTING.md`, canonical verbatim GPLv3 `LICENSE`
   (matched GNU + mirror, SHA-256 in ADR-009), and a development inventory in
