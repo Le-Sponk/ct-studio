@@ -123,6 +123,12 @@ or HC3 shows the §15 budget is missed on real hardware.
 **Context:** Reusing code from Blender-MKW-Utilities (GPL-2.0-or-later) e.g. `kcl_parse.py` is
 compatible with GPL-3.0-or-later. Tools are invoked as separate programs.
 **Decision:** GPL-3.0-or-later; third-party notices maintained in `THIRD_PARTY_NOTICES.md`.
+**P1-T08 provenance:** `LICENSE` is the verbatim GPLv3 text fetched from
+https://www.gnu.org/licenses/gpl-3.0.txt and independently matched against the
+GNU FTP mirror (SHA-256 `3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986`).
+The project-level "or later" choice is declared in the README and package metadata.
+The 674-line canonical legal document cannot be shortened to meet a source-code file
+budget without removing licence terms; do not edit or reflow it.
 
 ## ADR-010 — Dev tooling
 **Status:** Accepted

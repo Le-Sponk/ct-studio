@@ -13,7 +13,20 @@ network-skip probe `36341608296` verified on both OSes)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P1-T08` — Contributor basics. (1) Verify the accepted GPL-3.0-or-later
+  decision and upstream notice/source before writing legal docs; (2) add a
+  10-line project description and runnable uv quick start in `README.md`, a
+  short `CONTRIBUTING.md` pointing to `AGENTS.md`, canonical `LICENSE`, and an
+  honest `THIRD_PARTY_NOTICES.md` inventory (not final packaged attribution);
+  (3) expand existing `docs/dev/BENCHMARKS.md` with reproducible baseline
+  guidance without inventing Linux timing; (4) add docs acceptance tests,
+  exercise the documented commands, run local full gate/suite and CI, then
+  update phase checklist and STATUS and commit/push. Risk: verbatim GPL text
+  exceeds the source-code size budget; its legal text must not be shortened.
+  Acceptance: all four files exist, README has >=10 lines of truthful project
+  description plus a working developer quick start; the Windows gate and both
+  CI jobs remain green. User deferred the optional Mint PNG spot-check; do not
+  request it again in this session.
 
 
 ## Done (newest first)
@@ -483,12 +496,12 @@ _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-2
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
-- **Optional Mint GUI pixel spot-check:** CI verified Linux font families and screenshot
-  generation, but cannot inspect the pixels anonymously. In your existing checkout run
-  `git pull && uv sync && uv run ctstudio --offscreen-smoke /tmp/ctstudio-p1t07.png`,
-  open that PNG, and report whether its text is readable (yes/no). Choose a different
-  output name if it already exists; the app refuses to overwrite it. No project file
-  or screenshots need to be sent. Not a P1-T07 gate.
+- **Optional Mint GUI pixel spot-check — deferred by the human:** CI verified Linux
+  font families and screenshot generation, but its pixels were not inspected.
+  When convenient, `git pull && uv sync && uv run ctstudio --offscreen-smoke
+  /tmp/ctstudio-p1t07.png`; open the PNG and report whether the text is readable.
+  Choose a new output name if it exists. Do not prompt again until the human
+  volunteers the result; this is not a phase gate.
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
   detection + a link to the official releases page + an optional user-initiated
   download from the upstream URL; keep it out of the installer. Asking the maintainer
