@@ -37,9 +37,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.offscreen_smoke is not None:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
     from ctstudio.core.errors import CTStudioError
+    from ctstudio.core.logging import configure_logging
     from ctstudio.gui.app import run_gui
 
     try:
+        configure_logging()
         return run_gui(args.offscreen_smoke)
     except CTStudioError as exc:
         print(exc, file=sys.stderr)

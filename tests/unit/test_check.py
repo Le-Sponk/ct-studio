@@ -8,6 +8,7 @@ and `PYTHONPATH` to check and import only the scratch tree.
 from __future__ import annotations
 
 import io
+import json
 import os
 import shutil
 import subprocess
@@ -66,9 +67,61 @@ def test_steps_match_the_gate_and_fast_only_skips_typecheck_and_coverage() -> No
     assert normal[2].skip_reason is None
     assert "--cov=ctstudio" in normal[4].argv
     assert "--cov=ctstudio" not in fast[4].argv
+    assert all(not arg.startswith("--cov-report=json:") for arg in normal[4].argv)
     assert normal[4].argv[3] == check.PYTEST_SELECTION
     assert normal[5].skip_reason is None
     assert all(s.timeout_s > 0 for s in normal)
+
+
+def test_coverage_thresholds_are_per_package_and_reject_missing_files(tmp_path: Path) -> None:
+    report = tmp_path / "coverage.json"
+    report.write_text(
+        json.dumps(
+            {
+                "files": {
+                    "src/ctstudio/core/errors.py": {
+                        "summary": {"covered_lines": 84, "num_statements": 100}
+                    },
+                    "src/ctstudio/gui/app.py": {
+                        "summary": {"covered_lines": 61, "num_statements": 100}
+                    },
+                    "src/ctstudio/__main__.py": {
+                        "summary": {"covered_lines": 100, "num_statements": 100}
+                    },
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert "core" in check.coverage_failure(report)
+    report.write_text(
+        json.dumps(
+            {
+                "files": {
+                    "src/ctstudio/core/errors.py": {
+                        "summary": {"covered_lines": 90, "num_statements": 100}
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert "gui" in check.coverage_failure(report)
+
+
+def test_pytest_step_fails_when_report_is_below_package_threshold(tmp_path: Path) -> None:
+    probe = (
+        "import json, pathlib, sys; "
+        "p = pathlib.Path(sys.argv[-1].removeprefix('--cov-report=json:')); "
+        "p.write_text(json.dumps({'files': {"
+        "'src/ctstudio/core/errors.py': {'summary': {'covered_lines': 84, 'num_statements': 100}}, "
+        "'src/ctstudio/gui/app.py': {'summary': {'covered_lines': 61, 'num_statements': 100}}"
+        "}}), encoding='utf-8')"
+    )
+    step = check.Step("pytest", (sys.executable, "-c", probe, "--cov=ctstudio"), 5)
+    result = check.run_step(step, tmp_path)
+    assert result.status == "FAIL"
+    assert "core statement coverage 84.0% is below 85%" in result.output
 
 
 def test_xenon_skips_only_a_core_without_implementation(tmp_path: Path) -> None:

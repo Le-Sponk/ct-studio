@@ -18,13 +18,17 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import os
 import subprocess
 import sys
 import sysconfig
+import tempfile
 import time
 from collections.abc import Sequence
+from contextlib import ExitStack
 from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path
 from typing import Literal, TextIO
 
@@ -115,31 +119,62 @@ def child_env(root: Path) -> dict[str, str]:
     return env
 
 
+def coverage_failure(report: Path) -> str | None:
+    """Check statement coverage separately for core and GUI (REVIEW_CHECKLIST §6)."""
+    try:
+        files = json.loads(report.read_text(encoding="utf-8"))["files"]
+        totals = {"core": [0, 0], "gui": [0, 0]}
+        for filename, data in files.items():
+            parts = Path(filename).parts
+            for package in totals:
+                if ("ctstudio", package) in pairwise(parts):
+                    summary = data["summary"]
+                    totals[package][0] += summary["covered_lines"]
+                    totals[package][1] += summary["num_statements"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return f"Could not read the coverage report: {exc}"
+    for package, minimum in (("core", 85), ("gui", 60)):
+        covered, statements = totals[package]
+        if not statements or covered * 100 < minimum * statements:
+            percent = 100 * covered / statements if statements else 0.0
+            return f"{package} statement coverage {percent:.1f}% is below {minimum}%"
+    return None
+
+
 def run_step(step: Step, root: Path) -> Result:
     if step.skip_reason is not None:
         return Result(step, "SKIP", 0.0, step.skip_reason)
     started = time.perf_counter()
-    try:
-        proc = subprocess.run(  # noqa: S603 - argv list of our own venv's tools, no shell
-            step.argv,
-            cwd=root,
-            env=child_env(root),
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=step.timeout_s,
-            check=False,
-        )
-    except FileNotFoundError:
-        output = f"{step.argv[0]} is not installed. Run `uv sync` and try again."
-        return Result(step, "FAIL", time.perf_counter() - started, output)
-    except subprocess.TimeoutExpired:
-        output = f"timed out after {step.timeout_s:.0f} s: {' '.join(step.argv)}"
-        return Result(step, "FAIL", time.perf_counter() - started, output)
-    status: Status = "PASS" if proc.returncode == 0 else "FAIL"
-    output = (proc.stdout + proc.stderr).strip()
-    if status == "FAIL":
+    with ExitStack() as stack:
+        argv = step.argv
+        report: Path | None = None
+        if step.name == "pytest" and "--cov=ctstudio" in argv:
+            report = Path(stack.enter_context(tempfile.TemporaryDirectory())) / "coverage.json"
+            argv = (*argv, f"--cov-report=json:{report}")
+        try:
+            proc = subprocess.run(  # noqa: S603 - argv list of our own venv's tools, no shell
+                argv,
+                cwd=root,
+                env=child_env(root),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=step.timeout_s,
+                check=False,
+            )
+        except FileNotFoundError:
+            output = f"{step.argv[0]} is not installed. Run `uv sync` and try again."
+            return Result(step, "FAIL", time.perf_counter() - started, output)
+        except subprocess.TimeoutExpired:
+            output = f"timed out after {step.timeout_s:.0f} s: {' '.join(step.argv)}"
+            return Result(step, "FAIL", time.perf_counter() - started, output)
+        output = (proc.stdout + proc.stderr).strip()
+        problem = coverage_failure(report) if report is not None and proc.returncode == 0 else None
+    status: Status = "PASS" if proc.returncode == 0 and problem is None else "FAIL"
+    if problem:
+        output += f"\n{problem}"
+    if proc.returncode:
         output += f"\n[exit status {proc.returncode}]"
     return Result(step, status, time.perf_counter() - started, output)
 

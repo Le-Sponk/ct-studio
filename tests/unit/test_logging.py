@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+from ctstudio.core.errors import ProjectError
 from ctstudio.core.logging import configure_logging, get_logger
 
 pytestmark = pytest.mark.timeout(30)
@@ -109,6 +110,15 @@ def test_multiline_message_and_exception_stay_in_single_json_line(tmp_path: Path
     assert len(records) == 1
     assert records[0]["message"] == "line one\nline two"
     assert "ValueError: invalid é" in records[0]["exception"]
+
+
+def test_unwritable_log_location_reports_actionable_error(tmp_path: Path) -> None:
+    not_a_directory = tmp_path / "occupied"
+    not_a_directory.write_text("user work", encoding="utf-8")
+    with pytest.raises(ProjectError, match="Could not open CT Studio log") as error:
+        configure_logging(log_dir=not_a_directory)
+    assert "Next: " in str(error.value)
+    assert not_a_directory.read_text(encoding="utf-8") == "user work"
 
 
 def test_get_logger_has_no_qt_dependency() -> None:

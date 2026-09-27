@@ -12,7 +12,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P1-GATE` — Phase 1 review. (1) Run the full `check.py --all` gate plus relevant
+  non-network integration and GUI tests; (2) write `docs/reviews/PHASE_01_BRIEF.md`
+  with the P0-tag diff and known gaps; (3) delegate a fresh-context reviewer to
+  inspect code/docs/screenshots, independently run checks and mutation probes;
+  (4) record Must/Should/Consider in `PHASE_01_REVIEW.md`, fix Must/Should and
+  re-review Must fixes; (5) re-run checks, update STATUS/phase docs, commit, tag
+  `phase-01-done` and push. Acceptance: cross-platform CI and local gate green,
+  reviewer findings triaged, tag recorded. Risk: real-tool skips are not silently
+  called passes. HC1 is after Phase 5, not due at this gate; the optional Mint
+  screenshot spot-check was deferred by the user and must not be re-requested.
 
 
 ## Done (newest first)

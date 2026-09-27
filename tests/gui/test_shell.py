@@ -15,6 +15,8 @@ from pytestqt.qtbot import QtBot
 
 from ctstudio import __version__
 from ctstudio.__main__ import main
+from ctstudio.core.errors import ProjectError
+from ctstudio.gui.app import _save_smoke
 from ctstudio.gui.main_window import MainWindow
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(30)]
@@ -34,6 +36,17 @@ def test_no_argument_entry_point_dispatches_to_gui(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(gui_app, "run_gui", fake_run_gui)
     assert main([]) == 17
     assert called == [None]
+
+
+def test_gui_entry_point_configures_logging_before_launch(monkeypatch: pytest.MonkeyPatch) -> None:
+    from ctstudio.core import logging as log_module
+    from ctstudio.gui import app as gui_app
+
+    events: list[str] = []
+    monkeypatch.setattr(log_module, "configure_logging", lambda: events.append("logging"))
+    monkeypatch.setattr(gui_app, "run_gui", lambda _path: events.append("gui") or 0)
+    assert main([]) == 0
+    assert events == ["logging", "gui"]
 
 
 def test_empty_dashboard_and_about_dialog(qtbot: QtBot) -> None:
@@ -137,6 +150,24 @@ def test_offscreen_smoke_at_150_percent_scale(tmp_path: Path) -> None:
     assert not image.isNull() and image.width() >= 960 and image.height() >= 600
     SCREENS.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(png, SCREENS / "p1-t06-dashboard-150pct.png")
+
+
+def test_smoke_publish_failure_leaves_no_partial_png(
+    qtbot: QtBot, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    destination = tmp_path / "shots é" / "smoke.png"
+
+    def fail_publish(_source: Path, _destination: Path) -> None:
+        raise OSError("simulated publish failure")
+
+    monkeypatch.setattr(os, "link", fail_publish)
+    with pytest.raises(ProjectError, match="Could not save screenshot"):
+        _save_smoke(window, destination)
+    assert not destination.exists()
+    assert list(destination.parent.iterdir()) == []
 
 
 def test_offscreen_smoke_never_overwrites_an_existing_png(tmp_path: Path) -> None:

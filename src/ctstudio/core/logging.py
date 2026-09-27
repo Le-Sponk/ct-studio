@@ -11,6 +11,8 @@ from pathlib import Path
 
 import platformdirs
 
+from ctstudio.core.errors import ProjectError
+
 _LOGGER_NAME = "ctstudio"
 _FILE_HANDLER_NAME = "ctstudio:file"
 _CONSOLE_HANDLER_NAME = "ctstudio:console"
@@ -49,17 +51,23 @@ def configure_logging(
     file and a caller's handlers are left intact. The log directory is app-managed.
     """
     directory = log_dir if log_dir is not None else Path(platformdirs.user_log_dir(_LOGGER_NAME))
-    directory.mkdir(parents=True, exist_ok=True)
     path = directory / "ctstudio.log"
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        file_handler = RotatingFileHandler(
+            path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
+        )
+    except OSError as exc:
+        raise ProjectError(
+            "Could not open CT Studio log.",
+            hint="Check the log folder permissions and free space, then try again.",
+            details=f"path={path}; error={exc}",
+        ) from exc
     root = logging.getLogger(_LOGGER_NAME)
     for handler in list(root.handlers):
         if handler.name in (_FILE_HANDLER_NAME, _CONSOLE_HANDLER_NAME):
             root.removeHandler(handler)
             handler.close()
-
-    file_handler = RotatingFileHandler(
-        path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
-    )
     file_handler.set_name(_FILE_HANDLER_NAME)
     file_handler.setFormatter(_JSONLineFormatter())
     root.addHandler(file_handler)

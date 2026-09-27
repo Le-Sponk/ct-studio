@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import tempfile
 from pathlib import Path
 
 from PySide6.QtCore import QBuffer, QIODevice
@@ -17,10 +19,18 @@ def _save_smoke(window: MainWindow, path: Path) -> None:
     image.open(QIODevice.OpenModeFlag.WriteOnly)
     if not window.grab().save(image, "PNG"):
         raise ProjectError("Could not render the screenshot.", hint="Try a new output path.")
+    staged: Path | None = None
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("xb") as stream:
+        with tempfile.NamedTemporaryFile(
+            dir=path.parent, prefix=f".{path.name}.", delete=False
+        ) as stream:
+            staged = Path(stream.name)
             stream.write(image.data().data())
+            stream.flush()
+            os.fsync(stream.fileno())
+        # Linking publishes a complete file without replacing an existing screenshot.
+        os.link(staged, path)
     except FileExistsError as exc:
         raise ProjectError(
             f"Screenshot already exists: {path.name}.",
@@ -32,6 +42,9 @@ def _save_smoke(window: MainWindow, path: Path) -> None:
             hint="Check the output folder and available disk space, then try again.",
             details=str(exc),
         ) from exc
+    finally:
+        if staged is not None:
+            staged.unlink(missing_ok=True)
 
 
 def run_gui(smoke_path: Path | None = None) -> int:
