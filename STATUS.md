@@ -6,7 +6,7 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T04 done)
 **Next task:** P1-T05 — platform & filesystem utilities
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 83f3184 (P1-T03 full gate on Windows; Linux CI in P1-T07)
+**Last green commit:** 72a4040 (P1-T04 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -30,7 +30,7 @@ _none_
   console duplication and optional default path; `test_check` now asserts xenon wakes
   when core has implementation. 3/3 valid mutations caught (hint display, raw Unicode,
   rotation). Budgets and local doc links pass. Linux unverified until CI P1-T07 / Mint.
-  — commit _pending_
+  — commit 72a4040
 - `P1-T03` — Three import-linter 2.15 forbidden contracts: core↛GUI/CLI/PySide6,
   CLI↛GUI, application↛external `spikes`. Added importable `core`, `cli`, `gui` package
   markers (needed before the linter can evaluate them); no implementation moved from T04/T06.
