@@ -1,0 +1,16 @@
+# P1-T03: Windows 11, CPython 3.12.14, import-linter 2.15.
+# argv: lint-imports --no-logo --no-cache
+# exit: 0
+
+---------
+Contracts
+---------
+
+Analyzed 10 files, 6 dependencies.
+----------------------------------
+
+Core must not import GUI, CLI or Qt KEPT
+CLI must not import GUI KEPT
+Application must not import throwaway spikes KEPT
+
+Contracts: 3 kept, 0 broken.

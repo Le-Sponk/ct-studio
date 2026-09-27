@@ -3,8 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T02 done)
-**Next task:** P1-T03 — architecture contracts (import-linter + Blender bridge AST test)
+**Current phase:** 1 — Skeleton & quality gates (P1-T03 done)
+**Next task:** P1-T04 — errors & logging foundation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 980bbd3 (P1-T02 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -15,6 +15,20 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T03` — Three import-linter 2.15 forbidden contracts: core↛GUI/CLI/PySide6,
+  CLI↛GUI, application↛external `spikes`. Added importable `core`, `cli`, `gui` package
+  markers (needed before the linter can evaluate them); no implementation moved from T04/T06.
+  The gate's xenon step still says **SKIP** until core has actual modules. AST tests scan
+  future `blender_bridge` sources for imports beyond stdlib/`bpy` and all app/scripts/tests
+  imports for `spikes`. Gate child PATH now prefers its venv so pyright resolves packages
+  when checking scratch trees. **Windows evidence:** `lint-imports --no-logo --no-cache`:
+  3 kept / 0 broken, exit 0; `check.py`: 72 passed / 1 fixture skip / 91 deselected,
+  0 pyright errors, exit 0; full suite: 144 passed / 19 optional-tool skips /
+  1 network deselected. 12 architecture tests (seven forbidden import fixtures incl.
+  relative and nested Qt, actual `check.py` rejection of `import PySide6` in core,
+  Blender bridge/spike AST fixtures, repository scan) + gate PATH test; 5/5 contract/
+  scanner mutations caught. `git diff --check`, budgets, and 24 local doc links pass.
+  Linux unverified (CI P1-T07 or Mint). — commit _pending_
 - `P1-T02` — Real `scripts/check.py`: ruff format/check, pyright, import-linter, pytest
   (excludes `integration`, `slow`, `realdata`, `network`), xenon on core, vulture. Fail-fast by
   default, `--all` collects all failures, `--fast` skips pyright + coverage. Every step has
@@ -160,6 +174,16 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-27 (P1-T03): import-linter 2.15 **fails** with `Module 'ctstudio.core' does not
+  exist` if a named source package is absent; a failed linter is not an enforced boundary.
+  Created empty `core`, `cli`, `gui` package markers in P1-T03, before their planned code.
+  Xenon itself exits 0 on an empty core, so `check.py` now explicitly skips until P1-T04
+  adds an implementation module. The application↛external `spikes` contract needs
+  `include_external_packages = True`; AST scan also checks scripts/tests, which sit outside
+  import-linter's `ctstudio` graph. Pyright also needs the active venv at the front of the
+  child PATH: in a copied tree without `.venv`, it otherwise picks a system Python and
+  falsely reports PySide6 missing before import-linter runs. Docs: ARCHITECTURE §2,
+  TESTING_STRATEGY, PHASE_01, TOOLS.md.
 - 2026-09-27 (P1-T02): the pre-P1 `pytest.ini` and `ruff.toml` stand-ins moved to
   `pyproject.toml`; `vulture_whitelist.py` moved forward from P1-T08 because the real gate
   needs the path, but it contains no whitelist entries. `pyright[nodejs]` includes a Node
@@ -338,6 +362,10 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **P1-T03 architecture gate**: import-linter 2.15 contracts, Qt prohibition, and AST
+  scan of `blender_bridge`/`spikes` tested only on Windows. Linux closes in P1-T07 CI,
+  or optionally on Mint from an existing fresh clone: `git pull && uv sync && uv run
+  python scripts/check.py` (send the seven step lines and any failure output; ≈1 min).
 - **P1-T02 `check.py`**: Windows 11 only. The Python gate uses cross-platform argv + venv
   tool paths and the lock has Windows/Linux wheels for `pyright[nodejs]`, but it has not run
   on Linux. Closes with CI (P1-T07) or Mint: `git pull && uv sync && uv run python

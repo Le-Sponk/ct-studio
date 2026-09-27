@@ -654,3 +654,16 @@ v0.7.7 (2025-01-14) ships only `Lorenzi.s.KMP.Editor.0.7.7.exe` and a macOS arm6
 Checked every release back to v0.7.0: no Linux asset has ever been published. The phase
 file assumed a Linux release, so the editor is **not** auto-installed; P0-T10 must test it
 under Wine, and the Linux launch contract depends on that. Evidence: GitHub releases API.
+
+## Development gate: import-linter 2.15 (P1-T03)
+Not a track adapter. **[verified 2.15, Windows 11 real run]** `lint-imports --version`
+reports `import-linter 2.15`. `--help` documents `--no-logo` and `--no-cache`; the latter
+makes copied-tree contract tests build a fresh graph rather than reusing one from another
+fixture. `lint-imports --no-logo --no-cache` on the P1-T03 skeleton exits 0 with three
+contracts kept, zero broken; [recording](../../tests/fakes/recordings/import-linter/2.15/windows-skeleton.txt).
+`include_external_packages = True` is **required** for the `PySide6` and `spikes` bans:
+real scratch imports break the corresponding forbidden contracts at exit 1. Import-linter
+rejects a contract whose named source package does not exist (`Module 'ctstudio.core' does
+not exist`), so `core`, `cli` and `gui` need package markers before implementation. The
+contract tests generate these forbidden imports on each run and verify the exact violated
+module, not merely the exit code. Linux still needs CI (P1-T07) or a Mint run.

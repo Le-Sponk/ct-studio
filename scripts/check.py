@@ -69,6 +69,9 @@ def build_steps(root: Path, *, fast: bool) -> list[Step]:
     if not fast:
         pytest_argv += ["--cov=ctstudio", "--cov-report=term"]
     core = root / "src" / "ctstudio" / "core"
+    core_has_modules = core.is_dir() and any(
+        path.name != "__init__.py" for path in core.rglob("*.py")
+    )
     return [
         Step("ruff format", (tool("ruff"), "format", "--check"), 120),
         Step("ruff check", (tool("ruff"), "check"), 120),
@@ -79,8 +82,8 @@ def build_steps(root: Path, *, fast: bool) -> list[Step]:
             "xenon (core)",
             (tool("xenon"), *XENON_THRESHOLDS, str(core)),
             120,
-            # xenon exits 0 on a missing path, which would be a silent pass.
-            None if core.is_dir() else "src/ctstudio/core does not exist yet (P1-T04)",
+            # xenon exits 0 on an empty package; P1-T04 creates core modules.
+            None if core_has_modules else "core has no implementation modules yet (P1-T04)",
         ),
         Step(
             "vulture",
@@ -100,6 +103,11 @@ def child_env(root: Path) -> dict[str, str]:
     env = dict(os.environ)
     src = str(root / "src")
     env["PYTHONPATH"] = os.pathsep.join(p for p in (src, env.get("PYTHONPATH")) if p)
+    # Pyright probes `python` to resolve third-party imports. Make it the same
+    # interpreter as the gate, even when checking a copied tree outside .venv.
+    env["PATH"] = os.pathsep.join(
+        p for p in (str(Path(sys.executable).parent), env.get("PATH")) if p
+    )
     env["PYTHONIOENCODING"] = "utf-8"
     # pyright[nodejs] ships Node in the dev group. Use that wheel, not a random
     # globally installed Node or a network bootstrap on a fresh CI runner.

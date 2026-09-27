@@ -1,3 +1,29 @@
 [importlinter]
 root_package = ctstudio
-# Contracts (core -/-> gui/cli/PySide6, cli -/-> gui, nothing -/-> spikes) arrive in P1-T03.
+include_external_packages = True
+
+[importlinter:contract:core-boundary]
+name = Core must not import GUI, CLI or Qt
+type = forbidden
+source_modules =
+    ctstudio.core
+forbidden_modules =
+    ctstudio.gui
+    ctstudio.cli
+    PySide6
+
+[importlinter:contract:cli-boundary]
+name = CLI must not import GUI
+type = forbidden
+source_modules =
+    ctstudio.cli
+forbidden_modules =
+    ctstudio.gui
+
+[importlinter:contract:spike-boundary]
+name = Application must not import throwaway spikes
+type = forbidden
+source_modules =
+    ctstudio
+forbidden_modules =
+    spikes

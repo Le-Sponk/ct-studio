@@ -34,7 +34,11 @@ When code and this document disagree, fix one of them in the same commit.
 └────────────────────────────────────────────────────────┘
 blender_bridge/  → runs INSIDE Blender; stdlib + bpy only; talks to core via JSON files
 ```
-Contracts (import-linter): `core` ↛ `gui`,`cli`,`PySide6`; `cli` ↛ `gui`; nothing imports `spikes`.
+Contracts (import-linter): `core` ↛ `gui`,`cli`,`PySide6`; `cli` ↛ `gui`; application ↛ `spikes`.
+The contract includes external packages; an AST test additionally forbids `spikes` imports in
+scripts/tests and any `blender_bridge` imports beyond stdlib/`bpy`. The three future layer
+packages have importable `__init__.py` markers from P1-T03 so import-linter can evaluate
+contracts before their implementations exist (core begins in P1-T04, GUI in P1-T06).
 Every GUI feature must be reachable through core APIs, and most through the CLI (`ctstudio build`,
 `status`, `doctor`, `open`) — this is what lets the agent test without a screen.
 

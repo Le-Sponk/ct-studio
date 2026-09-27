@@ -8,11 +8,18 @@ a human with the real game and real habits can judge (see HUMAN_CHECKPOINTS.md).
 strict on `src/ctstudio/core`), import-linter, pytest with coverage, xenon (core), then
 vulture. It stops at the first failure unless `--all`; `--fast` skips pyright and
 coverage only. Each step prints status and duration; failed steps also print captured
-output and exit status. `xenon (core)` is explicitly **SKIP** until P1-T04 creates
-that directory: xenon itself returns 0 on a missing path. Import-linter has zero
-contracts until P1-T03; its output says "0 kept, 0 broken" rather than claiming the
-architecture is enforced. The dev dependency `pyright[nodejs]` includes Node as a
-wheel, avoiding a network bootstrap on a clean CI machine. Tool configuration is in
+output and exit status. `xenon (core)` is explicitly **SKIP** until P1-T04 adds core
+implementation modules: xenon itself returns 0 on an absent or empty package. P1-T03 adds empty
+`core`, `cli` and `gui` package markers for import-linter. Import-linter's three
+contracts protect core↛GUI/CLI/PySide6, CLI↛GUI, and application↛`spikes`,
+including external packages via `include_external_packages = True`.
+The unit test AST-scans `blender_bridge` for imports outside stdlib/`bpy` and project code
+(`src`, `scripts`, `tests`) for imports of throwaway `spikes`. Tests copy the skeleton and
+insert forbidden imports, so "kept" is not vacuous.
+The gate prepends its active venv to child PATH: pyright probes `python` for installed
+packages, and otherwise misdiagnoses PySide6 as missing in a copied tree.
+The dev dependency `pyright[nodejs]` includes Node as a wheel, avoiding a network
+bootstrap on a clean CI machine. Tool configuration is in
 `pyproject.toml`, with the import-linter root in `.importlinter`.
 
 ## 1. Layers and markers

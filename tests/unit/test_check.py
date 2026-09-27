@@ -8,6 +8,7 @@ and `PYTHONPATH` to check and import only the scratch tree.
 from __future__ import annotations
 
 import io
+import os
 import shutil
 import subprocess
 import sys
@@ -66,8 +67,15 @@ def test_steps_match_the_gate_and_fast_only_skips_typecheck_and_coverage() -> No
     assert "--cov=ctstudio" in normal[4].argv
     assert "--cov=ctstudio" not in fast[4].argv
     assert normal[4].argv[3] == check.PYTEST_SELECTION
-    assert normal[5].skip_reason == "src/ctstudio/core does not exist yet (P1-T04)"
+    assert normal[5].skip_reason == "core has no implementation modules yet (P1-T04)"
     assert all(s.timeout_s > 0 for s in normal)
+
+
+def test_child_environment_resolves_packages_in_the_gate_venv(tmp_path: Path) -> None:
+    env = check.child_env(tmp_path)
+    assert env["PATH"].split(os.pathsep)[0] == str(Path(sys.executable).parent)
+    assert env["PYTHONPATH"].split(os.pathsep)[0] == str(tmp_path / "src")
+    assert env["PYRIGHT_PYTHON_GLOBAL_NODE"] == "false"
 
 
 def test_fail_fast_and_all_execute_real_steps(tmp_path: Path) -> None:

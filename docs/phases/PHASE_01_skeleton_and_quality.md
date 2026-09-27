@@ -25,9 +25,11 @@ Prints a one-line summary per step with duration.
 **Acceptance:** passes on the skeleton; deliberately broken sample (in a test) makes it fail; a
 `network`-marked test is not collected by the default run.
 
-### [ ] P1-T03 — Architecture contracts
+### [x] P1-T03 — Architecture contracts (commit _pending_)
 `.importlinter` contracts: core ↛ gui/cli/PySide6; cli ↛ gui; nothing ↛ spikes. A unit test asserts
-`blender_bridge` files import only stdlib + `bpy` (AST scan).
+`blender_bridge` files import only stdlib + `bpy` (AST scan). Import-linter 2.15 requires the
+named source packages to exist, so P1-T03 adds package markers for `core`, `cli` and `gui` without
+implementations; `check.py` keeps xenon explicitly skipped until P1-T04 adds core modules.
 **Acceptance:** adding `import PySide6` in core makes `check.py` fail (verified by a test fixture copy).
 
 ### [ ] P1-T04 — Errors & logging foundation
