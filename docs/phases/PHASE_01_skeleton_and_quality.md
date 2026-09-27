@@ -3,7 +3,7 @@
 **Goal:** a tiny app that launches, with every quality gate in place *before* real code exists.
 **Exit:** `scripts/check.py` green locally and in CI on ubuntu-latest + windows-latest.
 
-### [x] P1-T01 — Project metadata & environment (commit _pending_)
+### [x] P1-T01 — Project metadata & environment (commit dc97f92)
 `pyproject.toml` (src layout, package `ctstudio`, Python `>=3.12,<3.14`, entry point
 `ctstudio = "ctstudio.__main__:main"`). Runtime deps now: `PySide6`, `numpy`, `Pillow`,
 `tomli-w`, `platformdirs`, `watchfiles`. Dev group: ruff, pyright, pytest, pytest-qt,

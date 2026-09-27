@@ -27,7 +27,7 @@ _none_
   through the project venv: **125 passed, 19 skipped** (P0-T13 baseline 120/19 + 5 new tests); the
   skips are unchanged (Dolphin, Xvfb/Wine, moderngl). 3/3 mutations caught (eager Qt import,
   hard-coded version, wrong entry point). `pytest.ini`/`ruff.toml` intentionally stay until P1-T02
-  folds them into `pyproject.toml`. **Linux not run** — see gaps. — commit _pending_
+  folds them into `pyproject.toml`. **Linux not run** — see gaps. — commit dc97f92
 - `P0-T13` — Re-bootstrap and re-verify on **native Windows 11**. `bootstrap_tools.py` now works
   on Windows from scratch (220 s; second run 0 s): ABMatt's Windows zip is an NSIS installer,
   now **expanded with a pinned 7-Zip 26.03, never executed**; RiiStudio's release zip is an
