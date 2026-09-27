@@ -3,8 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T01 done)
-**Next task:** P1-T02 — `scripts/check.py` (from here on the full gate is mandatory, ADR-016)
+**Current phase:** 1 — Skeleton & quality gates (P1-T02 done)
+**Next task:** P1-T03 — architecture contracts (import-linter + Blender bridge AST test)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -15,6 +15,22 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T02` — Real `scripts/check.py`: ruff format/check, pyright, import-linter, pytest
+  (excludes `integration`, `slow`, `realdata`, `network`), xenon on core, vulture. Fail-fast by
+  default, `--all` collects all failures, `--fast` skips pyright + coverage. Every step has
+  duration, timeout, status and failure output; absolute venv tool paths + child `PYTHONPATH`
+  support a different working tree. `pyright[nodejs]` ships Node in the dev venv (no global Node
+  or network bootstrap). Folded `pytest.ini` and `ruff.toml` into `pyproject.toml` (strict marker
+  registration; pyright strict on core), added root `.importlinter` (P1-T03 contracts) and an
+  empty `vulture_whitelist.py` (moved from P1-T08). Xenon says **SKIP** until `core/` exists in
+  P1-T04, not a false green; import-linter reports **0 contracts** until P1-T03.
+  **Windows evidence:** `uv run python scripts/check.py`, `--fast`, and `--all`: exit 0;
+  59 passed / 1 skipped / 91 deselected in default gate, 0 pyright errors; full suite
+  `pytest -m "not network" tests`: 131 passed / 19 skipped / 1 deselected (same optional-tool
+  skips as P1-T01: Dolphin, Xvfb/Wine, moderngl). 6 new gate tests cover broken sample,
+  fail-fast, `--all`, `--fast`, timeout/missing tool and `network`+`integration` deselection. 3/3 mutations caught.
+  `uv lock --check`, `ruff format --check`, `git diff --check` and 18 STATUS local links green.
+  **Linux not run** — CI P1-T07 or Mint checkpoint. — commit _pending_
 - `P1-T01` — `pyproject.toml` (src layout, `uv_build` backend, Python `>=3.12,<3.14`, entry point
   `ctstudio.__main__:main`), `.python-version` 3.12, committed universal `uv.lock` (51 packages:
   PySide6 6.11.2, numpy 2.5.3, Pillow 12.3.0, tomli-w 1.2.0, platformdirs 4.12.0, watchfiles 1.3.0
@@ -144,6 +160,12 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-27 (P1-T02): the pre-P1 `pytest.ini` and `ruff.toml` stand-ins moved to
+  `pyproject.toml`; `vulture_whitelist.py` moved forward from P1-T08 because the real gate
+  needs the path, but it contains no whitelist entries. `pyright[nodejs]` includes a Node
+  wheel so CI needs no global Node and the gate cannot silently bootstrap one over the
+  network. Xenon returns 0 on a missing path, so `check.py` must report an explicit SKIP
+  until P1-T04 adds `core/`; import-linter reports 0 contracts until P1-T03.
 - 2026-09-22 (HC0 answers): **Windows and Linux become equal targets (ADR-019)** — native Windows is
   the reference for the Windows editors, Wine is the Linux reference, and single-platform facts are
   tracked under "Platform verification gaps". Development moves to a Windows machine, so **P0-T13**
@@ -316,6 +338,10 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **P1-T02 `check.py`**: Windows 11 only. The Python gate uses cross-platform argv + venv
+  tool paths and the lock has Windows/Linux wheels for `pyright[nodejs]`, but it has not run
+  on Linux. Closes with CI (P1-T07) or Mint: `git pull && uv sync && uv run python
+  scripts/check.py` (report the summary and any failures).
 - **P1-T01 `uv sync` + `uv run ctstudio --version`**: Windows only. The lock is universal (it
   carries manylinux wheels for every package), but no Linux install has run it. Closes with CI
   (P1-T07) or a Mint run: `git pull && uv sync && uv run ctstudio --version` → expect

@@ -3,6 +3,18 @@
 Goal: the agent, not the human, finds almost all bugs. The human's time is reserved for things only
 a human with the real game and real habits can judge (see HUMAN_CHECKPOINTS.md).
 
+## Local gate (P1-T02)
+`uv run python scripts/check.py` runs ruff format/check, pyright (`src/` and the gate;
+strict on `src/ctstudio/core`), import-linter, pytest with coverage, xenon (core), then
+vulture. It stops at the first failure unless `--all`; `--fast` skips pyright and
+coverage only. Each step prints status and duration; failed steps also print captured
+output and exit status. `xenon (core)` is explicitly **SKIP** until P1-T04 creates
+that directory: xenon itself returns 0 on a missing path. Import-linter has zero
+contracts until P1-T03; its output says "0 kept, 0 broken" rather than claiming the
+architecture is enforced. The dev dependency `pyright[nodejs]` includes Node as a
+wheel, avoiding a network bootstrap on a clean CI machine. Tool configuration is in
+`pyproject.toml`, with the import-linter root in `.importlinter`.
+
 ## 1. Layers and markers
 | Layer | Location | Marker | Runs | Speed target |
 |---|---|---|---|---|

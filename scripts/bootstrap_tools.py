@@ -32,7 +32,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from tool_catalogue import (  # sys.path is extended just above; E402 is off in ruff.toml
+from tool_catalogue import (  # sys.path is extended just above; E402 is off in pyproject.toml
     ALL_TOOLS,
     SEVEN_ZIP,
     SEVEN_ZIP_REDUCED,

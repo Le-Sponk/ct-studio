@@ -12,7 +12,7 @@ Commit `uv.lock`. `.gitignore`: `.tools/`, `.ctstudio/`, `build/`, `dist/`, `loc
 `tests/fixtures/generated/`, `tests/artifacts/`, `spikes/out/`.
 **Acceptance:** `uv sync` then `uv run ctstudio --version` works on Linux and in Windows CI.
 
-### [ ] P1-T02 — `scripts/check.py`
+### [x] P1-T02 — `scripts/check.py` (commit _pending_)
 Runs in order, fails fast unless `--all`: `ruff format --check`, `ruff check`, `pyright`,
 `lint-imports`, `pytest -m "not integration and not slow and not realdata and not network"` with
 coverage, `xenon --max-absolute B --max-modules A --max-average A src/ctstudio/core`
@@ -20,7 +20,7 @@ coverage, `xenon --max-absolute B --max-modules A --max-average A src/ctstudio/c
 `--fast` skips pyright + coverage.
 `network` is excluded because a test with an external precondition cannot be a local gate — it must
 skip loudly with a reason rather than fail on an offline machine (see TD-001, and the `network`
-marker in `pytest.ini`). Nightly integration runs it (P1-T07).
+marker in `pyproject.toml`). Nightly integration runs it (P1-T07).
 Prints a one-line summary per step with duration.
 **Acceptance:** passes on the skeleton; deliberately broken sample (in a test) makes it fail; a
 `network`-marked test is not collected by the default run.
@@ -65,7 +65,8 @@ skip reason.
 
 ### [ ] P1-T08 — Contributor basics
 `CONTRIBUTING.md` (short: commands, rules pointer to AGENTS.md), `LICENSE` (GPL-3.0-or-later pending
-HC0), `THIRD_PARTY_NOTICES.md` skeleton, `docs/dev/BENCHMARKS.md` skeleton, `vulture_whitelist.py`.
+HC0), `THIRD_PARTY_NOTICES.md` skeleton, `docs/dev/BENCHMARKS.md` skeleton. The
+`vulture_whitelist.py` skeleton was created in P1-T02 so the gate could run.
 **Acceptance:** files exist; README.md has a 10-line project description and dev quick start.
 
 ### [ ] P1-GATE — Phase review (skill `mkw-phase-review`)

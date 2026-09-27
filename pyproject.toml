@@ -28,11 +28,11 @@ dependencies = [
 ctstudio = "ctstudio.__main__:main"
 
 [dependency-groups]
-# Dev tooling: ADR-010. P1-T02 wires these into scripts/check.py.
+# Dev tooling: ADR-010. `scripts/check.py` runs them in order (P1-T02).
 dev = [
     "import-linter>=2.15",
     "pylint>=4.0.9",
-    "pyright>=1.1.414",
+    "pyright[nodejs]>=1.1.414",
     "pytest>=9.1.1",
     "pytest-benchmark>=5.3.0",
     "pytest-cov>=7.1.0",
@@ -47,3 +47,45 @@ dev = [
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]
 build-backend = "uv_build"
+
+# --- Tool configuration (was pytest.ini / ruff.toml before P1-T02) -------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# An unregistered marker is an error: a typo in `network` would otherwise put an
+# external-endpoint test into the local gate.
+addopts = ["--strict-markers"]
+# Markers match docs/process/TESTING_STRATEGY.md section 1.
+markers = [
+    "gui: needs a Qt application (runs offscreen)",
+    "integration: needs real tools from .tools/",
+    "slow: end-to-end, takes minutes",
+    "realdata: needs the human's own files in local_fixtures/",
+    "network: needs a reachable external endpoint (excluded from check.py; nightly only)",
+    "benchmark: performance measurement",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# Third-party submodule (the Blender add-on): upstream's style, not ours.
+extend-exclude = ["vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "S", "RUF"]
+# E402: scripts/ deliberately import from the scripts dir after extending sys.path.
+ignore = ["E402"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert; that is the point.
+"tests/**" = ["S101"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.pyright]
+# The application and the gate itself. scripts/ and tests/ are ruff-only for now.
+include = ["src", "scripts/check.py"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+strict = ["src/ctstudio/core"]  # ADR-010

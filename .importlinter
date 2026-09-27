@@ -1,0 +1,3 @@
+[importlinter]
+root_package = ctstudio
+# Contracts (core -/-> gui/cli/PySide6, cli -/-> gui, nothing -/-> spikes) arrive in P1-T03.
