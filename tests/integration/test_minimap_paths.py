@@ -9,18 +9,20 @@ These run against the real tools and skip when they are absent.
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 REPO = Path(__file__).resolve().parents[2]
-TOOLS = REPO / ".tools"
-RSZST = TOOLS / "riistudio-build-pinned" / "source" / "cli" / "rszst"
-ABMATT = TOOLS / "abmatt" / "bin" / "abmatt"
-WIIMMS_BIN = TOOLS / "wiimms-szs-tools" / "bin"
+sys.path.insert(0, str(REPO / "scripts"))
+import tool_paths as tp
+
+RSZST = tp.RSZST
+ABMATT = tp.ABMATT
+WIIMMS_BIN = tp.WIIMMS_BIN
 FIXTURE_KCL = REPO / "tests" / "fixtures" / "generated" / "course.kcl"
 FIXTURE_DAE = REPO / "spikes" / "out" / "s2" / "course_builtin.dae"
 KCL_FILTER = REPO / "spikes" / "s5_minimap.py"
@@ -29,7 +31,7 @@ pytestmark = [
     pytest.mark.timeout(600),
     pytest.mark.integration,
     pytest.mark.skipif(not ABMATT.is_file(), reason="abmatt not installed"),
-    pytest.mark.skipif(not (WIIMMS_BIN / "wszst").is_file(), reason="wiimms tools not installed"),
+    pytest.mark.skipif(not tp.WSZST.is_file(), reason="wiimms tools not installed"),
     pytest.mark.skipif(not FIXTURE_KCL.is_file(), reason="fixture KCL not generated"),
 ]
 
@@ -53,10 +55,15 @@ FILTER_SCRIPT = """\
 
 
 def run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    env = dict(os.environ)
-    env["PATH"] = f"{WIIMMS_BIN}{os.pathsep}{env.get('PATH', '')}"
+    env = tp.tools_env()
     return subprocess.run(  # noqa: S603 - local pinned tools, argv only
-        args, cwd=cwd, capture_output=True, text=True, timeout=180, check=False, env=env
+        tp.resolve(args, env),
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+        env=env,
     )
 
 

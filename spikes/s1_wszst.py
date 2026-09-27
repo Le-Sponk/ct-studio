@@ -20,7 +20,10 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-WSZST = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wszst"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+WSZST = tp.WSZST
 FIXTURES = REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = REPO_ROOT / "spikes" / "out" / "s1"
 

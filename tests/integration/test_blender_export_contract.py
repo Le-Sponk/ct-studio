@@ -20,7 +20,10 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-BLENDER = REPO_ROOT / ".tools" / "blender" / "blender"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+BLENDER = tp.BLENDER
 ADDON = REPO_ROOT / "vendor" / "blender-mkw-utilities" / "__init__.py"
 FIXTURE = REPO_ROOT / "tests" / "fixtures" / "generated" / "fixture_track_good.blend"
 DRIVER = REPO_ROOT / "spikes" / "s2_blender.py"

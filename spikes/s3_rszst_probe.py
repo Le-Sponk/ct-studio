@@ -9,11 +9,15 @@ import argparse
 import json
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_BINARY = ROOT / ".tools" / "riistudio-build-pinned" / "source" / "cli" / "rszst"
+sys.path.insert(0, str(ROOT / "scripts"))
+import tool_paths as tp
+
+DEFAULT_BINARY = tp.RSZST
 QUERIES = [
     ["--version"],
     ["--help"],

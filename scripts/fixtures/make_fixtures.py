@@ -3,7 +3,8 @@
 
     uv run python scripts/fixtures/make_fixtures.py
 
-Runs the Blender generator for both variants and compiles the fixture KMP with wkmpt.
+Runs the Blender generator for both variants, exports course.kcl from the good one with
+the vendored add-on, and compiles the fixture KMP with wkmpt.
 Output goes to tests/fixtures/generated/ (gitignored, see TESTING_STRATEGY section 3).
 
 Standalone dev script, so it may spawn processes directly (AGENTS.md rule 3):
@@ -13,15 +14,21 @@ argv lists, explicit timeouts, explicit exit-code handling, never shell=True.
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = REPO_ROOT / "tests" / "fixtures" / "generated"
-BLENDER = REPO_ROOT / ".tools" / "blender" / "blender"
-WKMPT = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wkmpt"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+BLENDER = tp.BLENDER
+WKMPT = tp.WKMPT
+ADDON_SRC = REPO_ROOT / "vendor" / "blender-mkw-utilities"
 GENERATOR = Path(__file__).with_name("make_fixture_blend.py")
 KMP_SOURCE = Path(__file__).with_name("course.kmp.txt")
 
@@ -44,31 +51,24 @@ def require_tool(path: Path, name: str) -> None:
         )
 
 
-def run(argv: list[str], timeout: int) -> subprocess.CompletedProcess[str]:
+def run(
+    argv: list[str], timeout: int, env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
     try:
         return subprocess.run(  # noqa: S603  (argv list, no shell)
-            argv, capture_output=True, text=True, timeout=timeout, check=False
+            argv, capture_output=True, text=True, timeout=timeout, check=False, env=env
         )
     except subprocess.TimeoutExpired as exc:
         raise FixtureError(f"{Path(argv[0]).name} timed out after {exc.timeout}s") from exc
 
 
-def build_blend(out_dir: Path, variant: str) -> None:
-    proc = run(
-        [
-            str(BLENDER),
-            "-b",
-            "--factory-startup",
-            "--python",
-            str(GENERATOR),
-            "--",
-            "--out",
-            str(out_dir),
-            "--variant",
-            variant,
-        ],
-        BLENDER_TIMEOUT_S,
-    )
+def build_blend(out_dir: Path, variant: str, addon: Path | None = None) -> None:
+    argv = [str(BLENDER), "-b", "--factory-startup", "--python", str(GENERATOR), "--"]
+    argv += ["--out", str(out_dir), "--variant", variant]
+    if addon is not None:
+        argv += ["--addon", str(addon)]
+    # The add-on's KCL exporter runs wkclt, so the Wiimms bin must be on PATH.
+    proc = run(argv, BLENDER_TIMEOUT_S, tp.tools_env())
     if proc.returncode != 0:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-15:])
         raise FixtureError(
@@ -110,12 +110,17 @@ def main(argv: list[str] | None = None) -> int:
 
     require_tool(BLENDER, "Blender")
     require_tool(WKMPT, "wkmpt")
+    require_tool(ADDON_SRC / "__init__.py", "The add-on submodule (git submodule update --init)")
 
     started = time.monotonic()
     print(f"Generating fixtures into {args.out}")
     try:
-        for variant in ("good", "bad"):
-            build_blend(args.out, variant)
+        with tempfile.TemporaryDirectory() as staging:
+            # "blender-mkw-utilities" is not an importable module name; stage it (as S2 does).
+            addon = Path(staging) / "mkw_utilities"
+            shutil.copytree(ADDON_SRC, addon, ignore=shutil.ignore_patterns(".git"))
+            build_blend(args.out, "good", addon)
+        build_blend(args.out, "bad")
         build_kmp(args.out)
     except FixtureError as exc:
         print(f"FAILED: {exc}", file=sys.stderr)

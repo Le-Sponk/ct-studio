@@ -18,9 +18,12 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-BLENDER = REPO_ROOT / ".tools" / "blender" / "blender"
-TOOLS_BIN = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin"
-ABMATT_BIN = REPO_ROOT / ".tools" / "abmatt" / "bin"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+BLENDER = tp.BLENDER
+TOOLS_BIN = tp.WIIMMS_BIN
+ABMATT_BIN = tp.ABMATT_BIN
 ADDON_SRC = REPO_ROOT / "vendor" / "blender-mkw-utilities"
 FIXTURE = REPO_ROOT / "tests" / "fixtures" / "generated" / "fixture_track_good.blend"
 PROBE = Path(__file__).with_name("blender_export_spike.py")

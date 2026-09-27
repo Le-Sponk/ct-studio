@@ -24,12 +24,14 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "fixtures"))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import make_textures as mt
+import tool_paths as tp
 
 GENERATED = REPO_ROOT / "tests" / "fixtures" / "generated"
 KMP_SOURCE = REPO_ROOT / "scripts" / "fixtures" / "course.kmp.txt"
-WKMPT = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wkmpt"
+WKMPT = tp.WKMPT
 
 pytestmark = pytest.mark.timeout(60)
 

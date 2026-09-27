@@ -21,14 +21,17 @@ import json
 import shutil
 import statistics
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-TOOLS = REPO / ".tools"
-RSZST = TOOLS / "riistudio-build-pinned" / "source" / "cli" / "rszst"
-ABMATT = TOOLS / "abmatt" / "bin" / "abmatt"
-WIIMMS_BIN = TOOLS / "wiimms-szs-tools" / "bin"
+sys.path.insert(0, str(REPO / "scripts"))
+import tool_paths as tp
+
+RSZST = tp.RSZST
+ABMATT = tp.ABMATT
+WIIMMS_BIN = tp.WIIMMS_BIN
 S2_OUT = REPO / "spikes" / "out" / "s2"
 OUT = REPO / "spikes" / "out" / "s4"
 
@@ -39,12 +42,15 @@ TIMEOUT = 120
 
 def run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
     """Run a tool with ABMatt's wimgt dependency on PATH."""
-    import os
-
-    env = dict(os.environ)
-    env["PATH"] = f"{WIIMMS_BIN}{os.pathsep}{env.get('PATH', '')}"
+    env = tp.tools_env()
     return subprocess.run(  # noqa: S603 - local pinned tools, argv only
-        args, cwd=cwd, capture_output=True, text=True, timeout=TIMEOUT, check=False, env=env
+        tp.resolve(args, env),
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT,
+        check=False,
+        env=env,
     )
 
 

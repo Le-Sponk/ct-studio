@@ -287,7 +287,31 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default="good",
         help="'bad' swaps in the non-power-of-two texture for warning tests",
     )
+    parser.add_argument(
+        "--addon",
+        type=Path,
+        help="importable Blender-MKW-Utilities package dir; when given, also export course.kcl",
+    )
     return parser.parse_args(argv)
+
+
+def export_kcl(addon_dir: Path, dest: Path) -> None:
+    """Export the KCL collection with the add-on, as S2 proved headlessly (P0-T05).
+
+    Uses the add-on's own exporter so the fixture matches what users produce; it needs
+    wkclt on PATH, which make_fixtures.py provides.
+    """
+    sys.path.insert(0, str(addon_dir.parent))
+    __import__(addon_dir.name).register()
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in bpy.data.collections["KCL"].objects:
+        obj.select_set(True)
+    result = bpy.ops.kcl.export(
+        filepath=str(dest), kclExportScale=EXPORT_SCALE, kclExportUnBeanCorner="LOWER"
+    )
+    if result != {"FINISHED"} or not dest.is_file():
+        raise SystemExit(f"KCL export failed: {result}")
+    print(f"[fixture] wrote {dest.name} ({dest.stat().st_size} bytes)")
 
 
 def main() -> int:
@@ -342,6 +366,9 @@ def main() -> int:
     print(f"[fixture] wrote {blend_path.name} ({blend_path.stat().st_size} bytes) objects={counts}")
     print(f"[fixture] max |coord| in game units: {limit:.0f} (limit {GAME_COORD_LIMIT})")
     print(f"[fixture] manifest: {manifest_path.name}")
+    # After the save, so registering the add-on never leaks into the committed-size .blend.
+    if args.addon:
+        export_kcl(args.addon, out_dir / "course.kcl")
     return 0
 
 

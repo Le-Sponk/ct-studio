@@ -16,21 +16,27 @@ from __future__ import annotations
 
 import contextlib
 import os
-import pty
 import re
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 import pytest
 
+if os.name != "nt":  # POSIX-only module; the Xvfb/Wine probes below never run on Windows.
+    import pty
+
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "scripts"))
+import tool_paths as tp
+
 TOOLS = REPO / ".tools"
 SPIKE = REPO / "spikes" / "s7_editor_launch.py"
 FIXTURES = REPO / "tests" / "fixtures" / "generated"
 
-BLENDER = TOOLS / "blender" / "blender"
+BLENDER = tp.BLENDER
 LORENZI = TOOLS / "s7-lorenzi-src" / "dist" / "linux-unpacked" / "hlorenzi-kmp-editor"
 BRAWLCRATE = TOOLS / "s7-brawlcrate-bin" / "BrawlCrate.exe"
 RIISTUDIO = TOOLS / "s7-riistudio-win" / "RiiStudio.exe"

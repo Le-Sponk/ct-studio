@@ -9,18 +9,20 @@ These run against the real tools and skip when they are absent.
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 REPO = Path(__file__).resolve().parents[2]
-TOOLS = REPO / ".tools"
-RSZST = TOOLS / "riistudio-build-pinned" / "source" / "cli" / "rszst"
-ABMATT = TOOLS / "abmatt" / "bin" / "abmatt"
-WIIMMS_BIN = TOOLS / "wiimms-szs-tools" / "bin"
+sys.path.insert(0, str(REPO / "scripts"))
+import tool_paths as tp
+
+RSZST = tp.RSZST
+ABMATT = tp.ABMATT
+WIIMMS_BIN = tp.WIIMMS_BIN
 FIXTURE_DAE = REPO / "spikes" / "out" / "s2" / "course_builtin.dae"
 
 pytestmark = [
@@ -37,10 +39,15 @@ PRISTINE_WATER = {"xlu": "0", "blend": "0", "cullmode": "inside"}
 
 
 def run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    env = dict(os.environ)
-    env["PATH"] = f"{WIIMMS_BIN}{os.pathsep}{env.get('PATH', '')}"
+    env = tp.tools_env()
     return subprocess.run(  # noqa: S603 - local pinned tools, argv only
-        args, cwd=cwd, capture_output=True, text=True, timeout=120, check=False, env=env
+        tp.resolve(args, env),
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+        env=env,
     )
 
 
@@ -160,7 +167,7 @@ def test_json_to_brres_needs_its_bin_sidecar(work: Path) -> None:
 
     result = run([str(RSZST), "json-to-brres", "orphan.json", "orphan.brres"], work)
 
-    assert result.returncode == 255
+    assert result.returncode == tp.EXIT_MINUS_ONE
     assert not (work / "orphan.brres").exists()
     assert "orphan.bin" in result.stdout + result.stderr
 

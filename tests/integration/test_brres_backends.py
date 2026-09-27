@@ -20,9 +20,12 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-ABMATT = REPO_ROOT / ".tools" / "abmatt" / "bin" / "abmatt"
-RSZST = REPO_ROOT / ".tools" / "riistudio-build-pinned" / "source" / "cli" / "rszst"
-WSZST = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wszst"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+ABMATT = tp.ABMATT
+RSZST = tp.RSZST
+WSZST = tp.WSZST
 DAE = REPO_ROOT / "spikes" / "out" / "s2" / "course_builtin.dae"
 DRIVER = REPO_ROOT / "spikes" / "s3_backend_bakeoff.py"
 FINDINGS = REPO_ROOT / "spikes" / "out" / "s3b" / "s3b_findings.json"
@@ -31,7 +34,9 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(600),
     pytest.mark.skipif(not ABMATT.exists(), reason="ABMatt missing; run bootstrap_tools.py"),
-    pytest.mark.skipif(not RSZST.exists(), reason="build rszst using the S3a recipe in SPIKES.md"),
+    pytest.mark.skipif(
+        not RSZST.exists(), reason="no rszst: S3a recipe (Linux) or --only riistudio"
+    ),
     pytest.mark.skipif(not WSZST.exists(), reason="Wiimms tools missing; run bootstrap_tools.py"),
     pytest.mark.skipif(not DAE.exists(), reason="S2 outputs missing; run spikes/s2_blender.py"),
 ]

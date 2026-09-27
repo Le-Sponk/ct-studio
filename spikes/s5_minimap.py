@@ -17,18 +17,20 @@ Run:  uv run python spikes/s5_minimap.py
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import statistics
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-TOOLS = REPO / ".tools"
-RSZST = TOOLS / "riistudio-build-pinned" / "source" / "cli" / "rszst"
-ABMATT = TOOLS / "abmatt" / "bin" / "abmatt"
-WIIMMS_BIN = TOOLS / "wiimms-szs-tools" / "bin"
+sys.path.insert(0, str(REPO / "scripts"))
+import tool_paths as tp
+
+RSZST = tp.RSZST
+ABMATT = tp.ABMATT
+WIIMMS_BIN = tp.WIIMMS_BIN
 S2_OUT = REPO / "spikes" / "out" / "s2"
 FIXTURES = REPO / "tests" / "fixtures" / "generated"
 OUT = REPO / "spikes" / "out" / "s5"
@@ -57,10 +59,15 @@ TIMEOUT = 180
 
 
 def run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    env = dict(os.environ)
-    env["PATH"] = f"{WIIMMS_BIN}{os.pathsep}{env.get('PATH', '')}"
+    env = tp.tools_env()
     return subprocess.run(  # noqa: S603 - local pinned tools, argv only
-        args, cwd=cwd, capture_output=True, text=True, timeout=TIMEOUT, check=False, env=env
+        tp.resolve(args, env),
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT,
+        check=False,
+        env=env,
     )
 
 

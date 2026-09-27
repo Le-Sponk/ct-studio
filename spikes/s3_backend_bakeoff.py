@@ -22,10 +22,13 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-WSZST = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wszst"
-WIMGT = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wimgt"
-ABMATT = REPO_ROOT / ".tools" / "abmatt" / "bin" / "abmatt"
-RSZST = REPO_ROOT / ".tools" / "riistudio-build-pinned" / "source" / "cli" / "rszst"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+WSZST = tp.WSZST
+WIMGT = tp.WIMGT
+ABMATT = tp.ABMATT
+RSZST = tp.RSZST
 DAE = REPO_ROOT / "spikes" / "out" / "s2" / "course_builtin.dae"
 OUT = REPO_ROOT / "spikes" / "out" / "s3b"
 TIMEOUT_S = 180

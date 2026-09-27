@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
@@ -20,7 +21,10 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-WSZST = REPO_ROOT / ".tools" / "wiimms-szs-tools" / "bin" / "wszst"
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import tool_paths as tp
+
+WSZST = tp.WSZST
 FIXTURES = REPO_ROOT / "tests" / "fixtures" / "generated"
 
 pytestmark = [
