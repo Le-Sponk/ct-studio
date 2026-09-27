@@ -3,41 +3,34 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T06 done)
-**Next task:** P1-T07 — CI
+**Current phase:** 1 — Skeleton & quality gates (P1-T07 done)
+**Next task:** P1-T08 — Contributor basics
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 3438504 (P1-T07 CI matrix green on Ubuntu and Windows, run
-`36340507201`; nightly integration verification/fix still in progress)
+**Last green commit:** 14bc60b (P1-T07 main CI success on Ubuntu and Windows, run
+`36341555661`; network-skip probe `36341608296` verified on both OSes)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P1-T07` — CI. (1) Verify action/uv commands and encode Windows + Ubuntu locked-sync
-  `check.py` matrix, Qt/font packages, coverage and GUI screenshot artifacts;
-  (2) add manual/nightly integration scaffold that selects `network` tests, parses JUnit
-  skip reasons into the job summary and fails rather than falsely reporting green;
-  (3) test workflow structure plus reporter against synthetic/real pytest XML;
-  (4) run local gate and push, inspect both matrix jobs and manually dispatch the
-  nightly path if access allows, fixing CI failures; (5) record Linux parity, docs and
-  close-out commit. Acceptance: both OS jobs green and nightly run shows tests or exact
-  skip reason. Files: `.github/workflows/{ci,integration}.yml`, `scripts/ci_network.py`,
-  unit tests, TOOLS/TESTING_STRATEGY/STATUS/phase. Risk: remote Actions dispatch access;
-  the current network test also needs Wine/Xvfb/RiiStudio, so a missing prerequisite
-  must be a visible non-green signal, not a silent pass.
-  Remote permissions fixed by the human; push `3438504` succeeded. GitHub CI run
-  [`36340507201`](https://github.com/Le-Sponk/ct-studio/actions/runs/36340507201)
-  completed **success on both Ubuntu and Windows**. A throwaway-branch probe
-  [`36341029431`](https://github.com/Le-Sponk/ct-studio/actions/runs/36341029431)
-  ran the nightly network jobs: Windows's reporter exited 1 as designed (selected
-  test skipped); Ubuntu's pytest exited 3 before JUnit creation. The nightly
-  scaffold lacked the Qt environment/libraries installed by `ci.yml`, a likely
-  cause to verify on rerun. Add the same prerequisites and publish exact skip
-  reasons as public Actions annotations, then rerun and remove the throwaway branch.
-  Linux font screenshot readability is separate from the CI matrix's test success.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T07` — cross-platform GitHub CI (`ci.yml`) with locked uv, Qt prerequisites,
+  coverage and screenshot artifacts; scheduled/manual `integration.yml` selects network
+  tests on both OSes. A JUnit reporter publishes exact selected-test skip reasons in logs,
+  job summary and public annotations and fails instead of producing an empty green job
+  (ADR-022). **Windows:** gate 117 passed / 1 optional skip; full non-network suite
+  190 passed / 19 optional-tool skips; actionlint 1.7.12 clean. Main
+  [run 36341555661](https://github.com/Le-Sponk/ct-studio/actions/runs/36341555661)
+  passed on Ubuntu and Windows with both artifacts. A temporary branch-scoped
+  [integration probe 36341608296](https://github.com/Le-Sponk/ct-studio/actions/runs/36341608296)
+  ran pytest and uploaded JUnit on both OSes, then deliberately failed the reporter:
+  public annotations state `wine not installed` for the selected test and a separate
+  `moderngl not installed` collection skip. Probe branch removed; main retains
+  nightly/manual triggers. First scheduled run has not yet occurred. See
+  [remote evidence](tests/fakes/recordings/github-actions/p1-t07-remote.txt). — commit 14bc60b
 - `P1-T06` — minimal Qt Widgets dashboard (no project yet), Help → About with package
   version, GPL-3.0-or-later and third-party-notices placeholder; native Qt palette reacts
   to light/dark changes. No-argument `ctstudio` launches GUI; `--offscreen-smoke <png>`
@@ -440,44 +433,32 @@
 
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
-Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
-- **P1-T06 GUI shell / headless smoke:** Windows 11 offscreen Qt 6.11 passed GUI tests,
-  PNG screenshot smoke, light/dark/150% review and Qt-free import-time probes. The human's
-  Mint run (Python 3.12.3 / Qt 6.11.2) passed all seven GUI tests in a broader
-  non-network suite (141 passed, 60 optional-tool skips, 1 network deselection), plus
-  `uv run ctstudio --version`. That verifies Linux Qt test execution, **not** screenshot
-  readability, a full `check.py` gate or the new P1-T07 commit. Inspect a Linux screenshot
-  for readable text before closing the font gap. ADR-021 records the font discrepancy.
-- **P1-T05 filesystem/platform utilities:** Windows 11 only; concurrent atomic replacements,
-  UTF-8/unicode paths, backup behavior, path containment, and 200 MiB hash benchmark verified.
-  Linux parity closes with P1-T07 CI or Mint (`git pull && uv sync && uv run python scripts/check.py`;
-  for the 200 MiB benchmark additionally run `uv run pytest -m "slow and benchmark" -q -s
-  tests/benchmarks/test_hash_200mib.py`). Neither benchmark timing nor sandbox detection from
-  Windows is Linux evidence.
-- **P1-T04 error/logging foundation**: Windows 11 only. JSON-line creation, rotation,
-  Unicode paths and repeated configuration passed locally; Linux parity closes with CI
-  P1-T07 or optionally on Mint: `git pull && uv sync && uv run python scripts/check.py`
-  (send the seven step lines and any failures, ≈1 min).
-- **P1-T03 architecture gate**: import-linter 2.15 contracts, Qt prohibition, and AST
-  scan of `blender_bridge`/`spikes` tested only on Windows. Linux closes in P1-T07 CI,
-  or optionally on Mint from an existing fresh clone: `git pull && uv sync && uv run
-  python scripts/check.py` (send the seven step lines and any failure output; ≈1 min).
-- **P1-T02 `check.py`**: Windows 11 only. The Python gate uses cross-platform argv + venv
-  tool paths and the lock has Windows/Linux wheels for `pyright[nodejs]`, but it has not run
-  on Linux. Closes with CI (P1-T07) or Mint: `git pull && uv sync && uv run python
-  scripts/check.py` (report the summary and any failures).
-- **P1-T01 `uv sync` + `uv run ctstudio --version`**: Windows only. The lock is universal (it
-  carries manylinux wheels for every package), but no Linux install has run it. Closes with CI
-  (P1-T07) or a Mint run: `git pull && uv sync && uv run ctstudio --version` → expect
-  `ctstudio 0.1.0.dev0`; then `uv run pytest -m "not network" tests`.
+Updated by P1-T07. Automated P1-T01–T06 Linux parity passed in
+[Ubuntu CI run 36341555661](https://github.com/Le-Sponk/ct-studio/actions/runs/36341555661):
+`uv sync --locked`, seven-step `check.py` (including all three import contracts, GUI,
+errors/logging, filesystem tests), coverage and screenshot artifact uploads succeeded.
+The human also ran `uv sync`, `ctstudio --version` and the broader non-network suite
+on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
+deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
+numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
+- **P1-T06 screenshot pixels:** Linux Qt GUI tests assert an installed font family and
+  generate screenshots; CI uploaded them, but their pixels were not downloaded for visual
+  inspection. Human Mint spot-check remains: `git pull && uv run ctstudio --offscreen-smoke
+  /tmp/ctstudio-smoke.png`, then open the PNG and report whether text is readable.
+  ADR-021 documents Windows' empty offscreen font database, not a Linux issue.
+- **P1-T05 performance/platform detail:** the 200 MiB benchmark completed on Mint, but
+  its elapsed time was not in the report; sandbox detection outside the unit fakes was
+  not exercised on Linux. These are not P1-T07 CI acceptance blockers.
+
 - **P0-T13 changes on Linux — mostly closed.** Human ran a fresh clone on Mint 2026-09-27
   (Python 3.12.3, repo path containing a space): bootstrap, fixture generation (incl. the new
   `course.kcl` export) and tests → **79 passed, 60 skipped, 0 failed**. Skips: 36 need `rszst`,
   which a fresh Linux clone does not have (S3a source build, not bootstrapped); 13 Dolphin; 5
   Xvfb/Wine; 5 Windows-only paths; 1 moderngl. **Still unexercised on Linux since P0-T13:** the
   36 rszst tests (their only changes are the shared path and exit constants, which resolve to
-  the same values as before on Linux). Closes when anyone builds rszst on Linux (S3a recipe) or
-  CI does (P1-T07).
+  the same values as before on Linux). P1-T07's quality CI does not install rszst;
+  this closes when anyone builds it on Linux (S3a recipe) or the P2-T08 tool bootstrap
+  runs these real-tool tests.
 - **Non-ASCII paths**: Windows measured (rszst/RiiStudio fail, ABMatt partial, Wiimms/BrawlCrate/
   Lorenzi fine). Linux/Wine unmeasured. P2-T08 or HC1.
 - **Editor file-association / double-click launch**: nothing registered on this Windows machine;
@@ -501,6 +482,12 @@ _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-2
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
+- **Optional Mint GUI pixel spot-check:** CI verified Linux font families and screenshot
+  generation, but cannot inspect the pixels anonymously. In your existing checkout run
+  `git pull && uv sync && uv run ctstudio --offscreen-smoke /tmp/ctstudio-p1t07.png`,
+  open that PNG, and report whether its text is readable (yes/no). Choose a different
+  output name if it already exists; the app refuses to overwrite it. No project file
+  or screenshots need to be sent. Not a P1-T07 gate.
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
   detection + a link to the official releases page + an optional user-initiated
   download from the upstream URL; keep it out of the installer. Asking the maintainer

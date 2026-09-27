@@ -56,7 +56,7 @@ no Qt import. Windows Qt offscreen initially rendered box glyphs despite saving 
 loads an installed system font only when the offscreen font database is empty; P1-T07 verifies
 Linux font availability before accepting CI screenshots.
 
-### [ ] P1-T07 — CI
+### [x] P1-T07 — CI (commit 14bc60b; main run 36341555661)
 `.github/workflows/ci.yml`: matrix ubuntu-latest/windows-latest, uv cache, `uv sync`,
 `python scripts/check.py`; Linux installs Qt runtime libs; uploads coverage + GUI screenshots as
 artifacts. `integration.yml` placeholder (manual dispatch) filled in P2-T08.
@@ -68,7 +68,11 @@ unrelated collection skip. The P1-T07 scaffold parses JUnit to distinguish them 
 selected skip; the network job may remain red until P2-T08 installs the real prerequisites.
 **Acceptance:** green run on both OSes (if the repo isn't on GitHub yet, add a "Needs human" item and
 continue; verify later); the nightly job's log shows either the `network` tests running or the exact
-skip reason.
+skip reason. Verified with [main CI run](https://github.com/Le-Sponk/ct-studio/actions/runs/36341555661)
+(both jobs success, both artifacts uploaded) and [integration probe](https://github.com/Le-Sponk/ct-studio/actions/runs/36341608296)
+(both OSes ran network selection; public annotations state `wine not installed`; reporter exits
+non-green as designed). The probe used an isolated branch-scoped push trigger, then removed it;
+main retains manual/nightly triggers. The first scheduled run is pending.
 
 ### [ ] P1-T08 — Contributor basics
 `CONTRIBUTING.md` (short: commands, rules pointer to AGENTS.md), `LICENSE` (GPL-3.0-or-later pending

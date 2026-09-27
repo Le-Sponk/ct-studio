@@ -1,0 +1,34 @@
+P1-T07 remote GitHub Actions verification (2026-09-28)
+Source: public GitHub Actions runs, jobs, annotations and artifacts REST endpoints.
+Repository: https://github.com/Le-Sponk/ct-studio
+
+Main CI at 14bc60b192...:
+  https://github.com/Le-Sponk/ct-studio/actions/runs/36341555661
+  completed success; Check (ubuntu-latest) success; Check (windows-latest) success.
+  Artifacts: ci-ubuntu-latest (73,384 bytes), ci-windows-latest (47,678 bytes).
+  Both artifact-upload steps completed success. The workflows include coverage XML
+  and GUI PNG screenshots; artifact contents were not downloaded anonymously.
+
+Integration workflow verified by a temporary, branch-scoped push trigger on a
+throwaway branch containing main 14bc60b192... (merged as 2f64e78). The final
+main-branch integration.yml retains only workflow_dispatch and the nightly UTC
+schedule; no temporary push trigger was merged into main. The probe branch was
+removed after verification (git ls-remote returned no ref).
+  https://github.com/Le-Sponk/ct-studio/actions/runs/36341608296
+  Network preconditions (ubuntu-latest): pytest step success, reporter step
+  failure (exit 1), JUnit upload success. network-ubuntu-latest artifact 515 bytes.
+  Network preconditions (windows-latest): pytest step success, reporter step
+  failure (exit 1), JUnit upload success. network-windows-latest artifact 522 bytes.
+  Both jobs' public annotations state exactly:
+    SKIPPED test_riistudio_reports_the_file_it_opened_only_on_a_tty: wine not installed
+    SKIPPED tests.integration.test_preview_stack: collection skipped:
+      moderngl not installed (unrelated collection skip; paths differ by OS).
+    FAIL: network tests did not all run and pass; inspect the reasons above.
+  Expected workflow conclusion: failure until selected network prerequisites exist.
+
+Earlier probe without Linux Qt runtime/offscreen setup:
+  https://github.com/Le-Sponk/ct-studio/actions/runs/36341029431
+  Ubuntu pytest exited 3 before producing JUnit; Windows produced JUnit and the
+  reporter failed as designed. After matching CI's Qt setup the Ubuntu pytest
+  step succeeded. Exact initial pytest traceback is unavailable anonymously
+  (GitHub log download returned 403); do not state its root cause as proven.

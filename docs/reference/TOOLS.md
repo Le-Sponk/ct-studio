@@ -690,9 +690,21 @@ completed success on both ubuntu-latest and windows-latest at `3438504` (public 
 A throwaway-branch integration probe
 [`36341029431`](https://github.com/Le-Sponk/ct-studio/actions/runs/36341029431)
 ran both OSes: Windows produced JUnit and the reporter failed on selected skips as designed;
-Ubuntu's pytest exited 3 before JUnit creation (root cause under investigation). The
-public jobs API exposes step outcomes but GitHub returned 403 for anonymous log downloads.
-GitHub documents `::warning title=...::{message}` and `::error title=...::{message}` as
+Ubuntu's pytest exited 3 before JUnit creation. The public jobs API exposes step
+outcomes but GitHub returned 403 for anonymous log downloads; the exact initial
+traceback is unknown. GitHub documents `::warning title=...::{message}` and
+`::error title=...::{message}` as
 [workflow commands](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands)
 that create job annotations; the network reporter emits escaped exact skip reasons there
 as well as in logs and `GITHUB_STEP_SUMMARY` so they can be verified without private logs.
+**[remote verified after Qt setup]** Main CI
+[`36341555661`](https://github.com/Le-Sponk/ct-studio/actions/runs/36341555661)
+completed success on both OSes and uploaded `ci-ubuntu-latest` / `ci-windows-latest`.
+The throwaway-branch integration run
+[`36341608296`](https://github.com/Le-Sponk/ct-studio/actions/runs/36341608296)
+collected network tests and uploaded JUnit on both OSes. Public annotations include
+`test_riistudio_reports_the_file_it_opened_only_on_a_tty: wine not installed`, plus
+the unrelated `moderngl not installed` collection skip. Both reporter steps correctly
+failed rather than turning selected skips green. See the [remote recording](../../tests/fakes/recordings/github-actions/p1-t07-remote.txt).
+The temporary trigger branch was removed; the default branch retains only manual and
+nightly triggers for integration. The next scheduled nightly run has not yet occurred.
