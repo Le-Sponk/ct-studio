@@ -305,7 +305,7 @@ evidence was gathered in a Linux container, and under ADR-019 neither platform i
 part of it must be re-established rather than assumed. **This runs first on the new machine, before
 P1-T01.**
 
-### [x] P0-T13 — Re-bootstrap and re-verify on Windows (timebox 4 h) (commit COMMIT_P0T13)
+### [x] P0-T13 — Re-bootstrap and re-verify on Windows (timebox 4 h) (commits dd23a77, 4cf64a9, 3ddbef3)
 1. **Re-run the bootstrap.** `uv run python scripts/bootstrap_tools.py` on Windows. It was only
    ever exercised on Linux: expect real differences in archive layout, executable extensions and
    PATH handling. Fix what breaks, and record Windows tool versions in TOOLS.md beside the Linux
