@@ -6,7 +6,8 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T06 done)
 **Next task:** P1-T07 — CI
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** aefa306 (P1-T06 full gate on Windows; Linux CI in P1-T07)
+**Last green commit:** 9073b80 (P1-T07 Windows gate only; local commit, not pushed — GitHub
+workflow permission blocker; Ubuntu and nightly execution unverified)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -23,6 +24,14 @@
   unit tests, TOOLS/TESTING_STRATEGY/STATUS/phase. Risk: remote Actions dispatch access;
   the current network test also needs Wine/Xvfb/RiiStudio, so a missing prerequisite
   must be a visible non-green signal, not a silent pass.
+  Local candidate `9073b80` passed the Windows gate (116 passed, 1 optional skip), the
+  non-network suite, `actionlint` 1.7.12 and a real network-skip report. **Blocked:**
+  `git push origin main` was rejected: the stored GitHub PAT lacks `workflow` scope
+  for `.github/workflows/ci.yml`. Remote remains at `7914de0`; no Actions run exists
+  for this candidate. GitHub browser login was declined, so do not retry auth this turn.
+  Keep P1-T07 open and its checklist unchecked until the human updates the Git
+  credential locally, push succeeds, both matrix jobs are green, and nightly skip
+  reasons are verified in GitHub Actions.
 
 
 ## Done (newest first)
@@ -483,7 +492,13 @@ Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
-_none_ — **HC0 answered 2026-09-22** (see "Human checkpoint results" below).
+- **P1-T07 GitHub workflow permission:** Please update the GitHub PAT used by this
+  checkout so it can change `.github/workflows/` (`workflow` scope for a classic PAT,
+  or equivalent Workflows write permission), via your own GitHub settings and local
+  Git credential manager. Do not send the token in chat. Then say `retry P1-T07`.
+  The attempted `git push origin main` was rejected for missing `workflow` scope;
+  remote CI and the Phase 1 completion gate remain blocked. The local candidate
+  commit is `9073b80`, ahead of `origin/main`.
 
 ## Needs human — non-blocking
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
