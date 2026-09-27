@@ -1,4 +1,4 @@
-# Starter ignores (P1-T01 extends this)
+# Build outputs, machine-local tools and generated test data
 .tools/
 .ctstudio/
 build/
@@ -10,6 +10,14 @@ spikes/out/
 __pycache__/
 *.pyc
 .venv/
+# Dev-tool caches (P1-T01 dev group)
+.pytest_cache/
+.ruff_cache/
+.benchmarks/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 # Never commit game files
 *.szs
 *.wbfs

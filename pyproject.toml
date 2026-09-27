@@ -1,0 +1,49 @@
+[project]
+name = "ctstudio"
+version = "0.1.0.dev0"
+description = "CT Studio: turn a Blender project into a finished Mario Kart Wii custom track (.szs)."
+authors = [{ name = "Le-Sponk" }]
+license = "GPL-3.0-or-later"
+requires-python = ">=3.12,<3.14"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: X11 Applications :: Qt",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+# Runtime dependencies: ADR-001 (PySide6, numpy, Pillow), ADR-011 (watchfiles),
+# ADR-020 (tomli-w, platformdirs). Add nothing here without an ADR (AGENTS.md rule 5).
+dependencies = [
+    "numpy>=2.5.3",
+    "pillow>=12.3.0",
+    "platformdirs>=4.12.0",
+    "pyside6>=6.11.2",
+    "tomli-w>=1.2.0",
+    "watchfiles>=1.3.0",
+]
+
+[project.scripts]
+ctstudio = "ctstudio.__main__:main"
+
+[dependency-groups]
+# Dev tooling: ADR-010. P1-T02 wires these into scripts/check.py.
+dev = [
+    "import-linter>=2.15",
+    "pylint>=4.0.9",
+    "pyright>=1.1.414",
+    "pytest>=9.1.1",
+    "pytest-benchmark>=5.3.0",
+    "pytest-cov>=7.1.0",
+    "pytest-qt>=4.5.0",
+    "pytest-timeout>=2.4.0",
+    "radon>=6.0.1",
+    "ruff>=0.16.9",
+    "vulture>=2.16",
+    "xenon>=0.9.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"

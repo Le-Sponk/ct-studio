@@ -8,8 +8,10 @@ kept as the Linux reference and fallback.
 
 | Item | Observed |
 |---|---|
-| Python | 3.12 via `uv python install 3.12` (system has 3.14, not used) |
+| Python | 3.12 via `uv python install 3.12` (system has 3.14, not used); pinned by `.python-version` |
 | uv | `winget install --id astral-sh.uv -e`; lands in `%LOCALAPPDATA%\Microsoft\WinGet\Links` — add that to PATH in each git-bash shell |
+| Project env (P1-T01) | `uv sync` (uv 0.12.19) → `.venv` on CPython 3.12.14, 51 locked packages; first sync ≈ 23 s (PySide6 wheels ≈ 235 MB), no-op ≈ 0 s. Then `uv run ctstudio --version` → `ctstudio 0.1.0.dev0`, exit 0 |
+| Tests | `uv run pytest -m "not network" tests` (replaces the pre-P1 `uv run --no-project --with …` form) |
 | Tools | `uv run --python 3.12 python scripts/bootstrap_tools.py` (from scratch 220 s, second run 0 s) then `... --only riistudio` |
 | Editors | BrawlCrate: user install (`BRAWLCRATE_EXE`). Lorenzi and KMP Cloud: manual, see below |
 | Console code page | 850 (matters: see non-ASCII paths in TOOLS.md) |
@@ -64,7 +66,8 @@ but host GPU performance cannot be inferred from it.
 
 The intended Python 3.12 is still a P0-T02 provisioning step, not a reason to change ADR-001.
 The RiiStudio compiler/development stack remains for P0-T06; no backend feasibility claim yet.
-`pyproject.toml`, `uv.lock`, and `scripts/check.py` do not exist at this stage.
+`pyproject.toml`, `uv.lock`, and `scripts/check.py` did not exist at this stage (the first two
+arrived in P1-T01, `check.py` in P1-T02).
 
 ## Package installation
 

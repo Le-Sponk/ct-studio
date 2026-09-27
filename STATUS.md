@@ -3,8 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 0 → 1 (Phase 0 gate passed; P0-T13 done, Windows native + Linux fresh-clone run)
-**Next task:** P1-T01 — project metadata & environment
+**Current phase:** 1 — Skeleton & quality gates (P1-T01 done)
+**Next task:** P1-T02 — `scripts/check.py` (from here on the full gate is mandatory, ADR-016)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -15,6 +15,19 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T01` — `pyproject.toml` (src layout, `uv_build` backend, Python `>=3.12,<3.14`, entry point
+  `ctstudio.__main__:main`), `.python-version` 3.12, committed universal `uv.lock` (51 packages:
+  PySide6 6.11.2, numpy 2.5.3, Pillow 12.3.0, tomli-w 1.2.0, platformdirs 4.12.0, watchfiles 1.3.0
+  + the ADR-010 dev group). Minimal stdlib-only `ctstudio/__main__.py` (`--version`; no args prints
+  help until P1-T06). **ADR-020** covers `tomli-w`, `platformdirs` and the `uv_build` backend (rule 5).
+  `.gitignore` gains dev-tool caches. Evidence (Windows 11, uv 0.12.19, CPython 3.12.14):
+  `uv sync` exit 0 (≈23 s first time); `uv run ctstudio --version` → `ctstudio 0.1.0.dev0`, exit 0;
+  fresh `uv sync --locked` in a path with a space **and** `é` → exit 0, same output; `uv lock
+  --check` 0; ruff check/format 0; pyright on new code 0 errors; `git diff --check` 0. Full suite
+  through the project venv: **125 passed, 19 skipped** (P0-T13 baseline 120/19 + 5 new tests); the
+  skips are unchanged (Dolphin, Xvfb/Wine, moderngl). 3/3 mutations caught (eager Qt import,
+  hard-coded version, wrong entry point). `pytest.ini`/`ruff.toml` intentionally stay until P1-T02
+  folds them into `pyproject.toml`. **Linux not run** — see gaps. — commit _pending_
 - `P0-T13` — Re-bootstrap and re-verify on **native Windows 11**. `bootstrap_tools.py` now works
   on Windows from scratch (220 s; second run 0 s): ABMatt's Windows zip is an NSIS installer,
   now **expanded with a pinned 7-Zip 26.03, never executed**; RiiStudio's release zip is an
@@ -303,6 +316,10 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **P1-T01 `uv sync` + `uv run ctstudio --version`**: Windows only. The lock is universal (it
+  carries manylinux wheels for every package), but no Linux install has run it. Closes with CI
+  (P1-T07) or a Mint run: `git pull && uv sync && uv run ctstudio --version` → expect
+  `ctstudio 0.1.0.dev0`; then `uv run pytest -m "not network" tests`.
 - **P0-T13 changes on Linux — mostly closed.** Human ran a fresh clone on Mint 2026-09-27
   (Python 3.12.3, repo path containing a space): bootstrap, fixture generation (incl. the new
   `course.kcl` export) and tests → **79 passed, 60 skipped, 0 failed**. Skips: 36 need `rszst`,

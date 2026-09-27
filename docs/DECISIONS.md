@@ -303,3 +303,24 @@ paths), which is exactly why neither platform may stand in for the other. Adapte
 `editors.py` needs a native path and a Wine path with the same surface. Every new tool fact carries
 its platform from now on.
 **Revisit when:** a third platform (macOS) is seriously considered, which is currently out of scope.
+
+## ADR-020 — Small runtime helpers: `tomli-w` and `platformdirs`; build backend `uv_build`
+**Status:** Accepted (P1-T01, 2026-09-27)
+**Context:** AGENTS.md rule 5 requires an ADR per runtime dependency. PySide6, numpy and Pillow are
+covered by ADR-001 and watchfiles by ADR-011, but `tomli-w` (ARCHITECTURE §1, ADR-014) and
+`platformdirs` (ARCHITECTURE §6, P1-T04 log dir) were only named in the plan.
+**Decision:**
+- **`tomli-w`** writes `ctstudio.toml`. The stdlib has `tomllib` for reading but no writer; a
+  hand-rolled TOML serializer is a correctness risk for a user-edited file. Pure Python, MIT, no
+  transitive dependencies.
+- **`platformdirs`** gives the per-OS user config/log/cache directories (XDG on Linux, `%APPDATA%`/
+  `%LOCALAPPDATA%` on Windows). Reimplementing it means re-learning the edge cases it already covers
+  (XDG env overrides, roaming vs local). Pure Python, MIT, no transitive dependencies.
+- **Build backend `uv_build`** (the `uv init --build-backend uv` default, pinned `>=0.12,<0.13`).
+  It is build-time only, not a runtime dependency, and keeps one tool (uv) for the whole workflow.
+- Lower bounds are the versions `uv add` resolved on 2026-09-27; exact versions live in `uv.lock`.
+**Consequences:** Resolved runtime closure is 12 packages (watchfiles pulls `anyio`, `idna`,
+`typing-extensions`; PySide6 pulls `shiboken6` and the essentials/addons wheels). PyInstaller (P12)
+must exclude unused Qt modules, as ADR-013 already says.
+**Revisit when:** a Python floor of 3.14+ (stdlib TOML writer, if one lands) or packaging size
+work in P13.
