@@ -235,12 +235,17 @@ titles, or editor stdout.
   a tty *and* only after its mandatory GitHub update check completes. With the endpoint
   unreachable the line never appears at all, and upstream Alpha-5.11.5 exposes no flag,
   environment variable, config file or build define to disable that check.
-- **No editor we could probe is single-instance** (BrawlCrate, KMP Cloud, Lorenzi measured;
-  **RiiStudio is source-read only** — the S7 spike never probed it), so a second launch is a second
-  process, never a hand-off.
+- **No editor is single-instance** — all four Windows editors measured under Wine (Linux) and
+  **natively on Windows 11 (P0-T13)**, RiiStudio included for the first time — so a second launch
+  is a second process, never a hand-off.
+- **P0-T13 adds a fifth reason:** RiiStudio silently loads nothing from a **non-ASCII path**
+  while its window stays up and its `File:` line still prints the (mangled) path — the load
+  failure is indistinguishable from success by every signal the adapter could read.
 **Evidence grades, so a later reader does not over-trust this:** bullets 1-2 are pinned by
 integration tests; bullet 3 rests on a `network`-marked test that is excluded from the default
-suite and skips when GitHub is unreachable (TD-001); bullet 4 is three-of-five measured.
+suite and skips when GitHub is unreachable (TD-001); bullet 4 is measured on both platforms
+(native via `spikes/s7_native_windows.py`, a spike, not yet a test); bullet 5 is pinned for the
+`rszst` CLI by `test_windows_paths.py` and measured for the GUI by the spike (Windows only).
 **Consequences:** the adapter surface has no "did it open" query; the UI says "Opened in
 BrawlCrate…" only as a past-tense launch statement and offers a Re-check/refresh path instead of
 a completion signal; P5-T06 change detection watches the *file*, not the editor. BrawlCrate must
@@ -292,7 +297,9 @@ a Windows machine with native Hermes, while the human keeps testing on Linux Min
 - Linux is never deferred: CI covers both (P1-T07) and the human's Mint checkpoints stay in the
   plan. "Works on the dev machine" is not evidence for the other platform.
 **Consequences:** S7's Wine-derived editor contracts become the *Linux* contracts; the Windows ones
-are re-measured natively after the move (P0-T13). Adapters must not assume a single launch style:
+were re-measured natively in P0-T13 (TOOLS.md launch table, SPIKES §S7 "Native Windows"): the
+argv/single-instance contracts held, and one Windows-only failure class appeared (non-ASCII
+paths), which is exactly why neither platform may stand in for the other. Adapters must not assume a single launch style:
 `editors.py` needs a native path and a Wine path with the same surface. Every new tool fact carries
 its platform from now on.
 **Revisit when:** a third platform (macOS) is seriously considered, which is currently out of scope.

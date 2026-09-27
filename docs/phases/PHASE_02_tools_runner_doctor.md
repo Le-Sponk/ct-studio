@@ -60,6 +60,12 @@ and prefer it for status; it supersedes `slots()`.
   content check says the library is usable: status exit 0, directory existence, and search-path
   count do **not** establish that (wszst otherwise ignores the flag silently).
 - `abmatt.py`, `rszst.py`: only the operations S3/S4/S5 proved useful.
+  **From P0-T13 (native Windows):** `rszst` cannot open a non-ASCII absolute path (it reads
+  argv through the ANSI code page and reports `FileNotExist`); run it with `cwd` = the file's
+  directory and bare file names — always, so there is one code path. Failure exit status is
+  -1 as the OS reports it (255 Linux, 0xFFFFFFFF Windows): test "non-zero", never a literal.
+  ABMatt can crash *after* writing its output (CJK path → `UnicodeEncodeError`, exit 0), so
+  success = the output file exists and parses, not a clean log.
 - `blender.py`: `run_script(blend, script, args, timeout)`.
 - `editors.py`: `open_in(tool_id, file)` using the S7 launch contracts (TOOLS.md); `wine.py`: prefix
   handling, `winepath`. S7 pinned the shape: **one path per launch, one process per launch**, never
@@ -69,6 +75,9 @@ and prefer it for status; it supersedes `slots()`.
   `Bad EXE format` otherwise) and convert with `winepath -w`. `open_in` returns "launched", never
   "opened": RiiStudio stays up with an empty window after a failed load, and two of the five editors
   never name the file in their window title, so neither liveness nor titles can be checked.
+  Natively on Windows (P0-T13) none of the four editors registers a file association, so launch
+  by argv, never `ShellExecute` on the document. RiiStudio silently opens nothing for a
+  non-ASCII path: `open_in` must warn before launching it on one.
 Parsers produce dataclasses/Issues; parsing code has unit tests against recordings.
 **Acceptance:** unit tests with recordings; `-m integration` tests run each adapter against real tools
 on the fixture.

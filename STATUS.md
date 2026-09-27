@@ -3,9 +3,9 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 0 → 1 (Phase 0 gate passed; **P0-T13 runs first on the new Windows machine**)
-**Next task:** P0-T13 — re-bootstrap and re-verify on Windows (redo S3 prebuilt + S7 native),
-then P1-T01 — project metadata & environment
+**Current phase:** 0 → 1 (Phase 0 gate passed; P0-T13 done on the Windows machine)
+**Next task:** P1-T01 — project metadata & environment (after the human's Linux re-run of
+P0-T13's changes, see "Needs human")
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -16,6 +16,20 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P0-T13` — Re-bootstrap and re-verify on **native Windows 11**. `bootstrap_tools.py` now works
+  on Windows from scratch (220 s; second run 0 s): ABMatt's Windows zip is an NSIS installer,
+  now **expanded with a pinned 7-Zip 26.03, never executed**; RiiStudio's release zip is an
+  optional tool (`--only riistudio`). New `scripts/tool_paths.py` gives spikes/tests one
+  platform-aware tool path (`.exe`, absolute argv — Windows `CreateProcess` ignores `env` PATH).
+  The fixture generator now also writes `course.kcl` (a fresh clone could not run S1/S3b/S5).
+  Native results: **S1–S5 identical to Linux**; rszst's `exit(-1)` is **0xFFFFFFFF, not 255**
+  (ABMatt too); **non-ASCII paths are a Windows-only failure class** — rszst refuses them (cwd +
+  bare-name workaround measured), RiiStudio loads nothing silently, ABMatt crashes after writing.
+  S7 native: all four editors open argv paths, **none single-instance (RiiStudio now measured)**,
+  none registers a file association. `.gitattributes` LF (d194d80). HC1 now uses a fresh Mint
+  clone (container workarounds demoted); HC2 has an explicit renamed-material warning item.
+  120 passed / 19 skipped on Windows (Dolphin, Xvfb/Wine, moderngl absent); 5 new Windows path
+  tests, 3/3 mutations caught. **Linux not re-run** (no machine/CI reachable) — see gaps.
 - `P0-T12` — Phase 0 wrap-up **and gate**. Added ADR-017 (editors are launch-only) and
   ADR-018 (test launches use an extracted game folder); synced ARCHITECTURE §9; wrote the six
   HC0 questions with recommendations. **An independent fresh-context review found two
@@ -289,25 +303,37 @@ _none_
 
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
-Everything in Phase 0 was measured on **Linux in a container**. These are the facts that currently
-have only one platform behind them:
-- **All four Windows editors** (BrawlCrate, RiiStudio GUI, Lorenzi's KMP Editor, KMP Cloud) — argv
-  contracts, titles, single-instance, `course.kcl` auto-load: **Wine only**. Native Windows: P0-T13.
-- **RiiStudio single-instance**: never probed on *any* platform — source read only. P0-T13.
-- **`rszst`**: built from source on Linux; the Windows prebuilt is unexercised. P0-T13 step 2.
-- **`bootstrap_tools.py`**: Linux only; never run on Windows. P0-T13 step 1.
-- **Blender headless export (S2)**, **Wiimms tools (S1)**, **minimap (S5)**: Linux only; CI covers
-  Windows from P1-T07.
-- **Preview stack (S6)**: llvmpipe software rendering only — no GPU anywhere. Real-hardware fps is
-  HC3, on both platforms.
-- **Dolphin launch routes (S8)**: Linux, `master 2503`, synthetic disc. Windows Dolphin and the real
-  game are P0-T13/HC3.
+Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **Every P0-T13 code change on Linux** — bootstrap refactor, `tool_paths.py`, fixture `course.kcl`
+  export, test/spike path changes, `ruff` excluding `vendor/`. Designed platform-neutral, **not
+  run on Linux**. Closes: human's fresh Mint clone run (Needs human), then CI (P1-T07).
+- **Non-ASCII paths**: Windows measured (rszst/RiiStudio fail, ABMatt partial, Wiimms/BrawlCrate/
+  Lorenzi fine). Linux/Wine unmeasured. P2-T08 or HC1.
+- **Editor file-association / double-click launch**: nothing registered on this Windows machine;
+  untested on both. HC1.
+- **Editor save behaviour** (Lorenzi, BrawlCrate): neither platform. HC1.
+- **BrawlCrate model preview**: neither platform (Wine had llvmpipe; native not looked at). HC1.
+- **Lorenzi `course.kcl` auto-load, KMP Cloud tree pane**: Wine pixels only; native not captured.
+- **S7 Wine contracts** (Linux): unchanged since P0-T10, not re-run (container not used).
+- **Dolphin launch routes (S8)**: Linux only; Windows Dolphin not installed. HC3 / P11.
+- **Preview stack (S6)**: llvmpipe only; no GPU measurement on either platform. HC3.
+- **`rszst` on Linux**: source build (S3a), unchanged. Windows prebuilt verified (P0-T13).
+- Closed by P0-T13: Windows bootstrap, Windows S1–S5, native editor argv/single-instance
+  (incl. RiiStudio's first real single-instance measurement).
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
 _none_ — **HC0 answered 2026-09-22** (see "Human checkpoint results" below).
 
 ## Needs human — non-blocking
+- **Linux re-run of P0-T13 (added 2026-09-27; do before P1-T01 if you can).** On Mint, in a fresh
+  clone of the pushed repo: `git submodule update --init`,
+  `uv run python scripts/bootstrap_tools.py`, `uv run python scripts/fixtures/make_fixtures.py`,
+  then `uv run --with pytest --with pytest-timeout --with numpy --with pillow python -m pytest -m "not network" tests`.
+  Expected: all pass or skip (rszst tests skip without the S3a source build; Wine/Xvfb tests skip
+  unless installed). Report the last line and any failure.
+- **BrawlCrate model preview (added 2026-09-27, 1 minute, whenever convenient).** Open any
+  `.brres` in BrawlCrate on this Windows machine, select a model: does the 3D preview render?
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
   detection + a link to the official releases page + an optional user-initiated
   download from the upstream URL; keep it out of the installer. Asking the maintainer
@@ -329,9 +355,9 @@ _none_ — **HC0 answered 2026-09-22** (see "Human checkpoint results" below).
   `xvfb-run` + `QT_QPA_PLATFORM=xcb` (offscreen cannot create a GL context — S6)".
   Not blocking: TESTING_STRATEGY §5, ADR-008 and P9-T01 all carry the correct rule.
 - **S7 editor unknowns for HC1** (added 2026-09-22, nothing to answer now — they need your
-  machines): native-Windows launch behaviour for all four Windows editors and whether a
-  file-association launch differs from an argv one; non-ASCII paths (only spaces were tested,
-  and RiiStudio handles paths as narrow `std::string`); how Lorenzi's editor and BrawlCrate
+  machines): ~~native-Windows launch behaviour~~ and ~~non-ASCII paths on Windows~~ (measured
+  in P0-T13); whether a file-association launch differs from an argv one (no editor registers
+  one here); non-ASCII paths on Linux; how Lorenzi's editor and BrawlCrate
   **save** (in place, temp+rename, or backup?), which P5-T06's change detection depends on;
   and whether BrawlCrate's model preview works in your setup. Listed as HC1 step 9.
 - **S8 game-file unknowns for HC3** (added 2026-09-22, nothing to answer now — they need your

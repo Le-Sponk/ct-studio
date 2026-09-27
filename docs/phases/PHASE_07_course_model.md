@@ -82,11 +82,13 @@ material. Backups always.
 - An unmatched preset is **skipped silently at exit 0**. Diff the captured preset
   stems against the regenerated model's material names and surface every orphan;
   this is the "renamed material reported" acceptance criterion and nothing in rszst
-  provides it.
+  provides it. The report is a **visible warning** in the Issues panel and the build log,
+  naming the orphaned material and the fix (rename back, or re-capture/forget) — never
+  a debug-only log line. Verified by a test here and by HC2 step 6 (explicit item).
 - Do **not** use ABMatt copy/paste as the reapply path: its autofix deletes the
   orphaned texture on a name miss and cannot be disabled in 1.3.2.
 - If a JSON diff is used for the summary, keep the `<stem>.bin` sidecar with the
-  `.json` (`json-to-brres` exits 255 without it) and remember that SRT0 animations
+  `.json` (`json-to-brres` exits -1 — 255 Linux, 0xFFFFFFFF Windows — without it) and remember that SRT0 animations
   live in the top-level `srts` array, not in the material entries.
 **Acceptance:** integration test: generate → simulate edit → capture → change DAE →
 regenerate → edit persists; renamed material reported.

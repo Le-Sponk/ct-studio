@@ -22,44 +22,33 @@ STATUS.md "Needs human — BLOCKING".** The six standing questions are:
 ## HC1 — Manual-mode MVP (≈15 min, end of Phase 5)
 
 ### Running it on the Mint host
-The agent's container and your host share the same folder, so the **only** things that must not
-collide are the Python environment and any root-owned files. Both are handled below.
-
-The repo is visible on your host at:
-```
-~/.hermes/sandboxes/docker/default/workspace/ct-studio
-```
-
-`uv` keeps the virtualenv inside the project as `.venv/`, which the container also uses, so point
-the host at its **own** environment directory instead of sharing one (the container's `.venv` is
-built for its Python and its libc):
+Use a **fresh clone** of the pushed repo; there is nothing to share with the agent's machine.
 
 ```bash
-cd ~/.hermes/sandboxes/docker/default/workspace/ct-studio
-export UV_PROJECT_ENVIRONMENT=~/.venvs/ctstudio-host   # host-only; never inside the repo
+git clone https://github.com/Le-Sponk/ct-studio.git ~/ct-studio   # or: git pull in an existing clone
+cd ~/ct-studio
+git submodule update --init
+uv run python scripts/bootstrap_tools.py        # Linux tools into .tools/ (gitignored)
 uv sync
 uv run ctstudio
 ```
 
-Put that `export` in your shell profile, or prefix every command with it — if you forget it once,
-`uv sync` overwrites the container's `.venv` and the agent's next session rebuilds it. Nothing is
-lost either way, it just wastes a few minutes.
+`.tools/`, `.venv/`, `spikes/out/` and `tests/fixtures/generated/` are machine-local and
+gitignored, so a clone never inherits another machine's binaries or paths.
 
-**Root-owned files.** Everything the agent writes is chowned to uid 1000 (your user) at the end of
-each session, so a plain `git status`, `git pull` and editing should all work. If you ever hit
-`Permission denied` or git complains it cannot write `.git/index`:
-```bash
-sudo chown -R "$USER:$USER" ~/.hermes/sandboxes/docker/default/workspace/ct-studio
-```
-That is safe to run at any time. Tell the agent if it happens — it means a session ended without
-chowning and that is a bug to fix, not a routine step.
-
-**Gitignored machine-local folders** (`.tools/`, `spikes/out/`, `.venv/`) are built for the
-container: Linux ELF binaries, container paths. They are not yours to run and `uv sync` does not
-touch them. Your own tools come from `bootstrap_tools.py` if you ever want them on the host.
+#### Container-only workarounds (only if the old Docker workspace is used again)
+Development moved to a native Windows machine (P0-T13); these apply **only** when running the
+host against the Hermes Docker container's shared workspace
+(`~/.hermes/sandboxes/docker/default/workspace/ct-studio`), never to a fresh clone:
+- The container and the host would share one `.venv/`, built for the container's Python/libc.
+  Point the host at its own environment: `export UV_PROJECT_ENVIRONMENT=~/.venvs/ctstudio-host`
+  before `uv sync` / `uv run`.
+- Files written by the container as root must be `chown`ed to uid 1000 at the end of each agent
+  session; if git reports `Permission denied` on `.git/index`, run
+  `sudo chown -R "$USER:$USER" <that workspace>`.
 
 ### The checkpoint itself
-1. `uv sync` then `uv run ctstudio` (with `UV_PROJECT_ENVIRONMENT` set, as above).
+1. In the fresh clone: `uv sync` then `uv run ctstudio`.
 2. First launch: open Settings → Tools; confirm Wiimms tools are detected (point to them if not).
 3. New project → choose a folder → skip the `.blend` → pick a slot.
 4. Assign existing files from one of your tracks (course_model.brres, course.kcl, course.kmp,
@@ -102,8 +91,12 @@ Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
    - does a **BrawlCrate-saved** BRRES re-import into rszst at all? S3b found rszst rejects
      ABMatt output (`Invalid quantization for normal data: U16`); if BrawlCrate output hits the
      same wall, capture must move to *before* the edit and ARCHITECTURE §8 changes materially.
-   - rename a material in Blender and confirm CT Studio **reports the orphaned capture** rather
-     than silently dropping it (no tool does this for us).
+   - **Renamed material → visible warning (explicit test item).** Capture an edit on a material,
+     rename that material in Blender, rebuild. **Pass** only if CT Studio shows a warning that
+     names the old material, says its captured preset was not applied, and says what to do
+     (rename back, or re-capture / discard). **Fail** if the build succeeds silently. rszst
+     itself skips the orphaned preset at exit 0 with no message (S4, re-measured on Windows in
+     P0-T13), so this warning exists only if P7-T07 implemented the preset-name diff.
    - real material counts and timings, versus the spike's four.
 7. Windows spot check: install/run from the repo on Windows (`uv sync`, `uv run ctstudio`) and
    repeat steps 1–2 briefly.

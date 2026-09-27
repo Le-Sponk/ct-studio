@@ -71,6 +71,24 @@ or the parser's version alone. All commands above ran without display variables.
 This does **not** verify conversion effects, conversion failure codes or Windows.
 S3b must characterize those before any backend/default decision.
 
+### RiiStudio CLI discovery — Windows prebuilt (P0-T13, verified Alpha 5.11.5, Windows 11)
+- **Install:** the official release asset `RiiStudio_Windows.zip` (flat: `rszst.exe`,
+  `RiiStudio.exe`, DLLs), `bootstrap_tools.py --only riistudio`. No source build on Windows.
+  GitHub publishes **no digest** for it and the asset name is unversioned, so the pin is our
+  recorded sha256 `79f4f761…8a38`. Banner: `RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at
+  15:54:40, Clang 19.1.5)`.
+- **Same eight argv cases, same text, two differences** — pinned by
+  `test_platforms_differ_only_in_exit_status_and_program_name`:
+  1. **Exit status `4294967295` (0xFFFFFFFF), not 255.** The tool calls `exit(-1)`; POSIX keeps the
+     low byte, Windows reports all 32 bits. An adapter must compare against the platform's value
+     (`tool_paths.EXIT_MINUS_ONE`), never a literal 255.
+  2. `Usage: rszst.exe …` instead of `Usage: rszst …`.
+- Recording: [windows-cli.json](../../tests/fakes/recordings/rszst/5.11.5/windows-cli.json).
+- S3b/S4/S5 re-run natively against the same fixture: **every conversion result matches the
+  Linux findings** (byte sizes 25728 rszst / 25568 ABMatt, MDL0 names, mipmap counts, the U16
+  wall, preset behaviour including the silent rename miss, minimap bones). Only exit statuses of
+  failures differ, as above.
+
 ### Verified conversion commands (S3b, rszst Alpha 5.11.5 / ABMatt 1.3.2, Linux)
 
 | Tool | Operation | Exact argv template | Exit codes | Verified how |
@@ -90,6 +108,10 @@ S3b must characterize those before any backend/default decision.
 
 Unlike the help output above, **conversion exit codes are meaningful**: rszst returns 0
 on success and 255 on a genuine failure (verified against garbage input).
+**Windows [verified P0-T13]:** every "255" and every ABMatt "1" in this table is
+**4294967295** natively — both tools exit with -1 (ABMatt via its PyInstaller bootloader:
+`Failed to execute script __main__`). Treat failure as "non-zero", and when a specific value
+matters use `EXIT_MINUS_ONE`, never a literal.
 
 #### Backend behaviour the adapter must encode (S3b)
 - **rszst cannot read an ABMatt BRRES**: `Failed to read MDL0 course: Invalid
@@ -152,6 +174,25 @@ on success and 255 on a genuine failure (verified against garbage input).
   `AttributeError: 'Brres' object has no attribute 'srt0'`, exit 1. Stage the source
   under the intended stem first.
 
+### Non-ASCII paths on native Windows (P0-T13, verified; Linux unmeasured)
+Probe: directories named `latin é` and `cjk 日本`, active console code page 850.
+`tests/integration/test_windows_paths.py` pins the rows marked *test*.
+
+| Tool | Non-ASCII absolute path in argv | Evidence |
+|---|---|---|
+| `rszst` 5.11.5 | **fails for Latin-1 and CJK alike**: `Failed to parse args: FileNotExist`, exit 0xFFFFFFFF, nothing written. The path reaches it through the ANSI code page (`é` → `?`) | run + *test* |
+| `rszst` workaround | **works**: set `cwd` to the file's directory and pass bare names (`import-brres course.dae out.brres`). An 8.3 short path also works, but 8.3 creation can be disabled per volume, so do not rely on it | run + *test* |
+| ABMatt 1.3.2 | Latin-1: works. CJK: **writes the file, then crashes printing its path** (`UnicodeEncodeError: 'charmap'`), exit **0**; `PYTHONIOENCODING=utf-8` does not help (frozen cp1252 stdout). Verify the output file, never the log | run + *test* |
+| Wiimms (Cygwin build) | works for both; paths echo as `/cygdrive/c/…` in output | run |
+| RiiStudio GUI | `File: <path>` is printed, but the load **silently fails** — no `Opening file:` line, empty editor, process alive. ASCII paths load | run |
+| BrawlCrate 0.42h1 | works; the title shows the Unicode path exactly | run |
+| Lorenzi 0.7.7 | works; title `[C:/…/é 日本/course.kmp]` (forward slashes) | run |
+| KMP Cloud 1.2.0.1 | window opens; whether the file loaded is only visible in pixels (not captured) | run, partial |
+
+Consequence for P2-T05: the `rszst` adapter must use the cwd + bare-name form whenever a path
+is not pure ASCII (simplest: always), and CT Studio should warn before "Open in RiiStudio" on
+a non-ASCII path, because the failure is invisible.
+
 ## ABMatt (ANoob's BRRES Material Tool)
 - Repo: https://github.com/Robert-N7/abmatt · Licence: GPL-3.0 **[doc]** · Latest: **v1.3.2 (2022-06-06)** **[doc]**
 - Releases for Linux and Windows; or `pip install git+https://github.com/Robert-N7/abmatt.git` **[doc]**
@@ -168,6 +209,11 @@ on success and 255 on a genuine failure (verified against garbage input).
 - Behaviour **[doc]**: when replacing an existing model, materials with matching names take on the
   previous material's properties. Known limits: non-standard files in BRRES unsupported; Windows
   installer may hang.
+- **Windows release is an NSIS installer inside a zip** **[verified P0-T13]**: the zip holds only
+  `install.exe` (+ `install-win.txt`, `README.md`). Running the installer edits PATH/registry and
+  "sometimes hangs" (upstream README), so `bootstrap_tools.py` **expands it with 7-Zip instead of
+  running it** and gets `bin/abmatt.exe` plus its PyInstaller payload. The Windows binary's banner
+  says **v1.3.2** (the Linux one says 1.3.1 for the same tag).
 - Minimap: importing a DAE with ABMatt yields a `map` bone for map models **[doc: mkwiiki Creating a Minimap]**;
   the Blender add-on's minimap export uses ABMatt **[doc: add-on README]**.
 
@@ -196,7 +242,12 @@ on success and 255 on a genuine failure (verified against garbage input).
   First-argument special modes: `/changelog` (writes files and exits), `/gct [file]`, and a first
   argument ending `.gct`/`.txt` opens the GCT editor instead.
 - **No single-instance logic**: `Main` always reaches `Application.Run`, so every launch is a new
-  window **[verified S7]**. The window title becomes the opened path.
+  window **[verified S7 (Wine) + P0-T13 (native Windows)]**. The window title becomes the opened
+  path: `BrawlCrate v0.42-h1 - <path>` natively, Unicode intact.
+- Native Windows 11 **[verified P0-T13]**: user install at any folder (here the Desktop), PE32,
+  `FileVersion 0.42.0.1`; `BrawlCrate.exe <path> /audio:none` opens the file; registers **no**
+  file associations for `.brres/.kmp/.szs` (so a double-click opens nothing until the user
+  associates it — CT Studio must launch by argv, not `ShellExecute` on the document).
 - VM/no-GPU error "Unable to find an entry point named 'glActiveTexture'" → needs a real GL driver or
   Mesa llvmpipe (system-wide) **[doc: add-on README]**
 - Plugin system (BrawlAPI, Python scripts in Loaders/Plugins folders; e.g. EasyReplace automates model
@@ -231,6 +282,13 @@ on success and 255 on a genuine failure (verified against garbage input).
 - **Consequence for the `editors` adapter (P2-T05/P5-T07):** never infer "file opened" from
   RiiStudio's `File:` output. It is absent on any offline machine, and absence means nothing about
   whether the load succeeded. See TD-001.
+- **Native Windows [verified P0-T13]**: the release zip's `RiiStudio.exe` (console subsystem).
+  Two launches → **two processes, two windows**: no single-instance forwarding (first measurement
+  on any platform; previously source-read only). Title is the fixed version banner. The
+  `File: <path>` line appears on a real console (probe: `CREATE_NEW_CONSOLE` + reading the
+  console buffer); with a pipe, stdout carries only the JSON update-check dump and log lines.
+  The ABMatt BRRES fails with the same U16 error, window stays up. **Non-ASCII paths fail
+  silently** (see the table above).
 - Material presets import/export in the GUI **[doc]**.
 
 ## Lorenzi's KMP Editor
@@ -246,7 +304,13 @@ on success and 255 on a genuine failure (verified against garbage input).
 - **`course.kcl` auto-load confirmed** **[verified S7]**: it loads `<KMP directory>/course.kcl` —
   a hard-coded, all-lowercase name, which matters on Linux — and silently falls back to a default
   box when it is absent (58 % of the screen differs between the two).
-- No `requestSingleInstanceLock`: each launch is its own window **[verified S7]**.
+- No `requestSingleInstanceLock`: each launch is its own window **[verified S7 + P0-T13 native]**.
+- **Native Windows [verified P0-T13]**: the release `Lorenzi.s.KMP.Editor.0.7.7.exe` is an NSIS
+  installer wrapping `$PLUGINSDIR/app-64.7z`; 7-Zip expands it to a portable x86-64 Electron app
+  without installing. `<exe> <path>` opens the file, title `[<path with forward slashes>] --
+  Lorenzi's KMP Editor v0.7.7`; ~4 processes per window (Electron). Two launches → two windows.
+  Harmless stderr noise when two instances share a profile: `Unable to move the cache: Access is
+  denied`. GitHub publishes no digest; ours: `b6028b1a…40ef`.
 - **Open question:** save behaviour (in place? atomic? backup?) — P5-T06 needs it.
 
 ## KMP Cloud
@@ -257,7 +321,11 @@ on success and 255 on a genuine failure (verified against garbage input).
   arguments are ignored. No single-instance logic.
 - **The window title is always `VulcSoft KMP Cloud`** — the opened file appears only as a node in
   the tree pane, so a title check cannot tell "opened" from "failed" **[verified S7]**.
-- A first-run "Welcome" dialog appears on a fresh profile.
+- A first-run "Welcome" dialog appears on a fresh profile (seen natively too: the first native
+  launch showed `Welcome`, later ones did not).
+- **Native Windows [verified P0-T13]**: runs directly on .NET Framework 4.x (no install step);
+  wiki download (Google Drive `1jHiBnnv…`) sha256 `85e11938…928f`. Two launches → two
+  processes, two `VulcSoft KMP Cloud` windows. Registers no file associations.
 
 ## Dolphin / DolphinTool
 - Verified on **`Dolphin [master] 2503`** (Debian `dolphin-emu 2503+dfsg-1+deb13u1`); source read
@@ -322,20 +390,24 @@ Evidence: [SPIKES.md §S7](../dev/SPIKES.md#s7--external-editor-launch-contracts
 
 | Tool | OS | Launcher | File arg opens file? | Single instance? | Notes / evidence |
 |---|---|---|---|---|---|
-| BrawlCrate v0.42h1 | Win *[unverified — HC1]* | direct | yes | no | inferred from the Wine row + `Program.cs`; no Windows machine existed |
+| BrawlCrate v0.42h1 | **Win 11 native [P0-T13]** | direct | **yes** | **no** | title `BrawlCrate v0.42-h1 - <path>`; Unicode path fine; no file association registered |
 | BrawlCrate v0.42h1 | Linux | wine, **win32 + dotnet48 + win10** | **yes** | **no** | `winepath -w`; a POSIX path also worked (Wine's `Z:` mapping); title becomes the path |
 | RiiStudio 5.11.5 | Linux (wine **win64**) | wine, x86-64 exe | **yes** | **no** *[source only]* | title never names the file; `File: <path>` on stdout, tty only — **and only when its GitHub update check completes** (see below) |
-| RiiStudio 5.11.5 | Win *[unverified — HC1]* | direct | yes | no | same binary, but native console/tty behaviour is untested |
+| RiiStudio 5.11.5 | **Win 11 native [P0-T13]** | direct | **yes** (ASCII paths only) | **no** *[measured]* | `File:` on a console, not a pipe; **non-ASCII path: silent failed load** |
 | Lorenzi KMP Editor 0.7.7 | Linux | wine win64, or source build | **yes** | **no** | title `[<path>] -- …`; `course.kcl` auto-load confirmed |
+| Lorenzi KMP Editor 0.7.7 | **Win 11 native [P0-T13]** | direct (7-Zip-expanded, not installed) | **yes** | **no** | title `[<path, / separators>] -- …`; Unicode fine; `course.kcl` auto-load not re-checked |
 | KMP Cloud 1.2.0.1 | Linux (wine **win32 + dotnet48**) | wine | **yes** | **no** | title is fixed; the file name appears only in the tree pane |
-| KMP Cloud 1.2.0.1 | Win *[unverified — HC1]* | direct | yes | no | inferred from the Wine row + IL of `Form1` |
+| KMP Cloud 1.2.0.1 | **Win 11 native [P0-T13]** | direct | yes *[Wine pixels + IL; native pixels not captured]* | **no** | fixed title; first launch shows `Welcome` |
 | Blender 5.2.2 | Linux | direct/flatpak | **yes** (`blender file.blend`) | **no** | a second positional replaces the first |
 | Dolphin `2503`/`2603a` | Linux | direct | `--exec=<file>` **[run S8]** | **no** **[source]** | bare positional works only without `--exec`; see ADR-018 |
 
-**Every Windows-editor row is inference, not measurement.** All four Windows tools were
-characterized **under Wine on Linux**; no Windows or macOS machine existed in Phase 0. Native argv
-handling, file-association/`ShellExecute` launches and native console behaviour are **HC1**
-questions (HUMAN_CHECKPOINTS.md step 9) and P2-T08 work — do not treat the `Win` rows as settled.
+**Native Windows rows are measured (P0-T13)** by `spikes/s7_native_windows.py`: direct argv
+launches from a path containing spaces, `é` and `日本`, windows read with `EnumWindows`, processes
+counted per launch. Still **not** measured natively: file-association / double-click launches
+(none of the editors registers an association on this machine, so there is nothing to compare
+against without editing the user's registry), save behaviour, BrawlCrate's model preview, KMP
+Cloud's tree pane (pixels), Lorenzi's `course.kcl` auto-load. Those stay HC1 step 9. The Wine
+rows remain the **Linux** contracts (ADR-019).
 
 **One path per launch.** No tool accepts two documents:
 - BrawlCrate's `argv[1]` is a **node path inside** `argv[0]`'s file, not a second file.
@@ -545,8 +617,22 @@ by `uv run python scripts/bootstrap_tools.py` (idempotent; second run ≈0.35 s,
 | Blender (compat) | 4.5.14 LTS | `blender-4.5.14-linux-x64.tar.xz` | `9ba871ff…06da3` | Yes; optional, `--only blender-4.5` |
 | ABMatt | 1.3.2 | `abmatt_linux-5.13.0-44-generic_x64-1.3.2.tar.gz` | `7a2b03dd…15fe3` | **No** — ours recorded on first download |
 
-Windows assets are pinned in the same file (Wiimms Cygwin64 zip, Blender windows-x64 zip,
-ABMatt windows-10 zip) but have not been run — Windows CI (P1-T07) is where they get proved.
+**Windows (P0-T13, verified 2026-09-27 on Windows 11 by a from-scratch bootstrap):**
+
+| Tool | Version | Windows asset | SHA-256 | Notes |
+|---|---|---|---|---|
+| Wiimms SZS Tools | 2.42a (r8989) | `szs-v2.42a-r8989-cygwin64.zip` | `ac54b828…c9e892` | banner `… v2.42a r8989 cygwin64 …`; `.exe` in `bin/`, bundled Cygwin DLLs |
+| Blender | 5.2.2 LTS | `blender-5.2.2-windows-x64.zip` | `3849d17a…79b535` | publisher checksum matched |
+| ABMatt | 1.3.2 | `abmatt_windows-10_x64-1.3.2.zip` | `7b4f74dc…54e2` | NSIS `install.exe` inside; expanded with 7-Zip, never run |
+| 7-Zip (dev-only helper) | 26.03 | `7zr.exe` + `7z2603-x64.exe` (github.com/ip7z/7zip) | GitHub asset digests | fetched only when a download names an NSIS installer |
+| RiiStudio (`rszst` + GUI) | Alpha 5.11.5 | `RiiStudio_Windows.zip` | `79f4f761…8a38` | optional, `--only riistudio` |
+
+From-scratch run of the default set (empty `.tools/`): Wiimms, Blender, ABMatt (+ 7-Zip) in
+220 s, exit 0; second run 0 s, exit 0. RiiStudio is a separate `--only riistudio` run (exit 0).
+`--only` takes **one** tool per flag (`--only a --only b`).
+The machine's own Blender (`C:\Program Files\Blender Foundation\Blender 5.2`) is **5.2.1 LTS**,
+not the pinned 5.2.2 — the spikes and tests use `.tools/blender/blender.exe`, never that one.
+Python 3.12 via `uv python install 3.12`; `uv` itself via `winget install astral-sh.uv`.
 
 Facts worth knowing (all from real runs, not docs):
 - **Both Wiimms and ABMatt put their executables in `bin/`**, not at the archive root.

@@ -697,15 +697,45 @@ directory per invocation. `-b/--batch` hides the UI and requires a game. There i
 single-instance path: every launch builds its own `QApplication`. Prefer
 `--exec=<absolute path>` and treat P0-T11 as the place where boot/lifecycle is settled.
 
+### Native Windows (P0-T13, Windows 11, 2026-09-27)
+**Script:** `spikes/s7_native_windows.py` → `spikes/out/s7/s7_native_windows.json`
+(`BRAWLCRATE_EXE=<path> uv run python spikes/s7_native_windows.py`). Each editor launched
+**twice by argv** with files in a folder named `path with spaces é 日本`; windows read with
+`EnumWindows`, processes counted; only the probe's own processes are killed afterwards.
+
+| Tool | Opens argv file? | Evidence | Second launch | Non-ASCII path |
+|---|---|---|---|---|
+| BrawlCrate 0.42h1 (user install) | **yes** | title `BrawlCrate v0.42-h1 - <path>` | new process + window | **works**, title exact |
+| RiiStudio 5.11.5 (release zip) | **yes** for ASCII | `File:` + `Opening file:` on its own console | new process + window (**first real measurement**) | **silent failure**: `File:` printed, nothing loaded, window up |
+| Lorenzi 0.7.7 (7-Zip-expanded installer) | **yes** | title `[C:/…/course.kmp] -- …` (forward slashes) | new window (~4 Electron processes each) | **works** |
+| KMP Cloud 1.2.0.1 (wiki zip) | window opens | title fixed `VulcSoft KMP Cloud`; first launch shows `Welcome` | new process + window | not decidable without pixels |
+
+**What Wine got right:** one file per launch, no single-instance forwarding anywhere, the
+titles, RiiStudio's U16 failure on ABMatt output with the window still up.
+**What Wine could not show:**
+- **Non-ASCII paths** break RiiStudio silently and break the `rszst` CLI outright
+  (`FileNotExist`, even for `é`); ABMatt writes a CJK-path file then crashes printing it at
+  exit 0. Workaround measured for rszst: `cwd` = file's folder, bare names. Pinned by
+  `tests/integration/test_windows_paths.py` (5 tests, 3/3 mutations caught). Full table:
+  TOOLS.md "Non-ASCII paths on native Windows".
+- **No file associations** are registered by any of the four on this machine, so "double-click
+  vs argv" has nothing to compare; CT Studio must launch by argv.
+- **Exit statuses:** `exit(-1)` is 0xFFFFFFFF natively (255 on Linux) for rszst and ABMatt.
+- RiiStudio's `File:` line needs a real console natively too: a pipe gets only the update-check
+  JSON and log lines. The probe gives it `CREATE_NEW_CONSOLE` and reads the console buffer.
+
+S3b/S4/S5 were re-run natively against the same fixture with identical results (sizes, MDL0
+names, mipmaps, the U16 wall, the silent preset miss on rename, minimap bones).
+
 ### Not verified here
-- **Native Windows behaviour** for all four Windows tools, including whether an
-  association/`ShellExecute` launch differs from a direct argv launch (P2-T08).
-- **Non-ASCII paths** — only spaces were exercised; RiiStudio's narrow `std::string`
-  path handling makes it the likely failure.
+- ~~Native Windows behaviour~~ and ~~non-ASCII paths~~: measured in P0-T13 above.
+- **Association/`ShellExecute` launches** — no editor registers one natively; untestable
+  without editing the user's registry (HC1).
+- **Non-ASCII paths under Wine/Linux** — Linux side unmeasured.
 - **Save behaviour** (in place? atomic? backups?), which P5-T06's change-detection needs.
 - BrawlCrate's second argument as a node selector, and whether its OpenGL model preview
-  works under Wine at all (llvmpipe here; the add-on README reports
-  `glActiveTexture` failures in VMs).
+  works (not under Wine/llvmpipe; not checked natively — needs a human to look, HC1).
+- KMP Cloud's tree pane and Lorenzi's `course.kcl` auto-load natively (pixel evidence only).
 - macOS entirely.
 
 ---

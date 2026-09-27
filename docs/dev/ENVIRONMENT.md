@@ -1,5 +1,33 @@
 # Development environment audit
 
+## Windows workstation (P0-T13, 2026-09-27) — current primary machine
+
+Native Windows 11 (build 26200), native Hermes, repo at `C:\dev\ct-studio`, shell for the
+agent is git-bash (MSYS). The Linux sections below describe the old Docker container,
+kept as the Linux reference and fallback.
+
+| Item | Observed |
+|---|---|
+| Python | 3.12 via `uv python install 3.12` (system has 3.14, not used) |
+| uv | `winget install --id astral-sh.uv -e`; lands in `%LOCALAPPDATA%\Microsoft\WinGet\Links` — add that to PATH in each git-bash shell |
+| Tools | `uv run --python 3.12 python scripts/bootstrap_tools.py` (from scratch 220 s, second run 0 s) then `... --only riistudio` |
+| Editors | BrawlCrate: user install (`BRAWLCRATE_EXE`). Lorenzi and KMP Cloud: manual, see below |
+| Console code page | 850 (matters: see non-ASCII paths in TOOLS.md) |
+| Line endings | `.gitattributes` `* text=auto eol=lf` overrides the system `core.autocrlf=true` |
+
+Setup steps that cost time:
+- **`.gitattributes` first.** System git had `core.autocrlf=true` and checked every text file
+  out as CRLF, which breaks `spikes/*.sh` under bash.
+- **git-bash `exit 127` for `.exe` tools is an MSYS artefact** in some invocations; measure exit
+  statuses from Python `subprocess`, never from bash.
+- **`CreateProcess` searches the parent's PATH, not `env["PATH"]`.** A bare `["wszst", ...]` with a
+  modified env works on Linux and fails on Windows; `scripts/tool_paths.py` resolves absolute paths.
+- **Don't run NSIS installers.** ABMatt and Lorenzi ship them; `.tools/7zip/7z.exe` (installed by the
+  bootstrap) expands them: `7z x Lorenzi.s.KMP.Editor.0.7.7.exe` → `$PLUGINSDIR/app-64.7z` →
+  `7z x` into `.tools/s7-lorenzi-win/`.
+- KMP Cloud: wiki Google Drive zip unpacked into `.tools/s7-kmp-cloud/` (sha256 in TOOLS.md).
+- Fixtures: `git submodule update --init`, then `make_fixtures.py` (now also writes `course.kcl`).
+
 P0-T01, audited 2026-09-17 UTC. Findings describe the container, not the host desktop.
 No application code, Python project environment or track-tool bootstrap was added.
 

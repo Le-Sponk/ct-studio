@@ -305,7 +305,7 @@ evidence was gathered in a Linux container, and under ADR-019 neither platform i
 part of it must be re-established rather than assumed. **This runs first on the new machine, before
 P1-T01.**
 
-### [ ] P0-T13 — Re-bootstrap and re-verify on Windows (timebox 4 h)
+### [x] P0-T13 — Re-bootstrap and re-verify on Windows (timebox 4 h) (commit COMMIT_P0T13)
 1. **Re-run the bootstrap.** `uv run python scripts/bootstrap_tools.py` on Windows. It was only
    ever exercised on Linux: expect real differences in archive layout, executable extensions and
    PATH handling. Fix what breaks, and record Windows tool versions in TOOLS.md beside the Linux
@@ -330,3 +330,11 @@ P1-T01.**
 **Acceptance:** bootstrap succeeds on Windows; TOOLS.md carries both platforms' facts with
 platform-tagged markers; the S7 native findings are in SPIKES.md §S7 with the Wine findings intact;
 STATUS lists any remaining single-platform facts.
+
+Done on Windows 11. Bootstrap succeeds from scratch (ABMatt's NSIS installer is expanded with a
+pinned 7-Zip, never run; RiiStudio's release zip via `--only riistudio`). S3 prebuilt: same CLI
+text as Linux, exit(-1) = 0xFFFFFFFF; S3b/S4/S5 results identical. S7 native: argv opens the file
+for all four editors, none single-instance (RiiStudio measured for the first time), none
+registers a file association; **non-ASCII paths** are a new Windows-only failure class (rszst
+refuses them, RiiStudio fails silently). Association launches, save behaviour and BrawlCrate's
+preview stay HC1. Linux was not re-run from this machine — STATUS "Needs human" and gaps.
