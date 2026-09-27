@@ -6,7 +6,7 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T03 done)
 **Next task:** P1-T04 — errors & logging foundation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 980bbd3 (P1-T02 full gate on Windows; Linux CI in P1-T07)
+**Last green commit:** 83f3184 (P1-T03 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -28,7 +28,7 @@ _none_
   relative and nested Qt, actual `check.py` rejection of `import PySide6` in core,
   Blender bridge/spike AST fixtures, repository scan) + gate PATH test; 5/5 contract/
   scanner mutations caught. `git diff --check`, budgets, and 24 local doc links pass.
-  Linux unverified (CI P1-T07 or Mint). — commit _pending_
+  Linux unverified (CI P1-T07 or Mint). — commit 83f3184
 - `P1-T02` — Real `scripts/check.py`: ruff format/check, pyright, import-linter, pytest
   (excludes `integration`, `slow`, `realdata`, `network`), xenon on core, vulture. Fail-fast by
   default, `--all` collects all failures, `--fast` skips pyright + coverage. Every step has
