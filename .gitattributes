@@ -1,0 +1,2 @@
+# One line-ending convention on every OS (Windows checkouts included), so diffs never churn.
+* text=auto eol=lf
