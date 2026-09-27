@@ -63,6 +63,9 @@ artifacts. `integration.yml` placeholder (manual dispatch) filled in P2-T08.
 `integration.yml` also runs **nightly on a schedule** and is the only place `network`-marked tests
 run: `pytest -m network` after the integration selection. A skip there is a signal (the external
 precondition moved), so the job must surface skip reasons in its summary rather than report green.
+ADR-022: pytest returned 0 for the selected RiiStudio test skipping without Wine, and included an
+unrelated collection skip. The P1-T07 scaffold parses JUnit to distinguish them and fails on a
+selected skip; the network job may remain red until P2-T08 installs the real prerequisites.
 **Acceptance:** green run on both OSes (if the repo isn't on GitHub yet, add a "Needs human" item and
 continue; verify later); the nightly job's log shows either the `network` tests running or the exact
 skip reason.

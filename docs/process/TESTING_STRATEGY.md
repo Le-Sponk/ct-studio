@@ -91,9 +91,16 @@ or commit them.
   reason if GL is unavailable on a runner, but never on the Linux integration job.
 
 ## 6. CI matrix
-- `ci.yml` (every push/PR): ubuntu-latest + windows-latest · `check.py` (unit, contract, gui).
-- `integration.yml` (nightly + manual): both OSes · bootstrap tools (cached by version) · integration
-  + e2e · uploads logs, screenshots, built SZS artefacts (synthetic only).
+- `ci.yml` (every push/PR): ubuntu-latest + windows-latest · locked `uv sync`,
+  `check.py` (unit, contract, gui) and an uploaded per-OS artifact containing coverage XML
+  and GUI screenshots. Linux installs Qt runtime libraries plus DejaVu fonts.
+- `integration.yml` (nightly UTC + manual): both OSes currently run only `pytest -m network`
+  (P1-T07 scaffold). `scripts/ci_network.py` parses pytest's JUnit XML and writes exact
+  selected-test skip reasons to the log and GitHub job summary; no selected tests or any
+  selected skip fails the job rather than producing a false green. Unrelated collection
+  skips are displayed separately. P2-T08 adds bootstrap tools and the full integration/e2e
+  suites; until the RiiStudio/Wine prerequisites are present nightly is expected to fail
+  visibly with the missing precondition. It uploads JUnit XML.
 - `compat.yml` (weekly): Blender 4.5 LTS compatibility run of bridge tests.
 - `release.yml` (tags): packaging + packaged smoke tests (P12).
 Windows CI is how Windows is validated continuously — the human only does Windows spot checks at HC2

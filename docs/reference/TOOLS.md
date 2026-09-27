@@ -667,3 +667,20 @@ rejects a contract whose named source package does not exist (`Module 'ctstudio.
 not exist`), so `core`, `cli` and `gui` need package markers before implementation. The
 contract tests generate these forbidden imports on each run and verify the exact violated
 module, not merely the exit code. Linux still needs CI (P1-T07) or a Mint run.
+
+## GitHub Actions and local CI tooling (P1-T07)
+**[docs verified]** `actions/checkout@v4` checks out submodules with `submodules: true`;
+`astral-sh/setup-uv@v7` accepts `version`, `enable-cache`, `cache-dependency-glob`
+(https://github.com/astral-sh/setup-uv/blob/v7/README.md); `actions/upload-artifact@v4`
+accepts `path` and `if-no-files-found` (https://github.com/actions/upload-artifact/tree/v4).
+`GITHUB_STEP_SUMMARY` is a runner-provided per-job summary file; schedule cron runs in UTC
+(https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
+**[verified on Windows 11]** uv 0.12.19 exposes `sync --locked`; pytest 9.1.1 writes
+`--junitxml` output and exits **0 even when all selected tests skip**. coverage.py 7.16.1
+writes XML via `coverage xml -o <path>`. `actionlint` 1.7.12 (official archive checksum
+verified) validates both workflows with exit 0. A real `pytest -m network` run selected
+RiiStudio's network test but skipped it because Wine was absent; a separate unrelated
+collection skip was also in JUnit. The `ci_network.py` reporter makes the selected skip
+visible in both log and job summary and exits 1. See the [Windows recording](../../tests/fakes/recordings/github-actions/p1-t07-windows.txt).
+Remote execution on ubuntu-latest/windows-latest is tracked in STATUS, not inferred from
+local actionlint or the Windows gate.

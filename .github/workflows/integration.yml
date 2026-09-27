@@ -1,0 +1,50 @@
+name: Integration preconditions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *' # UTC; avoid the start-of-hour queue.
+
+permissions:
+  contents: read
+
+# P2-T08 will add tool bootstrap and the full synthetic integration/e2e suite.
+# The network-marked RiiStudio test is selected now; missing prerequisites are
+# reported as a failing, reasoned signal rather than an empty green job.
+jobs:
+  network:
+    name: Network preconditions (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out code and add-on
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Install uv with lockfile cache
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: '0.12.19'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Install pinned Python
+        run: uv python install 3.12
+      - name: Sync locked dependencies
+        run: uv sync --locked
+      - name: Run network-marked tests
+        run: uv run pytest -m network tests -rs --junitxml=tests/artifacts/network.xml
+      - name: Report every skip reason in job summary
+        if: always()
+        run: uv run python scripts/ci_network.py tests/artifacts/network.xml
+      - name: Upload network JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-${{ matrix.os }}
+          path: tests/artifacts/network.xml
+          if-no-files-found: warn

@@ -11,7 +11,19 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P1-T07` — CI. (1) Verify action/uv commands and encode Windows + Ubuntu locked-sync
+  `check.py` matrix, Qt/font packages, coverage and GUI screenshot artifacts;
+  (2) add manual/nightly integration scaffold that selects `network` tests, parses JUnit
+  skip reasons into the job summary and fails rather than falsely reporting green;
+  (3) test workflow structure plus reporter against synthetic/real pytest XML;
+  (4) run local gate and push, inspect both matrix jobs and manually dispatch the
+  nightly path if access allows, fixing CI failures; (5) record Linux parity, docs and
+  close-out commit. Acceptance: both OS jobs green and nightly run shows tests or exact
+  skip reason. Files: `.github/workflows/{ci,integration}.yml`, `scripts/ci_network.py`,
+  unit tests, TOOLS/TESTING_STRATEGY/STATUS/phase. Risk: remote Actions dispatch access;
+  the current network test also needs Wine/Xvfb/RiiStudio, so a missing prerequisite
+  must be a visible non-green signal, not a silent pass.
+
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -218,6 +230,13 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-28 (P1-T07): `pytest -m network` exited 0 with its only selected test skipped
+  (`wine not installed`), plus an unrelated module-level collection skip. A plain scheduled
+  pytest command would falsely report green. Added a JUnit-based job-summary reporter that
+  names both reasons and fails for selected skips/zero selected tests; full tool/bootstrap
+  coverage remains P2-T08. ADR-022 and PHASE_01 P1-T07 updated; local recording in
+  `tests/fakes/recordings/github-actions/p1-t07-windows.txt`.
+
 - 2026-09-28 (P1-T06): native Windows Qt 6.11 offscreen had zero font families and initially
   captured unreadable box glyphs despite a valid PNG. Added a system-font-only fallback for
   offscreen runs, visual light/dark/150% screenshot review, and Linux font availability to

@@ -1,0 +1,20 @@
+P1-T07 CI tooling verification — Windows 11, 2026-09-28
+
+uv 0.12.19: `uv sync --help` exit 0 lists `--locked`; `uv sync --locked` used by workflows.
+pytest 9.1.1: `pytest --help` exit 0 lists `-m MARKEXPR`, `--junit-xml=path` and `-r chars`.
+`pytest -m network tests -rs --junitxml=<scratch>/network.xml` exit 0:
+  2 skipped, 206 deselected; tests/integration/test_editor_launch.py:318 "wine not installed";
+  tests/integration/test_preview_stack.py:23 "moderngl not installed" (collection skip).
+  Pytest creates the missing parent directory for the JUnit XML output.
+`python scripts/ci_network.py <scratch>/network.xml` exit 1:
+  Selected tests: 0 passed, 1 skipped, 0 failed; 1 unrelated collection skips.
+  - SKIPPED tests.integration.test_preview_stack: collection skipped: (... 'moderngl not installed')
+  - SKIPPED test_riistudio_reports_the_file_it_opened_only_on_a_tty: wine not installed
+coverage.py 7.16.1: `coverage xml --help` exit 0 documents `-o OUTFILE`.
+`uv run coverage xml -o tests/artifacts/coverage.xml` exit 0, wrote the real XML report.
+actionlint 1.7.12: official Windows amd64 release zip verified against the official checksums file;
+  `actionlint.exe -version` → `1.7.12`; `actionlint.exe .github/workflows/ci.yml
+  .github/workflows/integration.yml` exit 0, no diagnostics.
+Official action documentation checked: actions/checkout@v4, astral-sh/setup-uv@v7
+(enable-cache, cache-dependency-glob, version), actions/upload-artifact@v4
+(if-no-files-found, path). Remote GitHub Actions execution is separately verified after push.

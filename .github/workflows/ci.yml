@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - name: Check out code and add-on
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Install Linux Qt runtime and fonts
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1 libopengl0 libfontconfig1 libxcb-cursor0 libxkbcommon-x11-0 fonts-dejavu-core
+      - name: Install uv with lockfile cache
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: '0.12.19'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Install pinned Python
+        run: uv python install 3.12
+      - name: Sync locked dependencies
+        run: uv sync --locked
+      - name: Run quality gate
+        run: uv run python scripts/check.py
+      - name: Export coverage XML
+        if: success()
+        run: uv run coverage xml -o tests/artifacts/coverage.xml
+      - name: Upload coverage and GUI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-${{ matrix.os }}
+          path: |
+            tests/artifacts/coverage.xml
+            tests/artifacts/screens/*.png
+          if-no-files-found: warn

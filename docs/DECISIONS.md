@@ -338,3 +338,20 @@ palette so it follows OS theme changes. CI P1-T07 must install a suitable font i
 image lacks one. `--offscreen-smoke` refuses an existing PNG rather than overwriting it.
 **Consequences:** Offscreen screenshot fidelity is a testable prerequisite, not inferred from
 successful image encoding. Windows verified; Linux remains a P1-T07 CI gap.
+
+## ADR-022 — Nightly network tests must signal skipped preconditions
+**Status:** Accepted (P1-T07, 2026-09-28)
+**Context:** `pytest -m network` returns 0 even when its only selected test skips
+(`wine not installed` on Windows), and the JUnit report also contains a separate
+unmarked module-level collection skip (`moderngl not installed`). A placeholder
+nightly workflow with a plain pytest exit-code check would report green while
+running no network assertion. The full tool/bootstrap integration workflow is not
+specified until P2-T08.
+**Decision:** Run the selected network tests on both runner OSes now and use their
+JUnit XML to publish selected skips and collection skips with exact reasons in
+`GITHUB_STEP_SUMMARY` and logs. Treat zero selected cases or any selected skip/failure
+as non-green. Do not pretend missing RiiStudio/Wine inputs can be provisioned by
+P1-T07's CI scaffold; P2-T08 adds the real bootstrap and integration/e2e jobs.
+**Consequences:** The scheduled network job may remain red with a precise missing
+precondition until P2-T08. The main `ci.yml` quality matrix is independent and must
+be green on Ubuntu and Windows. Revisit when P2-T08 installs real prerequisites.
