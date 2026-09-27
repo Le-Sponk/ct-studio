@@ -3,9 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 0 → 1 (Phase 0 gate passed; P0-T13 done on the Windows machine)
-**Next task:** P1-T01 — project metadata & environment (after the human's Linux re-run of
-P0-T13's changes, see "Needs human")
+**Current phase:** 0 → 1 (Phase 0 gate passed; P0-T13 done, Windows native + Linux fresh-clone run)
+**Next task:** P1-T01 — project metadata & environment
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -304,9 +303,14 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
-- **Every P0-T13 code change on Linux** — bootstrap refactor, `tool_paths.py`, fixture `course.kcl`
-  export, test/spike path changes, `ruff` excluding `vendor/`. Designed platform-neutral, **not
-  run on Linux**. Closes: human's fresh Mint clone run (Needs human), then CI (P1-T07).
+- **P0-T13 changes on Linux — mostly closed.** Human ran a fresh clone on Mint 2026-09-27
+  (Python 3.12.3, repo path containing a space): bootstrap, fixture generation (incl. the new
+  `course.kcl` export) and tests → **79 passed, 60 skipped, 0 failed**. Skips: 36 need `rszst`,
+  which a fresh Linux clone does not have (S3a source build, not bootstrapped); 13 Dolphin; 5
+  Xvfb/Wine; 5 Windows-only paths; 1 moderngl. **Still unexercised on Linux since P0-T13:** the
+  36 rszst tests (their only changes are the shared path and exit constants, which resolve to
+  the same values as before on Linux). Closes when anyone builds rszst on Linux (S3a recipe) or
+  CI does (P1-T07).
 - **Non-ASCII paths**: Windows measured (rszst/RiiStudio fail, ABMatt partial, Wiimms/BrawlCrate/
   Lorenzi fine). Linux/Wine unmeasured. P2-T08 or HC1.
 - **Editor file-association / double-click launch**: nothing registered on this Windows machine;
@@ -330,16 +334,6 @@ _none_ — **HC0 answered 2026-09-22** (see "Human checkpoint results" below).
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
-- **Linux re-run of P0-T13 (added 2026-09-27; do before P1-T01 if you can).** On Mint, after
-  installing uv (HC1 "Running it on the Mint host"), in a fresh clone of the pushed repo:
-  `git submodule update --init`, then
-  `uv run --python 3.12 --no-project python scripts/bootstrap_tools.py`,
-  `uv run --python 3.12 --no-project --with numpy --with pillow python scripts/fixtures/make_fixtures.py`,
-  `uv run --python 3.12 --no-project --with pytest --with pytest-timeout --with numpy --with pillow python -m pytest -m "not network" tests`
-  (`--no-project`/`--with` until P1-T01 adds pyproject.toml; first attempt 2026-09-27 hit
-  `uv: command not found` because HC1 lacked the uv install step — added).
-  Expected: all pass or skip (rszst tests skip without the S3a source build; Wine/Xvfb tests skip
-  unless installed). Report the last line and any failure.
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
   detection + a link to the official releases page + an optional user-initiated
   download from the upstream URL; keep it out of the installer. Asking the maintainer
