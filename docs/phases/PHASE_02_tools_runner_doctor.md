@@ -4,14 +4,17 @@
 **Exit:** `ctstudio doctor` shows a correct table using real tools in `.tools/`; integration CI
 runs on both OSes.
 
-### [ ] P2-T01 — ToolSpec & registry
+### [x] P2-T01 — ToolSpec & registry (commit 157fc62)
 `core/tools/spec.py`: `ToolSpec(id, name, kind: cli|gui, exe_names per OS, version_args,
 version_regex, min_version, homepage, download_page, licence, used_for)`. Registry entries: wszst,
 wkclt, wkmpt, wimgt, rszst, abmatt, blender, brawlcrate, riistudio, kmp_editor_lorenzi, kmp_cloud,
 dolphin, dolphin_tool, wine, winetricks. User-defined custom tools: `name, exe, args_template`
 (placeholders `{file}`, `{dir}`, `{project}`).
 **Acceptance:** registry is data-driven (one table); unit tests validate entries (unique ids,
-regex compiles, URLs well-formed).
+regex compiles, URLs well-formed). Verified by 10 focused tests, Windows `check.py` (140
+passed / 1 optional skip) and [Ubuntu + Windows CI](https://github.com/Le-Sponk/ct-studio/actions/runs/36356549228).
+Version probes are only the seven documented commands; unknown compatibility floors stay
+`None` pending P2-T02, not silently assumed to support every version.
 
 ### [ ] P2-T02 — Discovery
 `core/tools/discovery.py`: order = user setting → PATH → standard locations per OS (Wiimms:

@@ -4,30 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T01 — ToolSpec & registry
+**Next task:** P2-T02 — Discovery
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 35fc071 (P1-GATE fixes; Windows gate and Ubuntu/Windows CI
-[run 36353987367](https://github.com/Le-Sponk/ct-studio/actions/runs/36353987367))
+**Last green commit:** 157fc62 (P2-T01 Windows gate and Ubuntu/Windows CI
+[run 36356549228](https://github.com/Le-Sponk/ct-studio/actions/runs/36356549228))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T01` — ToolSpec and data-driven tool registry. (1) Reconcile IDs,
-  executable names, version probes, licences and URLs against TOOLS.md and pinned
-  recordings; leave unsupported version probes explicitly unknown. (2) Write red
-  tests for all 15 unique IDs, cross-platform names, compiled regexes, HTTPS
-  URLs and custom argv placeholders. (3) Add core tool descriptors, one registry
-  table and a safe custom-tool template type; document uncertain metadata.
-  (4) Run focused tests, full `check.py` and non-network suite; inspect diff and
-  budgets, close STATUS and phase checklist, commit and push. Acceptance:
-  data-driven registry, unique IDs, regex and URL validation, no invented flags.
-  Files: `src/ctstudio/core/tools/{__init__,spec,registry}.py`,
-  `tests/unit/test_tool_registry.py`, Phase 2 checklist, STATUS, TOOLS.md.
-  Risk: Windows-only GUIs have no safe version flag; leave probes empty until P2-T02.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T01` — added typed immutable `ToolSpec` with a single 15-tool table covering
+  Windows/Linux executable names, seven verified version probes, upstream URLs,
+  licences and usage; unknown version floors are explicit rather than guessed.
+  `CustomTool` validates `{file}`/`{dir}`/`{project}` templates and builds argv
+  tokens without shell splitting, including Unicode/spaced paths. Ten tests cover
+  IDs, URLs, regexes, argv and invalid placeholders. Windows `check.py` seven
+  steps green (140 passed / 1 optional skip); broad non-network 213 passed /
+  19 optional skips. [CI run 36356549228](https://github.com/Le-Sponk/ct-studio/actions/runs/36356549228)
+  passed Ubuntu and Windows with artifacts. No real editor integration was
+  claimed. See [TOOLS.md](docs/reference/TOOLS.md#p2-t01-registry-metadata-and-verified-version-probes).
+  — commit 157fc62
 - `P1-GATE` — independent fresh-context review recorded in
   [PHASE_01_REVIEW.md](docs/reviews/PHASE_01_REVIEW.md): no Must, three Should
   fixed with tests (per-package coverage enforcement, logging on GUI startup,
