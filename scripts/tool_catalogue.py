@@ -25,6 +25,9 @@ class Download:
     sha256: str | None = None
     # Directory created inside the archive, stripped so every tool lands in a flat dir.
     strip_prefix: str | None = None
+    # An NSIS installer inside the unpacked archive that holds the real tool. It is
+    # expanded with 7-Zip, never executed: running it edits the user's PATH/registry.
+    nsis_installer: str | None = None
 
 
 @dataclass(frozen=True)
@@ -43,6 +46,8 @@ class Tool:
     # argv (relative to the tool dir) proving the install works, plus a string the
     # output must contain. Run after unpacking; a failure fails the bootstrap.
     verify: tuple[tuple[str, ...], str] | None = None
+    # Exit status the verify command must return. rszst exits -1 even for --version.
+    verify_exit: int = 0
     notes: str = ""
 
 
@@ -156,16 +161,71 @@ ABMATT = Tool(
                 "abmatt_windows-10_x64-1.3.2.zip"
             ),
             archive="abmatt_windows-10_x64-1.3.2.zip",
-            strip_prefix="abmatt",
+            strip_prefix="abmatt_windows-10_x64-1.3.2",
+            nsis_installer="install.exe",
         ),
     },
     executables=("abmatt",),
     verify=(("abmatt", "--help"), "ANOOB'S BRRES MATERIAL TOOL"),
     notes=(
         "PyInstaller bundle, executable in bin/; needs wimgt on PATH for texture "
-        "conversion. The v1.3.2 release binary reports 'Version 1.3.1' in its banner, "
-        "so trust the release tag, not the banner. Built against a 5.13 kernel image."
+        "conversion. The Linux v1.3.2 binary reports 'Version 1.3.1' in its banner "
+        "(the Windows one says v1.3.2), so trust the release tag, not the banner. The "
+        "Windows zip holds only an NSIS install.exe, which bootstrap expands with 7-Zip."
     ),
+)
+
+RIISTUDIO = Tool(
+    name="riistudio",
+    version="5.11.5",
+    licence="unconfirmed overall; never redistribute (ADR-004)",
+    homepage="https://github.com/riidefi/RiiStudio",
+    downloads={
+        "windows-x86_64": Download(
+            url=(
+                "https://github.com/snailspeed3/RiiStudio/releases/download/Alpha-5.11.5/"
+                "RiiStudio_Windows.zip"
+            ),
+            archive="RiiStudio_Windows.zip",
+            sha256="79f4f76158d21b90a401c64d38f5e577138889f15ccc4ea8af8ddb15775c8a38",
+        ),
+    },
+    executables=("rszst", "RiiStudio"),
+    verify=(("rszst", "--version"), "RiiStudio CLI Alpha 5.11.5"),
+    # exit(-1): 0xFFFFFFFF on Windows (Linux truncates the same call to 255).
+    verify_exit=0xFFFFFFFF,
+    notes=(
+        "Windows/macOS release assets only; Linux builds from source (SPIKES.md S3a). "
+        "Asset name is unversioned, so the sha256 (ours, recorded P0-T13; GitHub "
+        "publishes no digest for it) is what pins it. Optional: --only riistudio."
+    ),
+)
+
+# 7-Zip, Windows only: the one extractor here that reads NSIS installers. Fetched on
+# demand when a download names an nsis_installer. The full console build ships inside a
+# 7z self-extractor, which the standalone 7zr.exe unpacks. Both checksums are GitHub's
+# published asset digests for release 26.03 (github.com/ip7z/7zip).
+SEVEN_ZIP_REDUCED = Download(
+    url="https://github.com/ip7z/7zip/releases/download/26.03/7zr.exe",
+    archive="7zr.exe",
+    sha256="ad4c82fadcbdf93c03b4fc440f300509c7d60c5c2f4d183e35d9d70d6957037d",
+)
+
+SEVEN_ZIP = Tool(
+    name="7zip",
+    version="26.03",
+    licence="LGPL-2.1-or-later (with BSD-3-Clause and unRAR-restricted parts)",
+    homepage="https://www.7-zip.org/",
+    downloads={
+        "windows-x86_64": Download(
+            url="https://github.com/ip7z/7zip/releases/download/26.03/7z2603-x64.exe",
+            archive="7z2603-x64.exe",
+            sha256="0859c524b8a63551848f0c246abddcb1d0b7b656b0fbfe879f8d85e61a9e6edd",
+        ),
+    },
+    executables=("7z",),
+    verify=(("7z",), "7-Zip"),
+    notes="Dev-only extractor for NSIS installers; never shipped with CT Studio.",
 )
 
 # Windows-only tools. Recorded so `doctor` and the launch-contract spike know what to
@@ -183,12 +243,15 @@ WINDOWS_ONLY: dict[str, dict[str, str]] = {
 }
 
 TOOLS: tuple[Tool, ...] = (WIIMMS, BLENDER, ABMATT)
-OPTIONAL_TOOLS: tuple[Tool, ...] = (BLENDER_LTS_4_5, BLENDER_LTS_4_2)
+OPTIONAL_TOOLS: tuple[Tool, ...] = (BLENDER_LTS_4_5, BLENDER_LTS_4_2, RIISTUDIO)
 ALL_TOOLS: dict[str, Tool] = {t.name: t for t in TOOLS + OPTIONAL_TOOLS}
 
 __all__ = [
     "ALL_TOOLS",
     "OPTIONAL_TOOLS",
+    "RIISTUDIO",
+    "SEVEN_ZIP",
+    "SEVEN_ZIP_REDUCED",
     "TOOLS",
     "VERIFIED_ON",
     "WINDOWS_ONLY",

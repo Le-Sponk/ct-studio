@@ -34,6 +34,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from tool_catalogue import (  # sys.path is extended just above; E402 is off in ruff.toml
     ALL_TOOLS,
+    SEVEN_ZIP,
+    SEVEN_ZIP_REDUCED,
     TOOLS,
     WINDOWS_ONLY,
     Download,
@@ -155,11 +157,37 @@ def executable_path(tool_dir: Path, name: str) -> Path:
     """Find an executable that may sit at the tool root or in bin/."""
     candidates = [tool_dir / name, tool_dir / "bin" / name]
     if platform.system() == "Windows":
-        candidates = [c.with_suffix(".exe") for c in candidates] + candidates
+        # Append rather than with_suffix(), which would truncate a dotted name.
+        candidates = [c.with_name(c.name + ".exe") for c in candidates] + candidates
     for candidate in candidates:
         if candidate.is_file():
             return candidate
     raise BootstrapError(f"{name} not found in {tool_dir}")
+
+
+def run_checked(
+    argv: list[str], what: str, timeout: float = VERIFY_TIMEOUT_S, expect_exit: int = 0
+) -> str:
+    """Run argv (no shell) and return stdout+stderr; any failure raises BootstrapError."""
+    try:
+        proc = subprocess.run(  # noqa: S603  (argv list, no shell)
+            argv,
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        name = Path(argv[0]).name
+        raise BootstrapError(f"{what}: {name} timed out after {exc.timeout}s") from exc
+    except OSError as exc:
+        raise BootstrapError(f"{what}: could not run {argv[0]}: {exc}") from exc
+    output = (proc.stdout + proc.stderr).strip()
+    if proc.returncode != expect_exit:
+        tail = "\n".join(output.splitlines()[-5:])
+        raise BootstrapError(f"{what}: {' '.join(argv)} exited {proc.returncode}.\n{tail}")
+    return output
 
 
 def run_verify(tool: Tool, tool_dir: Path) -> str:
@@ -168,36 +196,18 @@ def run_verify(tool: Tool, tool_dir: Path) -> str:
         return "(no verify command)"
     argv_names, expected = tool.verify
     argv = [str(executable_path(tool_dir, argv_names[0])), *argv_names[1:]]
-    try:
-        proc = subprocess.run(  # noqa: S603  (argv list, no shell)
-            argv,
-            capture_output=True,
-            text=True,
-            timeout=VERIFY_TIMEOUT_S,
-            check=False,
-        )
-    except subprocess.TimeoutExpired as exc:
-        raise BootstrapError(
-            f"{tool.name}: {argv_names[0]} timed out after {exc.timeout}s"
-        ) from exc
-    except OSError as exc:
-        raise BootstrapError(f"{tool.name}: could not run {argv[0]}: {exc}") from exc
-
-    output = (proc.stdout + proc.stderr).strip()
-    if proc.returncode != 0:
-        tail = "\n".join(output.splitlines()[-5:])
-        raise BootstrapError(
-            f"{tool.name}: {' '.join(argv_names)} exited {proc.returncode}.\n{tail}"
-        )
+    output = run_checked(argv, tool.name, expect_exit=tool.verify_exit)
     if expected.lower() not in output.lower():
         tail = "\n".join(output.splitlines()[:5])
         raise BootstrapError(
             f"{tool.name}: expected {expected!r} in the output of "
             f"{' '.join(argv_names)}, got:\n{tail}"
         )
-    # Report the first line that carries information: ABMatt opens with a rule of "=".
+    # Report the line that proved it: rszst prints its parser version before the app's,
+    # and ABMatt opens with a rule of "=".
     lines = [ln.strip() for ln in output.splitlines() if ln.strip().strip("=")]
-    return lines[0] if lines else "(no output)"
+    proof = [ln for ln in lines if expected.lower() in ln.lower()]
+    return (proof or lines or ["(no output)"])[0]
 
 
 def pick_download(tool: Tool, plat: str) -> Download:
@@ -207,6 +217,83 @@ def pick_download(tool: Tool, plat: str) -> Download:
         f"{tool.name} has no {plat} build. Supported: {', '.join(sorted(tool.downloads))}. "
         "See docs/reference/TOOLS.md for the alternative (Wine or manual install)."
     )
+
+
+def fetch_verified(spec: Download, tool_name: str, *, force: bool) -> tuple[Path, str]:
+    """Download spec (or reuse the cache) and check its checksum; returns (path, sha256)."""
+    archive = TOOLS_DIR / "_downloads" / spec.archive
+    if force or not archive.exists():
+        print(f"    fetching {spec.url}")
+        download(spec.url, archive)
+    else:
+        print(f"    reusing cached {archive.name}")
+
+    digest = sha256_file(archive)
+    if spec.sha256 and digest != spec.sha256:
+        archive.unlink(missing_ok=True)
+        raise BootstrapError(
+            f"{tool_name}: checksum mismatch for {spec.archive}.\n"
+            f"  expected {spec.sha256}\n  got      {digest}\n"
+            "The download was deleted. If the publisher re-released this version, update "
+            "scripts/tool_catalogue.py and docs/reference/TOOLS.md with the new checksum."
+        )
+    if spec.sha256:
+        print("    sha256 matches the pinned checksum")
+    else:
+        print(f"    sha256 (unpublished upstream, recorded): {digest}")
+    return archive, digest
+
+
+def ensure_seven_zip(plat: str, *, force: bool) -> Path:
+    """Install 7-Zip into .tools/7zip on demand and return its 7z executable.
+
+    The full console 7z ships inside a 7z self-extractor. Running that would install
+    7-Zip system-wide, so the standalone 7zr.exe unpacks it instead.
+    """
+    tool_dir = TOOLS_DIR / SEVEN_ZIP.name
+    spec = pick_download(SEVEN_ZIP, plat)
+    print(f"  {SEVEN_ZIP.name} {SEVEN_ZIP.version} (needed to expand an NSIS installer)")
+    state = load_state()
+    if tool_dir.exists() and state.get(SEVEN_ZIP.name, {}).get("url") == spec.url and not force:
+        run_verify(SEVEN_ZIP, tool_dir)
+        return executable_path(tool_dir, "7z")
+
+    reduced, _ = fetch_verified(SEVEN_ZIP_REDUCED, SEVEN_ZIP.name, force=force)
+    sfx, digest = fetch_verified(spec, SEVEN_ZIP.name, force=force)
+    staging = tool_dir.parent / f"{tool_dir.name}.unpack"
+    shutil.rmtree(staging, ignore_errors=True)
+    run_checked([str(reduced), "x", "-y", f"-o{staging}", str(sfx)], SEVEN_ZIP.name)
+    shutil.rmtree(tool_dir, ignore_errors=True)
+    staging.replace(tool_dir)
+    banner = run_verify(SEVEN_ZIP, tool_dir)
+    print(f"    installed: {banner}")
+    state[SEVEN_ZIP.name] = {
+        "version": SEVEN_ZIP.version,
+        "platform": plat,
+        "verify": banner,
+        "url": spec.url,
+        "sha256": digest,
+    }
+    save_state(state)
+    return executable_path(tool_dir, "7z")
+
+
+def expand_nsis(seven_zip: Path, tool_dir: Path, installer: str) -> None:
+    """Replace tool_dir with the payload of the NSIS installer it contains.
+
+    The installer is never executed: it would edit PATH and the registry, and ABMatt's
+    upstream README warns that it can hang. NSIS's own runtime plugins are dropped.
+    """
+    source = tool_dir / installer
+    if not source.is_file():
+        raise BootstrapError(f"expected NSIS installer {installer!r} in {tool_dir}")
+    staging = tool_dir.parent / f"{tool_dir.name}.nsis"
+    shutil.rmtree(staging, ignore_errors=True)
+    run_checked([str(seven_zip), "x", "-y", f"-o{staging}", str(source)], tool_dir.name)
+    shutil.rmtree(staging / "$PLUGINSDIR", ignore_errors=True)
+    (staging / "uninstall.exe").unlink(missing_ok=True)
+    shutil.rmtree(tool_dir)
+    staging.replace(tool_dir)
 
 
 def install(tool: Tool, plat: str, *, force: bool) -> dict[str, str]:
@@ -230,28 +317,10 @@ def install(tool: Tool, plat: str, *, force: bool) -> dict[str, str]:
     if tool_dir.exists() and not unchanged:
         print("    catalogue changed since install; re-fetching")
 
-    archive = TOOLS_DIR / "_downloads" / spec.archive
-    if force or not archive.exists():
-        print(f"    fetching {spec.url}")
-        download(spec.url, archive)
-    else:
-        print(f"    reusing cached {archive.name}")
-
-    digest = sha256_file(archive)
-    if spec.sha256 and digest != spec.sha256:
-        archive.unlink(missing_ok=True)
-        raise BootstrapError(
-            f"{tool.name}: checksum mismatch for {spec.archive}.\n"
-            f"  expected {spec.sha256}\n  got      {digest}\n"
-            "The download was deleted. If the publisher re-released this version, update "
-            "scripts/tool_catalogue.py and docs/reference/TOOLS.md with the new checksum."
-        )
-    if spec.sha256:
-        print("    sha256 matches the publisher's checksum")
-    else:
-        print(f"    sha256 (unpublished upstream, recorded): {digest}")
-
+    archive, digest = fetch_verified(spec, tool.name, force=force)
     unpack(archive, tool_dir, spec.strip_prefix)
+    if spec.nsis_installer:
+        expand_nsis(ensure_seven_zip(plat, force=force), tool_dir, spec.nsis_installer)
     banner = run_verify(tool, tool_dir)
     print(f"    installed: {banner}")
     return {
@@ -302,7 +371,10 @@ def main(argv: list[str] | None = None) -> int:
     failures: list[str] = []
     for tool in selected:
         try:
-            state[tool.name] = install(tool, plat, force=args.force)
+            record = install(tool, plat, force=args.force)
+            # Reload: install() may have recorded a helper (7-Zip) in the meantime.
+            state = load_state()
+            state[tool.name] = record
             save_state(state)
         except BootstrapError as exc:
             failures.append(f"{tool.name}: {exc}")

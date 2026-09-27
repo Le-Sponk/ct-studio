@@ -91,6 +91,22 @@ def test_pick_download_rejects_unsupported_platform_with_guidance() -> None:
     assert "TOOLS.md" in message, "the error should point at the documented alternative"
 
 
+def test_seven_zip_pins_are_https_with_checksums() -> None:
+    """7-Zip is fetched on demand and executed, so it must never be unverified."""
+    for spec in (*tc.SEVEN_ZIP.downloads.values(), tc.SEVEN_ZIP_REDUCED):
+        assert spec.url.startswith("https://") and spec.url.endswith(spec.archive)
+        assert spec.sha256 is not None and len(spec.sha256) == 64
+        assert tc.SEVEN_ZIP.version in spec.url
+
+
+def test_nsis_installers_are_windows_only_and_have_an_extractor() -> None:
+    for tool in tc.ALL_TOOLS.values():
+        for plat, spec in tool.downloads.items():
+            if spec.nsis_installer:
+                assert plat.startswith("windows-"), f"{tool.name}/{plat}: NSIS off Windows"
+                assert plat in tc.SEVEN_ZIP.downloads, f"no 7-Zip for {plat}"
+
+
 def test_lorenzi_editor_is_not_auto_installed() -> None:
     """It ships no Linux build, so it must stay out of the default set (needs Wine)."""
     assert "lorenzi-kmp-editor" not in tc.ALL_TOOLS
@@ -100,12 +116,7 @@ def test_lorenzi_editor_is_not_auto_installed() -> None:
 # --- unpacking -------------------------------------------------------------------
 
 
-def _tar_with(
-    tmp_path: Path,
-    names: dict[str, str],
-    prefix: str,
-    executable: tuple[str, ...] = (),
-) -> Path:
+def _tar_with(tmp_path: Path, names: dict[str, str], prefix: str) -> Path:
     archive = tmp_path / "sample.tar.gz"
     payload = tmp_path / "payload"
     (payload / prefix).mkdir(parents=True)
@@ -113,8 +124,6 @@ def _tar_with(
         target = payload / prefix / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8")
-        if name in executable:
-            target.chmod(0o755)
     with tarfile.open(archive, "w:gz") as tar:
         tar.add(payload / prefix, arcname=prefix)
     return archive
@@ -163,55 +172,70 @@ def test_unpack_rejects_unknown_archive_types(tmp_path: Path) -> None:
 
 
 # --- verification ----------------------------------------------------------------
+#
+# The fake tool is the running Python interpreter (argv: python -c CODE), so these
+# spawn a real process on Linux and Windows alike. A "#!/bin/sh" script cannot be
+# executed by CreateProcess (WinError 193), which is what broke them on Windows.
 
 
-def _fake_tool(tmp_path: Path, script: str, *, name: str = "faketool") -> Path:
-    tool_dir = tmp_path / name
-    (tool_dir / "bin").mkdir(parents=True)
-    exe = tool_dir / "bin" / name
-    exe.write_text(script, encoding="utf-8")
-    exe.chmod(0o755)
-    return tool_dir
+def _python_tool(monkeypatch: pytest.MonkeyPatch, code: str) -> tuple[str, ...]:
+    """Route executable lookup to this interpreter; return the verify argv."""
+    monkeypatch.setattr(bt, "executable_path", lambda _dir, _name: Path(sys.executable))
+    return ("faketool", "-c", code)
 
 
-def test_run_verify_accepts_a_matching_banner(tmp_path: Path) -> None:
-    tool_dir = _fake_tool(tmp_path, "#!/bin/sh\necho 'FakeTool v1.2.3'\n")
-    tool = dataclasses.replace(
-        tc.WIIMMS, name="faketool", verify=(("faketool", "version"), "FakeTool v1.2.3")
-    )
-    assert bt.run_verify(tool, tool_dir) == "FakeTool v1.2.3"
+def test_run_verify_accepts_a_matching_banner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    argv = _python_tool(monkeypatch, "print('FakeTool v1.2.3')")
+    tool = dataclasses.replace(tc.WIIMMS, name="faketool", verify=(argv, "FakeTool v1.2.3"))
+    assert bt.run_verify(tool, tmp_path) == "FakeTool v1.2.3"
 
 
-def test_run_verify_skips_decoration_lines(tmp_path: Path) -> None:
+def test_run_verify_skips_decoration_lines(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """ABMatt opens with a rule of '='; the recorded banner must be the real line."""
-    tool_dir = _fake_tool(tmp_path, "#!/bin/sh\necho '======'\necho 'REAL BANNER'\n")
-    tool = dataclasses.replace(
-        tc.ABMATT, name="faketool", verify=(("faketool", "--help"), "REAL BANNER")
-    )
-    assert bt.run_verify(tool, tool_dir) == "REAL BANNER"
+    argv = _python_tool(monkeypatch, "print('======'); print('REAL BANNER')")
+    tool = dataclasses.replace(tc.ABMATT, name="faketool", verify=(argv, "REAL BANNER"))
+    assert bt.run_verify(tool, tmp_path) == "REAL BANNER"
 
 
-def test_run_verify_fails_on_nonzero_exit(tmp_path: Path) -> None:
-    tool_dir = _fake_tool(tmp_path, "#!/bin/sh\necho boom >&2\nexit 3\n")
-    tool = dataclasses.replace(tc.WIIMMS, name="faketool", verify=(("faketool", "v"), "boom"))
+def test_run_verify_fails_on_nonzero_exit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    code = "import sys; print('boom', file=sys.stderr); sys.exit(3)"
+    argv = _python_tool(monkeypatch, code)
+    tool = dataclasses.replace(tc.WIIMMS, name="faketool", verify=(argv, "boom"))
     with pytest.raises(bt.BootstrapError, match="exited 3"):
-        bt.run_verify(tool, tool_dir)
+        bt.run_verify(tool, tmp_path)
 
 
-def test_run_verify_fails_when_the_banner_is_wrong(tmp_path: Path) -> None:
+def test_run_verify_fails_when_the_banner_is_wrong(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Guards against a tool being silently replaced by something else."""
-    tool_dir = _fake_tool(tmp_path, "#!/bin/sh\necho 'SomeOtherTool'\n")
-    tool = dataclasses.replace(
-        tc.WIIMMS, name="faketool", verify=(("faketool", "version"), "Wiimms SZS Tool")
-    )
+    argv = _python_tool(monkeypatch, "print('SomeOtherTool')")
+    tool = dataclasses.replace(tc.WIIMMS, name="faketool", verify=(argv, "Wiimms SZS Tool"))
     with pytest.raises(bt.BootstrapError, match="expected"):
-        bt.run_verify(tool, tool_dir)
+        bt.run_verify(tool, tmp_path)
 
 
-def test_executable_path_reports_a_missing_binary(tmp_path: Path) -> None:
-    (tmp_path / "empty").mkdir()
-    with pytest.raises(bt.BootstrapError, match="not found"):
-        bt.executable_path(tmp_path / "empty", "wszst")
+def test_run_verify_honours_a_declared_nonzero_exit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """rszst's --version exits non-zero; that must pass only when the catalogue says so."""
+    code = "import sys; print('parser 0.1.6'); print('RiiStudio CLI'); sys.exit(7)"
+    argv = _python_tool(monkeypatch, code)
+    tool = dataclasses.replace(tc.RIISTUDIO, verify=(argv, "RiiStudio CLI"), verify_exit=7)
+    assert bt.run_verify(tool, tmp_path) == "RiiStudio CLI", "report the app, not the parser"
+    with pytest.raises(bt.BootstrapError, match="exited 7"):
+        bt.run_verify(dataclasses.replace(tool, verify_exit=0), tmp_path)
+
+
+def test_run_verify_reports_an_unrunnable_file(tmp_path: Path) -> None:
+    """A file that exists but is not a program must fail with the path, not crash."""
+    (tmp_path / "bin").mkdir()
+    (tmp_path / "bin" / "faketool").write_text("not a program", encoding="utf-8")
+    tool = dataclasses.replace(tc.WIIMMS, name="faketool", verify=(("faketool",), "x"))
+    with pytest.raises(bt.BootstrapError, match="could not run"):
+        bt.run_verify(tool, tmp_path)
 
 
 # --- checksums and state ---------------------------------------------------------
@@ -273,12 +297,7 @@ def test_install_refetches_when_the_catalogue_changed(
     )
 
     # Stub the network: "downloading" copies a locally built archive into place.
-    source = _tar_with(
-        tmp_path,
-        {"bin/faketool": "#!/bin/sh\necho 'FakeTool v2'\n"},
-        prefix="new",
-        executable=("bin/faketool",),
-    )
+    source = _tar_with(tmp_path, {"bin/faketool": "placeholder"}, prefix="new")
     calls: list[str] = []
 
     def fake_download(url: str, dest: Path) -> None:
@@ -292,7 +311,7 @@ def test_install_refetches_when_the_catalogue_changed(
         tc.WIIMMS,
         name="faketool",
         version="2.0.0",
-        verify=(("faketool", "version"), "FakeTool v2"),
+        verify=(_python_tool(monkeypatch, "print('FakeTool v2')"), "FakeTool v2"),
         downloads={
             "linux-x86_64": tc.Download(
                 url="https://example.invalid/new.tar.gz",
