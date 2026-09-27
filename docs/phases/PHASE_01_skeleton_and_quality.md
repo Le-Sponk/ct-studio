@@ -47,12 +47,14 @@ in-memory LRU keyed by `(path, size, mtime_ns)`; `hash_file` streaming in 1 MiB 
 **Acceptance:** tests incl. paths with spaces/unicode, concurrent replace, backup naming; a benchmark
 hashing a 200 MB temp file (recorded, not asserted yet).
 
-### [ ] P1-T06 — Minimal GUI shell
+### [x] P1-T06 — Minimal GUI shell (commit _pending_)
 `gui/app.py` + `main_window.py`: window with placeholder dashboard, About dialog (version, licence,
 third-party list placeholder), follows system light/dark. `ctstudio --offscreen-smoke <png>`
 starts, renders, saves a screenshot, exits 0. Lazy-import PySide6 only on GUI paths.
 **Acceptance:** pytest-qt test passes headless; `python -X importtime -m ctstudio --version` shows
-no Qt import.
+no Qt import. Windows Qt offscreen initially rendered box glyphs despite saving a PNG: ADR-021
+loads an installed system font only when the offscreen font database is empty; P1-T07 verifies
+Linux font availability before accepting CI screenshots.
 
 ### [ ] P1-T07 — CI
 `.github/workflows/ci.yml`: matrix ubuntu-latest/windows-latest, uv cache, `uv sync`,

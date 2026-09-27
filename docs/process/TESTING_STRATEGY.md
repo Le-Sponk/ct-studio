@@ -78,6 +78,9 @@ or commit them.
 - Every GUI test that shows a new screen state saves a screenshot to `tests/artifacts/screens/`
   (`widget.grab().save(...)`), uploaded as a CI artefact. Screens are reviewed at gates (§5 of
   REVIEW_CHECKLIST) by the agent if it can view images, otherwise listed for the human at HCs.
+  P1-T06 saves the dashboard (light, dark and 150% scale) and About (light/dark), reviewed locally.
+  Windows Qt offscreen can report zero system fonts; `MainWindow` loads the installed Segoe UI
+  only in that case, with a Linux DejaVu fallback, so test PNGs contain glyphs rather than boxes.
 - The dev watchdog is enabled in GUI tests; any UI stall > 100 ms fails the test (allowlist startup).
 - GL/preview tests **cannot use `QT_QPA_PLATFORM=offscreen`** — it cannot create a GL context at all
   (`QOpenGLWidget is not supported on this platform`, verified in S6/P0-T09). Run them under

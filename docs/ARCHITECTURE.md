@@ -239,6 +239,17 @@ wrote, a timestamped backup is made — no exceptions.
 - Dev mode (`CTSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
 - Log view is virtualised and capped (e.g. last 20k lines in memory; full log on disk).
 
+P1-T06 shell: `ctstudio` with no arguments opens a minimal Qt Widgets empty-project dashboard;
+Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
+placeholder. Widgets keep Qt's native palette (no hard-coded stylesheet), so a system palette
+change reaches open windows. `ctstudio --offscreen-smoke <png>` forces offscreen before importing
+Qt, renders a PNG and exits without the event loop; it refuses an existing destination rather
+than overwriting user work. `--version`/`--help` remain Qt-free. On Windows the offscreen plugin
+can enumerate zero system fonts; only in that case the shell loads the installed Segoe UI font
+from `%WINDIR%/Fonts` (Linux fallback: system DejaVu Sans) so screenshots have real glyphs.
+No font is bundled. GUI screenshots are reviewed from `tests/artifacts/screens/` in light/dark and
+at 150% scaling; project actions remain for later phases.
+
 ## 11. File watching
 watchfiles in a background thread watches the project folder, the `.blend`, and referenced
 external files. Events are debounced (≈500 ms), coalesced, and turned into status re-evaluation.

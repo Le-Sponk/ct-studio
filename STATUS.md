@@ -3,8 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T05 done)
-**Next task:** P1-T06 — minimal GUI shell
+**Current phase:** 1 — Skeleton & quality gates (P1-T06 done)
+**Next task:** P1-T07 — CI
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** ba8aa1e (P1-T05 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -15,6 +15,21 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T06` — minimal Qt Widgets dashboard (no project yet), Help → About with package
+  version, GPL-3.0-or-later and third-party-notices placeholder; native Qt palette reacts
+  to light/dark changes. No-argument `ctstudio` launches GUI; `--offscreen-smoke <png>`
+  forces offscreen, creates a valid PNG under a Unicode/spaced path and refuses to
+  overwrite existing user work. `--version` and `--help` remain Qt-free (`-X importtime`
+  showed no PySide6/shiboken6). Windows offscreen font database was empty, so ADR-021
+  adds an installed-system-font fallback; first tofu screenshot replaced by readable
+  light/dark/150% dashboard and light/dark About screenshots, inspected in
+  `tests/artifacts/screens/`. **Windows evidence:** `uv run python scripts/check.py` exit 0:
+  109 passed / 1 optional fixture skip / 92 deselected; pyright 0 errors, 3 import
+  contracts, xenon/vulture green. Full non-network suite: 182 passed / 19 optional-tool
+  skips / 1 network deselected. 7 focused GUI tests, screenshot CLI run, budgets, local
+  links and `git diff --check` pass. Linux/CI offscreen fonts unverified until P1-T07.
+  — commit _pending_
+
 - `P1-T05` — OS/user-directory/sandbox probes, atomic app-managed writes, backed-up user
   replacements, resolved-path containment and lazy, cached, streamed BLAKE2b fingerprints.
   Tests cover Unicode/spaced paths, symlink escapes, failure preservation, unique backups,
@@ -203,6 +218,11 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-28 (P1-T06): native Windows Qt 6.11 offscreen had zero font families and initially
+  captured unreadable box glyphs despite a valid PNG. Added a system-font-only fallback for
+  offscreen runs, visual light/dark/150% screenshot review, and Linux font availability to
+  the P1-T07 CI check. See ADR-021, PHASE_01 P1-T06/T07 and TESTING_STRATEGY §5.
+
 - 2026-09-27 (P1-T03): import-linter 2.15 **fails** with `Module 'ctstudio.core' does not
   exist` if a named source package is absent; a failed linter is not an enforced boundary.
   Created empty `core`, `cli`, `gui` package markers in P1-T03, before their planned code.
@@ -391,6 +411,12 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **P1-T06 GUI shell / headless smoke:** Windows 11 offscreen Qt 6.11 passed GUI tests,
+  PNG screenshot smoke, light/dark/150% review and Qt-free import-time probes. Linux
+  offscreen plugin and installed font availability are unverified until P1-T07 CI or Mint;
+  from a fresh clone run `git pull && uv sync && uv run python scripts/check.py` and
+  `uv run ctstudio --offscreen-smoke /tmp/ctstudio-smoke.png` (inspect the PNG for
+  readable text). ADR-021 records the font-database discrepancy.
 - **P1-T05 filesystem/platform utilities:** Windows 11 only; concurrent atomic replacements,
   UTF-8/unicode paths, backup behavior, path containment, and 200 MiB hash benchmark verified.
   Linux parity closes with P1-T07 CI or Mint (`git pull && uv sync && uv run python scripts/check.py`;

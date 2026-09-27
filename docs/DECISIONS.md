@@ -324,3 +324,17 @@ covered by ADR-001 and watchfiles by ADR-011, but `tomli-w` (ARCHITECTURE §1, A
 must exclude unused Qt modules, as ADR-013 already says.
 **Revisit when:** a Python floor of 3.14+ (stdlib TOML writer, if one lands) or packaging size
 work in P13.
+
+## ADR-021 — Offscreen GUI smoke uses system fonts, never bundled fonts
+**Status:** Accepted (P1-T06, 2026-09-28)
+**Context:** On native Windows 11, Qt 6.11's offscreen plugin reports an empty
+`QFontDatabase.families()` even though Segoe UI is installed. The first headless screenshot
+rendered every letter as a box: a green `QPixmap.save()` alone is not a usable GUI smoke.
+**Decision:** When and only when running offscreen with zero enumerated fonts, load an installed
+system font through `QFontDatabase.addApplicationFont` (Windows `%WINDIR%/Fonts/segoeui.ttf`,
+Linux's standard DejaVu Sans path if available). Do not bundle font files. Test that a family is
+available, then inspect the rendered light/dark and 150%-scale PNGs; preserve the native Qt
+palette so it follows OS theme changes. CI P1-T07 must install a suitable font if its Linux
+image lacks one. `--offscreen-smoke` refuses an existing PNG rather than overwriting it.
+**Consequences:** Offscreen screenshot fidelity is a testable prerequisite, not inferred from
+successful image encoding. Windows verified; Linux remains a P1-T07 CI gap.
