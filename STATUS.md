@@ -6,7 +6,7 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T02 done)
 **Next task:** P1-T03 — architecture contracts (import-linter + Blender bridge AST test)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 53d432c (P0-T12 gate; `check.py` arrives in P1-T02)
+**Last green commit:** 980bbd3 (P1-T02 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -30,7 +30,7 @@ _none_
   skips as P1-T01: Dolphin, Xvfb/Wine, moderngl). 6 new gate tests cover broken sample,
   fail-fast, `--all`, `--fast`, timeout/missing tool and `network`+`integration` deselection. 3/3 mutations caught.
   `uv lock --check`, `ruff format --check`, `git diff --check` and 18 STATUS local links green.
-  **Linux not run** — CI P1-T07 or Mint checkpoint. — commit _pending_
+  **Linux not run** — CI P1-T07 or Mint checkpoint. — commit 980bbd3
 - `P1-T01` — `pyproject.toml` (src layout, `uv_build` backend, Python `>=3.12,<3.14`, entry point
   `ctstudio.__main__:main`), `.python-version` 3.12, committed universal `uv.lock` (51 packages:
   PySide6 6.11.2, numpy 2.5.3, Pillow 12.3.0, tomli-w 1.2.0, platformdirs 4.12.0, watchfiles 1.3.0

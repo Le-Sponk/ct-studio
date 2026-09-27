@@ -12,7 +12,7 @@ Commit `uv.lock`. `.gitignore`: `.tools/`, `.ctstudio/`, `build/`, `dist/`, `loc
 `tests/fixtures/generated/`, `tests/artifacts/`, `spikes/out/`.
 **Acceptance:** `uv sync` then `uv run ctstudio --version` works on Linux and in Windows CI.
 
-### [x] P1-T02 — `scripts/check.py` (commit _pending_)
+### [x] P1-T02 — `scripts/check.py` (commit 980bbd3)
 Runs in order, fails fast unless `--all`: `ruff format --check`, `ruff check`, `pyright`,
 `lint-imports`, `pytest -m "not integration and not slow and not realdata and not network"` with
 coverage, `xenon --max-absolute B --max-modules A --max-average A src/ctstudio/core`
