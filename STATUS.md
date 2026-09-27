@@ -12,7 +12,18 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T01` — ToolSpec and data-driven tool registry. (1) Reconcile IDs,
+  executable names, version probes, licences and URLs against TOOLS.md and pinned
+  recordings; leave unsupported version probes explicitly unknown. (2) Write red
+  tests for all 15 unique IDs, cross-platform names, compiled regexes, HTTPS
+  URLs and custom argv placeholders. (3) Add core tool descriptors, one registry
+  table and a safe custom-tool template type; document uncertain metadata.
+  (4) Run focused tests, full `check.py` and non-network suite; inspect diff and
+  budgets, close STATUS and phase checklist, commit and push. Acceptance:
+  data-driven registry, unique IDs, regex and URL validation, no invented flags.
+  Files: `src/ctstudio/core/tools/{__init__,spec,registry}.py`,
+  `tests/unit/test_tool_registry.py`, Phase 2 checklist, STATUS, TOOLS.md.
+  Risk: Windows-only GUIs have no safe version flag; leave probes empty until P2-T02.
 
 
 ## Done (newest first)

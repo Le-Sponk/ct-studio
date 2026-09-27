@@ -708,3 +708,29 @@ the unrelated `moderngl not installed` collection skip. Both reporter steps corr
 failed rather than turning selected skips green. See the [remote recording](../../tests/fakes/recordings/github-actions/p1-t07-remote.txt).
 The temporary trigger branch was removed; the default branch retains only manual and
 nightly triggers for integration. The next scheduled nightly run has not yet occurred.
+
+## P2-T01 registry metadata and verified version probes
+`src/ctstudio/core/tools/registry.py` lists 15 distinct executable identities, not
+bootstrap download archives: RiiStudio GUI and `rszst` CLI are separate; Dolphin and
+DolphinTool are separate; Wine/winetricks are Linux-only. Windows-only editors are
+listed with their `.exe` names under Linux because Wine can launch them, **not**
+because a Linux-native build exists. Paths to the executable are not inferred here;
+P2-T02 discovery resolves them. `download_page` is guidance to upstream, never an
+automatic installer; KMP Cloud points to its [wiki page](https://mkwiiki.org/wiki/KMP_Cloud).
+The BrawlCrate [official releases](https://github.com/soopercool101/BrawlCrate/releases)
+and Dolphin [official download page](https://dolphin-emu.org/download/) supply their
+respective download links. Unknown redistribution licences are explicitly labelled.
+
+**[verified P2-T01, Windows 11, real run]** From `.tools/` with 20 s timeouts:
+`wszst/wkclt/wkmpt/wimgt version` each exited 0 and printed its own
+`<name>: Wiimms <tool> Tool v2.42a r8989 cygwin64` banner; `blender --version`
+exited 0 with `Blender 5.2.2 LTS`; `abmatt --help` exited 0 with
+`ANOOB'S BRRES MATERIAL TOOL` and `Version v1.3.2`; `rszst --version`
+exited **4294967295** with a parser `0.1.6` line followed by
+`RiiStudio CLI Alpha 5.11.5`. The regex selects the RiiStudio application banner,
+not its parser version; ABMatt has no version regex because its Linux release tag
+1.3.2 prints `Version 1.3.1` (documented above). Version commands not established
+for GUI editors, Dolphin, Wine or winetricks are deliberately empty; discovery must
+not invoke guessed flags or launch GUIs. `min_version=None` means no established
+compatibility floor, **not** that every release is supported. P2-T02 validates more
+platform versions before using them in doctor.
