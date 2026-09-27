@@ -32,7 +32,7 @@ named source packages to exist, so P1-T03 adds package markers for `core`, `cli`
 implementations; `check.py` keeps xenon explicitly skipped until P1-T04 adds core modules.
 **Acceptance:** adding `import PySide6` in core makes `check.py` fail (verified by a test fixture copy).
 
-### [ ] P1-T04 — Errors & logging foundation
+### [x] P1-T04 — Errors & logging foundation (commit _pending_)
 `core/errors.py`: `CTStudioError(user_message, hint=None, details=None)` → `ToolNotFound`,
 `ToolFailed(cmd, exit_code, stderr_tail, log_path)`, `ProjectError`, `ManifestError(key_path)`,
 `BuildError(node_id)`, `Cancelled`, `ParseError`. `core/logging.py`: stdlib logging, JSON-lines

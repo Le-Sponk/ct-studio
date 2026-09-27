@@ -67,8 +67,18 @@ def test_steps_match_the_gate_and_fast_only_skips_typecheck_and_coverage() -> No
     assert "--cov=ctstudio" in normal[4].argv
     assert "--cov=ctstudio" not in fast[4].argv
     assert normal[4].argv[3] == check.PYTEST_SELECTION
-    assert normal[5].skip_reason == "core has no implementation modules yet (P1-T04)"
+    assert normal[5].skip_reason is None
     assert all(s.timeout_s > 0 for s in normal)
+
+
+def test_xenon_skips_only_a_core_without_implementation(tmp_path: Path) -> None:
+    core = tmp_path / "src" / "ctstudio" / "core"
+    assert check.build_steps(tmp_path, fast=False)[5].skip_reason is not None
+    core.mkdir(parents=True)
+    (core / "__init__.py").write_text("", encoding="utf-8")
+    assert check.build_steps(tmp_path, fast=False)[5].skip_reason is not None
+    (core / "errors.py").write_text("class ExampleError(Exception):\n    pass\n", encoding="utf-8")
+    assert check.build_steps(tmp_path, fast=False)[5].skip_reason is None
 
 
 def test_child_environment_resolves_packages_in_the_gate_venv(tmp_path: Path) -> None:
@@ -144,5 +154,5 @@ def test_network_and_integration_tests_are_deselected(tmp_path: Path) -> None:
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "1 passed, 2 deselected" in proc.stdout
     assert "SKIP  pyright" in proc.stdout
-    assert "SKIP  xenon (core)" in proc.stdout
+    assert "PASS  xenon (core)" in proc.stdout
     assert "check.py: OK" in proc.stdout

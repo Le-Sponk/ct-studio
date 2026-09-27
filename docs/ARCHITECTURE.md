@@ -267,6 +267,17 @@ Structured logging (JSON lines) to the user log dir; one log file per build in `
 "Copy diagnostics" in Help (versions, tool table, last build log tail, no personal paths beyond
 what the user approves); `ctstudio doctor [--json]`.
 
+P1-T04 foundation: `core/logging.py` configures the package logger once at startup via
+`configure_logging()` (`platformdirs.user_log_dir("ctstudio")/ctstudio.log`, UTF-8 JSON lines,
+5 MB/3 backups by default); `get_logger(__name__)` names its children. CLI startup may also
+request a human-readable stderr handler. Reconfiguration closes only CT Studio-owned handlers.
+JSON fields: UTC `timestamp`, `level`, `logger`, `message`, optional `exception`; multiline
+messages are JSON-escaped to one line. Build-specific logs under `.ctstudio/logs/` are a
+separate later pipeline concern, not created by this package-wide logger.
+`core/errors.py` keeps `user_message` and an actionable `hint` separate from `details` (argv,
+stderr tail, paths): `str(error)` shows the first two, never raw diagnostics. Typed subclasses
+carry tool argv/exit/log path, manifest key, or build node ID as appropriate.
+
 ## 15. Performance budgets (checked by benchmarks / tests)
 | Metric | Budget |
 |---|---|

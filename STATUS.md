@@ -3,8 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T03 done)
-**Next task:** P1-T04 — errors & logging foundation
+**Current phase:** 1 — Skeleton & quality gates (P1-T04 done)
+**Next task:** P1-T05 — platform & filesystem utilities
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 83f3184 (P1-T03 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -15,6 +15,22 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T04` — `core/errors.py` adds `CTStudioError(user_message, hint, details)` and typed
+  `ToolNotFound`, `ToolFailed`, `ProjectError`, `ManifestError`, `BuildError`, `Cancelled`,
+  `ParseError`; `str(error)` shows an actionable next step but never raw stderr or private
+  diagnostics. `core/logging.py` adds package-scoped `get_logger(__name__)` and
+  `configure_logging()` with `platformdirs.user_log_dir("ctstudio")`, UTF-8 JSON-lines,
+  UTC timestamps, 5 MB/3-backup rotation, optional CLI stderr, and safe reconfiguration
+  that closes only CT Studio-owned handlers (Windows file handles). Xenon now **runs** on
+  real core modules. **Windows evidence:** `uv run python scripts/check.py` exit 0,
+  88 passed / 1 optional fixture skip / 91 deselected, 3 import contracts kept,
+  pyright 0 errors, xenon + vulture green. Full suite `pytest -m "not network" tests`:
+  160 passed / 19 optional-tool skips / 1 network deselected. 15 new errors/logging
+  tests cover formatting, private details, Unicode paths, real JSON lines, rotation,
+  console duplication and optional default path; `test_check` now asserts xenon wakes
+  when core has implementation. 3/3 valid mutations caught (hint display, raw Unicode,
+  rotation). Budgets and local doc links pass. Linux unverified until CI P1-T07 / Mint.
+  — commit _pending_
 - `P1-T03` — Three import-linter 2.15 forbidden contracts: core↛GUI/CLI/PySide6,
   CLI↛GUI, application↛external `spikes`. Added importable `core`, `cli`, `gui` package
   markers (needed before the linter can evaluate them); no implementation moved from T04/T06.
@@ -362,6 +378,10 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **P1-T04 error/logging foundation**: Windows 11 only. JSON-line creation, rotation,
+  Unicode paths and repeated configuration passed locally; Linux parity closes with CI
+  P1-T07 or optionally on Mint: `git pull && uv sync && uv run python scripts/check.py`
+  (send the seven step lines and any failures, ≈1 min).
 - **P1-T03 architecture gate**: import-linter 2.15 contracts, Qt prohibition, and AST
   scan of `blender_bridge`/`spikes` tested only on Windows. Linux closes in P1-T07 CI,
   or optionally on Mint from an existing fresh clone: `git pull && uv sync && uv run

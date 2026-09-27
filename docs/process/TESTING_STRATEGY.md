@@ -8,10 +8,10 @@ a human with the real game and real habits can judge (see HUMAN_CHECKPOINTS.md).
 strict on `src/ctstudio/core`), import-linter, pytest with coverage, xenon (core), then
 vulture. It stops at the first failure unless `--all`; `--fast` skips pyright and
 coverage only. Each step prints status and duration; failed steps also print captured
-output and exit status. `xenon (core)` is explicitly **SKIP** until P1-T04 adds core
-implementation modules: xenon itself returns 0 on an absent or empty package. P1-T03 adds empty
-`core`, `cli` and `gui` package markers for import-linter. Import-linter's three
-contracts protect core↛GUI/CLI/PySide6, CLI↛GUI, and application↛`spikes`,
+output and exit status. `xenon (core)` is active from P1-T04, when real core modules
+arrive. Before that it explicitly skipped: xenon itself returned 0 on an absent or empty
+package. P1-T03 added empty `core`, `cli` and `gui` package markers for import-linter.
+Import-linter's three contracts protect core↛GUI/CLI/PySide6, CLI↛GUI, and application↛`spikes`,
 including external packages via `include_external_packages = True`.
 The unit test AST-scans `blender_bridge` for imports outside stdlib/`bpy` and project code
 (`src`, `scripts`, `tests`) for imports of throwaway `spikes`. Tests copy the skeleton and
