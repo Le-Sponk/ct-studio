@@ -24,6 +24,17 @@ STATUS.md "Needs human — BLOCKING".** The six standing questions are:
 ### Running it on the Mint host
 Use a **fresh clone** of the pushed repo; there is nothing to share with the agent's machine.
 
+One-time prerequisite — `uv` (not in Mint's repositories by default; official installer from
+docs.astral.sh/uv, installs to `~/.local/bin`):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# then open a new terminal so ~/.local/bin is on PATH, and check:
+uv --version
+```
+
+uv downloads the project's Python itself; nothing else needs installing first except `git`.
+
 ```bash
 git clone https://github.com/Le-Sponk/ct-studio.git ~/ct-studio   # or: git pull in an existing clone
 cd ~/ct-studio

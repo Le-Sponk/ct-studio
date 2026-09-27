@@ -248,6 +248,8 @@ a non-ASCII path, because the failure is invisible.
   `FileVersion 0.42.0.1`; `BrawlCrate.exe <path> /audio:none` opens the file; registers **no**
   file associations for `.brres/.kmp/.szs` (so a double-click opens nothing until the user
   associates it — CT Studio must launch by argv, not `ShellExecute` on the document).
+- Model preview (OpenGL) **renders natively on Windows 11** — human check, 2026-09-27, on a real
+  course model (not a fixture). Still unknown on Linux with a real GPU; fails under Wine/llvmpipe.
 - VM/no-GPU error "Unable to find an entry point named 'glActiveTexture'" → needs a real GL driver or
   Mesa llvmpipe (system-wide) **[doc: add-on README]**
 - Plugin system (BrawlAPI, Python scripts in Loaders/Plugins folders; e.g. EasyReplace automates model

@@ -312,7 +312,8 @@ Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
 - **Editor file-association / double-click launch**: nothing registered on this Windows machine;
   untested on both. HC1.
 - **Editor save behaviour** (Lorenzi, BrawlCrate): neither platform. HC1.
-- **BrawlCrate model preview**: neither platform (Wine had llvmpipe; native not looked at). HC1.
+- **BrawlCrate model preview**: **works natively on Windows** (human, 2026-09-27, on a real
+  track's `course_model.brres`); Linux/Wine not working under llvmpipe, real GPU untested. HC1.
 - **Lorenzi `course.kcl` auto-load, KMP Cloud tree pane**: Wine pixels only; native not captured.
 - **S7 Wine contracts** (Linux): unchanged since P0-T10, not re-run (container not used).
 - **Dolphin launch routes (S8)**: Linux only; Windows Dolphin not installed. HC3 / P11.
@@ -326,14 +327,19 @@ Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
 _none_ — **HC0 answered 2026-09-22** (see "Human checkpoint results" below).
 
 ## Needs human — non-blocking
-- **Linux re-run of P0-T13 (added 2026-09-27; do before P1-T01 if you can).** On Mint, in a fresh
-  clone of the pushed repo: `git submodule update --init`,
-  `uv run python scripts/bootstrap_tools.py`, `uv run python scripts/fixtures/make_fixtures.py`,
-  then `uv run --with pytest --with pytest-timeout --with numpy --with pillow python -m pytest -m "not network" tests`.
+<!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
+TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
+RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
+- **Linux re-run of P0-T13 (added 2026-09-27; do before P1-T01 if you can).** On Mint, after
+  installing uv (HC1 "Running it on the Mint host"), in a fresh clone of the pushed repo:
+  `git submodule update --init`, then
+  `uv run --python 3.12 --no-project python scripts/bootstrap_tools.py`,
+  `uv run --python 3.12 --no-project --with numpy --with pillow python scripts/fixtures/make_fixtures.py`,
+  `uv run --python 3.12 --no-project --with pytest --with pytest-timeout --with numpy --with pillow python -m pytest -m "not network" tests`
+  (`--no-project`/`--with` until P1-T01 adds pyproject.toml; first attempt 2026-09-27 hit
+  `uv: command not found` because HC1 lacked the uv install step — added).
   Expected: all pass or skip (rszst tests skip without the S3a source build; Wine/Xvfb tests skip
   unless installed). Report the last line and any failure.
-- **BrawlCrate model preview (added 2026-09-27, 1 minute, whenever convenient).** Open any
-  `.brres` in BrawlCrate on this Windows machine, select a model: does the 3D preview render?
 - ~~RiiStudio licence / bundling~~ **answered 2026-09-18: never bundle it.** Ship
   detection + a link to the official releases page + an optional user-initiated
   download from the upstream URL; keep it out of the installer. Asking the maintainer

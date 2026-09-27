@@ -734,7 +734,7 @@ names, mipmaps, the U16 wall, the silent preset miss on rename, minimap bones).
 - **Non-ASCII paths under Wine/Linux** — Linux side unmeasured.
 - **Save behaviour** (in place? atomic? backups?), which P5-T06's change-detection needs.
 - BrawlCrate's second argument as a node selector, and whether its OpenGL model preview
-  works (not under Wine/llvmpipe; not checked natively — needs a human to look, HC1).
+  works — **native Windows: yes** (human-checked 2026-09-27); Linux with a real GPU: unknown.
 - KMP Cloud's tree pane and Lorenzi's `course.kcl` auto-load natively (pixel evidence only).
 - macOS entirely.
 
