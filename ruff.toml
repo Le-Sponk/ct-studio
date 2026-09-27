@@ -2,6 +2,8 @@
 # P1-T02 folds these into the real config; keep the two in sync when it does.
 line-length = 100
 target-version = "py312"
+# Third-party submodule (the Blender add-on): upstream's style, not ours.
+extend-exclude = ["vendor"]
 
 [lint]
 select = ["E", "F", "W", "I", "UP", "B", "S", "RUF"]
