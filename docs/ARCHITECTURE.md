@@ -307,3 +307,19 @@ Budgets may be revised with evidence (log in DECISIONS.md); they may not be sile
 No `shell=True`; manifest paths validated to stay inside the project unless explicitly external;
 downloads only from official URLs, with checksum verification where published; user consent before
 touching game files; backups before overwrites.
+
+P1-T05 filesystem policy: `core.fsutil.ensure_inside(root, path)` resolves symlinks and checks
+containment for *existing or prospective* project paths; callers must separately guard any
+symlink swap between validation and use. `atomic_write_bytes/text` stages and fsyncs a temporary
+file in the destination directory before `os.replace`, and is **only for app-managed files**.
+User-editable files must use `replace_with_backup(path, data)`: an existing regular file is copied
+to a uniquely named adjacent `.bak` before atomic replacement; a new file returns no backup.
+A process-local lock serializes replacements (Windows rename/open-handle behavior), not external
+processes. The target is preserved on failed staging, backup or replacement; if replacement fails
+a completed backup may remain. Both write helpers take materialized bytes (not stream inputs).
+`hash_file` streams BLAKE2b in 1 MiB chunks. `Fingerprint.from_path` captures size and nanosecond
+mtime; its `digest` hashes lazily and uses a 256-entry in-memory LRU keyed by resolved path, size
+and mtime. An unchanged size+mtime after an external edit can yield a stale cache hit; no cryptographic
+claim is made for the fast path. These operations belong off the GUI thread.
+`core.platform` detects the running process's OS/sandbox and exposes platformdirs config/data/cache/log
+paths. Blender's own sandbox must be diagnosed in its process, not inferred from the app's process.

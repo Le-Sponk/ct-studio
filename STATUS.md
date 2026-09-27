@@ -3,8 +3,8 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T04 done)
-**Next task:** P1-T05 — platform & filesystem utilities
+**Current phase:** 1 — Skeleton & quality gates (P1-T05 done)
+**Next task:** P1-T06 — minimal GUI shell
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 72a4040 (P1-T04 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
@@ -15,6 +15,19 @@ _none_
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T05` — OS/user-directory/sandbox probes, atomic app-managed writes, backed-up user
+  replacements, resolved-path containment and lazy, cached, streamed BLAKE2b fingerprints.
+  Tests cover Unicode/spaced paths, symlink escapes, failure preservation, unique backups,
+  Windows concurrent writes (10 consecutive stress runs), stale hash detection and the
+  metadata fast path. **Windows evidence:** `uv run python scripts/check.py` exit 0:
+  102 passed / 1 optional fixture skip / 92 deselected, pyright 0 errors, 3 import
+  contracts, xenon/vulture green. Full non-network, non-slow suite: 174 passed / 1
+  optional moderngl skip / 20 deselected. 200 MiB streaming-hash benchmark:
+  0.394 s, digest checked, Windows 11 / Python 3.12.14; see
+  [BENCHMARKS.md](docs/dev/BENCHMARKS.md). 14 focused tests, function/file budgets,
+  `git diff --check` and local doc links pass. Linux unverified until CI/Mint.
+  — commit _pending_
+
 - `P1-T04` — `core/errors.py` adds `CTStudioError(user_message, hint, details)` and typed
   `ToolNotFound`, `ToolFailed`, `ProjectError`, `ManifestError`, `BuildError`, `Cancelled`,
   `ParseError`; `str(error)` shows an actionable next step but never raw stderr or private
@@ -378,6 +391,12 @@ _none_
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
+- **P1-T05 filesystem/platform utilities:** Windows 11 only; concurrent atomic replacements,
+  UTF-8/unicode paths, backup behavior, path containment, and 200 MiB hash benchmark verified.
+  Linux parity closes with P1-T07 CI or Mint (`git pull && uv sync && uv run python scripts/check.py`;
+  for the 200 MiB benchmark additionally run `uv run pytest -m "slow and benchmark" -q -s
+  tests/benchmarks/test_hash_200mib.py`). Neither benchmark timing nor sandbox detection from
+  Windows is Linux evidence.
 - **P1-T04 error/logging foundation**: Windows 11 only. JSON-line creation, rotation,
   Unicode paths and repeated configuration passed locally; Linux parity closes with CI
   P1-T07 or optionally on Mint: `git pull && uv sync && uv run python scripts/check.py`

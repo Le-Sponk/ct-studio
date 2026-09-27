@@ -39,7 +39,7 @@ implementations; `check.py` keeps xenon explicitly skipped until P1-T04 adds cor
 rotating file handler in `platformdirs.user_log_dir`, console handler for CLI, `get_logger(__name__)`.
 **Acceptance:** unit tests for message/hint formatting and log file creation in a temp dir.
 
-### [ ] P1-T05 — Platform & filesystem utilities
+### [x] P1-T05 — Platform & filesystem utilities (commit _pending_)
 `core/platform.py`: OS detection, user dirs, Flatpak/Snap detection (port ideas from the add-on's
 `diagnose.py`/tool discovery). `core/fsutil.py`: `atomic_write_bytes/text`, `replace_with_backup`,
 `ensure_inside(root, path)`, `Fingerprint(size, mtime_ns, blake2b?)` with lazy hashing and an
@@ -68,7 +68,9 @@ skip reason.
 ### [ ] P1-T08 — Contributor basics
 `CONTRIBUTING.md` (short: commands, rules pointer to AGENTS.md), `LICENSE` (GPL-3.0-or-later pending
 HC0), `THIRD_PARTY_NOTICES.md` skeleton, `docs/dev/BENCHMARKS.md` skeleton. The
-`vulture_whitelist.py` skeleton was created in P1-T02 so the gate could run.
+`vulture_whitelist.py` skeleton was created in P1-T02 so the gate could run. The initial
+`docs/dev/BENCHMARKS.md` was created in P1-T05 to record the required 200 MiB hash measurement;
+expand it here with baseline guidance rather than recreate it.
 **Acceptance:** files exist; README.md has a 10-line project description and dev quick start.
 
 ### [ ] P1-GATE — Phase review (skill `mkw-phase-review`)
