@@ -6,8 +6,9 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T07 done)
 **Next task:** P1-T08 — Contributor basics
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 14bc60b (P1-T07 main CI success on Ubuntu and Windows, run
-`36341555661`; network-skip probe `36341608296` verified on both OSes)
+**Last green commit:** 58720ee (P1-T07 final CI success on Ubuntu and Windows,
+[run 36342036535](https://github.com/Le-Sponk/ct-studio/actions/runs/36342036535);
+network-skip probe `36341608296` verified on both OSes)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
