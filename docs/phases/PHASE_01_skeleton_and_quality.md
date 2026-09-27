@@ -39,7 +39,7 @@ implementations; `check.py` keeps xenon explicitly skipped until P1-T04 adds cor
 rotating file handler in `platformdirs.user_log_dir`, console handler for CLI, `get_logger(__name__)`.
 **Acceptance:** unit tests for message/hint formatting and log file creation in a temp dir.
 
-### [x] P1-T05 — Platform & filesystem utilities (commit _pending_)
+### [x] P1-T05 — Platform & filesystem utilities (commit ba8aa1e)
 `core/platform.py`: OS detection, user dirs, Flatpak/Snap detection (port ideas from the add-on's
 `diagnose.py`/tool discovery). `core/fsutil.py`: `atomic_write_bytes/text`, `replace_with_backup`,
 `ensure_inside(root, path)`, `Fingerprint(size, mtime_ns, blake2b?)` with lazy hashing and an

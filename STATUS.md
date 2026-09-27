@@ -6,7 +6,7 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T05 done)
 **Next task:** P1-T06 — minimal GUI shell
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 72a4040 (P1-T04 full gate on Windows; Linux CI in P1-T07)
+**Last green commit:** ba8aa1e (P1-T05 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -26,7 +26,7 @@ _none_
   0.394 s, digest checked, Windows 11 / Python 3.12.14; see
   [BENCHMARKS.md](docs/dev/BENCHMARKS.md). 14 focused tests, function/file budgets,
   `git diff --check` and local doc links pass. Linux unverified until CI/Mint.
-  — commit _pending_
+  — commit ba8aa1e
 
 - `P1-T04` — `core/errors.py` adds `CTStudioError(user_message, hint, details)` and typed
   `ToolNotFound`, `ToolFailed`, `ProjectError`, `ManifestError`, `BuildError`, `Cancelled`,
