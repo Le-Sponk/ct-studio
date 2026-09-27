@@ -47,7 +47,7 @@ in-memory LRU keyed by `(path, size, mtime_ns)`; `hash_file` streaming in 1 MiB 
 **Acceptance:** tests incl. paths with spaces/unicode, concurrent replace, backup naming; a benchmark
 hashing a 200 MB temp file (recorded, not asserted yet).
 
-### [x] P1-T06 — Minimal GUI shell (commit _pending_)
+### [x] P1-T06 — Minimal GUI shell (commit aefa306)
 `gui/app.py` + `main_window.py`: window with placeholder dashboard, About dialog (version, licence,
 third-party list placeholder), follows system light/dark. `ctstudio --offscreen-smoke <png>`
 starts, renders, saves a screenshot, exits 0. Lazy-import PySide6 only on GUI paths.

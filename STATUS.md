@@ -6,7 +6,7 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T06 done)
 **Next task:** P1-T07 — CI
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** ba8aa1e (P1-T05 full gate on Windows; Linux CI in P1-T07)
+**Last green commit:** aefa306 (P1-T06 full gate on Windows; Linux CI in P1-T07)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -28,7 +28,7 @@ _none_
   contracts, xenon/vulture green. Full non-network suite: 182 passed / 19 optional-tool
   skips / 1 network deselected. 7 focused GUI tests, screenshot CLI run, budgets, local
   links and `git diff --check` pass. Linux/CI offscreen fonts unverified until P1-T07.
-  — commit _pending_
+  — commit aefa306
 
 - `P1-T05` — OS/user-directory/sandbox probes, atomic app-managed writes, backed-up user
   replacements, resolved-path containment and lazy, cached, streamed BLAKE2b fingerprints.
