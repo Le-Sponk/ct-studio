@@ -3,34 +3,32 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 1 — Skeleton & quality gates (P1-T07 done)
-**Next task:** P1-T08 — Contributor basics
+**Current phase:** 1 — Skeleton & quality gates (P1-T08 done; review gate pending)
+**Next task:** P1-GATE — Phase review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 58720ee (P1-T07 final CI success on Ubuntu and Windows,
-[run 36342036535](https://github.com/Le-Sponk/ct-studio/actions/runs/36342036535);
-network-skip probe `36341608296` verified on both OSes)
+**Last green commit:** 65887f7 (P1-T08 Windows gate and Ubuntu/Windows CI
+[run 36343094142](https://github.com/Le-Sponk/ct-studio/actions/runs/36343094142))
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P1-T08` — Contributor basics. (1) Verify the accepted GPL-3.0-or-later
-  decision and upstream notice/source before writing legal docs; (2) add a
-  10-line project description and runnable uv quick start in `README.md`, a
-  short `CONTRIBUTING.md` pointing to `AGENTS.md`, canonical `LICENSE`, and an
-  honest `THIRD_PARTY_NOTICES.md` inventory (not final packaged attribution);
-  (3) expand existing `docs/dev/BENCHMARKS.md` with reproducible baseline
-  guidance without inventing Linux timing; (4) add docs acceptance tests,
-  exercise the documented commands, run local full gate/suite and CI, then
-  update phase checklist and STATUS and commit/push. Risk: verbatim GPL text
-  exceeds the source-code size budget; its legal text must not be shortened.
-  Acceptance: all four files exist, README has >=10 lines of truthful project
-  description plus a working developer quick start; the Windows gate and both
-  CI jobs remain green. User deferred the optional Mint PNG spot-check; do not
-  request it again in this session.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P1-T08` — added a truthful 13-line project description and developer quick start
+  (`README.md`), short `CONTRIBUTING.md`, canonical verbatim GPLv3 `LICENSE`
+  (matched GNU + mirror, SHA-256 in ADR-009), and a development inventory in
+  `THIRD_PARTY_NOTICES.md` that does not assert external-tool redistribution rights.
+  Expanded existing `docs/dev/BENCHMARKS.md` with baseline guidance and measured a
+  second Windows 200 MiB hash at **0.397 s**; the Mint pass had no timing. Eight
+  docs tests assert links, commands, dependency coverage, and exact legal text.
+  `uv sync --locked`, `ctstudio --version`/`--help`, offscreen PNG, benchmark, Windows
+  gate **125 passed / 1 optional skip** and full non-network suite **195 passed /
+  19 optional-tool skips**. GitHub [run 36343094142](https://github.com/Le-Sponk/ct-studio/actions/runs/36343094142)
+  succeeded on Ubuntu and Windows. The optional Mint screenshot inspection was
+  deferred by the user and does not block the phase gate. — commit 65887f7
 - `P1-T07` — cross-platform GitHub CI (`ci.yml`) with locked uv, Qt prerequisites,
   coverage and screenshot artifacts; scheduled/manual `integration.yml` selects network
   tests on both OSes. A JUnit reporter publishes exact selected-test skip reasons in logs,

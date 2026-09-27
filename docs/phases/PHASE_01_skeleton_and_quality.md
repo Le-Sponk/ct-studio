@@ -74,12 +74,16 @@ skip reason. Verified with [main CI run](https://github.com/Le-Sponk/ct-studio/a
 non-green as designed). The probe used an isolated branch-scoped push trigger, then removed it;
 main retains manual/nightly triggers. The first scheduled run is pending.
 
-### [ ] P1-T08 — Contributor basics
-`CONTRIBUTING.md` (short: commands, rules pointer to AGENTS.md), `LICENSE` (GPL-3.0-or-later pending
-HC0), `THIRD_PARTY_NOTICES.md` skeleton, `docs/dev/BENCHMARKS.md` skeleton. The
-`vulture_whitelist.py` skeleton was created in P1-T02 so the gate could run. The initial
-`docs/dev/BENCHMARKS.md` was created in P1-T05 to record the required 200 MiB hash measurement;
-expand it here with baseline guidance rather than recreate it.
-**Acceptance:** files exist; README.md has a 10-line project description and dev quick start.
+### [x] P1-T08 — Contributor basics (commit 65887f7)
+`CONTRIBUTING.md` (short: commands, rules pointer to AGENTS.md), `LICENSE` (official
+verbatim GPLv3, project declares GPL-3.0-or-later; HC0 confirmed),
+`THIRD_PARTY_NOTICES.md` development inventory, and `docs/dev/BENCHMARKS.md` guidance.
+The `vulture_whitelist.py` skeleton was created in P1-T02 so the gate could run. The initial
+`docs/dev/BENCHMARKS.md` was created in P1-T05 for the 200 MiB hash measurement and expanded
+here with baseline comparison guidance, preserving the observed value and unmeasured Mint timing.
+**Acceptance:** all four files exist; README.md has a 10-line project description and dev quick start.
+Verified by eight docs tests, actual uv sync/version/offscreen smoke and benchmark commands,
+Windows `check.py` (125 passed) and [Ubuntu + Windows CI](https://github.com/Le-Sponk/ct-studio/actions/runs/36343094142)
+(both jobs succeeded).
 
 ### [ ] P1-GATE — Phase review (skill `mkw-phase-review`)
