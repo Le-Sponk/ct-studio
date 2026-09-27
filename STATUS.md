@@ -6,8 +6,8 @@
 **Current phase:** 1 — Skeleton & quality gates (P1-T06 done)
 **Next task:** P1-T07 — CI
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 9073b80 (P1-T07 Windows gate only; local commit, not pushed — GitHub
-workflow permission blocker; Ubuntu and nightly execution unverified)
+**Last green commit:** 3438504 (P1-T07 CI matrix green on Ubuntu and Windows, run
+`36340507201`; nightly integration verification/fix still in progress)
 **Last phase gate passed:** P0 — 2026-09-22, tag `phase-00-done` (review: docs/reviews/PHASE_00_REVIEW.md)
 
 ## In progress
@@ -24,14 +24,16 @@ workflow permission blocker; Ubuntu and nightly execution unverified)
   unit tests, TOOLS/TESTING_STRATEGY/STATUS/phase. Risk: remote Actions dispatch access;
   the current network test also needs Wine/Xvfb/RiiStudio, so a missing prerequisite
   must be a visible non-green signal, not a silent pass.
-  Local candidate `9073b80` passed the Windows gate (116 passed, 1 optional skip), the
-  non-network suite, `actionlint` 1.7.12 and a real network-skip report. **Blocked:**
-  `git push origin main` was rejected: the stored GitHub PAT lacks `workflow` scope
-  for `.github/workflows/ci.yml`. Remote remains at `7914de0`; no Actions run exists
-  for this candidate. GitHub browser login was declined, so do not retry auth this turn.
-  Keep P1-T07 open and its checklist unchecked until the human updates the Git
-  credential locally, push succeeds, both matrix jobs are green, and nightly skip
-  reasons are verified in GitHub Actions.
+  Remote permissions fixed by the human; push `3438504` succeeded. GitHub CI run
+  [`36340507201`](https://github.com/Le-Sponk/ct-studio/actions/runs/36340507201)
+  completed **success on both Ubuntu and Windows**. A throwaway-branch probe
+  [`36341029431`](https://github.com/Le-Sponk/ct-studio/actions/runs/36341029431)
+  ran the nightly network jobs: Windows's reporter exited 1 as designed (selected
+  test skipped); Ubuntu's pytest exited 3 before JUnit creation. The nightly
+  scaffold lacked the Qt environment/libraries installed by `ci.yml`, a likely
+  cause to verify on rerun. Add the same prerequisites and publish exact skip
+  reasons as public Actions annotations, then rerun and remove the throwaway branch.
+  Linux font screenshot readability is separate from the CI matrix's test success.
 
 
 ## Done (newest first)
@@ -440,11 +442,12 @@ workflow permission blocker; Ubuntu and nightly execution unverified)
 <!-- Fact · verified on · missing on · who closes it -->
 Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
 - **P1-T06 GUI shell / headless smoke:** Windows 11 offscreen Qt 6.11 passed GUI tests,
-  PNG screenshot smoke, light/dark/150% review and Qt-free import-time probes. Linux
-  offscreen plugin and installed font availability are unverified until P1-T07 CI or Mint;
-  from a fresh clone run `git pull && uv sync && uv run python scripts/check.py` and
-  `uv run ctstudio --offscreen-smoke /tmp/ctstudio-smoke.png` (inspect the PNG for
-  readable text). ADR-021 records the font-database discrepancy.
+  PNG screenshot smoke, light/dark/150% review and Qt-free import-time probes. The human's
+  Mint run (Python 3.12.3 / Qt 6.11.2) passed all seven GUI tests in a broader
+  non-network suite (141 passed, 60 optional-tool skips, 1 network deselection), plus
+  `uv run ctstudio --version`. That verifies Linux Qt test execution, **not** screenshot
+  readability, a full `check.py` gate or the new P1-T07 commit. Inspect a Linux screenshot
+  for readable text before closing the font gap. ADR-021 records the font discrepancy.
 - **P1-T05 filesystem/platform utilities:** Windows 11 only; concurrent atomic replacements,
   UTF-8/unicode paths, backup behavior, path containment, and 200 MiB hash benchmark verified.
   Linux parity closes with P1-T07 CI or Mint (`git pull && uv sync && uv run python scripts/check.py`;
@@ -492,13 +495,7 @@ Updated by P0-T13 (native Windows 11). Facts with one platform behind them:
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
-- **P1-T07 GitHub workflow permission:** Please update the GitHub PAT used by this
-  checkout so it can change `.github/workflows/` (`workflow` scope for a classic PAT,
-  or equivalent Workflows write permission), via your own GitHub settings and local
-  Git credential manager. Do not send the token in chat. Then say `retry P1-T07`.
-  The attempted `git push origin main` was rejected for missing `workflow` scope;
-  remote CI and the Phase 1 completion gate remain blocked. The local candidate
-  commit is `9073b80`, ahead of `origin/main`.
+_none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
 
 ## Needs human — non-blocking
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and

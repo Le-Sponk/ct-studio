@@ -5,6 +5,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -57,6 +59,23 @@ def test_unrelated_collection_skip_is_shown_but_does_not_hide_a_network_pass(
     text = summary.read_text(encoding="utf-8")
     assert "1 passed, 0 skipped" in text
     assert "moderngl not installed" in text
+
+
+def test_ci_exposes_exact_skip_as_public_annotation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    xml = tmp_path / "results.xml"
+    xml.write_text(
+        '<testsuite tests="1"><testcase name="test_riistudio">'
+        '<skipped message="wine not installed"/></testcase></testsuite>',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    assert report_junit(xml, None) == 1
+    output = capsys.readouterr().out
+    assert (
+        "::warning title=Network test skipped::SKIPPED test_riistudio: wine not installed" in output
+    )
 
 
 def test_empty_or_missing_report_is_not_green(tmp_path: Path) -> None:

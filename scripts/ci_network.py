@@ -13,6 +13,13 @@ from pathlib import Path
 def _emit(lines: list[str], summary_path: Path | None) -> None:
     report = "\n".join(lines) + "\n"
     print(report, end="")
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        for line in lines:
+            escaped = line.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+            if line.startswith("- SKIPPED "):
+                print(f"::warning title=Network test skipped::{escaped[2:]}")
+            elif line.startswith("FAIL: "):
+                print(f"::error title=Network test report::{escaped}")
     if summary_path is not None:
         with summary_path.open("a", encoding="utf-8") as stream:
             stream.write(report)
@@ -38,8 +45,8 @@ def _read_cases(xml_path: Path) -> tuple[list[ET.Element], str | None]:
 def _skip_reason(skip: ET.Element) -> str:
     reason = (skip.get("message") or "no reason supplied").strip()
     if reason == "collection skipped" and skip.text:
-        return f"{reason}: {skip.text.strip()}".replace("\n", " ")
-    return reason.replace("\n", " ")
+        return f"{reason}: {skip.text.strip()}".replace("\r", " ").replace("\n", " ")
+    return reason.replace("\r", " ").replace("\n", " ")
 
 
 def _summarize(cases: list[ET.Element]) -> tuple[list[str], int]:

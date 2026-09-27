@@ -47,7 +47,12 @@ def test_nightly_network_reporter_never_treats_a_skip_as_green() -> None:
     assert workflow["on"]["schedule"][0]["cron"]
     job = workflow["jobs"]["network"]
     assert job["strategy"]["matrix"]["os"] == ["ubuntu-latest", "windows-latest"]
+    assert job["env"]["QT_QPA_PLATFORM"] == "offscreen"
     steps = job["steps"]
+    assert any(
+        step.get("if") == "runner.os == 'Linux'" and "libegl1" in step.get("run", "")
+        for step in steps
+    )
     tests = [step for step in steps if "pytest" in step.get("run", "")]
     assert len(tests) == 1 and "-m network" in tests[0]["run"]
     assert "--junitxml=" in tests[0]["run"]

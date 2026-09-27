@@ -684,3 +684,15 @@ collection skip was also in JUnit. The `ci_network.py` reporter makes the select
 visible in both log and job summary and exits 1. See the [Windows recording](../../tests/fakes/recordings/github-actions/p1-t07-windows.txt).
 Remote execution on ubuntu-latest/windows-latest is tracked in STATUS, not inferred from
 local actionlint or the Windows gate.
+**[remote verified]** GitHub Actions run
+[`36340507201`](https://github.com/Le-Sponk/ct-studio/actions/runs/36340507201)
+completed success on both ubuntu-latest and windows-latest at `3438504` (public jobs API).
+A throwaway-branch integration probe
+[`36341029431`](https://github.com/Le-Sponk/ct-studio/actions/runs/36341029431)
+ran both OSes: Windows produced JUnit and the reporter failed on selected skips as designed;
+Ubuntu's pytest exited 3 before JUnit creation (root cause under investigation). The
+public jobs API exposes step outcomes but GitHub returned 403 for anonymous log downloads.
+GitHub documents `::warning title=...::{message}` and `::error title=...::{message}` as
+[workflow commands](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands)
+that create job annotations; the network reporter emits escaped exact skip reasons there
+as well as in logs and `GITHUB_STEP_SUMMARY` so they can be verified without private logs.
