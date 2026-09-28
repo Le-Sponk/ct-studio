@@ -50,6 +50,23 @@ def _run_copy(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def test_ci_failure_annotation_exposes_test_name_without_parameter_data(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    code = (
+        "import sys; "
+        "print('FAILED tests\\\\unit\\\\test_tool_discovery.py::test_missing"
+        "[path=private] - AssertionError'); "
+        "sys.exit(1)"
+    )
+    step = check.Step("pytest", (sys.executable, "-c", code), 5)
+    out = io.StringIO()
+    assert check.run_all([step], tmp_path, keep_going=False, out=out) == 1
+    assert "::error title=pytest::tests/unit/test_tool_discovery.py::test_missing" in out.getvalue()
+    assert "[path=private]" not in out.getvalue().split("::error", maxsplit=1)[1]
+
+
 def test_steps_match_the_gate_and_fast_only_skips_typecheck_and_coverage() -> None:
     normal = check.build_steps(ROOT, fast=False)
     fast = check.build_steps(ROOT, fast=True)

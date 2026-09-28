@@ -10,7 +10,10 @@ vulture. It stops at the first failure unless `--all`; `--fast` skips pyright an
 coverage only. The normal gate reads pytest-cov's JSON report from a temporary directory
 and fails unless core statement coverage is ≥ 85% and GUI ≥ 60% (REVIEW_CHECKLIST §6);
 `--fast` does not enforce coverage. Each step prints status and duration; failed steps
-also print captured output and exit status. `xenon (core)` is active from P1-T04, when
+also print captured output and exit status. In GitHub Actions, failed pytest cases also emit
+annotations with only the test file and function name (never parametrized values), so a failed
+public check identifies the case without requiring access to restricted job logs.
+`xenon (core)` is active from P1-T04, when
 arrive. Before that it explicitly skipped: xenon itself returned 0 on an absent or empty
 package. P1-T03 added empty `core`, `cli` and `gui` package markers for import-linter.
 Import-linter's three contracts protect core↛GUI/CLI/PySide6, CLI↛GUI, and application↛`spikes`,

@@ -20,6 +20,7 @@ import argparse
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import sysconfig
@@ -188,6 +189,20 @@ def summary_line(result: Result) -> str:
     return text.rstrip()
 
 
+def _annotate_ci_failure(result: Result, out: TextIO) -> None:
+    """Publish only stable test IDs; never leak parametrized values in public annotations."""
+    if os.environ.get("GITHUB_ACTIONS") != "true" or result.step.name != "pytest":
+        return
+    count = 0
+    for line in result.output.splitlines():
+        match = re.match(r"^FAILED (tests/[A-Za-z0-9_/.]+::[A-Za-z0-9_]+)", line.replace("\\", "/"))
+        if match:
+            print(f"::error title=pytest::{match.group(1)} failed; see job logs", file=out)
+            count += 1
+            if count == 10:
+                break
+
+
 def run_all(steps: Sequence[Step], root: Path, *, keep_going: bool, out: TextIO) -> int:
     """Run ``steps`` in order, print a line each, and return the process exit status."""
     failed: list[str] = []
@@ -197,6 +212,7 @@ def run_all(steps: Sequence[Step], root: Path, *, keep_going: bool, out: TextIO)
         if result.status != "FAIL":
             continue
         print(result.output, file=out, flush=True)
+        _annotate_ci_failure(result, out)
         failed.append(step.name)
         if not keep_going:
             break
