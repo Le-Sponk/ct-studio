@@ -732,5 +732,38 @@ not its parser version; ABMatt has no version regex because its Linux release ta
 1.3.2 prints `Version 1.3.1` (documented above). Version commands not established
 for GUI editors, Dolphin, Wine or winetricks are deliberately empty; discovery must
 not invoke guessed flags or launch GUIs. `min_version=None` means no established
-compatibility floor, **not** that every release is supported. P2-T02 validates more
+compatibility floor, **not** that every release is supported. P2-T02b validates more
 platform versions before using them in doctor.
+
+## P2-T02a location discovery (no version probing)
+`core/tools/discovery.py` checks a configured executable first (invalid settings
+raise actionable `ToolNotFound`), then the process's PATH, standard visible OS
+locations, Flatpak's exported Blender desktop entry, and `.tools/` **only** when
+`include_dev=True`. Windows Program Files Wiimm/SZS and Blender Foundation/*,
+Linux `/usr/local/bin`, `/usr/bin`, `~/bin`, `/opt/blender*` and `~/Applications`
+are searched without requiring a shell PATH. Only Linux executable files are
+accepted (POSIX execute bit); Windows `.exe` suffixes come from ToolSpec. Linux
+Windows-only `.exe` editor locations carry `launcher=wine`; no Wine process is
+spawned. Flatpak returns `path=<flatpak executable>`, `app_id=org.blender.Blender`,
+`launcher=flatpak` rather than inventing a Blender binary. The exported desktop
+entry and launcher must both be visible; the entry is not a guarantee that
+`flatpak run` can access a track file under sandbox permissions.
+
+**[doc]** [Flatpak conventions](https://docs.flatpak.org/en/latest/conventions.html)
+place exported desktop entries in `$HOME/.local/share/flatpak/exports/share/applications`
+or `/var/lib/flatpak/exports/share/applications` (with `$XDG_DATA_HOME` override).
+[Flatpak usage](https://docs.flatpak.org/en/latest/using-flatpak.html) documents
+`flatpak run org.gimp.GIMP`; the
+[Flathub Blender listing](https://flathub.org/en/apps/org.blender.Blender)
+confirms the `org.blender.Blender` app ID. No Flatpak execution was performed.
+The app's own Flatpak/Snap sandbox
+may not see host `/usr/local`, `/usr/bin` or `/opt`; discovery skips those roots
+when sandboxed, but still checks visible PATH, an explicit setting and `~/bin`.
+
+**[verified P2-T02a, Windows 11, real filesystem check]** With the local `.tools/`
+opt-in, `wszst`, `wkclt`, `rszst`, `abmatt` and Lorenzi were found; Blender was
+found at a standard location, BrawlCrate was not installed here. No version
+commands or editor launches occurred. Fake Windows/Linux trees test both OS
+branches; actual Linux filesystem and Flatpak installs remain unverified until
+Linux CI and a real-tool checkpoint. Version probes and cache wait for P2-T02b
+and P2-T03 (ADR-023).

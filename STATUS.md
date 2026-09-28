@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T02 — Discovery
+**Next task:** P2-T02a — Location discovery
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 157fc62 (P2-T01 Windows gate and Ubuntu/Windows CI
 [run 36356549228](https://github.com/Le-Sponk/ct-studio/actions/runs/36356549228))
@@ -12,7 +12,18 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T02a` — pure location discovery. (1) Design location/launcher metadata and
+  verify existing .tools paths against scripts/tool_paths.py and editor recordings;
+  use fake path trees and monkeypatched OS. (2) RED→GREEN tests for explicit
+  setting/PATH/standard/dev precedence, Windows Wiimms/Blender, Linux
+  `/usr/{local/,}bin`, `~/bin`, `/opt/blender*`, Flatpak app export, Wine editors,
+  sandbox host-path visibility and Unicode/spaces. (3) Add filesystem-only
+  `core/tools/discovery.py` and docs. (4) Run full check, broad non-network tests,
+  inspect diff/budgets, close checklist/STATUS, commit and push. Acceptance:
+  each OS branch and launcher with fake trees, no spawning, dev opt-in only.
+  Files: discovery.py, test_tool_discovery.py, phase file, ADR-023, TOOLS.md,
+  ARCHITECTURE.md, STATUS. Risk: true Windows/Linux file permissions differ;
+  simulated OS tests run on both CI platforms.
 
 
 ## Done (newest first)
@@ -269,6 +280,11 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-09-28 (P2-T02): Discovery's concurrent version subprocesses precede
+  P2-T03's sole permitted spawning adapter, violating AGENTS.md rule 3 and
+  ARCHITECTURE §9. Split into P2-T02a (filesystem-only), P2-T03 (runner),
+  P2-T02b (version probing + persistent path/mtime cache), keeping Phase 2
+  user-visible scope. See ADR-023 and PHASE_02 task acceptance.
 - 2026-09-28 (P1-T07): `pytest -m network` exited 0 with its only selected test skipped
   (`wine not installed`), plus an unrelated module-level collection skip. A plain scheduled
   pytest command would falsely report green. Added a JUnit-based job-summary reporter that

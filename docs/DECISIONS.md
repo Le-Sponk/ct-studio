@@ -361,3 +361,20 @@ P1-T07's CI scaffold; P2-T08 adds the real bootstrap and integration/e2e jobs.
 **Consequences:** The scheduled network job may remain red with a precise missing
 precondition until P2-T08. The main `ci.yml` quality matrix is independent and must
 be green on Ubuntu and Windows. Revisit when P2-T08 installs real prerequisites.
+
+## ADR-023 — Split discovery around the process runner
+**Status:** Accepted (P2-T02a)
+**Context:** Phase 2 originally placed concurrent version probing in P2-T02 before
+P2-T03 creates the only permitted process-spawning module. AGENTS.md rule 3 and
+ARCHITECTURE §9 prohibit spawning from discovery, and the whole discovery task
+(location scanning + cross-platform launches + concurrent probes + persistent cache)
+is larger than the workflow's ~400-changed-line task budget.
+**Decision:** P2-T02a implements pure filesystem location discovery with fake
+Windows/Linux trees and launch metadata. Next P2-T03 implements `core/tools/process.py`;
+P2-T02b then uses it for bounded concurrent version checks and a persistent cache
+keyed by path + mtime. All three are distinct task IDs/sessions. A Flatpak location
+holds the visible `flatpak` executable path and app ID separately, never an invented
+path to an application executable. Unknown version remains `None` until probed.
+**Consequences:** `ctstudio doctor` (P2-T07) waits for P2-T02b, not just P2-T02a.
+P2-T02a never launches GUI editors or imports `subprocess`; no change to user-visible
+scope or new dependency. Revisit at P2-T02b if process runner proves unsuitable.
