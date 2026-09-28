@@ -79,8 +79,12 @@ def test_windows_path_ignores_empty_segments_and_wrong_suffix(tmp_path: Path) ->
 
 @pytest.mark.parametrize("platform,name", [("windows", "wszst.exe"), ("linux", "wszst")])
 def test_path_precedes_standard_wiimm_install(
-    tmp_path: Path, platform: Literal["windows", "linux"], name: str
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    platform: Literal["windows", "linux"],
+    name: str,
 ) -> None:
+    monkeypatch.chdir(tmp_path)
     env = environment(tmp_path, platform)
     standard = (
         tmp_path / "Program Files" / "Wiimm" / "SZS" / name
@@ -89,7 +93,7 @@ def test_path_precedes_standard_wiimm_install(
     )
     executable(standard)
     path_exe = executable(tmp_path / "override" / name)
-    env = environment(tmp_path, platform, path=str(path_exe.parent))
+    env = environment(tmp_path, platform, path="override")
     location = discover(TOOL_BY_ID["wszst"], environment=env)
     assert location is not None
     assert location.path == path_exe.resolve()
