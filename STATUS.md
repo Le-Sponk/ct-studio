@@ -4,28 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T03 — Process runner
+**Next task:** P2-T02b — Version probing and cache
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** d6513dc (P2-T02a Windows gate and Ubuntu/Windows CI
-[run 36370497638](https://github.com/Le-Sponk/ct-studio/actions/runs/36370497638))
+**Last green commit:** c138e66 (P2-T03 Windows gate and Ubuntu/Windows CI
+[run 40448766227](https://github.com/Le-Sponk/ct-studio/actions/runs/40448766227))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T03` — process runner. (1) RED tests with Python-interpreter fakes: live
-  streaming order, 50 MB output, timeout and cancel killing a grandchild, non-zero
-  → `ToolFailed` tail, `check=False`, Unicode cwd/argv/bytes, env additions, log
-  append, missing exe, callback exception, detached launch, no `subprocess` import
-  elsewhere in src/. (2) `core/tools/process.py`: queue-fed reader threads with
-  incremental UTF-8 replacement decoding, bounded tails, caller-supplied log;
-  POSIX new session + `killpg`; Windows new process group + `CREATE_NO_WINDOW` +
-  job-object tree termination. (3) `ToolTimedOut` typed error. (4) ARCHITECTURE §9,
-  gate, both-OS CI, close. Acceptance as phase file; test timeouts ≤ 10 s.
-  Risk: Windows job assignment races a child spawning before assignment.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T03` — `core/tools/process.py`, the only spawning module in src/: `run()` takes
+  absolute argv (never a shell), adds to the inherited env, streams both pipes via
+  reader threads with incremental UTF-8 replacement decoding, keeps 50-line tails,
+  appends a UTF-8 log, raises `ToolNotFound`/`ToolFailed`/new `ToolTimedOut`/`Cancelled`;
+  `launch_detached()` for editors. Whole-tree stop on timeout, cancel, callback error
+  and leftover helpers: POSIX session + `killpg`, Windows kill-on-close job assigned
+  while suspended (ADR-024, `process_tree.py`). 17 tests: live order, 2×25 MB, Unicode
+  cwd/argv/env/split UTF-8, timeout/cancel/grandchild heartbeat, console window, AST
+  spawn scan. Windows `check.py --all` 183 passed / 2 skipped; broad non-network 256
+  passed / 20 optional skips. 12/13 Windows mutations caught; Linux branch passed CI
+  but was not mutation-tested. [CI run 40448766227](https://github.com/Le-Sponk/ct-studio/actions/runs/40448766227)
+  passed Ubuntu and Windows. — commit c138e66
 - `P2-T02a` — filesystem-only `core/tools/discovery.py`: explicit setting → PATH →
   standard Windows/Linux locations (Wiimms, Blender Foundation newest-first,
   `/opt/blender*`, `~/Applications`) → exported Flatpak `org.blender.Blender`

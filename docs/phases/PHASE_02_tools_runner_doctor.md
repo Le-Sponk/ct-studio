@@ -32,7 +32,7 @@ Windows `check.py --all` (167 passed / 2 skipped) and
 [Ubuntu + Windows CI](https://github.com/Le-Sponk/ct-studio/actions/runs/36370497638).
 Discovery only inspects files; no Flatpak, Wine or tool process was executed.
 
-### [ ] P2-T03 — Process runner (prerequisite to P2-T02b)
+### [x] P2-T03 — Process runner (prerequisite to P2-T02b) (commit c138e66)
 `core/tools/process.py`: `run(cmd: Sequence[str|Path], *, cwd, env=None, timeout=None,
 on_line=None, cancel: CancelToken|None) -> RunResult(exit_code, duration, stdout_tail, stderr_tail,
 log_path)`; `launch_detached(cmd, cwd)` for GUI editors. Reader threads for stdout/stderr, bounded
@@ -42,6 +42,11 @@ termination). `CREATE_NO_WINDOW` for CLI tools on Windows. Environment: inherit,
 explicit additions; never `shell=True`.
 **Acceptance:** tests with fake tools: streaming order, 50 MB output without deadlock, timeout kill,
 cancel mid-run, non-zero exit → `ToolFailed` with tail, unicode paths/args. Test timeouts ≤ 10 s.
+Verified by 17 tests (16 on Linux; one Windows console-window test) using interpreter fakes,
+grandchild heartbeats and a src/ spawning scan; Windows `check.py --all` 183 passed / 2 skipped;
+[Ubuntu + Windows CI](https://github.com/Le-Sponk/ct-studio/actions/runs/40448766227).
+13 Windows source mutations, 12 caught (survivor: explicit job termination is redundant with
+kill-on-close). Tree mechanism: ADR-024.
 
 ### [ ] P2-T02b — Version probing and cache (after P2-T03)
 Use only documented `version_args`/`version_regex` through `core/tools/process.py` with short
