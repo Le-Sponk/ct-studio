@@ -228,9 +228,13 @@ wrote, a timestamped backup is made — no exceptions.
   validation and launch metadata on both OS branches, Wiimm/Blender standard locations,
   exported Flatpak Blender app identity and opt-in `.tools/` development paths. A Flatpak
   location names the `flatpak` executable as `path` and `org.blender.Blender` as `app_id`.
-  It does not launch tools or claim a version. P2-T03 supplies the runner before
-  P2-T02b adds bounded concurrent probes and the settings-backed path/mtime cache
-  (ADR-023). In a sandbox, host `/usr`/`/opt` are not treated as reachable installs.
+  It does not launch tools or claim a version. `core/tools/versions.py` (P2-T02b, ADR-023)
+  then runs only a spec's documented `version_args` + `version_regex` through the runner,
+  up to 8 at once with a 10 s timeout each; Wine locations and GUI editors are never started
+  for a version. Results persist in `<user config>/tool-versions.json`, keyed by tool id +
+  resolved path + size + mtime (Flatpak: launcher + app id), so a changed file is probed
+  again; failures and timeouts are reported, never cached; `force=True` re-checks.
+  In a sandbox, host `/usr`/`/opt` are not treated as reachable installs.
 - Adapters own all flag knowledge. Flags are verified and recorded in `docs/reference/TOOLS.md`.
 - **GUI editor launches are launch-only (ADR-017).** `editors.open_in` takes exactly one filesystem
   path and starts one detached process; there is no "did it open" query, because S7/S8 showed no

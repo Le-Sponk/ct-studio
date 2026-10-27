@@ -769,3 +769,12 @@ commands or editor launches occurred. Fake Windows/Linux trees test both OS
 branches; actual Linux filesystem and Flatpak installs remain unverified until
 Linux CI and a real-tool checkpoint. Version probes and cache wait for P2-T02b
 and P2-T03 (ADR-023).
+
+**[verified P2-T02b, fakes + recorded output; no real tool was run]** The registry
+regexes parse the recorded `rszst --version` output on Windows and Linux (`5.11.5`,
+`tests/fakes/recordings/rszst/5.11.5/`) and the Wiimm and Blender banners above.
+The prober ignores the exit status because `rszst` prints its banner and exits -1.
+`wkclt`'s pattern rejects a `wszst` banner, so one tool cannot claim another's
+version. Probes run real child processes (fake executables with their own path,
+size and mtime) through the P2-T03 runner. A real-tool version check on this
+machine is deferred to the P2-T07 doctor checkpoint.

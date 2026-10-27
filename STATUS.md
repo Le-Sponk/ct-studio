@@ -12,7 +12,12 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T02b` — `core/tools/versions.py`: documented probes only (Wine/GUI never started),
+  ≤8 concurrent, 10 s timeout, exit status ignored; JSON cache in the user config folder
+  keyed by tool id + resolved path + size + mtime (Flatpak: app id); failures not cached;
+  `force` re-check; an unwritable cache never hides a version. Also fixes a P2-T03 runner
+  bug the local gate exposed: output still queued after the tool exits was dropped when
+  the line callback was slow (50 MB test failed under gate load). Awaiting CI.
 
 
 ## Done (newest first)

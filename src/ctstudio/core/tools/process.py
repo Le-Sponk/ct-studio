@@ -77,15 +77,18 @@ class _Session:
     tails: dict[Stream, deque[str]] = field(default_factory=_empty_tails)
     open_streams: int = 2
 
-    def deliver(self, wait: float) -> None:
-        """Pass at most one batch of lines to the tails, the log and the callback."""
+    def deliver(self, wait: float) -> bool:
+        """Pass at most one batch of lines to the tails, the log and the callback.
+
+        Returns whether an event arrived, so the caller can tell a backlog from idle pipes.
+        """
         try:
             stream, lines = self.events.get(timeout=wait)
         except Empty:
-            return
+            return False
         if lines is None:
             self.open_streams -= 1
-            return
+            return True
         self.tails[stream].extend(lines)
         if self.log is not None:
             tag = _LOG_TAGS[stream]
@@ -93,6 +96,7 @@ class _Session:
         if self.on_line is not None:
             for line in lines:
                 self.on_line(stream, line)
+        return True
 
     def tail(self, stream: Stream) -> str:
         return "\n".join(self.tails[stream])
@@ -295,18 +299,23 @@ def _stop_reason(cancel: CancelToken | None, deadline: float) -> str | None:
 
 
 def _pump(session: _Session, deadline: float, cancel: CancelToken | None) -> str | None:
-    """Deliver output until the tool exits and both pipes close; else name why it stopped."""
-    exited_at = math.inf
+    """Deliver output until the tool exits and both pipes close; else name why it stopped.
+
+    After the tool exits, delivery continues while output keeps arriving (a slow ``on_line``
+    leaves a backlog that must not be dropped). Only ``PIPE_GRACE_SECONDS`` of silence ends
+    the run: then descendants hold the pipes idle, and ProcessTree.close() stops them.
+    """
+    quiet_since = math.inf
     while session.open_streams or session.proc.poll() is None:
         reason = _stop_reason(cancel, deadline)
         if reason is not None:
             return reason
-        now = time.monotonic()
-        if exited_at == math.inf and session.proc.poll() is not None:
-            exited_at = now
-        if now - exited_at > PIPE_GRACE_SECONDS:
-            return None  # descendants still hold the pipes; ProcessTree.close() stops them
-        session.deliver(POLL_SECONDS)
+        if session.deliver(POLL_SECONDS):
+            quiet_since = math.inf
+        elif session.proc.poll() is not None:
+            quiet_since = min(quiet_since, time.monotonic())
+            if time.monotonic() - quiet_since > PIPE_GRACE_SECONDS:
+                return None
     return None
 
 

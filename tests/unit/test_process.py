@@ -46,6 +46,21 @@ err("err-2")
     assert result.log_path is None
 
 
+def test_output_queued_after_exit_reaches_a_slow_consumer(tmp_path: Path) -> None:
+    # Ten separate writes, then exit. The callback is slower than the post-exit grace
+    # period, so lines are still queued when the tool has long gone; none may be dropped.
+    code = "import time\nfor i in range(10):\n    out(f'line {i}')\n    time.sleep(0.02)\n"
+    seen: list[str] = []
+
+    def slow(_stream: Stream, line: str) -> None:
+        time.sleep(0.2)
+        seen.append(line)
+
+    result = run(fake(code), cwd=tmp_path, timeout=9, on_line=slow)
+    assert seen == [f"line {i}" for i in range(10)]
+    assert result.stdout_tail.splitlines()[-1] == "line 9"
+
+
 def test_fifty_megabytes_on_both_pipes_do_not_deadlock(tmp_path: Path) -> None:
     code = """
 line = b"x" * 99 + b"\\n"
