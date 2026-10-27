@@ -78,7 +78,7 @@ templates + 6 prose-verified invocations pass; 7/7 checker mutations caught. Win
 `check.py --all` 215 passed / 2 skipped; Ubuntu/Windows CI run 40527275382. Recordings are
 Windows-only (Linux help output for Wiimm/ABMatt/Blender not yet recorded; rszst has both).
 
-### [ ] P2-T04b — Wiimm fakes, operation recordings and `fake_tools_path`
+### [x] P2-T04b — Wiimm fakes, operation recordings and `fake_tools_path` (commit dd99b04)
 `scripts/record_tool_outputs.py` records real Wiimm operations on the generated fixtures
 (create/list/check/analyze/minimap, wkmpt encode/decode, wkclt decode, wimgt encode, plus
 error cases: missing input, existing destination, missing destination folder, unknown flag)
@@ -91,6 +91,12 @@ spaces in the repo path). Pytest fixture `fake_tools_path` puts them first on PA
 output equals the recorded real output for every deterministic recorded case (messages, exit
 codes, file left unchanged or created); an unknown or foreign flag is rejected the way the real
 tool rejects it; an unmodelled-but-recorded command fails loudly instead of pretending.
+Verified by `test_fake_wiimm.py`: 57 real Wiimm 2.42a operation runs (Windows 11) replayed
+against the fakes through the core runner, plus 22 help/version runs byte-for-byte; unknown
+(110) and foreign (108) options as the real getopt; 7 unmodelled argv shapes exit 121 with
+nothing written; discovery and version probes find the fakes on PATH. 18/18 mutations of the
+fakes caught. CI run 40595338853 green on Ubuntu (sh/Python launchers) and Windows (`.exe`).
+Not verified: Linux recordings of the real tools (the fakes fall back to the Windows ones).
 
 ### [ ] P2-T04c — rszst, ABMatt and Blender fakes
 Same runtime for `rszst` (clap errors, exit -1, `FileNotExist`), `abmatt` (pipe-table flags,

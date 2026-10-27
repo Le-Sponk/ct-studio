@@ -4,28 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04b — Wiimm fakes, operation recordings and `fake_tools_path`
+**Next task:** P2-T04c — rszst, ABMatt and Blender fakes
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 9d891bf (P2-T04a Windows gate and Ubuntu/Windows CI
-[run 40527275382](https://github.com/Le-Sponk/ct-studio/actions/runs/40527275382))
+**Last green commit:** dd99b04 (P2-T04b Windows gate and Ubuntu/Windows CI
+[run 40595338853](https://github.com/Le-Sponk/ct-studio/actions/runs/40595338853))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T04b` — (1) `scripts/record_tool_outputs.py`: real Wiimm operations on the generated
-  fixtures in a temp `<work>` folder → `<os>-ops.json`. (2) RED tests: fakes through the
-  core runner equal those recordings for deterministic cases; unknown/foreign flags rejected
-  like the real tool; unmodelled commands fail loudly; discovery finds the fakes on PATH.
-  (3) `tests/fakes/fake_runtime.py` (runtime), `wiimm_cli.py`, `fake_wiimm.py`, `install.py`
-  (launchers) and a root `tests/conftest.py` fixture. (4) Gate, docs, commit, CI. Risk: the
-  Windows launcher comes from the pip wheel bundled with CPython (`ensurepip`); the Linux
-  sh/Python launcher is first exercised by CI (no Linux host here).
-  Local evidence so far: 57 recorded cases replayed + 22 help/version runs, 18/18 mutations
-  caught, `check.py --all` 308 passed / 2 skipped, broad suite 381 / 20. Awaiting CI.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T04b` — fake wszst/wkclt/wkmpt/wimgt replay 57 recorded real operations and 22 help
+  runs; real getopt errors (110/108); anything unrecorded exits 121 with nothing written;
+  `fake_tools_path` installs real launchers (Windows `.exe`, Linux sh/Python) on PATH with a
+  per-call log. 18/18 mutations caught; gate 308/2, broad 381/20 — commit dd99b04
+  ([CI 40595338853](https://github.com/Le-Sponk/ct-studio/actions/runs/40595338853))
 - `P2-T04a` — `scripts/record_tool_help.py` records full help for wszst/wkclt/wkmpt/wimgt
   (version + `help <cmd>` for 15 used commands), ABMatt and Blender through the core
   runner (LF, install folder → `<tool-dir>`, refuses unpinned versions) into
@@ -553,6 +549,10 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   its elapsed time was not in the report; sandbox detection outside the unit fakes was
   not exercised on Linux. These are not P1-T07 CI acceptance blockers.
 
+- **P2-T04b operation recordings are Windows-only.** The Linux fakes replay the Windows runs
+  of Wiimm 2.42a (path display differs: the Cygwin build prints `/` for `\`). Closing it:
+  on Linux run `scripts/record_tool_outputs.py` after bootstrap + fixtures and commit
+  `linux-ops.json`; the fakes then use it automatically.
 - **P2-T04a help recordings are Windows-only** (except rszst, recorded on both). Linux
   builds of Wiimm 2.42a, ABMatt 1.3.2 and Blender 5.2.2 may list different flags; the
   contract assumes they match. Closes when someone runs `uv run python
