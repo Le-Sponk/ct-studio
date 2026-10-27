@@ -62,7 +62,7 @@ executables (Windows: copied launcher; Linux: shebang script) and recorded `rszs
 Windows `check.py --all` 198 passed / 2 skipped; Ubuntu/Windows CI run 40519561490. No real
 tool's version was probed yet (deferred to the P2-T06 doctor checkpoint).
 
-### [ ] P2-T04a — Help recordings and flag contract checker
+### [x] P2-T04a — Help recordings and flag contract checker (commit 9d891bf)
 Record each pinned CLI's real help through `core/tools/process.py` with
 `scripts/record_tool_help.py`: Wiimm's `version` + `help <command>` per used command, rszst's
 existing recording, ABMatt `--help`, Blender `--version`/`--help`. Write JSON (argv, exit code,
@@ -73,6 +73,10 @@ pipe table, Blender) into the set of flags each command accepts.
 recording; replacing a flag with a non-existent one, or using one under the wrong command, fails a
 test; recording folders match `scripts/tool_catalogue.py` pins; the recorder refuses an unpinned
 version.
+Verified by 17 tests (`test_help_contract.py`, `test_record_tool_help.py`): 27 TOOLS.md table
+templates + 6 prose-verified invocations pass; 7/7 checker mutations caught. Windows
+`check.py --all` 215 passed / 2 skipped; Ubuntu/Windows CI run 40527275382. Recordings are
+Windows-only (Linux help output for Wiimm/ABMatt/Blender not yet recorded; rszst has both).
 
 ### [ ] P2-T04b — Fake tools and `fake_tools_path`
 `tests/fakes/`: small Python scripts mimicking the CLI surface we use (wszst, wkclt, wkmpt, wimgt,

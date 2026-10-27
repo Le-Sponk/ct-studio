@@ -4,24 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04a — Help recordings and flag contract checker
+**Next task:** P2-T04b — Fake tools and `fake_tools_path`
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 40fbb96 (P2-T02b Windows gate and Ubuntu/Windows CI
-[run 40519561490](https://github.com/Le-Sponk/ct-studio/actions/runs/40519561490))
+**Last green commit:** 9d891bf (P2-T04a Windows gate and Ubuntu/Windows CI
+[run 40527275382](https://github.com/Le-Sponk/ct-studio/actions/runs/40527275382))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T04a` — (1) RED tests: parsers for the four help families, contract over TOOLS.md's
-  verified argv templates, negative cases (fake flag, flag under the wrong command), recording
-  pins match `tool_catalogue.py`. (2) `scripts/record_tool_help.py` records through the core
-  runner (LF, no user paths) into `tests/fakes/recordings/<tool>/<version>/windows-help.json`.
-  (3) `tests/fakes/help_contract.py`. (4) Gate, TOOLS.md/TESTING_STRATEGY notes, commit, CI.
-  Risk: Linux help output is not recorded on this host; Windows recordings stand in for it.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T04a` — `scripts/record_tool_help.py` records full help for wszst/wkclt/wkmpt/wimgt
+  (version + `help <cmd>` for 15 used commands), ABMatt and Blender through the core
+  runner (LF, install folder → `<tool-dir>`, refuses unpinned versions) into
+  `tests/fakes/recordings/<tool>/<version>/windows-help.json`. `tests/fakes/help_contract.py`
+  parses Wiimm/clap/ABMatt/Blender help into per-subcommand flags; all 27 TOOLS.md argv
+  templates + 6 prose invocations pass, misspelt/foreign flags and unrecorded subcommands
+  fail; 7/7 checker mutations caught. 17 tests; Windows `check.py --all` 215 passed /
+  2 skipped. Linux help recordings (except rszst) not yet captured. Commit 9d891bf —
+  [CI run 40527275382](https://github.com/Le-Sponk/ct-studio/actions/runs/40527275382)
 - `P2-T02b` — `core/tools/versions.py`: documented probes only (Wine/GUI never started),
   ≤8 concurrent, 10 s timeout, exit status ignored (rszst exits -1); JSON cache in the
   user config folder keyed by tool id + resolved path + size + mtime (Flatpak: app id);
@@ -534,6 +538,12 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 - **P1-T05 performance/platform detail:** the 200 MiB benchmark completed on Mint, but
   its elapsed time was not in the report; sandbox detection outside the unit fakes was
   not exercised on Linux. These are not P1-T07 CI acceptance blockers.
+
+- **P2-T04a help recordings are Windows-only** (except rszst, recorded on both). Linux
+  builds of Wiimm 2.42a, ABMatt 1.3.2 and Blender 5.2.2 may list different flags; the
+  contract assumes they match. Closes when someone runs `uv run python
+  scripts/record_tool_help.py` on a Linux checkout with bootstrapped tools (Mint spot-check
+  or P2-T08 CI) and commits the resulting `linux-help.json` files.
 
 - **P0-T13 changes on Linux — mostly closed.** Human ran a fresh clone on Mint 2026-09-27
   (Python 3.12.3, repo path containing a space): bootstrap, fixture generation (incl. the new
