@@ -551,8 +551,8 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 
 - **P2-T04b operation recordings are Windows-only.** The Linux fakes replay the Windows runs
   of Wiimm 2.42a (path display differs: the Cygwin build prints `/` for `\`). Closing it:
-  on Linux run `scripts/record_tool_outputs.py` after bootstrap + fixtures and commit
-  `linux-ops.json`; the fakes then use it automatically.
+  on Linux run `scripts/record_tool_outputs.py` after bootstrap + fixtures, commit
+  `linux-ops.json`, and make `test_fake_wiimm.py` replay it (it loads `windows-ops.json` today).
 - **P2-T04a help recordings are Windows-only** (except rszst, recorded on both). Linux
   builds of Wiimm 2.42a, ABMatt 1.3.2 and Blender 5.2.2 may list different flags; the
   contract assumes they match. Closes when someone runs `uv run python
