@@ -1,0 +1,1637 @@
+{
+ "commands": {
+  "VERSION": {
+   "aliases": [
+    "V"
+   ],
+   "options": {
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--sections": {
+     "short": null,
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "HELP": {
+   "aliases": [
+    "H"
+   ],
+   "options": {
+    "--width": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-width": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "CONFIG": {
+   "aliases": [],
+   "options": {
+    "--config": {
+     "short": null,
+     "arg": "required"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "ARGTEST": {
+   "aliases": [],
+   "options": {}
+  },
+  "EXPAND": {
+   "aliases": [],
+   "options": {}
+  },
+  "TEST": {
+   "aliases": [],
+   "options": {
+    "--verbose": {
+     "short": "-v",
+     "arg": "none"
+    }
+   }
+  },
+  "COLORS": {
+   "aliases": [],
+   "options": {
+    "--colors": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-colors": {
+     "short": null,
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    }
+   }
+  },
+  "ERROR": {
+   "aliases": [
+    "ERR"
+   ],
+   "options": {
+    "--sections": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    }
+   }
+  },
+  "FILETYPE": {
+   "aliases": [
+    "FT"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "FILEATTRIB": {
+   "aliases": [
+    "FA"
+   ],
+   "options": {
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "SYMBOLS": {
+   "aliases": [],
+   "options": {
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "FUNCTIONS": {
+   "aliases": [],
+   "options": {
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "CALCULATE": {
+   "aliases": [],
+   "options": {
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    }
+   }
+  },
+  "MATRIX": {
+   "aliases": [],
+   "options": {
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    },
+    "--scale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--shift": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ypos": {
+     "short": null,
+     "arg": "required"
+    },
+    "--translate": {
+     "short": null,
+     "arg": "required"
+    },
+    "--null": {
+     "short": null,
+     "arg": "none"
+    },
+    "--next": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ascale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--arot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-script": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--speed-mod": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--repair-xpflags": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rm-gobj": {
+     "short": null,
+     "arg": "required"
+    },
+    "--battle": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--export-flags": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--route-options": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--wim0": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--slot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--load-kcl": {
+     "short": null,
+     "arg": "required"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--quiet": {
+     "short": "-q",
+     "arg": "none"
+    }
+   }
+  },
+  "FLOAT": {
+   "aliases": [],
+   "options": {
+    "--round": {
+     "short": null,
+     "arg": "none"
+    }
+   }
+  },
+  "STARTPOS": {
+   "aliases": [
+    "SP"
+   ],
+   "options": {
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    },
+    "--scale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--shift": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ypos": {
+     "short": null,
+     "arg": "required"
+    },
+    "--translate": {
+     "short": null,
+     "arg": "required"
+    },
+    "--null": {
+     "short": null,
+     "arg": "none"
+    },
+    "--next": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ascale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--arot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-script": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--speed-mod": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--repair-xpflags": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rm-gobj": {
+     "short": null,
+     "arg": "required"
+    },
+    "--battle": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--export-flags": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--route-options": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--wim0": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--slot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--load-kcl": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "OBJECTS": {
+   "aliases": [
+    "OBJ"
+   ],
+   "options": {
+    "--width": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-width": {
+     "short": null,
+     "arg": "required"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "CAT": {
+   "aliases": [],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--export": {
+     "short": "-X",
+     "arg": "none"
+    },
+    "--no-param": {
+     "short": "-P",
+     "arg": "none"
+    },
+    "--generic": {
+     "short": "-G",
+     "arg": "none"
+    },
+    "--battle": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--export-flags": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--route-options": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--wim0": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-echo": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-check": {
+     "short": "-N",
+     "arg": "none"
+    },
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    },
+    "--scale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--shift": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ypos": {
+     "short": null,
+     "arg": "required"
+    },
+    "--translate": {
+     "short": null,
+     "arg": "required"
+    },
+    "--null": {
+     "short": null,
+     "arg": "none"
+    },
+    "--next": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ascale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--arot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-script": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--speed-mod": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--repair-xpflags": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rm-gobj": {
+     "short": null,
+     "arg": "required"
+    },
+    "--slot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--load-kcl": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "DECODE": {
+   "aliases": [
+    "DEC"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--export": {
+     "short": "-X",
+     "arg": "none"
+    },
+    "--no-param": {
+     "short": "-P",
+     "arg": "none"
+    },
+    "--generic": {
+     "short": "-G",
+     "arg": "none"
+    },
+    "--battle": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--export-flags": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--route-options": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--wim0": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-echo": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-check": {
+     "short": "-N",
+     "arg": "none"
+    },
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    },
+    "--scale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--shift": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ypos": {
+     "short": null,
+     "arg": "required"
+    },
+    "--translate": {
+     "short": null,
+     "arg": "required"
+    },
+    "--null": {
+     "short": null,
+     "arg": "none"
+    },
+    "--next": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ascale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--arot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-script": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--speed-mod": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--repair-xpflags": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rm-gobj": {
+     "short": null,
+     "arg": "required"
+    },
+    "--slot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--load-kcl": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "ENCODE": {
+   "aliases": [
+    "ENC"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--no-echo": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-check": {
+     "short": "-N",
+     "arg": "none"
+    },
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    },
+    "--scale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--shift": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ypos": {
+     "short": null,
+     "arg": "required"
+    },
+    "--translate": {
+     "short": null,
+     "arg": "required"
+    },
+    "--null": {
+     "short": null,
+     "arg": "none"
+    },
+    "--next": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ascale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--arot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-script": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--speed-mod": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--repair-xpflags": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rm-gobj": {
+     "short": null,
+     "arg": "required"
+    },
+    "--battle": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--export-flags": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--route-options": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--wim0": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--slot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--load-kcl": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "DIFF": {
+   "aliases": [
+    "CMP"
+   ],
+   "options": {
+    "--quiet": {
+     "short": "-q",
+     "arg": "none"
+    },
+    "--epsilon": {
+     "short": null,
+     "arg": "required"
+    },
+    "--diff": {
+     "short": null,
+     "arg": "required"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    }
+   }
+  },
+  "DRAW": {
+   "aliases": [
+    "D"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--draw": {
+     "short": "-w",
+     "arg": "required"
+    },
+    "--pos-mode": {
+     "short": null,
+     "arg": "required"
+    },
+    "--pos-file": {
+     "short": null,
+     "arg": "required"
+    },
+    "--png": {
+     "short": null,
+     "arg": "required"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--export": {
+     "short": "-X",
+     "arg": "none"
+    },
+    "--no-param": {
+     "short": "-P",
+     "arg": "none"
+    },
+    "--generic": {
+     "short": "-G",
+     "arg": "none"
+    },
+    "--battle": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--export-flags": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--route-options": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--wim0": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-echo": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-check": {
+     "short": "-N",
+     "arg": "none"
+    },
+    "--const": {
+     "short": "-c",
+     "arg": "required"
+    },
+    "--scale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--shift": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zss": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--xrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--yrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--zrot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ypos": {
+     "short": null,
+     "arg": "required"
+    },
+    "--translate": {
+     "short": null,
+     "arg": "required"
+    },
+    "--null": {
+     "short": null,
+     "arg": "none"
+    },
+    "--next": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ascale": {
+     "short": null,
+     "arg": "required"
+    },
+    "--arot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-script": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--speed-mod": {
+     "short": null,
+     "arg": "required"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--tform-kmp": {
+     "short": null,
+     "arg": "required"
+    },
+    "--repair-xpflags": {
+     "short": null,
+     "arg": "required"
+    },
+    "--rm-gobj": {
+     "short": null,
+     "arg": "required"
+    },
+    "--slot": {
+     "short": null,
+     "arg": "required"
+    },
+    "--load-kcl": {
+     "short": null,
+     "arg": "required"
+    },
+    "--kcl-script": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "CHECK": {
+   "aliases": [
+    "CHK"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--colors": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-colors": {
+     "short": null,
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--quiet": {
+     "short": "-q",
+     "arg": "none"
+    },
+    "--no-echo": {
+     "short": null,
+     "arg": "none"
+    },
+    "--generic": {
+     "short": "-G",
+     "arg": "none"
+    },
+    "--no-check": {
+     "short": "-N",
+     "arg": "none"
+    }
+   }
+  },
+  "STGI": {
+   "aliases": [],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--colors": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-colors": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "KTPT": {
+   "aliases": [],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--colors": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-colors": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ktpt2": {
+     "short": null,
+     "arg": "required"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "ROUTES": {
+   "aliases": [],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--colors": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-colors": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "GOBJ": {
+   "aliases": [],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "GAMEMODES": {
+   "aliases": [
+    "GMODES"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--gamemodes": {
+     "short": null,
+     "arg": "required"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "WIM0": {
+   "aliases": [
+    "W0"
+   ],
+   "options": {
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  }
+ },
+ "global": {
+  "--version": {
+   "short": "-V",
+   "arg": "none"
+  },
+  "--help": {
+   "short": "-h",
+   "arg": "none"
+  },
+  "--xhelp": {
+   "short": null,
+   "arg": "none"
+  },
+  "--config": {
+   "short": null,
+   "arg": "required"
+  },
+  "--allow-all": {
+   "short": null,
+   "arg": "none"
+  },
+  "--compatible": {
+   "short": null,
+   "arg": "required"
+  },
+  "--width": {
+   "short": null,
+   "arg": "required"
+  },
+  "--max-width": {
+   "short": null,
+   "arg": "required"
+  },
+  "--no-pager": {
+   "short": null,
+   "arg": "none"
+  },
+  "--zero": {
+   "short": "-z",
+   "arg": "none"
+  },
+  "--quiet": {
+   "short": "-q",
+   "arg": "none"
+  },
+  "--verbose": {
+   "short": "-v",
+   "arg": "none"
+  },
+  "--logging": {
+   "short": "-L",
+   "arg": "none"
+  },
+  "--extended-errors": {
+   "short": "-Y",
+   "arg": "none"
+  },
+  "--timing": {
+   "short": null,
+   "arg": "none"
+  },
+  "--warn": {
+   "short": "-W",
+   "arg": "required"
+  },
+  "--de": {
+   "short": null,
+   "arg": "none"
+  },
+  "--colors": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--no-colors": {
+   "short": null,
+   "arg": "none"
+  },
+  "--ct-code": {
+   "short": null,
+   "arg": "none"
+  },
+  "--le-code": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--le-04x": {
+   "short": null,
+   "arg": "none"
+  },
+  "--chdir": {
+   "short": null,
+   "arg": "required"
+  },
+  "--const": {
+   "short": "-c",
+   "arg": "required"
+  },
+  "--battle": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--export-flags": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--route-options": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--wim0": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--load-kcl": {
+   "short": null,
+   "arg": "required"
+  },
+  "--kcl": {
+   "short": null,
+   "arg": "required"
+  },
+  "--tri-area": {
+   "short": null,
+   "arg": "required"
+  },
+  "--tri-height": {
+   "short": null,
+   "arg": "required"
+  },
+  "--kmp": {
+   "short": null,
+   "arg": "required"
+  },
+  "--speed-mod": {
+   "short": null,
+   "arg": "required"
+  },
+  "--ktpt2": {
+   "short": null,
+   "arg": "required"
+  },
+  "--tform-kmp": {
+   "short": null,
+   "arg": "required"
+  },
+  "--max-file-size": {
+   "short": "-M",
+   "arg": "required"
+  },
+  "--test": {
+   "short": "-t",
+   "arg": "none"
+  },
+  "--force": {
+   "short": null,
+   "arg": "none"
+  },
+  "--repair-magics": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--tiny": {
+   "short": null,
+   "arg": "required"
+  }
+ }
+}

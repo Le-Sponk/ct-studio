@@ -101,7 +101,9 @@ class Contract:
 @functools.cache
 def load_contract(tool: str, version: str) -> Contract:
     folder = RECORDINGS / tool / version
-    files = sorted(folder.glob("*.json"))
+    # Help (``*-help.json``) and rszst's CLI captures (``*-cli.json``); operation runs
+    # (``*-ops.json``) and Wiimm's option index (``*-options.json``) are for the fakes.
+    files = sorted([*folder.glob("*-help.json"), *folder.glob("*-cli.json")])
     if not files:
         raise ContractError(f"no recordings for {tool} {version} in {folder}")
     records: list[dict[str, object]] = []

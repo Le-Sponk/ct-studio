@@ -1,0 +1,350 @@
+[
+ {
+  "case": "wkmpt version",
+  "tool": "wkmpt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "version"
+  ],
+  "exit_code": 0,
+  "stdout": "wkmpt: Wiimms KMP Tool v2.42a r8989 cygwin64 - Dirk Clemens - 2024-03-26\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "kmp decode no folder",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kmp",
+   "--dest",
+   "sub/k.txt"
+  ],
+  "exit_code": 82,
+  "stdout": "DECODE KMP:stage/course.kmp -> KMPTXT:sub/k.txt\n* CHECK KMP:stage/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMP:stage/course.kmp\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "!! wkmpt: ERROR #82 [CAN'T CREATE FILE]\n!!        Can't create file: sub/k.txt\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "kmp unknown flag",
+  "tool": "wkmpt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "decode",
+   "x.kmp",
+   "--bogus-flag"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "wkmpt: unknown option -- bogus-flag\n-> Type 'wkmpt -h' or 'wkmpt help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "kmp decode template",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kmp",
+   "--dest",
+   "k.txt",
+   "--overwrite",
+   "--brief"
+  ],
+  "exit_code": 0,
+  "stdout": "DECODE KMP:stage/course.kmp -> KMPTXT:k.txt\n* CHECK KMP:stage/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n => 2 warnings for KMP:stage/course.kmp\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "k.txt": {
+    "effect": "changed",
+    "magic": "234b4d50"
+   }
+  }
+ },
+ {
+  "case": "kmp encode template",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "encode",
+   "k.txt",
+   "--dest",
+   "k.kmp",
+   "--overwrite"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE KMPTXT:k.txt -> KMP:k.kmp\n* CHECK KMPTXT:k.txt\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #255 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #255 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMPTXT:k.txt\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "k.kmp": {
+    "effect": "changed",
+    "magic": "524b4d44"
+   }
+  }
+ },
+ {
+  "case": "kmp decode",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kmp",
+   "--dest",
+   "k.txt"
+  ],
+  "exit_code": 0,
+  "stdout": "DECODE KMP:stage/course.kmp -> KMPTXT:k.txt\n* CHECK KMP:stage/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMP:stage/course.kmp\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "k.txt": {
+    "effect": "created",
+    "magic": "234b4d50"
+   }
+  }
+ },
+ {
+  "case": "kmp decode default dest",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kmp"
+  ],
+  "exit_code": 0,
+  "stdout": "DECODE KMP:stage/course.kmp -> KMPTXT:stage/course.txt\n* CHECK KMP:stage/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMP:stage/course.kmp\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "stage/course.txt": {
+    "effect": "created",
+    "magic": "234b4d50"
+   }
+  }
+ },
+ {
+  "case": "kmp decode exists",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kmp",
+   "--dest",
+   "k.txt"
+  ],
+  "exit_code": 64,
+  "stdout": "DECODE KMP:stage/course.kmp -> KMPTXT:k.txt\n* CHECK KMP:stage/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMP:stage/course.kmp\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "!! wkmpt: ERROR #64 [FILE ALREADY EXISTS]\n!!        File already exists: k.txt\n",
+  "files": {}
+ },
+ {
+  "case": "kmp decode not kmp",
+  "tool": "wkmpt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "decode",
+   "bad.kmp",
+   "--dest",
+   "k.txt"
+  ],
+  "exit_code": 36,
+  "stdout": "DECODE ?:bad.kmp -> KMPTXT:k.txt\n",
+  "stderr": "!! wkmpt: ERROR #36 [INVALID DATA]\n!!        No KMP file: bad.kmp\n",
+  "files": {}
+ },
+ {
+  "case": "kmp decode missing",
+  "tool": "wkmpt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "decode",
+   "missing.kmp",
+   "--dest",
+   "k.txt"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wkmpt: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.kmp\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "kmp encode",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "encode",
+   "k.txt",
+   "--dest",
+   "k.kmp"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE KMPTXT:k.txt -> KMP:k.kmp\n* CHECK KMPTXT:k.txt\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #255 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #255 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMPTXT:k.txt\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "k.kmp": {
+    "effect": "created",
+    "magic": "524b4d44"
+   }
+  }
+ },
+ {
+  "case": "kmp encode overwrites",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "encode",
+   "k.txt",
+   "--dest",
+   "k.kmp"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE KMPTXT:k.txt -> KMP:k.kmp\n* CHECK KMPTXT:k.txt\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #255 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #255 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMPTXT:k.txt\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "k.kmp": {
+    "effect": "changed",
+    "magic": "524b4d44"
+   }
+  }
+ },
+ {
+  "case": "kmp encode no folder",
+  "tool": "wkmpt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "encode",
+   "k.txt",
+   "--dest",
+   "sub/k.kmp"
+  ],
+  "exit_code": 82,
+  "stdout": "ENCODE KMPTXT:k.txt -> KMP:sub/k.kmp\n* CHECK KMPTXT:k.txt\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #255 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #255 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n => 2 warnings and 2 hints for KMPTXT:k.txt\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "!! wkmpt: ERROR #82 [CAN'T CREATE FILE]\n!!        Can't create file: sub/k.kmp\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "kmp encode not kmp",
+  "tool": "wkmpt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "encode",
+   "bad.txt",
+   "--dest",
+   "k.kmp"
+  ],
+  "exit_code": 36,
+  "stdout": "ENCODE ?:bad.txt -> KMP:k.kmp\n",
+  "stderr": "!! wkmpt: ERROR #36 [INVALID DATA]\n!!        No KMP file: bad.txt\n",
+  "files": {}
+ },
+ {
+  "case": "kmp encode missing",
+  "tool": "wkmpt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "encode",
+   "missing.txt",
+   "--dest",
+   "k.kmp"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wkmpt: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.txt\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ }
+]

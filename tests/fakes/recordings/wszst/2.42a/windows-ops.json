@@ -1,0 +1,626 @@
+[
+ {
+  "case": "wszst version",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "version"
+  ],
+  "exit_code": 0,
+  "stdout": "wszst: Wiimms SZS Tool v2.42a r8989 cygwin64 - Dirk Clemens - 2024-03-26\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "create",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create default dest",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:./stage.szs\n",
+  "stderr": "",
+  "files": {
+   "stage.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create uncompressed",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "u.szs",
+   "--no-compress"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> U8:u.szs\n",
+  "stderr": "",
+  "files": {
+   "u.szs": {
+    "effect": "created",
+    "magic": "55aa382d"
+   }
+  }
+ },
+ {
+  "case": "create fast",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--fast",
+   "--overwrite"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create keeps existing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "!! wszst: ERROR #64 [FILE ALREADY EXISTS]\n!!        File already exists: t.szs\n",
+  "files": {}
+ },
+ {
+  "case": "create -o replaces",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "changed",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create compr template",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--overwrite",
+   "--compr=9"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "changed",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create no folder",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "sub/t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:sub/t.szs\n",
+  "stderr": "!! wszst: ERROR #82 [CAN'T CREATE FILE]\n!!        Can't create file: sub/t.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "create -D makes folder",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "-D",
+   "sub/t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:sub/t.szs\n",
+  "stderr": "",
+  "files": {
+   "sub/t.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create missing source",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "create",
+   "nodir",
+   "--dest",
+   "t.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "CREATE nodir/ -> DIR:t.szs\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't open directory: nodir/\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "create unknown long flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--bogus-flag"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "wszst: unknown option -- bogus-flag\n-> Type 'wszst -h' or 'wszst help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create unknown short flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "-Z"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "wszst: unknown option -- Z\n-> Type 'wszst -h' or 'wszst help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create foreign flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--brief"
+  ],
+  "exit_code": 108,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #108 [SEMANTIC ERROR]\n!!        Command 'CREATE' doesn't allow the option --brief (-B).\n-> Type 'wszst help CREATE' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create foreign long-only flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--touch"
+  ],
+  "exit_code": 108,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #108 [SEMANTIC ERROR]\n!!        Command 'CREATE' doesn't allow the option --touch.\n-> Type 'wszst help CREATE' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create absolute paths",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "create",
+   "<work>\\stage",
+   "--dest",
+   "<work>\\a.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE <work>/stage/ -> YAZ0.U8:<work>/a.szs\n",
+  "stderr": "",
+  "files": {
+   "a.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "unknown command",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "frobnicate"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #110 [SYNTAX ERROR]\n!!        Unknown command: frobnicate\n-> Type 'wszst -h' or 'wszst help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "list",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "list",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n> 0 directories + 2 files of YAZ0.U8:t.szs \n\ncourse.kcl\ncourse.kmp\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "list long",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "list",
+   "--long",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n> 0 directories + 2 files of YAZ0.U8:t.szs \n\nsize/dec  magic file or directory\n──────────────────────────────────\n   16250  ...D  course.kcl\n     552  RKMD  course.kmp\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "list missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "list",
+   "missing.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "check",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "check",
+   "t.szs"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:t.szs\n* CHECK KCL:t.szs/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:t.szs/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n* CHECK YAZ0.U8:t.szs\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings, 2 hints and 1 info for YAZ0.U8:t.szs\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check brief",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "check",
+   "--brief",
+   "t.szs"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:t.szs\n* CHECK KCL:t.szs/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:t.szs/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n* CHECK YAZ0.U8:t.szs\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings and 1 info for YAZ0.U8:t.szs\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check brief after file",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "check",
+   "t.szs",
+   "--brief"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:t.szs\n* CHECK KCL:t.szs/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:t.szs/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n* CHECK YAZ0.U8:t.szs\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings and 1 info for YAZ0.U8:t.szs\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "check",
+   "missing.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "\nCHECK ?:\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "check junk",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "check",
+   "junk.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCHECK ?:junk.szs\n",
+  "stderr": "!! wszst: ERROR #39 [INVALID FILE FORMAT]\n!!        CHECK doesn't support file format '?': junk.szs\n",
+  "files": {}
+ },
+ {
+  "case": "minimap auto",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of YAZ0:t.szs\n",
+  "stderr": "",
+  "files": {}
+ }
+]

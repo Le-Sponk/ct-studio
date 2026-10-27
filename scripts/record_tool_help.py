@@ -14,8 +14,9 @@ catalogue pin is refused: a recording must describe the version the contract cla
 from __future__ import annotations
 
 import json
+import re
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import tool_catalogue as tc
@@ -36,7 +37,9 @@ _WIIMM_HELP = {
 
 
 def _wiimm(name: str) -> tuple[str, str, str, tuple[tuple[str, ...], ...]]:
-    argvs = (("version",), *(("help", command) for command in _WIIMM_HELP[name]))
+    # Bare `help` lists every real command, so a fake can tell "unknown command" (the real
+    # tool's error) from "real but not modelled" (the fake's loud failure).
+    argvs = (("version",), ("help",), *(("help", command) for command in _WIIMM_HELP[name]))
     return name, "wiimms-szs-tools", f"bin/{name}", argvs
 
 
@@ -72,40 +75,39 @@ def record(
     exe: Path, argvs: Sequence[Sequence[str]], *, tools_root: Path
 ) -> list[dict[str, object]]:
     """Run ``exe`` once per argv and return sanitised, complete output records."""
-    records: list[dict[str, object]] = []
-    for argv in argvs:
-        lines: dict[Stream, list[str]] = {"stdout": [], "stderr": []}
-
-        def keep(stream: Stream, line: str, lines: dict[Stream, list[str]] = lines) -> None:
-            lines[stream].append(line)
-
-        result = run(
-            [exe, *argv], cwd=exe.parent, timeout=TIMEOUT_SECONDS, on_line=keep, check=False
-        )
-        records.append(
-            {
-                "argv": [_clean(arg, tools_root) for arg in argv],
-                "exit_code": result.exit_code,
-                "stdout": _join(lines["stdout"], tools_root),
-                "stderr": _join(lines["stderr"], tools_root),
-            }
-        )
-    return records
+    roots = {tools_root: PLACEHOLDER}
+    return [capture(exe, argv, cwd=exe.parent, roots=roots) for argv in argvs]
 
 
-def _join(lines: list[str], tools_root: Path) -> str:
-    return "".join(_clean(line, tools_root) + "\n" for line in lines)
+def capture(
+    exe: Path, argv: Sequence[str], *, cwd: Path, roots: Mapping[Path, str]
+) -> dict[str, object]:
+    """Run once through the core runner; keep every line, replace ``roots`` by placeholders."""
+    lines: dict[Stream, list[str]] = {"stdout": [], "stderr": []}
+
+    def keep(stream: Stream, line: str) -> None:
+        lines[stream].append(line)
+
+    result = run([exe, *argv], cwd=cwd, timeout=TIMEOUT_SECONDS, on_line=keep, check=False)
+    return {
+        "argv": [clean(arg, roots) for arg in argv],
+        "exit_code": result.exit_code,
+        "stdout": "".join(clean(line, roots) + "\n" for line in lines["stdout"]),
+        "stderr": "".join(clean(line, roots) + "\n" for line in lines["stderr"]),
+    }
 
 
-def _clean(text: str, tools_root: Path) -> str:
-    for spelling in sorted(_spellings(tools_root), key=len, reverse=True):
-        text = text.replace(spelling, PLACEHOLDER)
+def clean(text: str, roots: Mapping[Path, str]) -> str:
+    """Replace every spelling of each root folder (longest first) with its placeholder."""
+    pairs = [(spelling, label) for root, label in roots.items() for spelling in _spellings(root)]
+    for spelling, label in sorted(pairs, key=lambda pair: len(pair[0]), reverse=True):
+        text = text.replace(spelling, label)
     return text
 
 
 def _spellings(folder: Path) -> set[str]:
     resolved = folder.resolve()
-    variants = {str(folder), str(resolved), resolved.as_posix()}
+    variants = {str(folder), folder.as_posix(), str(resolved), resolved.as_posix()}
     return variants | {_cygwin(resolved)} if sys.platform == "win32" else variants
 
 
@@ -113,6 +115,41 @@ def _cygwin(path: Path) -> str:
     """Wiimm's Windows build is a Cygwin program and prints ``/cygdrive/c/...`` paths."""
     drive = path.drive.rstrip(":").lower()
     return f"/cygdrive/{drive}{path.as_posix()[2:]}"
+
+
+_WIIMM_OPTION_LINE = re.compile(r"^(?:  (-[A-Za-z0-9]) |     )--([A-Za-z0-9][\w-]*)(.*)$")
+
+
+def wiimm_option_index(tool: str, xhelp: str) -> dict[str, object]:
+    """Commands, aliases and options (with argument kind) from Wiimm's ``--xhelp``.
+
+    Wiimm's getopt table is the union of every command's options; each command then
+    refuses options it does not list. Argument kinds: ``none`` (two spaces before the
+    description), ``required`` (``--dest path``) or ``optional`` (``--pt-dir=[=mode]``).
+    """
+    header = re.compile(rf"^{re.escape(tool)} ([A-Z0-9-]+(?:\|[A-Z0-9-]+)*) : ")
+    commands: dict[str, dict[str, object]] = {}
+    global_options: dict[str, dict[str, str | None]] = {}
+    current: dict[str, dict[str, str | None]] | None = None
+    for line in xhelp.splitlines():
+        if line.startswith("Global options:"):
+            current = global_options
+        elif match := header.match(line):
+            name, *aliases = match.group(1).split("|")
+            current = {}
+            commands[name] = {"aliases": aliases, "options": current}
+        elif current is not None and (option := _WIIMM_OPTION_LINE.match(line)):
+            short, long_name, rest = option.groups()
+            current[f"--{long_name}"] = {"short": short, "arg": _argument_kind(rest)}
+    if not commands or not global_options:
+        raise RecordError(f"{tool} --xhelp has no command or global option sections")
+    return {"commands": commands, "global": global_options}
+
+
+def _argument_kind(rest: str) -> str:
+    if rest.startswith("=[="):
+        return "optional"
+    return "required" if re.match(r"^ \S", rest) else "none"
 
 
 def main() -> int:
@@ -128,7 +165,18 @@ def main() -> int:
         text = json.dumps(records, indent=1, ensure_ascii=False) + "\n"
         target.write_text(text, encoding="utf-8", newline="\n")
         print(f"{name} {version}: {len(records)} runs -> {target.relative_to(tp.REPO_ROOT)}")
+        if tool == "wiimms-szs-tools":
+            _record_option_index(name, exe, target.with_name(f"{platform_name}-options.json"))
     return 0
+
+
+def _record_option_index(name: str, exe: Path, target: Path) -> None:
+    [xhelp] = record(exe, [("--xhelp",)], tools_root=exe.parent)
+    if xhelp["exit_code"] != 0:
+        raise RecordError(f"{name} --xhelp exited {xhelp['exit_code']}")
+    index = wiimm_option_index(name, str(xhelp["stdout"]))
+    target.write_text(json.dumps(index, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(f"{name}: {len(index['commands'])} commands -> {target.relative_to(tp.REPO_ROOT)}")  # type: ignore[arg-type]
 
 
 if __name__ == "__main__":

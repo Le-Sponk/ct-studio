@@ -53,3 +53,54 @@ def test_the_plan_covers_every_wiimm_command_the_contract_needs() -> None:
     assert set(plan) == {"wszst", "wkclt", "wkmpt", "wimgt", "abmatt", "blender"}
     assert ("help", "create") in plan["wszst"] and ("version",) in plan["wszst"]
     assert ("--help",) in plan["abmatt"] and ("--help",) in plan["blender"]
+
+
+XHELP = """\
+wkmpt : Wiimms KMP Tool
+
+Commands:
+
+  DECODE       | DEC       : Decode KMP.
+
+Global options:
+
+  -V --version          Print a version info and exit.
+     --config file      Define a configuration file.
+
+More help is available at https://szs.wiimm.de/wkmpt
+
+
+wkmpt DECODE|DEC : Read the entered KMP files and decode them.
+
+Syntax: wkmpt DECODE [option]... kmp...
+
+Options:
+
+  -d --dest path        Define a destination path (directory/file). The destination - means: write
+                        to stdout.
+  -B --brief            Suppress information lines.
+     --battle=[=mode]   MODE is either OFF, AUTO (default) or ON.
+     --scale vector[@origin]{SPACE}
+                        Scale the data.
+""".replace("{SPACE}", " ")  # the real help ends long option lines with a space
+
+
+def test_the_wiimm_option_index_reads_commands_aliases_and_argument_kinds() -> None:
+    index = rth.wiimm_option_index("wkmpt", XHELP)
+    assert index["global"] == {
+        "--version": {"short": "-V", "arg": "none"},
+        "--config": {"short": None, "arg": "required"},
+    }
+    assert index["commands"] == {
+        "DECODE": {
+            "aliases": ["DEC"],
+            "options": {
+                "--dest": {"short": "-d", "arg": "required"},
+                "--brief": {"short": "-B", "arg": "none"},
+                "--battle": {"short": None, "arg": "optional"},
+                "--scale": {"short": None, "arg": "required"},
+            },
+        }
+    }
+    with pytest.raises(rth.RecordError, match="no command"):
+        rth.wiimm_option_index("wkmpt", "wkmpt : nothing here\n")

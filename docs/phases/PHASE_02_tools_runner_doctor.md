@@ -78,14 +78,25 @@ templates + 6 prose-verified invocations pass; 7/7 checker mutations caught. Win
 `check.py --all` 215 passed / 2 skipped; Ubuntu/Windows CI run 40527275382. Recordings are
 Windows-only (Linux help output for Wiimm/ABMatt/Blender not yet recorded; rszst has both).
 
-### [ ] P2-T04b — Fake tools and `fake_tools_path`
-`tests/fakes/`: small Python scripts mimicking the CLI surface we use (wszst, wkclt, wkmpt, wimgt,
-rszst, abmatt, blender). They log received args to JSON, create plausible output files, and reject
-flags that P2-T04a's contract checker does not find in the recorded help.
-`tests/fakes/recordings/<tool>/<version>/`: real `--help`/version/check outputs captured from `.tools/`.
-Fixture `fake_tools_path` prepends fakes to PATH. Contract test: every flag an adapter emits exists
-in the recorded help text for the pinned version.
-**Acceptance:** contract tests pass; changing an adapter flag to a non-existent one fails a test.
+### [ ] P2-T04b — Wiimm fakes, operation recordings and `fake_tools_path`
+`scripts/record_tool_outputs.py` records real Wiimm operations on the generated fixtures
+(create/list/check/analyze/minimap, wkmpt encode/decode, wkclt decode, wimgt encode, plus
+error cases: missing input, existing destination, missing destination folder, unknown flag)
+into `tests/fakes/recordings/<tool>/<version>/<os>-ops.json`. `tests/fakes/` gains a shared
+fake runtime (argv log, flag check through P2-T04a's contract, the tools' own error
+formats), fake `wszst`/`wkclt`/`wkmpt`/`wimgt`, and real per-platform executables for them
+(Windows: the console-script launcher pip uses; Linux: a sh/Python polyglot that survives
+spaces in the repo path). Pytest fixture `fake_tools_path` puts them first on PATH.
+**Acceptance:** fakes run through `core/tools/process.py` and discovery finds them; their
+output equals the recorded real output for every deterministic recorded case (messages, exit
+codes, file left unchanged or created); an unknown or foreign flag is rejected the way the real
+tool rejects it; an unmodelled-but-recorded command fails loudly instead of pretending.
+
+### [ ] P2-T04c — rszst, ABMatt and Blender fakes
+Same runtime for `rszst` (clap errors, exit -1, `FileNotExist`), `abmatt` (pipe-table flags,
+exit 2 for unknown options) and `blender` (`--version` banner; unknown arguments load as files).
+Record their operation outputs the same way.
+**Acceptance:** as P2-T04b for these three tools; `fake_tools_path` provides all seven.
 
 ### [ ] P2-T05 — Adapters
 Thin typed facades; flags only from TOOLS.md:

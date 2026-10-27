@@ -1,0 +1,199 @@
+[
+ {
+  "case": "wkclt version",
+  "tool": "wkclt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "version"
+  ],
+  "exit_code": 0,
+  "stdout": "wkclt: Wiimms KCL Tool v2.42a r8989 cygwin64 - Dirk Clemens - 2024-03-26\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "kcl decode no folder",
+  "tool": "wkclt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kcl",
+   "--dest",
+   "sub/c.obj"
+  ],
+  "exit_code": 82,
+  "stdout": "DECODE KCL:stage/course.kcl -> KCLTXT:sub/c.obj\n* CHECK KCL:stage/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n",
+  "stderr": "!! wkclt: ERROR #82 [CAN'T CREATE FILE]\n!!        Can't create file: sub/c.obj\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "kcl decode -D makes folder",
+  "tool": "wkclt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kcl",
+   "-D",
+   "sub/c.obj"
+  ],
+  "exit_code": 0,
+  "stdout": "DECODE KCL:stage/course.kcl -> KCLTXT:sub/c.obj\n* CHECK KCL:stage/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n",
+  "stderr": "",
+  "files": {
+   "sub/c.mtl": {
+    "effect": "created",
+    "magic": "0d0a6e65"
+   },
+   "sub/c.obj": {
+    "effect": "created",
+    "magic": "234b434c"
+   }
+  }
+ },
+ {
+  "case": "kcl unknown flag",
+  "tool": "wkclt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "decode",
+   "x.kcl",
+   "--bogus-flag"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "wkclt: unknown option -- bogus-flag\n-> Type 'wkclt -h' or 'wkclt help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "kcl decode",
+  "tool": "wkclt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kcl",
+   "--dest",
+   "c.obj"
+  ],
+  "exit_code": 0,
+  "stdout": "DECODE KCL:stage/course.kcl -> KCLTXT:c.obj\n* CHECK KCL:stage/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n",
+  "stderr": "",
+  "files": {
+   "c.mtl": {
+    "effect": "created",
+    "magic": "0d0a6e65"
+   },
+   "c.obj": {
+    "effect": "created",
+    "magic": "234b434c"
+   }
+  }
+ },
+ {
+  "case": "kcl decode exists",
+  "tool": "wkclt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kcl",
+   "--dest",
+   "c.obj"
+  ],
+  "exit_code": 64,
+  "stdout": "DECODE KCL:stage/course.kcl -> KCLTXT:c.obj\n* CHECK KCL:stage/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n",
+  "stderr": "!! wkclt: ERROR #64 [FILE ALREADY EXISTS]\n!!        File already exists: c.obj\n",
+  "files": {}
+ },
+ {
+  "case": "kcl decode missing",
+  "tool": "wkclt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "decode",
+   "missing.kcl",
+   "--dest",
+   "c.obj"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wkclt: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.kcl\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "kcl decode -o replaces",
+  "tool": "wkclt",
+  "compare": "prefix",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094"
+   }
+  },
+  "argv": [
+   "decode",
+   "stage/course.kcl",
+   "--dest",
+   "c.obj",
+   "--overwrite"
+  ],
+  "exit_code": 0,
+  "stdout": "DECODE KCL:stage/course.kcl -> KCLTXT:c.obj\n* CHECK KCL:stage/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n",
+  "stderr": "",
+  "files": {
+   "c.mtl": {
+    "effect": "created",
+    "magic": "0d0a6e65"
+   },
+   "c.obj": {
+    "effect": "changed",
+    "magic": "234b434c"
+   }
+  }
+ }
+]

@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04b — Fake tools and `fake_tools_path`
+**Next task:** P2-T04b — Wiimm fakes, operation recordings and `fake_tools_path`
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 9d891bf (P2-T04a Windows gate and Ubuntu/Windows CI
 [run 40527275382](https://github.com/Le-Sponk/ct-studio/actions/runs/40527275382))
@@ -12,7 +12,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T04b` — (1) `scripts/record_tool_outputs.py`: real Wiimm operations on the generated
+  fixtures in a temp `<work>` folder → `<os>-ops.json`. (2) RED tests: fakes through the
+  core runner equal those recordings for deterministic cases; unknown/foreign flags rejected
+  like the real tool; unmodelled commands fail loudly; discovery finds the fakes on PATH.
+  (3) `tests/fakes/fake_runtime.py` (runtime), `wiimm_cli.py`, `fake_wiimm.py`, `install.py`
+  (launchers) and a root `tests/conftest.py` fixture. (4) Gate, docs, commit, CI. Risk: the
+  Windows launcher comes from the pip wheel bundled with CPython (`ensurepip`); the Linux
+  sh/Python launcher is first exercised by CI (no Linux host here).
+  Local evidence so far: 57 recorded cases replayed + 22 help/version runs, 18/18 mutations
+  caught, `check.py --all` 308 passed / 2 skipped, broad suite 381 / 20. Awaiting CI.
 
 
 ## Done (newest first)
@@ -315,6 +324,11 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-28 (P2-T04b): split again into P2-T04b (Wiimm fakes + real operation recordings +
+  `fake_tools_path`) and P2-T04c (rszst/ABMatt/Blender fakes). Measuring the real tools
+  showed per-tool error behaviour the fakes must copy (e.g. `wszst create` keeps an existing
+  file but exits 0, `wkclt`/`wimgt` exit 64, `wkmpt` overwrites silently), which doubles
+  the work per tool.
 - 2026-10-28 (P2-T04): split into P2-T04a (real help recordings + flag contract checker)
   and P2-T04b (fake CLI scripts + `fake_tools_path`), because recordings for seven tools plus
   seven fakes exceed one session. The fakes in b reuse a's checker to reject unknown flags.

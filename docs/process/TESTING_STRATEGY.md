@@ -53,11 +53,32 @@ group and every documented run command; if a run warns about an unknown `timeout
 is missing and nothing is protected.
 
 ## 2. Fake tools and recordings
-- `tests/fakes/<tool>.py` implement only the CLI surface we use, log received argv to JSON, and
-  produce minimal plausible outputs. They are launched through the *real* process runner, so the
-  runner is exercised too.
+- Fakes implement only the CLI surface we use and never guess: anything their recordings do
+  not pin down exits **121** ("not modelled", a code no real tool here uses) before any output
+  or write. They are launched through the *real* process runner, so the runner is exercised too.
+  P2-T04b: `tests/fakes/fake_wiimm.py` (wszst create/list/check/minimap --auto, wkclt decode,
+  wkmpt decode/encode, wimgt encode, plus `version`/`help`), `wiimm_cli.py` (getopt as the
+  real tools parse it, from their recorded `--xhelp`: unknown option → exit 110, an option
+  another command owns → exit 108), `fake_runtime.py` (call log, outcomes, LF output) and
+  `install.py`. rszst/ABMatt/Blender fakes follow in P2-T04c.
+- **`fake_tools_path`** (`tests/conftest.py`) installs real executables for the fakes once per
+  session into a folder with a space and `é`, puts it first on PATH, and gives each test its
+  own call log (`fake_tools_path.calls()` → tool, argv, cwd, in call order). One file per
+  call: a shared append-only file lost lines when probes ran in parallel on Windows (the C
+  runtime's `O_APPEND` is a seek then a write). Windows: pip's console
+  launcher (distlib `t64.exe`, from the pip wheel bundled with CPython) + a zip, so they are real
+  `.exe` files; Linux: an executable sh/Python polyglot (a `#!` line cannot hold a path with
+  spaces).
+- Archives a fake writes carry a marker and list the source files' sizes and magic; a fake
+  refuses (121) to read a real SZS/KMP/TEX0, so fake and real outputs never mix.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
+- `scripts/record_tool_outputs.py` (P2-T04b) runs a case table of real Wiimm operations on
+  the generated fixtures (`<os>-ops.json`: output, exit code, files created/changed with their
+  first bytes, and the size + first 32 bytes of each fixture used). `test_fake_wiimm.py`
+  replays every case against the fakes with stand-in inputs of the same size and leading
+  bytes; stdout must match exactly, or as a prefix where the real tool goes on to print
+  KMP/KCL findings a fake cannot compute (`wszst check` then exits 0 instead of 2).
 - `scripts/record_tool_help.py` (P2-T04a) re-records `<os>-help.json` for every pinned CLI
   through the app's process runner, with LF newlines and the install folder replaced by
   `<tool-dir>`. It refuses a tool whose installed version differs from the catalogue pin.
@@ -65,7 +86,9 @@ is missing and nothing is protected.
   pipe table, Blender) into the flags each subcommand accepts. `test_help_contract.py` checks
   every argv template in TOOLS.md against them, so a misspelt flag, a flag borrowed from
   another subcommand, or an unrecorded subcommand fails. After a version bump: bootstrap,
-  re-run the recorder, delete the old version folder.
+  re-run the recorder, delete the old version folder. For Wiimm it also writes
+  `<os>-options.json` (every command, alias and option with its argument kind, from `--xhelp`)
+  for the fakes' option parser.
 - Contract tests fail if an adapter emits a flag absent from the recorded help of the pinned version,
   or if a parser can't handle a recording. Upgrading a tool = add a new recording folder, re-run.
 
