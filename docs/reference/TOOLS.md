@@ -707,7 +707,9 @@ collected network tests and uploaded JUnit on both OSes. Public annotations incl
 the unrelated `moderngl not installed` collection skip. Both reporter steps correctly
 failed rather than turning selected skips green. See the [remote recording](../../tests/fakes/recordings/github-actions/p1-t07-remote.txt).
 The temporary trigger branch was removed; the default branch retains only manual and
-nightly triggers for integration. The next scheduled nightly run has not yet occurred.
+nightly triggers for integration. Scheduled nightly runs began 2026-10-12 and fail on both
+OSes with the same `wine not installed` selected skip, as intended until P2-T08 bootstraps
+the prerequisites (e.g. [run 40295066637](https://github.com/Le-Sponk/ct-studio/actions/runs/40295066637)).
 
 ## P2-T01 registry metadata and verified version probes
 `src/ctstudio/core/tools/registry.py` lists 15 distinct executable identities, not

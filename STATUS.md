@@ -4,30 +4,33 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T02a — Location discovery
+**Next task:** P2-T03 — Process runner
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 157fc62 (P2-T01 Windows gate and Ubuntu/Windows CI
-[run 36356549228](https://github.com/Le-Sponk/ct-studio/actions/runs/36356549228))
+**Last green commit:** d6513dc (P2-T02a Windows gate and Ubuntu/Windows CI
+[run 36370497638](https://github.com/Le-Sponk/ct-studio/actions/runs/36370497638))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T02a` — pure location discovery. (1) Design location/launcher metadata and
-  verify existing .tools paths against scripts/tool_paths.py and editor recordings;
-  use fake path trees and monkeypatched OS. (2) RED→GREEN tests for explicit
-  setting/PATH/standard/dev precedence, Windows Wiimms/Blender, Linux
-  `/usr/{local/,}bin`, `~/bin`, `/opt/blender*`, Flatpak app export, Wine editors,
-  sandbox host-path visibility and Unicode/spaces. (3) Add filesystem-only
-  `core/tools/discovery.py` and docs. (4) Run full check, broad non-network tests,
-  inspect diff/budgets, close checklist/STATUS, commit and push. Acceptance:
-  each OS branch and launcher with fake trees, no spawning, dev opt-in only.
-  Files: discovery.py, test_tool_discovery.py, phase file, ADR-023, TOOLS.md,
-  ARCHITECTURE.md, STATUS. Risk: true Windows/Linux file permissions differ;
-  simulated OS tests run on both CI platforms.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T02a` — filesystem-only `core/tools/discovery.py`: explicit setting → PATH →
+  standard Windows/Linux locations (Wiimms, Blender Foundation newest-first,
+  `/opt/blender*`, `~/Applications`) → exported Flatpak `org.blender.Blender`
+  (not from inside a sandbox) → opt-in `.tools/`. `ToolLocation` records source and
+  `direct|wine|flatpak` launcher; Linux GUI `.exe` editors get Wine; Linux candidates
+  must be executable; the environment snapshot is copied. No process is spawned
+  (ADR-023). 27 focused tests (26 on Windows + a POSIX execute-bit test on Linux).
+  Windows `check.py --all` 167 passed / 2 skipped; broad non-network 240 passed /
+  20 optional skips. The first Windows CI run exposed a test that put a `C:\` path in
+  a simulated Linux `:`-separated PATH; fixed. Pytest failures now also emit
+  sanitized public annotations, because anonymous Actions logs need admin.
+  [CI run 36370497638](https://github.com/Le-Sponk/ct-studio/actions/runs/36370497638)
+  passed Ubuntu and Windows. No Flatpak/Wine/tool execution is claimed.
+  — commits 51ef73f, a1bda6b, d6513dc
 - `P2-T01` — added typed immutable `ToolSpec` with a single 15-tool table covering
   Windows/Linux executable names, seven verified version probes, upstream URLs,
   licences and usage; unknown version floors are explicit rather than guessed.
@@ -533,6 +536,13 @@ _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-2
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
+- **Scheduled nightly `Integration preconditions` is red by design until P2-T08.** Every
+  daily run since 2026-10-12 fails on both OSes because its one selected `network` test
+  skips (`wine not installed`; the runner has no RiiStudio/Wine bootstrap yet). ADR-022
+  makes a skip-only run fail rather than show an empty green. P2-T08 adds tool bootstrap.
+  The ordinary push `CI` workflow is separate and green. Both workflows also warn that
+  `actions/checkout@v4` / `upload-artifact@v4` target deprecated Node 20 and that
+  `ubuntu-latest` moves to Ubuntu 26; neither has failed a job yet.
 - **Optional Mint GUI pixel spot-check — deferred by the human:** CI verified Linux
   font families and screenshot generation, but its pixels were not inspected.
   When convenient, `git pull && uv sync && uv run ctstudio --offscreen-smoke

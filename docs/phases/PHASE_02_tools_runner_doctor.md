@@ -16,7 +16,7 @@ passed / 1 optional skip) and [Ubuntu + Windows CI](https://github.com/Le-Sponk/
 Version probes are only the seven documented commands; unknown compatibility floors stay
 `None` pending P2-T02b, not silently assumed to support every version.
 
-### [ ] P2-T02a — Location discovery (no process spawning)
+### [x] P2-T02a — Location discovery (no process spawning) (commits 51ef73f, a1bda6b, d6513dc)
 `core/tools/discovery.py`: order = user setting → PATH → standard locations per OS (Wiimms:
 `%ProgramFiles%\Wiimm\SZS`, `/usr/local/bin`, `/usr/bin`, `~/bin`; Blender: Program Files/Blender
 Foundation/*, `/usr/bin`, `/opt/blender*`, `~/Applications`, Flatpak `org.blender.Blender` via
@@ -27,6 +27,10 @@ visible executable files only, not host locations hidden by a Flatpak/Snap sandb
 apps may not inherit the shell PATH, so scan standard locations even when PATH is empty.
 **Acceptance:** fake directory trees/executables on both OS branches, PATH precedence, explicit
 selection, sandbox visibility, Wine/Flatpak launch metadata, and dev-only opt-in tests.
+Verified by 27 focused tests (26 run on Windows; the POSIX execute-bit test runs on Linux),
+Windows `check.py --all` (167 passed / 2 skipped) and
+[Ubuntu + Windows CI](https://github.com/Le-Sponk/ct-studio/actions/runs/36370497638).
+Discovery only inspects files; no Flatpak, Wine or tool process was executed.
 
 ### [ ] P2-T03 — Process runner (prerequisite to P2-T02b)
 `core/tools/process.py`: `run(cmd: Sequence[str|Path], *, cwd, env=None, timeout=None,
