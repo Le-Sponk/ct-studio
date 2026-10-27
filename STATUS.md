@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04 — Fake tools & recordings
+**Next task:** P2-T04a — Help recordings and flag contract checker
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 40fbb96 (P2-T02b Windows gate and Ubuntu/Windows CI
 [run 40519561490](https://github.com/Le-Sponk/ct-studio/actions/runs/40519561490))
@@ -12,7 +12,12 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T04a` — (1) RED tests: parsers for the four help families, contract over TOOLS.md's
+  verified argv templates, negative cases (fake flag, flag under the wrong command), recording
+  pins match `tool_catalogue.py`. (2) `scripts/record_tool_help.py` records through the core
+  runner (LF, no user paths) into `tests/fakes/recordings/<tool>/<version>/windows-help.json`.
+  (3) `tests/fakes/help_contract.py`. (4) Gate, TOOLS.md/TESTING_STRATEGY notes, commit, CI.
+  Risk: Linux help output is not recorded on this host; Windows recordings stand in for it.
 
 
 ## Done (newest first)
@@ -306,6 +311,9 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-28 (P2-T04): split into P2-T04a (real help recordings + flag contract checker)
+  and P2-T04b (fake CLI scripts + `fake_tools_path`), because recordings for seven tools plus
+  seven fakes exceed one session. The fakes in b reuse a's checker to reject unknown flags.
 - 2026-09-28 (P2-T02): Discovery's concurrent version subprocesses precede
   P2-T03's sole permitted spawning adapter, violating AGENTS.md rule 3 and
   ARCHITECTURE §9. Split into P2-T02a (filesystem-only), P2-T03 (runner),

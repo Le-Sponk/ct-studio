@@ -58,6 +58,14 @@ is missing and nothing is protected.
   runner is exercised too.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
+- `scripts/record_tool_help.py` (P2-T04a) re-records `<os>-help.json` for every pinned CLI
+  through the app's process runner, with LF newlines and the install folder replaced by
+  `<tool-dir>`. It refuses a tool whose installed version differs from the catalogue pin.
+  `tests/fakes/help_contract.py` reads those recordings (Wiimm option tables, clap, ABMatt's
+  pipe table, Blender) into the flags each subcommand accepts. `test_help_contract.py` checks
+  every argv template in TOOLS.md against them, so a misspelt flag, a flag borrowed from
+  another subcommand, or an unrecorded subcommand fails. After a version bump: bootstrap,
+  re-run the recorder, delete the old version folder.
 - Contract tests fail if an adapter emits a flag absent from the recorded help of the pinned version,
   or if a parser can't handle a recording. Upgrading a tool = add a new recording folder, re-run.
 

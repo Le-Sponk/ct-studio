@@ -62,9 +62,22 @@ executables (Windows: copied launcher; Linux: shebang script) and recorded `rszs
 Windows `check.py --all` 198 passed / 2 skipped; Ubuntu/Windows CI run 40519561490. No real
 tool's version was probed yet (deferred to the P2-T06 doctor checkpoint).
 
-### [ ] P2-T04 — Fake tools & recordings
+### [ ] P2-T04a — Help recordings and flag contract checker
+Record each pinned CLI's real help through `core/tools/process.py` with
+`scripts/record_tool_help.py`: Wiimm's `version` + `help <command>` per used command, rszst's
+existing recording, ABMatt `--help`, Blender `--version`/`--help`. Write JSON (argv, exit code,
+stdout, stderr; LF newlines, no user paths) to `tests/fakes/recordings/<tool>/<version>/`.
+`tests/fakes/help_contract.py` parses each help family (Wiimm option tables, clap, ABMatt's
+pipe table, Blender) into the set of flags each command accepts.
+**Acceptance:** every flag in the verified argv templates in TOOLS.md exists in the pinned
+recording; replacing a flag with a non-existent one, or using one under the wrong command, fails a
+test; recording folders match `scripts/tool_catalogue.py` pins; the recorder refuses an unpinned
+version.
+
+### [ ] P2-T04b — Fake tools and `fake_tools_path`
 `tests/fakes/`: small Python scripts mimicking the CLI surface we use (wszst, wkclt, wkmpt, wimgt,
-rszst, abmatt, blender) — they log received args to JSON and create plausible output files.
+rszst, abmatt, blender). They log received args to JSON, create plausible output files, and reject
+flags that P2-T04a's contract checker does not find in the recorded help.
 `tests/fakes/recordings/<tool>/<version>/`: real `--help`/version/check outputs captured from `.tools/`.
 Fixture `fake_tools_path` prepends fakes to PATH. Contract test: every flag an adapter emits exists
 in the recorded help text for the pinned version.

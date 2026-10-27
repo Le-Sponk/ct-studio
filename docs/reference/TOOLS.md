@@ -426,6 +426,10 @@ stayed up with an empty editor and no dialog. `open_in()` must not report succes
 healthy process, and must not check window titles (two of five never name the file).
 
 ## Verified command table (fill in; adapters must only use rows marked verified)
+Every flag in this table and the S3b conversion table is checked against the pinned tool's
+recorded help by `tests/unit/test_help_contract.py` (P2-T04a; recordings in
+`tests/fakes/recordings/<tool>/<version>/`, Windows only so far). A new row with a flag
+that tool's help for that subcommand does not list fails the gate.
 | Tool | Version | Operation | Exact argv template | Exit codes | Output parsed? | Verified how |
 |---|---|---|---|---|---|---|
 | wszst | 2.42a r8989 | version banner | `wszst version` | 0 | not yet | real run, P0-T02 |

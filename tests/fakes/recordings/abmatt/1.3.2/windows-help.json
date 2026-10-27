@@ -1,0 +1,10 @@
+[
+ {
+  "argv": [
+   "--help"
+  ],
+  "exit_code": 0,
+  "stdout": "\n====================================================================================\nANOOB'S BRRES MATERIAL TOOL\nVersion v1.3.2\n====================================================================================\nCommand Line Usage:\nabmatt [command_line][flags]\n\n| -a | --auto-fix | Set the autofix level (0 to turn off fixes). |\n| -b | --brres | Brres file selection. |\n| -c | --command | Command name to run. |\n| -d | --destination | The file path to be written to. Mutliple destinations are not supported. |\n| -f | --file | File with ABMatt commands to be processed as specified in file format. |\n| -h | --help | Displays a help message about program usage. |\n| -i | --interactive | Interactive shell mode. |\n| -l | --loudness | Sets the verbosity level. (0-5)\n| -o | --overwrite | Overwrite existing files.  |\n|   | --moonview | Treat the Brres as Moonview course, adjusting material names. |\n\ncommand_line =  cmd-prefix ['for' selection] EOL;\ncmd-prefix = set | info | add | remove | select | preset | save | copy | paste | convert;\nset   = 'set' type setting;\ninfo  = 'info' type [key | 'keys'];\nadd   = 'add' type;\nremove = 'remove' type;\nselect = 'select' selection;\npreset = 'preset' preset_name;\nsave = 'save' [filename] ['as' destination] ['overwrite']\ncopy = 'copy' type;\npaste = 'paste' type;\nconvert = 'convert' filename ['to' destination] ['include' poly-list] ['exclude' poly-list] [convert-flags]\nload = 'load' command-file\n\nconvert-flags = ['patch'] ['no-colors'] ['no-normals'] ['single-bone'] ['no-uvs']\npoly-list = [polygon-name[,polygon-name]*]\n\nselection = name ['in' container]\ncontainer = ['brres' filename] ['model' name];\ntype = 'material' | 'layer' [':' id] | 'shader' | 'stage' [':' id]\n    | 'srt0' | 'srt0layer' [':' id] | 'pat0'\n    | 'mdl0' [':' id] | 'tex0' [':' id] | 'brres';\n\nFor more Help or if you want to contribute visit https://github.com/Robert-N7/abmatt\n    \nUSAGE: abmatt [command_line][--interactive -f <file> -b <brres-file> -d <destination> --overwrite]\n",
+  "stderr": ""
+ }
+]
