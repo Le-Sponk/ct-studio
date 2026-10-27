@@ -4,24 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T02b — Version probing and cache
+**Next task:** P2-T04 — Fake tools & recordings
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** c138e66 (P2-T03 Windows gate and Ubuntu/Windows CI
-[run 40448766227](https://github.com/Le-Sponk/ct-studio/actions/runs/40448766227))
+**Last green commit:** 40fbb96 (P2-T02b Windows gate and Ubuntu/Windows CI
+[run 40519561490](https://github.com/Le-Sponk/ct-studio/actions/runs/40519561490))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T02b` — `core/tools/versions.py`: documented probes only (Wine/GUI never started),
-  ≤8 concurrent, 10 s timeout, exit status ignored; JSON cache in the user config folder
-  keyed by tool id + resolved path + size + mtime (Flatpak: app id); failures not cached;
-  `force` re-check; an unwritable cache never hides a version. Also fixes a P2-T03 runner
-  bug the local gate exposed: output still queued after the tool exits was dropped when
-  the line callback was slow (50 MB test failed under gate load). Awaiting CI.
+_none_
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T02b` — `core/tools/versions.py`: documented probes only (Wine/GUI never started),
+  ≤8 concurrent, 10 s timeout, exit status ignored (rszst exits -1); JSON cache in the
+  user config folder keyed by tool id + resolved path + size + mtime (Flatpak: app id);
+  failures not cached; `force` re-check; an unwritable cache never hides a version. Also
+  fixed a P2-T03 runner bug the local gate exposed: output still queued after the tool
+  exited was dropped when the line callback was slow. 14 version tests + 1 runner test
+  with real fake executables and recorded rszst output; Windows `check.py --all` 198
+  passed / 2 skipped; broad non-network 271 passed / 20 optional skips. First CI run
+  40518987302 failed on Ubuntu (test appended a NUL byte to a script fake; fixed in
+  40fbb96). No real tool version probed yet (P2-T06 checkpoint). Commits 6969b1f,
+  40fbb96 — [CI run 40519561490](https://github.com/Le-Sponk/ct-studio/actions/runs/40519561490)
 - `P2-T03` — `core/tools/process.py`, the only spawning module in src/: `run()` takes
   absolute argv (never a shell), adds to the inherited env, streams both pipes via
   reader threads with incremental UTF-8 replacement decoding, keeps 50-line tails,

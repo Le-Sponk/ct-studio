@@ -777,4 +777,4 @@ The prober ignores the exit status because `rszst` prints its banner and exits -
 `wkclt`'s pattern rejects a `wszst` banner, so one tool cannot claim another's
 version. Probes run real child processes (fake executables with their own path,
 size and mtime) through the P2-T03 runner. A real-tool version check on this
-machine is deferred to the P2-T07 doctor checkpoint.
+machine is deferred to the P2-T06 doctor checkpoint.

@@ -375,7 +375,7 @@ P2-T02b then uses it for bounded concurrent version checks and a persistent cach
 keyed by path + mtime. All three are distinct task IDs/sessions. A Flatpak location
 holds the visible `flatpak` executable path and app ID separately, never an invented
 path to an application executable. Unknown version remains `None` until probed.
-**Consequences:** `ctstudio doctor` (P2-T07) waits for P2-T02b, not just P2-T02a.
+**Consequences:** `ctstudio doctor` (P2-T06) waits for P2-T02b, not just P2-T02a.
 P2-T02a never launches GUI editors or imports `subprocess`; no change to user-visible
 scope or new dependency. Revisit at P2-T02b if process runner proves unsuitable.
 

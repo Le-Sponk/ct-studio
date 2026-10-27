@@ -48,7 +48,7 @@ grandchild heartbeats and a src/ spawning scan; Windows `check.py --all` 183 pas
 13 Windows source mutations, 12 caught (survivor: explicit job termination is redundant with
 kill-on-close). Tree mechanism: ADR-024.
 
-### [ ] P2-T02b — Version probing and cache (after P2-T03)
+### [x] P2-T02b — Version probing and cache (after P2-T03) (commits 6969b1f, 40fbb96)
 Use only documented `version_args`/`version_regex` through `core/tools/process.py` with short
 timeouts; run independent probes concurrently. Persist results in user settings keyed by executable
 path and mtime (Flatpak: application identity); invalidate on change and support forced re-check.
@@ -57,6 +57,10 @@ its verified version.
 **Acceptance:** fake process tools exercise concurrent probes, timeouts, unset probes, persistent
 cache reuse and invalidation for changed mtime on Windows/Linux; no import of `subprocess` outside
 `core/tools/process.py` in src/. This split and interleave are explained in ADR-023.
+Verified by 14 tests (`test_tool_versions.py`, `test_tool_version_cache.py`) using real fake
+executables (Windows: copied launcher; Linux: shebang script) and recorded `rszst` output;
+Windows `check.py --all` 198 passed / 2 skipped; Ubuntu/Windows CI run 40519561490. No real
+tool's version was probed yet (deferred to the P2-T06 doctor checkpoint).
 
 ### [ ] P2-T04 — Fake tools & recordings
 `tests/fakes/`: small Python scripts mimicking the CLI surface we use (wszst, wkclt, wkmpt, wimgt,
