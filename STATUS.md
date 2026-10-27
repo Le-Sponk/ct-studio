@@ -12,7 +12,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T03` — process runner. (1) RED tests with Python-interpreter fakes: live
+  streaming order, 50 MB output, timeout and cancel killing a grandchild, non-zero
+  → `ToolFailed` tail, `check=False`, Unicode cwd/argv/bytes, env additions, log
+  append, missing exe, callback exception, detached launch, no `subprocess` import
+  elsewhere in src/. (2) `core/tools/process.py`: queue-fed reader threads with
+  incremental UTF-8 replacement decoding, bounded tails, caller-supplied log;
+  POSIX new session + `killpg`; Windows new process group + `CREATE_NO_WINDOW` +
+  job-object tree termination. (3) `ToolTimedOut` typed error. (4) ARCHITECTURE §9,
+  gate, both-OS CI, close. Acceptance as phase file; test timeouts ≤ 10 s.
+  Risk: Windows job assignment races a child spawning before assignment.
 
 
 ## Done (newest first)

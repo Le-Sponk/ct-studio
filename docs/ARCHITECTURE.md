@@ -212,7 +212,12 @@ wrote, a timestamped backup is made — no exceptions.
 - `core/tools/process.py` is the only place that spawns processes. Arguments are lists. Output is
   streamed line-by-line by reader threads (no pipe deadlocks), decoded UTF-8 with replacement,
   tails kept for error messages, full output to the build log.
-- Cancellation/timeout kills the whole process tree (POSIX process groups; Windows job/tree kill).
+  P2-T03 implements `run()` (absolute argv only, inherited env plus additions, bounded 50-line
+  tails, optional appended UTF-8 log, typed `ToolNotFound`/`ToolFailed`/`ToolTimedOut`/
+  `Cancelled`) and `launch_detached()`. Callbacks run on the caller's thread in arrival order.
+- Cancellation/timeout kills the whole process tree (POSIX sessions + `killpg`; Windows
+  kill-on-close job objects, assigned while the tool is suspended — ADR-024). Helpers left
+  behind after a clean exit are also stopped.
 - Windows: `CREATE_NO_WINDOW` for CLI tools; GUI editors launched detached.
 - Linux: Windows-only GUI tools (BrawlCrate, KMP Cloud) run via a configured Wine prefix; paths
   converted with `winepath`. Sandboxed installs (Flatpak/Snap) handled per lessons from the

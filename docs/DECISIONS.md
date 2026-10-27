@@ -378,3 +378,27 @@ path to an application executable. Unknown version remains `None` until probed.
 **Consequences:** `ctstudio doctor` (P2-T07) waits for P2-T02b, not just P2-T02a.
 P2-T02a never launches GUI editors or imports `subprocess`; no change to user-visible
 scope or new dependency. Revisit at P2-T02b if process runner proves unsuitable.
+
+## ADR-024 — Process trees: POSIX sessions and Windows kill-on-close jobs
+**Status:** Accepted (P2-T03)
+**Context:** Timeout, cancellation and a failed output callback must stop a tool and every
+helper it started, and a helper that inherits the pipes must not hang the run after the
+tool exits. `subprocess` alone kills only the direct child. On Windows a process group
+is a Ctrl+Break target, not a killable tree, and `taskkill /T` follows parent ids, which
+misses orphans and may hit reused ids. A child assigned to a job after it has started
+may already have spawned helpers outside the job.
+**Decision:** Use the stdlib only (no `psutil`). POSIX tools start with
+`start_new_session=True` and the runner kills the group with `os.killpg(SIGKILL)` on
+stop and on exit. Windows tools start with `CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP
+| CREATE_NO_WINDOW` and are assigned (via `ctypes`) to a job with
+`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` before `NtResumeProcess` lets them run.
+`TerminateJobObject` stops the tree, and closing the job handle stops any remaining
+descendants after a clean exit. Once the tool has exited, the runner waits 0.5 s for
+the pipes to close and then stops whoever still holds them. GUI editors use
+`launch_detached`, outside any job or session, so they outlive CT Studio.
+**Consequences:** A tool cannot leave background helpers behind; that is intended for
+the CLI tools CT Studio runs. `NtResumeProcess` is undocumented, but it has been
+stable since NT and is how a process created suspended by `subprocess` (which does
+not expose its thread handle) can be resumed. Nested jobs need Windows 8+, which
+both supported Windows targets (10/11) provide. Revisit if a tool must keep a
+background daemon after it exits.

@@ -57,6 +57,20 @@ class ToolFailed(CTStudioError):
         )
 
 
+class ToolTimedOut(CTStudioError):
+    """A tool exceeded its time limit and its whole process tree was stopped."""
+
+    def __init__(self, cmd: Sequence[str], timeout: float, log_path: Path | None) -> None:
+        self.cmd = tuple(cmd)
+        self.timeout = timeout
+        self.log_path = log_path
+        super().__init__(
+            f"{Path(self.cmd[0]).name} did not finish within {timeout:g} s and was stopped.",
+            hint="Check the tool's inputs, or allow more time for large files, then try again.",
+            details=f"argv: {self.cmd!r}\nlog: {log_path}",
+        )
+
+
 class ProjectError(CTStudioError):
     """A project folder or its contents cannot be used."""
 
