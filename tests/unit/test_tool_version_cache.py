@@ -49,7 +49,9 @@ def test_a_changed_mtime_or_size_or_force_triggers_a_new_probe(tmp_path: Path) -
     assert after_touch.outcome == "probed" and runs(counter) == 2
     mtime = exe.stat().st_mtime_ns
     with exe.open("ab") as stream:
-        stream.write(b"\0")  # same mtime, different size: an in-place update
+        # Same mtime, different size: an in-place update. A newline keeps the Linux fake
+        # (a Python script) valid; a NUL byte would make it a SyntaxError.
+        stream.write(b"\n")
     os.utime(exe, ns=(mtime, mtime))
     [after_resize] = probe_versions([(spec, direct(exe))], cache=cache)
     assert after_resize.outcome == "probed" and runs(counter) == 3
