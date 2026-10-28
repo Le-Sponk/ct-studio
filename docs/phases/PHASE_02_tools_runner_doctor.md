@@ -169,7 +169,7 @@ and search-path count alone are insufficient; otherwise fail loudly.
 **Acceptance:** status/create parsers and fake tests, guarded real integration where the
 user's own library is available; no bundled game content.
 
-### [ ] P2-T05e — rszst adapter
+### [x] P2-T05e — rszst adapter
 Expose `import_brres`, `brres_to_json`, `json_to_brres` and `dump_presets` (S3/S4-proven).
 Run rszst with cwd = a private ASCII staging folder and bare file names, always: Windows
 argv mangles every non-ASCII path, relative ones too (measured P2-T05e). Treat exit(-1)

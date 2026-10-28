@@ -4,24 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05e — rszst and ABMatt adapters
+**Next task:** P2-T05e2 — ABMatt adapter
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** fa4c6d4 (P2-T05d Windows gate and Ubuntu/Windows CI
-run 40714144995)
+**Last green commit:** 0f3c816 (P2-T05e Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05e` — rszst adapter. (1) Record with the fixture DAE: non-ASCII relative source
-  and preset path, a missing texture, a `textures/` subfolder, a renamed JSON+bin pair
-  (new `scripts/rszst_adapter_cases.py`; `ops_cases.py` is at 400 lines). (2) RED tests:
-  `core/tools/riistudio.py` stages inputs in a private ASCII temp folder, runs bare names,
-  moves outputs to the destination; refuses missing textures, existing destinations
-  (unless overwrite) and outputs that were not written; typed `RiiStudioError` with
-  stdout/stderr. (3) Fake refuses non-ASCII relative argv. (4) Real Windows integration in a
-  folder named `é`. (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05e` — new `core/tools/riistudio` (`import_brres`, `brres_to_json`,
+  `json_to_brres`, `dump_presets`) stages inputs under fixed ASCII names in a private temp
+  folder (the Windows rszst mangles every non-ASCII argv path, relative too) and refuses,
+  before running, missing/non-ASCII/out-of-folder textures and empty preset folders, which
+  rszst silently replaces or skips at exit 0. Ten new recordings from the self-made fixture;
+  replay sorts thread-ordered progress frames. Split: ABMatt moved to P2-T05e2. 20/20
+  mutants; gate 653; broad 752; real Windows integration 3 passed in a folder named `é`.
+  Commits 9fdf093 (CI red: staged mid-mutation-probe, a planted bug caught by CI) +
+  0f3c816 (restored; both CI jobs green).
 - `P2-T05d` — new `wiimm_autoadd` reads auto-add search paths, builds a library from a
   `Race/Course` folder (fails when Wiimm read no standard-named archive) and checks a
   library with `-vv` against Wiimm's list of originals. `create_szs(auto_add=)` now takes
