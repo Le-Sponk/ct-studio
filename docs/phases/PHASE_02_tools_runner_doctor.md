@@ -169,12 +169,21 @@ and search-path count alone are insufficient; otherwise fail loudly.
 **Acceptance:** status/create parsers and fake tests, guarded real integration where the
 user's own library is available; no bundled game content.
 
-### [ ] P2-T05e — rszst and ABMatt adapters
-Expose only S3/S4/S5-proven operations. Run rszst with cwd = the file's directory and
-bare file names, always: Windows argv mangles non-ASCII absolute paths. Treat exit(-1)
-as nonzero (255 Linux, 0xFFFFFFFF Windows), not a literal. ABMatt may crash after writing
-its output (CJK path, UnicodeEncodeError, exit 0); success requires a parsed output file.
-**Acceptance:** recorded/fake parsers and real fixture integration on Windows, Ubuntu fake CI.
+### [ ] P2-T05e — rszst adapter
+Expose `import_brres`, `brres_to_json`, `json_to_brres` and `dump_presets` (S3/S4-proven).
+Run rszst with cwd = a private ASCII staging folder and bare file names, always: Windows
+argv mangles every non-ASCII path, relative ones too (measured P2-T05e). Treat exit(-1)
+as nonzero (255 Linux, 0xFFFFFFFF Windows), not a literal; also fail on exit-0 runs that
+wrote nothing, and refuse DAEs whose referenced textures are absent (exit 0 with a
+placeholder texture). **Acceptance:** recorded/fake parsers and real fixture integration on
+Windows, Ubuntu fake CI.
+
+### [ ] P2-T05e2 — ABMatt adapter
+Expose `convert` (DAE/OBJ → BRRES, minimap bones checked downstream), command-file edits
+and material copy. ABMatt may crash after writing its output (CJK path,
+UnicodeEncodeError, exit 0) and prints "ERROR:" at exit 0; success requires a new output
+file with `bres` magic. **Acceptance:** recorded/fake parsers and real fixture integration
+on Windows, Ubuntu fake CI.
 
 ### [ ] P2-T05f — Blender script adapter
 `blender.py:run_script(blend, script, args, timeout)` uses a nonzero

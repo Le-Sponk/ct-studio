@@ -29,6 +29,7 @@ import record_tool_help as rth
 import tool_paths as tp
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
+from rszst_adapter_cases import RSZST_ADAPTER_CASES
 from wiimm_adapter_cases import (
     ANALYZE_CASES,
     AUTOADD_CASES,
@@ -83,7 +84,7 @@ def normalize_blender(record: dict[str, object]) -> dict[str, object]:
 # What to record, by bootstrap tool name: its executables and its case table.
 TOOLSETS: dict[str, tuple[tuple[str, ...], tuple[Case, ...]]] = {
     "wiimms-szs-tools": (WIIMM, WIIMM_CASES),
-    "riistudio": (("rszst",), RSZST_CASES),
+    "riistudio": (("rszst",), RSZST_CASES + RSZST_ADAPTER_CASES),
     "abmatt": (("abmatt",), ABMATT_CASES),
     "blender": (("blender",), BLENDER_CASES),
 }
@@ -96,6 +97,9 @@ def _place_abmatt(action: str, args: list[str], work: Path, fixture: Fixture) ->
         (work / args[0]).write_text(ABMATT_CMDS[args[0]], encoding="utf-8", newline="\n")
     elif action == "@copyfile":
         (work / args[1]).write_bytes((work / args[0]).read_bytes())
+    elif action == "@move":  # a file or folder; creates the target's parent
+        (work / args[1]).parent.mkdir(parents=True, exist_ok=True)
+        (work / args[0]).rename(work / args[1])
     else:
         return False
     return True

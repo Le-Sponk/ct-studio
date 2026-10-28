@@ -39,7 +39,7 @@ pytestmark = pytest.mark.timeout(60)
 
 VERSION = tc.ALL_TOOLS["riistudio"].version
 FOLDER = rth.RECORDINGS / "rszst" / VERSION
-CASES = {case.name: case for case in rto.RSZST_CASES}
+CASES = {case.name: case for case in rto.TOOLSETS["riistudio"][1]}
 WINDOWS_EXIT = 4294967295  # exit(-1) as Windows reports it
 OS_NAME = "windows" if os.name == "nt" else "linux"
 
@@ -99,6 +99,25 @@ def test_recorded_dae_uses_repo_lf_line_endings() -> None:
     data = (FOLDER / "inputs" / "course.dae").read_bytes()
     assert b"\r" not in data
     assert b"\n" in data
+
+
+def test_only_thread_ordered_progress_frames_are_canonicalised() -> None:
+    from ops_replay import canonical_stdout
+
+    frame = "Optimizing meshes ({} / 4)       [{}] {} %\r"
+    real = (
+        "Processing\r"
+        + "".join(frame.format(k, "=" * k, 25 * k) for k in (0, 2, 1, 3))
+        + "Done\r\n"
+    )
+    ordered = (
+        "Processing\r" + "".join(frame.format(k, "=" * k, 25 * k) for k in range(4)) + "Done\r\n"
+    )
+    assert real != ordered and canonical_stdout(real) == canonical_stdout(ordered)
+    assert canonical_stdout("Compiling meshes 2/4\rCompiling meshes 1/4\r") == (
+        "Compiling meshes 2/4\rCompiling meshes 1/4\r"
+    )
+    assert canonical_stdout(real) != canonical_stdout(real.replace("Done", "Dome"))
 
 
 def test_the_fake_imitates_the_catalogue_pin() -> None:

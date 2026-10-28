@@ -11,6 +11,14 @@ run 40714144995)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05e` — rszst adapter. (1) Record with the fixture DAE: non-ASCII relative source
+  and preset path, a missing texture, a `textures/` subfolder, a renamed JSON+bin pair
+  (new `scripts/rszst_adapter_cases.py`; `ops_cases.py` is at 400 lines). (2) RED tests:
+  `core/tools/riistudio.py` stages inputs in a private ASCII temp folder, runs bare names,
+  moves outputs to the destination; refuses missing textures, existing destinations
+  (unless overwrite) and outputs that were not written; typed `RiiStudioError` with
+  stdout/stderr. (3) Fake refuses non-ASCII relative argv. (4) Real Windows integration in a
+  folder named `é`. (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -371,6 +379,9 @@ run 40714144995)
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-29 (P2-T05e): split into P2-T05e (rszst adapter) and P2-T05e2 (ABMatt
+  adapter). Probes found new rszst failure modes (any non-ASCII argv, missing textures at
+  exit 0) that need their own recordings; both tools together exceed one session.
 - 2026-10-28 (P2-T05c): split into P2-T05c (KMP text + image encoding) and P2-T05c2
   (KCL analysis + minimap). Image encoding alone needs eight measured formats, mipmap
   counts and TEX0 output verification; KCL tables and the silent minimap no-op need their
@@ -638,6 +649,12 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
   recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
+- **P2-T05e rszst adapter evidence is Windows-only.** The ASCII staging, texture and
+  preset refusals are proven against the Windows build (non-ASCII argv mangled through the
+  ANSI code page; missing textures replaced by a 32x32 placeholder at exit 0). The Linux
+  build may accept UTF-8 argv; staging stays because it is harmless there. Closing it: on
+  Linux, run `tests/integration/test_riistudio_adapter_native.py` with the skip lifted and
+  record the adapter cases in `linux-ops.json`.
 - **P2-T04c rszst operation recordings are Windows-only.** Ubuntu CI exercises the
   fake's Linux executable and compares the Windows runs after translating the independently
   verified help/version differences and the runner's LF progress-line normalization.

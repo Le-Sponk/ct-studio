@@ -7,6 +7,7 @@ recording, and ``assert_like_recording`` checks a fake run against the real one.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Callable, Mapping
 from pathlib import Path
 
@@ -48,6 +49,19 @@ def _assert_exit_and_effects(fake: Mapping[str, object], record: Mapping[str, ob
     assert fake["files"] == record["files"]
 
 
+# rszst optimises meshes on worker threads: the "(k / N)" progress frames arrive in any
+# order (measured P2-T05e, 1 of ~30 import runs printed 0,2,1,3,4).
+_PARALLEL_FRAMES = re.compile(r"(?:Optimizing meshes \(\d+ / \d+\)[^\r\n]*\r)+")
+
+
+def canonical_stdout(text: str) -> str:
+    """Stdout with runs of thread-ordered progress frames sorted; all else untouched."""
+    return _PARALLEL_FRAMES.sub(
+        lambda match: "".join(sorted(f + "\r" for f in match.group(0).split("\r")[:-1])),
+        text,
+    )
+
+
 def assert_like_recording(fake: Mapping[str, object], record: Mapping[str, object]) -> None:
     """Exit code, stderr and file effects exactly; stdout as ``compare`` says."""
     compare = record["compare"]
@@ -57,7 +71,7 @@ def assert_like_recording(fake: Mapping[str, object], record: Mapping[str, objec
         return
     _assert_exit_and_effects(fake, record)
     if compare == "exact":
-        assert fake["stdout"] == record["stdout"]
+        assert canonical_stdout(str(fake["stdout"])) == canonical_stdout(str(record["stdout"]))
         return
     lines = str(fake["stdout"]).splitlines(keepends=True)
     assert lines, "a fake prints at least the real opening line"

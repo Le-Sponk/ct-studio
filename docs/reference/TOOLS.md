@@ -90,7 +90,7 @@ S3b must characterize those before any backend/default decision.
   failures differ, as above.
 
 ### Operation recordings and stand-in (P2-T04c, verified Alpha 5.11.5 Windows 11)
-[39 real CLI runs](../../tests/fakes/recordings/rszst/5.11.5/windows-ops.json) on the
+[49 real CLI runs](../../tests/fakes/recordings/rszst/5.11.5/windows-ops.json) on the
 [generated four-material DAE fixture](../../tests/fakes/recordings/rszst/5.11.5/inputs/course.dae)
 cover import, JSON round-trip, preset export/reimport, missing/corrupt files, overwrite,
 missing parent directories, and clap errors. `scripts/record_tool_outputs.py --only riistudio`
@@ -112,10 +112,31 @@ input sizes/magic and created/changed files. Observed details:
   >0.7 reproduce the measured `--modl`→`--model-name`, `--x`→`--max-mip`, etc.
 - On Windows, an absolute path in a folder with `é` becomes `FileNotExist` with `�` in
   the error path: the prebuilt CLI reads its argv through the ANSI code page. Relative
-  paths in the same folder work. Do not infer the Linux absolute-path behaviour from it.
+  ASCII names in the same folder work (the working directory itself may be non-ASCII).
+  A *relative* non-ASCII name fails the same way (`cé.dae`, P2-T05e), and a non-ASCII
+  `--preset-path` only warns and builds **without presets at exit 0**. Do not infer the
+  Linux behaviour from any of this.
+- **Silent texture loss (P2-T05e):** a texture the DAE's `<image><init_from>` names but
+  which is absent, or whose name is non-ASCII, still exits 0; the BRRES gets a 32x32
+  placeholder of that name. rszst looks next to the DAE and in its `textures/` subfolder;
+  `../` references are read and named `../fence`.
+
+### Adapter (P2-T05e, verified Alpha 5.11.5 Windows 11)
+`ctstudio.core.tools.riistudio` exposes `import_brres`, `brres_to_json`, `json_to_brres`
+and `dump_presets`. Every call copies its inputs into a private `ctstudio-rszst-*` temp
+folder under fixed ASCII names (`model.dae`, `in.brres`, `in.json`/`in.bin`, `presets/`),
+runs rszst there with bare names, then copies the checked outputs to the destination
+(existing files need `overwrite=True` and keep a timestamped `.bak`). It refuses, before
+running: non-COLLADA input, a model name outside `[A-Za-z0-9_]{1,64}`, missing,
+non-ASCII or out-of-folder textures, a preset folder without `.rspreset` files, and
+existing destinations. After running, any nonzero exit (including -1) or an exit 0
+without the expected file and magic (`bres`, `{`, `RBUF`) raises `RiiStudioError`
+(exit code and stdout/stderr tail in `details`); nothing is delivered. Adapter argv
+shapes are recorded by [`scripts/rszst_adapter_cases.py`](../../scripts/rszst_adapter_cases.py).
 
 `tests/fakes/fake_rszst.py` accepts only the exact recorded DAE and all four texture
-bytes, and only option combinations observed on the real converter. Its
+bytes (beside the DAE or in `textures/`), and only option combinations observed on the
+real converter. Its
 `bres`/JSON/sidecar/presets are exact marker-bearing test stand-ins, not real formats;
 modified stand-ins are refused.
 Unrecorded behaviour exits 121 without writing anything. The

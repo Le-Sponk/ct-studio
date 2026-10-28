@@ -43,7 +43,9 @@ def _shape(path: Path) -> None:
     if path.read_bytes() != (inputs / "course.dae").read_bytes():
         raise Unmodelled("DAE differs from the recorded four-mesh course")
     for name in TEXTURES:
-        texture = path.parent / name
+        texture = path.parent / name  # rszst also looks in textures/ (P2-T05e recording)
+        if not texture.is_file():
+            texture = path.parent / "textures" / name
         if not texture.is_file() or texture.read_bytes() != (inputs / name).read_bytes():
             raise Unmodelled(f"{name}: missing or differs from the recorded texture")
 
@@ -86,7 +88,7 @@ def _import_options(parsed: cli.Parsed) -> tuple[str, str, str, str | None]:
     _known_options(parsed, {"model-name", "mipmaps", "min-mip", "preset-path"})
     _import_mipmap_options(parsed)
     model = parsed.options.get("model-name", "course")
-    if model not in {"course", "vrcorn"} or ("model-name" in parsed.options and model != "vrcorn"):
+    if model not in {"course", "vrcorn"}:
         raise Unmodelled("model name not recorded")
     keys = frozenset(parsed.options)
     measured = {
@@ -95,6 +97,10 @@ def _import_options(parsed: cli.Parsed) -> tuple[str, str, str, str | None]:
         frozenset({"mipmaps", "min-mip"}),
         frozenset({"preset-path"}),
     }
+    if model == "course":  # the adapter always names its model (P2-T05e recordings)
+        measured |= {
+            frozenset({"model-name", *k}) for k in (("mipmaps", "min-mip"), ("preset-path",))
+        }
     if keys not in measured:
         raise Unmodelled(f"option combination not recorded: {sorted(keys)}")
     source, destination = _paths(parsed, ".brres")
@@ -106,21 +112,29 @@ def _import_options(parsed: cli.Parsed) -> tuple[str, str, str, str | None]:
     return source, destination, model, preset
 
 
-def _absolute_failure(source: str, path: Path) -> bool:
-    if not path.is_absolute():
+def _ansi_mangled(text: str) -> bool:
+    """Windows reads argv through the ANSI code page: é paths are mangled (measured).
+
+    Absolute paths and non-ASCII relative names were recorded with é only, on Windows.
+    """
+    if text.isascii() and not Path(text).is_absolute():
         return False
-    # The sole measured absolute path has é. Other Windows encodings and all Linux
-    # absolute paths have not been pinned to an operation recording.
-    if os.name != "nt" or "é" not in source or any(not (c.isascii() or c == "é") for c in source):
-        raise Unmodelled("absolute path not recorded on this OS")
+    if os.name != "nt" or any(not (c.isascii() or c == "é") for c in text):
+        raise Unmodelled("path not recorded on this OS")
+    if "é" not in text:
+        raise Unmodelled("absolute ASCII path not recorded")
     return True
+
+
+def _shown(text: str) -> str:
+    return "".join(c if c.isascii() else "\ufffd" for c in text)
 
 
 def _import_failure(source: str, error: str) -> Outcome | None:
     path = Path(source)
-    ansi_path = _absolute_failure(source, path)
+    ansi_path = _ansi_mangled(source)
     if ansi_path or not path.exists():
-        shown = "".join(c if c.isascii() else "\ufffd" for c in source) if ansi_path else source
+        shown = _shown(source) if ansi_path else source
         msg = "Failed to parse args: FileNotExist\n"
         return reply(-1, template("import missing"), f"Error: File {shown} does not exist.\n{msg}")
     if path.read_bytes().startswith(b"not a track file\n"):
@@ -133,8 +147,10 @@ def _import_failure(source: str, error: str) -> Outcome | None:
 def _import_presets(preset: str | None) -> tuple[str, str]:
     if preset is None:
         return template("import"), ""
-    if not Path(preset).is_dir():
-        return template("import"), f"Warning: Preset path {preset} does not exist not valid.\n"
+    if _ansi_mangled(preset) or not Path(preset).is_dir():
+        return template(
+            "import"
+        ), f"Warning: Preset path {_shown(preset)} does not exist not valid.\n"
     files = sorted(p.name for p in Path(preset).glob("*.rspreset"))
     if files != [f"{m}.rspreset" for m in MATERIALS] or any(
         (Path(preset) / name).read_bytes() != FAKE_BRRES for name in files
