@@ -527,7 +527,7 @@ that tool's help for that subcommand does not list fails the gate.
 | wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0 | not yet | real run, P0-T03 |
 | wszst | 2.42a r8989 | build SZS from a stage dir | `wszst create DIR --dest OUT.szs --overwrite [--compr=LEVEL]` | 0 = ok | no | real run, P0-T04 |
 | wszst | 2.42a r8989 | validate a track or stage dir | `wszst check FILE.szs\|DIR [--brief]` | **see warning below** | yes, text | real run, P0-T04/P2-T05a |
-| wszst | 2.42a r8989 | structured analysis | `wszst analyze --json FILE.szs` | 0 | yes, JSON | real run, P0-T04 |
+| wszst | 2.42a r8989 | structured analysis | `wszst analyze --json FILE.szs\|DIR` | 0, **also on unsupported input** | yes, JSON | real run, P0-T04/P2-T05b |
 | wszst | 2.42a r8989 | list archive contents | `wszst list [--long] FILE.szs` | 0 | yes, text | real run, P0-T04 |
 | wszst | 2.42a r8989 | slot proposals | `wszst slots FILE.szs` | 0 | yes, text | real run, P0-T04 |
 
@@ -570,6 +570,28 @@ Useful keys: `valid_track`, `valid`, `lap_count`, `n_ckpt0`, `slot_info`, `used_
 hashes `sha1_kcl`/`sha1_kmp`/`sha1_course`/`sha1_vrcorn`/`sha1_minimap` (empty string when
 that component is absent — the reliable way to detect missing files).
 Prefer `analyze --json` over `slots`: `slot_info` carries the same data.
+
+P2-T05b measurements (`windows-ops.json`, `analyze json*` cases): stdout is a blank line
+then one JSON object; `duration_usec` varies per run (recorded as `"<usec>"`).
+- `valid` is **1 for anything Wiimm could analyse** — including an empty archive or empty
+  directory — so it is not a track verdict. The fixture KCL+KMP stage reports
+  `valid_track: 0`, `sha1_course: ""`, `missed_subfiles: "2b"`, `warn: "4=no-minimap"`.
+- An unsupported file (junk bytes) exits **0** with
+  `{"file":…,"file_type":"?","analyze":"","valid":0,"warning":"File format not supported."}`;
+  a missing file exits 78 with `ERROR #78` on stderr and a blank stdout line.
+- A stage directory analyses like the archive built from it (same `sha1`, type `U8`).
+
+`core.tools.wiimm.analyze(path)` returns the JSON object and raises `WiimmError` on
+`ERROR #`, a nonzero exit, `valid != 1`, or non-object/non-JSON output. Callers judge track
+status from `valid_track`, `warn` and empty `sha1_*` hashes, not `valid`.
+`core.tools.wiimm.create_szs(stage, dest, compression="best"|"fast"|"none", overwrite=)`
+maps compression to *no flag* / `--fast` / `--no-compress` and always passes `--dest`.
+Because `create` exits 0 on `ERROR #64` (existing file) and `#82` (missing folder), it
+raises on any `ERROR #`, and then also requires that `dest` was (re)written with the
+expected `Yaz0`/U8 magic. `auto_add=True` raises `AutoAddUnavailable` before running wszst
+until P2-T05d adds a library-content check. The conservative fake replays analysis only for
+the byte-identical recorded stage, the empty directory and unsupported files; it refuses
+(exit 121) to analyse any archive, since it cannot compute real archive contents.
 
 ### wszst create (P0-T04)
 - Builds from a plain directory and **does not validate**: it produced an SZS from a

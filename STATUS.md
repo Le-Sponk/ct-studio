@@ -12,6 +12,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05b` — (1) Record real `wszst analyze --json` on compressed/plain/empty archives,
+  a stage directory, junk (exit 0, `valid:0`) and missing (78); scrub `duration_usec`.
+  (2) RED tests: `analyze()` returns the parsed object and raises a typed error on
+  `valid != 1`, `ERROR #` or non-JSON; `create_szs()` maps compression to recorded flags,
+  rejects `auto_add=True` and unknown `extra`, and fails when Wiimm exits 0 with
+  `ERROR #64/#82` or writes no YAZ0/U8 file. (3) Extend the fake only for recorded
+  analyze rows (refuse others). (4) Mutations, Linux pyright, xenon, full/broad/real
+  integration, docs, commit/push, both CI OSes. Files: `core/tools/wiimm.py`, recorder
+  case table, `fake_wiimm.py`, tests, TOOLS.md, phase file, STATUS. Risk: the fake
+  must not invent analysis JSON for unrecorded inputs.
 
 
 ## Done (newest first)
@@ -576,12 +586,12 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
-- **P2-T05a Wiimm `check` findings are Windows-only evidence.** The adapter's real
+- **P2-T05a/b Wiimm `check`/`analyze`/`create` evidence is Windows-only.** The adapters' real
   SZS/stage-directory/empty/corrupt/missing integration tests ran against native Windows
   Wiimm 2.42a; Ubuntu CI exercises only the recorded parser and the prefix-only fake
   (which the adapter must refuse). To close: on Linux bootstrap Wiimm and fixtures, run
   `uv run python scripts/record_tool_outputs.py --only wiimms-szs-tools`, commit the
-  `linux-ops.json` files and run `tests/integration/test_wiimm_check_adapter.py` with its
+  `linux-ops.json` files and run `tests/integration/test_wiimm_adapter.py` with its
   `os.name` skip relaxed to accept Linux. Nonblocking for the Windows-derived contract.
 - **P2-T04e Blender operation recordings are Windows-only.** Sixteen Blender 5.2.2
   invocations exercise the pinned scripts and known-good `.blend`. Ubuntu CI replays

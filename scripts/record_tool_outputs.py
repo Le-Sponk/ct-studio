@@ -28,9 +28,9 @@ import record_tool_help as rth
 import tool_paths as tp
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
-from wiimm_check_cases import CHECK_CASES
+from wiimm_adapter_cases import ANALYZE_CASES, CHECK_CASES
 
-WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES
+WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
@@ -53,6 +53,12 @@ def normalize_abmatt(record: dict[str, object]) -> dict[str, object]:
         r"\[\d+\](?= Failed to execute script __main__)", "[<pid>]", str(record["stderr"])
     )
     return {**record, "stdout": stdout, "stderr": stderr}
+
+
+def normalize_wszst(record: dict[str, object]) -> dict[str, object]:
+    """Scrub only ``analyze --json``'s per-run ``duration_usec`` value."""
+    stdout = re.sub(r'(?<="duration_usec":)\d+(?=})', '"<usec>"', str(record["stdout"]))
+    return {**record, "stdout": stdout}
 
 
 def normalize_blender(record: dict[str, object]) -> dict[str, object]:
@@ -229,6 +235,8 @@ def run_case(
             record = normalize_abmatt(record)
         elif tool == "blender":
             record = normalize_blender(record)
+        elif tool == "wszst":
+            record = normalize_wszst(record)
         record["files"] = file_effects(work, before)
         return {"case": case.name, "tool": tool, "compare": case.compare, "inputs": used, **record}
     finally:

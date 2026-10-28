@@ -715,5 +715,143 @@
   "stdout": "\nCHECK YAZ0.U8:empty.szs\n",
   "stderr": "",
   "files": {}
+ },
+ {
+  "case": "analyze json",
+  "tool": "wszst",
+  "compare": "unmodelled",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "analyze",
+   "--json",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"t.szs\",\"file_type\":\"YAZ0.U8\",\"analyze\":\"track\",\"size\":16928,\"db64\":\"6A-5YeIBFE0itbKlkd_M_9XvDdwAAEIg\",\"sha1\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_norm\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_kcl\":\"41777b84bcea7bbc0f0134dfb44fc8ce1aea36e1\",\"sha1_kmp\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_kmp_norm\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"-4.2,-6.1,-6.2\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_y_pos\":\"2=ok 200.00 200.00 0.00 200.00\",\"used_z_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"0 1 1 1\",\"missed_subfiles\":\"2b\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"miss=2b,warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json uncompressed",
+  "tool": "wszst",
+  "compare": "unmodelled",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "analyze",
+   "--json",
+   "u.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"u.szs\",\"file_type\":\"U8\",\"analyze\":\"track\",\"size\":16928,\"db64\":\"6A-5YeIBFE0itbKlkd_M_9XvDdwAAEIg\",\"sha1\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_norm\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_kcl\":\"41777b84bcea7bbc0f0134dfb44fc8ce1aea36e1\",\"sha1_kmp\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_kmp_norm\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"-4.2,-6.1,-6.2\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_y_pos\":\"2=ok 200.00 200.00 0.00 200.00\",\"used_z_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"0 1 1 1\",\"missed_subfiles\":\"2b\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"miss=2b,warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json empty archive",
+  "tool": "wszst",
+  "compare": "unmodelled",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "empty.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"empty.szs\",\"file_type\":\"YAZ0.U8\",\"analyze\":\"track\",\"size\":64,\"db64\":\"sb9wY5xOhgsGOMXDXUnNlLlWnJYAAABA\",\"sha1\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_norm\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_kcl\":\"\",\"sha1_kmp\":\"\",\"sha1_kmp_norm\":\"\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":-1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"%\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_y_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_z_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"\",\"missed_subfiles\":\"\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json directory",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "analyze",
+   "--json",
+   "stage"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"stage\",\"file_type\":\"U8\",\"analyze\":\"track\",\"size\":16928,\"db64\":\"6A-5YeIBFE0itbKlkd_M_9XvDdwAAEIg\",\"sha1\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_norm\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_kcl\":\"41777b84bcea7bbc0f0134dfb44fc8ce1aea36e1\",\"sha1_kmp\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_kmp_norm\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"-4.2,-6.1,-6.2\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_y_pos\":\"2=ok 200.00 200.00 0.00 200.00\",\"used_z_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"0 1 1 1\",\"missed_subfiles\":\"2b\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"miss=2b,warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json empty directory",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "empty"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"empty\",\"file_type\":\"U8\",\"analyze\":\"track\",\"size\":64,\"db64\":\"sb9wY5xOhgsGOMXDXUnNlLlWnJYAAABA\",\"sha1\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_norm\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_kcl\":\"\",\"sha1_kmp\":\"\",\"sha1_kmp_norm\":\"\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":-1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"%\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_y_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_z_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"\",\"missed_subfiles\":\"\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json junk",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "junk.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"junk.szs\",\"file_type\":\"?\",\"analyze\":\"\",\"valid\":0,\"warning\":\"File format not supported.\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "missing.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
  }
 ]

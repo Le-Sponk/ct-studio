@@ -247,6 +247,29 @@ def wszst_check(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
     return Outcome(0, f"\nCHECK YAZ0.U8:{show(raw)}\n")
 
 
+def _recorded_stdout(case: str) -> str:
+    row = next(row for row in recordings("wszst", VERSION, "ops") if row["case"] == case)
+    return str(row["stdout"]).replace('"<usec>"', "0")
+
+
+def wszst_analyze(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
+    """Replay only recorded analysis; a fake cannot analyse an archive's contents."""
+    if set(parsed.options) != {"--json"}:
+        raise Unmodelled("analyze without exactly --json")
+    raw = one_source(parsed)
+    if Path(raw).is_dir():
+        if raw == "stage" and _known_stage(Path(raw)):
+            return Outcome(0, _recorded_stdout("analyze json directory"))
+        if raw == "empty" and not any(Path(raw).iterdir()):
+            return Outcome(0, _recorded_stdout("analyze json empty directory"))
+        raise Unmodelled("analyze of an unrecorded directory")
+    data = read_source(tool, raw, stdout="\n")
+    if read_archive(data) is not None:
+        raise Unmodelled("analyze of an archive (contents are not modelled)")
+    report = f'{{"file":{json.dumps(show(raw))},"file_type":"?","analyze":"","valid":0,'
+    return Outcome(0, f'\n{report}"warning":"File format not supported."}}\n')
+
+
 def wszst_minimap(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
     allow(parsed, {"--auto"})
     if "--auto" not in parsed.options:
@@ -355,6 +378,7 @@ COMMANDS: dict[tuple[str, str], Command] = {
     ("wszst", "LIST"): wszst_list,
     ("wszst", "CHECK"): wszst_check,
     ("wszst", "MINIMAP"): wszst_minimap,
+    ("wszst", "ANALYZE"): wszst_analyze,
     ("wkclt", "DECODE"): wkclt_decode,
     ("wkmpt", "DECODE"): wkmpt_decode,
     ("wkmpt", "ENCODE"): wkmpt_encode,

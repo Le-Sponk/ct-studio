@@ -1,4 +1,4 @@
-"""Windows-native Wiimm 2.42a checks: fake replay cannot prove real findings."""
+"""Windows-native Wiimm 2.42a check/analyze/create: fakes cannot prove real output."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from ctstudio.core.tools.wiimm import WiimmCheckError, check
+from ctstudio.core.tools.wiimm import WiimmCheckError, WiimmError, analyze, check, create_szs
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -90,4 +90,38 @@ def test_real_check_corrupt_exit_zero_and_missing_exit_nonzero(tmp_path: Path) -
     assert (corrupt.value.error_code, corrupt.value.exit_code) == (39, 0)
     with pytest.raises(WiimmCheckError) as missing:
         check(tmp_path / "missing.szs", executable=tp.WSZST)
+    assert (missing.value.error_code, missing.value.exit_code) == (78, 78)
+
+
+@pytest.mark.parametrize(("compression", "magic"), [("best", b"Yaz0"), ("none", b"U\xaa8-")])
+def test_real_create_then_analyze(tmp_path: Path, compression: str, magic: bytes) -> None:
+    work = tmp_path / "create é"
+    work.mkdir()
+    stage = work / "stage"
+    stage.mkdir()
+    for name in ("course.kcl", "course.kmp"):
+        shutil.copyfile(FIXTURES / name, stage / name)
+    dest = work / "out.szs"
+    assert create_szs(stage, dest, compression=compression, executable=tp.WSZST) == dest  # type: ignore[arg-type]
+    assert dest.read_bytes()[:4] == magic
+    report = analyze(dest, executable=tp.WSZST)
+    assert (report["valid"], report["valid_track"], report["sha1_course"]) == (1, 0, "")
+    assert report["sha1_kcl"] and report["sha1_kmp"]
+    with pytest.raises(WiimmError) as exists:
+        create_szs(stage, dest, executable=tp.WSZST)
+    assert (exists.value.error_code, exists.value.exit_code) == (64, 0)
+    create_szs(stage, dest, overwrite=True, executable=tp.WSZST)
+    with pytest.raises(WiimmError) as no_parent:
+        create_szs(stage, work / "sub" / "x.szs", executable=tp.WSZST)
+    assert (no_parent.value.error_code, no_parent.value.exit_code) == (82, 0)
+
+
+def test_real_analyze_junk_exit_zero_and_missing(tmp_path: Path) -> None:
+    junk = tmp_path / "junk.szs"
+    junk.write_bytes(b"not a track file\n" * 4)
+    with pytest.raises(WiimmError, match="File format not supported") as bad:
+        analyze(junk, executable=tp.WSZST)
+    assert bad.value.exit_code == 0
+    with pytest.raises(WiimmError) as missing:
+        analyze(tmp_path / "missing.szs", executable=tp.WSZST)
     assert (missing.value.error_code, missing.value.exit_code) == (78, 78)
