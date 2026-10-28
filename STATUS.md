@@ -4,29 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05a — Wiimm `check` and Issues
+**Next task:** P2-T05b — Wiimm `analyze` and basic SZS creation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** bf90cb0 (P2-T04e Windows gate and Ubuntu/Windows CI
-[run 40660325955](https://github.com/Le-Sponk/ct-studio/actions/runs/40660325955))
+**Last green commit:** 1ec0ddd (P2-T05a Windows gate and Ubuntu/Windows CI
+[run 40669729269](https://github.com/Le-Sponk/ct-studio/actions/runs/40669729269))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05a` — (1) Inspect real `wszst check` fixture, directory, corrupt and missing
-  recordings; capture any missing directory/warning cases before parsing. (2) RED tests
-  for typed Issues and the deceptive exit statuses, using the installed fake via the core
-  process runner and real fixture integration. (3) Implement only `wiimm.check` plus the
-  shared Issue type/error mapping; never equate exit 0 with valid or exit 2 with failure.
-  (4) Review/mutate, verify Linux-target pyright, complexity, full/broad tests and real
-  integration, document the Windows-recording gap, commit/push and verify both CI OSes.
-  Files: `src/ctstudio/core/{validation/issues.py,validation/wszst_check.py,tools/wiimm.py}`,
-  fake/recorder only if coverage needs new rows, tests, TOOLS.md, phase checklist and
-  STATUS. Risk: Wiimm reports findings on both streams and can return 0 for corrupt
-  input; fake output is intentionally only a prefix, not real findings.
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05a` — first adapter: `wiimm.check(szs|dir)` returns typed Issues from Wiimm's
+  text report, raises on `ERROR #` even at exit 0 and on unexpected exits, checks the
+  summary against parsed findings, and refuses the fake's prefix-only output as
+  incomplete. New real Windows directory/empty recordings; full-SHA retained inputs.
+  Gate 498 passed / 3 skipped; broad 575 passed; 4 real integration; 11/11 mutations;
+  Ubuntu/Windows CI run 40669729269 green. Linux Wiimm output gap recorded — commit 1ec0ddd
 - `P2-T04e` — seventh executable fake replays 16 real Blender 5.2.2 Windows headless
   runs using retained Python scripts and a known-good `.blend`. It executes exactly
   verified script bytes with the test interpreter, refuses unknown inputs (121),

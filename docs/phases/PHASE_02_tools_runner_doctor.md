@@ -130,7 +130,7 @@ exit 0 on a script exception unless `--python-exit-code`, `sys.exit(n)` → n wi
 an unknown argument loaded as a file (exit 1), a missing/unsupported `.blend` exit 1.
 **Acceptance:** as P2-T04b for `blender`; `fake_tools_path` provides all seven tools.
 
-### [ ] P2-T05a — Wiimm `check` and Issues
+### [x] P2-T05a — Wiimm `check` and Issues (commit 1ec0ddd)
 Add `wiimm.py` with `check(szs|dir) -> list[Issue]`. Parse recorded `wszst check` output into
 shared typed Issues (severity, component, code, message, hint, source, file/wiki where known).
 Do **not** use exit status as pass/fail: valid and broken tracks exit 2, while a corrupt file
