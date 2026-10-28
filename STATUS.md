@@ -4,22 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05e2 — ABMatt adapter
+**Next task:** P2-T05e3 — ABMatt material edits and copy
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 0f3c816 (P2-T05e Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05e2` — ABMatt conversion adapter. (1) Record adapter argv shapes from the self-made
-  fixtures (convert, info on its output, minimap info, missing texture, `textures/`
-  folder) in new `scripts/abmatt_adapter_cases.py`. (2) RED tests for new
-  `core/tools/abmatt.py`: staging (shared `staging.py`/`collada.py` extracted from
-  `riistudio.py`), wimgt on PATH or ToolNotFound, texture refs beside the DAE, exit-0
-  diagnostics treated as failure, MDL0 name checked via the info parser. (3) Fake rows.
-  (4) Real Windows integration in a `日本` folder. (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05e2` — new `core/tools/abmatt` (`convert_model`, `convert_minimap`, `parse_info`)
+  stages `<model>.dae` → `out.brres` and `map.obj` → `map_model.brres` so the model name
+  comes from the caller and minimap bones are made only for minimaps; puts the pinned
+  wimgt on PATH; refuses missing or non-plain texture references before running; treats
+  ABMatt's exit-0 `ERROR`/missing-texture texts as failures; and confirms every output with
+  a fully parsed `-c info` report. Shared staging helpers moved to `core/tools/staging.py`.
+  Split: material edits and copy moved to P2-T05e3. 25/25 mutants (P2-T05e still 20/20);
+  gate 699; broad 800; real Windows integration 3 passed in a `日本` folder (minimap
+  patched by Wiimm). Commits e887f27 (CI red: unit tests found the local wimgt) + 6ef4878
+  (green on both jobs).
 - `P2-T05e` — new `core/tools/riistudio` (`import_brres`, `brres_to_json`,
   `json_to_brres`, `dump_presets`) stages inputs under fixed ASCII names in a private temp
   folder (the Windows rszst mangles every non-ASCII argv path, relative too) and refuses,

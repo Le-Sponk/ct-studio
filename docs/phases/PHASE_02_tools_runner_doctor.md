@@ -178,7 +178,7 @@ wrote nothing, and refuse DAEs whose referenced textures are absent (exit 0 with
 placeholder texture). **Acceptance:** recorded/fake parsers and real fixture integration on
 Windows, Ubuntu fake CI.
 
-### [ ] P2-T05e2 — ABMatt conversion adapter
+### [x] P2-T05e2 — ABMatt conversion adapter
 Expose `convert_model` (DAE → BRRES, MDL0 name from the staged DAE stem, checked with
 `-c info`), `convert_minimap` (OBJ → `map_model.brres`; bones are checked downstream by
 the P2-T05c2 minimap adapter) and the `-c info` material parser. ABMatt may crash after
