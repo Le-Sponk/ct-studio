@@ -1,0 +1,804 @@
+[
+ {
+  "case": "usage",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [],
+  "exit_code": 0,
+  "stdout": "USAGE: abmatt [command_line][--interactive -f <file> -b <brres-file> -d <destination> --overwrite]\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "unknown option",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "--bogus-flag"
+  ],
+  "exit_code": 2,
+  "stdout": "option --bogus-flag not recognized\nUSAGE: abmatt [command_line][--interactive -f <file> -b <brres-file> -d <destination> --overwrite]\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "unknown short option",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "-z"
+  ],
+  "exit_code": 2,
+  "stdout": "option -z not recognized\nUSAGE: abmatt [command_line][--interactive -f <file> -b <brres-file> -d <destination> --overwrite]\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "option missing value",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "-b"
+  ],
+  "exit_code": 2,
+  "stdout": "option -b requires argument\nUSAGE: abmatt [command_line][--interactive -f <file> -b <brres-file> -d <destination> --overwrite]\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "convert dae",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "Converting .\\course.dae... \n\t... finished in <duration> secs\nWARN: Vertex course_grass minimum y below axis -50.0\nWARN: Vertex course_water minimum y below axis -25.0\nWrote file '<work>\\course_model.brres'\n",
+  "stderr": "",
+  "files": {
+   "course_model.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "convert dae without overwrite",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "Converting .\\course.dae... \n\t... finished in <duration> secs\nWARN: Vertex course_grass minimum y below axis -50.0\nWARN: Vertex course_water minimum y below axis -25.0\nWrote file '<work>\\course_model.brres'\n",
+  "stderr": "",
+  "files": {
+   "course_model.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "convert existing without overwrite",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"__main__.py\", line 29, in <module>\n  File \"__main__.py\", line 22, in main\n  File \"load_config.py\", line 411, in parse_args\n  File \"command.py\", line 713, in run_commands\n  File \"command.py\", line 777, in run_cmd\n  File \"command.py\", line 835, in run_convert\n  File \"command.py\", line 489, in create_or_open\n  File \"command.py\", line 421, in updateFile\n  File \"command.py\", line 479, in openFiles\n  File \"brres\\brres.py\", line 78, in get_brres\n  File \"brres\\brres.py\", line 53, in __init__\n  File \"brres\\brres.py\", line 363, in unpack\n  File \"brres\\lib\\unpacking\\unpack_brres.py\", line 23, in __init__\n  File \"brres\\lib\\unpacking\\interface.py\", line 6, in __init__\n  File \"brres\\lib\\unpacking\\unpack_brres.py\", line 74, in unpack\n  File \"brres\\lib\\binfile.py\", line 9, in __init__\nAttributeError: 'Brres' object has no attribute 'filename'\n[<pid>] Failed to execute script __main__\n",
+  "files": {}
+ },
+ {
+  "case": "convert existing overwrite",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres",
+   "-o"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"__main__.py\", line 29, in <module>\n  File \"__main__.py\", line 22, in main\n  File \"load_config.py\", line 411, in parse_args\n  File \"command.py\", line 713, in run_commands\n  File \"command.py\", line 777, in run_cmd\n  File \"command.py\", line 835, in run_convert\n  File \"command.py\", line 489, in create_or_open\n  File \"command.py\", line 421, in updateFile\n  File \"command.py\", line 479, in openFiles\n  File \"brres\\brres.py\", line 78, in get_brres\n  File \"brres\\brres.py\", line 53, in __init__\n  File \"brres\\brres.py\", line 363, in unpack\n  File \"brres\\lib\\unpacking\\unpack_brres.py\", line 23, in __init__\n  File \"brres\\lib\\unpacking\\interface.py\", line 6, in __init__\n  File \"brres\\lib\\unpacking\\unpack_brres.py\", line 74, in unpack\n  File \"brres\\lib\\binfile.py\", line 9, in __init__\nAttributeError: 'Brres' object has no attribute 'filename'\n[<pid>] Failed to execute script __main__\n",
+  "files": {}
+ },
+ {
+  "case": "convert valid existing without overwrite",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "Converting .\\course.dae... \n\t... finished in <duration> secs\nERROR: File <work>\\course_model.brres already exists!\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "convert valid existing overwrite",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "Converting .\\course.dae... \n\t... finished in <duration> secs\nWARN: Vertex course_grass minimum y below axis -50.0\nWARN: Vertex course_water minimum y below axis -25.0\nWrote file '<work>\\course_model.brres'\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "convert without wimgt",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "course_model.brres",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "ERROR: wimgt not found, please install Wiimms SZS Tools on your system path.\nConverting .\\course.dae... \nERROR: wimgt not found, please install Wiimms SZS Tools on your system path.\nERROR: Traceback (most recent call last):\n  File \"converters\\convert_lib.py\", line 295, in _import_images\n  File \"converters\\convert_lib.py\", line 371, in try_import_textures\n  File \"image_converter.py\", line 385, in __getattr__\nabmatt.image_converter.NoImgConverterError: No image converter!\n\n\t... finished in <duration> secs\nWARN: Vertex course_grass minimum y below axis -50.0\nWARN: Vertex course_water minimum y below axis -25.0\nNo texture matching road\n(FIXED): Remove reference\nShader road: Stage 0 no such layer\n(FIXED): Remove stage\nShader road: has no stages!\n(FIXED): Set solid color [200, 200, 200, 255]\nNo texture matching grass\n(FIXED): Remove reference\nShader grass: Stage 0 no such layer\n(FIXED): Remove stage\nShader grass: has no stages!\n(FIXED): Set solid color [200, 200, 200, 255]\nNo texture matching fence\n(FIXED): Remove reference\nShader fence: Stage 0 no such layer\n(FIXED): Remove stage\nShader fence: has no stages!\n(FIXED): Set solid color [200, 200, 200, 255]\nNo texture matching water\n(FIXED): Remove reference\nShader water: Stage 0 no such layer\n(FIXED): Remove stage\nShader water: has no stages!\n(FIXED): Set solid color [200, 200, 200, 255]\nWrote file '<work>\\course_model.brres'\n",
+  "stderr": "",
+  "files": {
+   "course_model.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "convert missing dae",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "convert",
+   "missing.dae",
+   "to",
+   "missing.brres",
+   "-o"
+  ],
+  "exit_code": 1,
+  "stdout": "ERROR: Traceback (most recent call last):\n  File \"command.py\", line 713, in run_commands\n  File \"command.py\", line 777, in run_cmd\n  File \"command.py\", line 823, in run_convert\n  File \"command.py\", line 545, in getFiles\nabmatt.command.NoSuchFile: No such file \"missing.dae\"\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "convert junk dae",
+  "tool": "abmatt",
+  "compare": "unmodelled",
+  "inputs": {},
+  "argv": [
+   "convert",
+   "junk.dae",
+   "to",
+   "junk.brres",
+   "-o"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "Converting .\\junk.dae... \n",
+  "stderr": "Traceback (most recent call last):\n  File \"__main__.py\", line 29, in <module>\n  File \"__main__.py\", line 22, in main\n  File \"load_config.py\", line 411, in parse_args\n  File \"command.py\", line 713, in run_commands\n  File \"command.py\", line 777, in run_cmd\n  File \"command.py\", line 845, in run_convert\n  File \"converters\\convert_dae.py\", line 22, in load_model\n  File \"converters\\dae.py\", line 80, in __init__\n  File \"converters\\dae.py\", line 563, in __read_xml\n  File \"src\\lxml\\etree.pyx\", line 3521, in lxml.etree.parse\n  File \"src\\lxml\\parser.pxi\", line 1880, in lxml.etree._parseDocument\n  File \"src\\lxml\\parser.pxi\", line 1900, in lxml.etree._parseFilelikeDocument\n  File \"src\\lxml\\parser.pxi\", line 1795, in lxml.etree._parseDocFromFilelike\n  File \"src\\lxml\\parser.pxi\", line 1201, in lxml.etree._BaseParser._parseDocFromFilelike\n  File \"src\\lxml\\parser.pxi\", line 615, in lxml.etree._ParserContext._handleParseResultDoc\n  File \"src\\lxml\\parser.pxi\", line 725, in lxml.etree._handleParseResult\n  File \"src\\lxml\\parser.pxi\", line 654, in lxml.etree._raiseParseError\n  File \"<work>\\junk.dae\", line 1\nlxml.etree.XMLSyntaxError: Start tag expected, '<' not found, line 1, column 1\n[<pid>] Failed to execute script __main__\n",
+  "files": {}
+ },
+ {
+  "case": "convert no folder",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "convert",
+   "course.dae",
+   "to",
+   "sub/course.brres",
+   "-o"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "Converting .\\course.dae... \n\t... finished in <duration> secs\nWARN: Vertex course_grass minimum y below axis -50.0\nWARN: Vertex course_water minimum y below axis -25.0\n",
+  "stderr": "Traceback (most recent call last):\n  File \"__main__.py\", line 29, in <module>\n  File \"__main__.py\", line 25, in main\n  File \"brres\\brres.py\", line 170, in close\n  File \"brres\\brres.py\", line 184, in save\n  File \"brres\\lib\\binfile.py\", line 68, in commitWrite\nFileNotFoundError: [Errno 2] No such file or directory: '<work>\\\\sub\\\\course.brres'\n[<pid>] Failed to execute script __main__\n",
+  "files": {}
+ },
+ {
+  "case": "convert obj map",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "map.obj": {
+    "size": 55,
+    "head": "6f20726f61640a762030203020300a7620313030203020300a76203020302031"
+   }
+  },
+  "argv": [
+   "convert",
+   "map.obj",
+   "to",
+   "map_model.brres",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "Converting .\\map.obj... \n\t... finished in <duration> secs\nShader road: Stage 0 no such layer\n(FIXED): Remove stage\nShader road: has no stages!\n(FIXED): Using raster color\nWrote file '<work>\\map_model.brres'\n",
+  "stderr": "",
+  "files": {
+   "map_model.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "convert obj plain",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "map.obj": {
+    "size": 55,
+    "head": "6f20726f61640a762030203020300a7620313030203020300a76203020302031"
+   }
+  },
+  "argv": [
+   "convert",
+   "map.obj",
+   "to",
+   "map.brres",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "Converting .\\map.obj... \n\t... finished in <duration> secs\nShader road: Stage 0 no such layer\n(FIXED): Remove stage\nShader road: has no stages!\n(FIXED): Using raster color\nWrote file '<work>\\map.brres'\n",
+  "stderr": "",
+  "files": {
+   "map.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "convert missing obj",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "convert",
+   "missing.obj",
+   "to",
+   "map_model.brres",
+   "-o"
+  ],
+  "exit_code": 1,
+  "stdout": "ERROR: Traceback (most recent call last):\n  File \"command.py\", line 713, in run_commands\n  File \"command.py\", line 777, in run_cmd\n  File \"command.py\", line 823, in run_convert\n  File \"command.py\", line 545, in getFiles\nabmatt.command.NoSuchFile: No such file \"missing.obj\"\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "info",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-c",
+   "info"
+  ],
+  "exit_code": 0,
+  "stdout": ">course->fence\txlu:0 cull:inside\n  fence:\tScale:(1.0, 1.0) Rot:0.0 Trans:(0.0, 0.0)\n>course->grass\txlu:0 cull:inside\n  grass:\tScale:(1.0, 1.0) Rot:0.0 Trans:(0.0, 0.0)\n>course->road\txlu:0 cull:inside\n  road:\tScale:(1.0, 1.0) Rot:0.0 Trans:(0.0, 0.0)\n>course->water\txlu:0 cull:inside\n  water:\tScale:(1.0, 1.0) Rot:0.0 Trans:(0.0, 0.0)\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "info missing",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "-b",
+   "missing.brres",
+   "-c",
+   "info"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "ERROR: Traceback (most recent call last):\n  File \"load_config.py\", line 397, in parse_args\n  File \"command.py\", line 553, in updateSelection\n  File \"command.py\", line 412, in updateFile\n  File \"command.py\", line 545, in getFiles\nabmatt.command.NoSuchFile: No such file \"missing.brres\"\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "info quiet",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-c",
+   "info",
+   "-l",
+   "0"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "command file",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-f",
+   "set.txt",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "WARN: Vertex Pos1 minimum y below axis -50.0\nWARN: Vertex Pos3 minimum y below axis -25.0\nWrote file '<work>\\source.brres'\n",
+  "stderr": "",
+  "files": {
+   "source.brres": {
+    "effect": "changed",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "command file without overwrite",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-f",
+   "set.txt"
+  ],
+  "exit_code": 0,
+  "stdout": "ERROR: File <work>\\source.brres already exists!\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "command file missing",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-f",
+   "missing.txt",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "ERROR: No such file \"missing.txt\"\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "bad command file",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-f",
+   "bad.txt",
+   "-o"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"__main__.py\", line 29, in <module>\n  File \"__main__.py\", line 22, in main\n  File \"load_config.py\", line 403, in parse_args\n  File \"command.py\", line 522, in load_commandfile\n  File \"command.py\", line 127, in __init__\n  File \"command.py\", line 398, in setCmd\nabmatt.command.ParsingException: Failed to parse: 'frobnicate everything' Unknown command 'frobnicate'\n[<pid>] Failed to execute script __main__\n",
+  "files": {}
+ },
+ {
+  "case": "inline command parsing",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-o",
+   "-c",
+   "set material xlu:true for *"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"__main__.py\", line 29, in <module>\n  File \"__main__.py\", line 22, in main\n  File \"load_config.py\", line 388, in parse_args\n  File \"command.py\", line 127, in __init__\n  File \"command.py\", line 398, in setCmd\nabmatt.command.ParsingException: Failed to parse: 'set material xlu:true for *  for *' Unknown command 'set material xlu:true for *'\n[<pid>] Failed to execute script __main__\n",
+  "files": {}
+ },
+ {
+  "case": "copy material",
+  "tool": "abmatt",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "-b",
+   "source.brres",
+   "-b",
+   "dest.brres",
+   "-f",
+   "copy.txt",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "WARN: Vertex Pos1 minimum y below axis -50.0\nWARN: Vertex Pos3 minimum y below axis -25.0\nWrote file '<work>\\dest.brres'\n",
+  "stderr": "",
+  "files": {
+   "dest.brres": {
+    "effect": "changed",
+    "magic": "62726573"
+   }
+  }
+ }
+]

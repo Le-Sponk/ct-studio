@@ -80,7 +80,12 @@ def record(
 
 
 def capture(
-    exe: Path, argv: Sequence[str], *, cwd: Path, roots: Mapping[Path, str]
+    exe: Path,
+    argv: Sequence[str],
+    *,
+    cwd: Path,
+    roots: Mapping[Path, str],
+    env: Mapping[str, str] | None = None,
 ) -> dict[str, object]:
     """Run once through the core runner; keep every line, replace ``roots`` by placeholders."""
     lines: dict[Stream, list[str]] = {"stdout": [], "stderr": []}
@@ -88,7 +93,7 @@ def capture(
     def keep(stream: Stream, line: str) -> None:
         lines[stream].append(line)
 
-    result = run([exe, *argv], cwd=cwd, timeout=TIMEOUT_SECONDS, on_line=keep, check=False)
+    result = run([exe, *argv], cwd=cwd, env=env, timeout=TIMEOUT_SECONDS, on_line=keep, check=False)
     return {
         "argv": [clean(arg, roots) for arg in argv],
         "exit_code": result.exit_code,
@@ -111,6 +116,8 @@ def _spellings(folder: Path) -> set[str]:
     # Programs reading argv through the Windows ANSI code page print a non-ASCII path with
     # each such character replaced (rszst: "é" -> U+FFFD once decoded); hide that form too.
     variants |= {"".join(c if c.isascii() else "\ufffd" for c in text) for text in variants}
+    # Frozen Python exceptions use repr(path), doubling Windows separators in tracebacks.
+    variants |= {text.replace("\\", "\\\\") for text in tuple(variants)}
     return variants | {_cygwin(resolved)} if sys.platform == "win32" else variants
 
 

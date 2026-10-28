@@ -31,11 +31,19 @@ def test_record_keeps_every_line_and_normalises_newlines_and_paths(tmp_path: Pat
     [record] = rth.record(exe, [("-c", code, str(exe.parent))], tools_root=exe.parent)
     assert record["argv"] == ["-c", code, "<tool-dir>"], "absolute paths are not recorded"
     assert record["exit_code"] == 3
-    lines = record["stdout"].split("\n")
+    lines = str(record["stdout"]).split("\n")
     assert lines[0] == "line 0" and lines[119] == "line 119", "no 50-line tail truncation"
     assert lines[120] == "seen in <tool-dir>"
-    assert record["stdout"].endswith("\n") and "\r" not in record["stdout"]
+    assert str(record["stdout"]).endswith("\n") and "\r" not in str(record["stdout"])
     assert record["stderr"] == "warn\n"
+
+
+def test_traceback_escaped_paths_are_sanitised(tmp_path: Path) -> None:
+    folder = tmp_path / "ct ops é"
+    doubled = str(folder).replace("é", "�").replace("\\", "\\\\")
+    assert rth.clean(f"FileNotFoundError: '{doubled}\\\\sub\\\\x.brres'", {folder: "<work>"}) == (
+        "FileNotFoundError: '<work>\\\\sub\\\\x.brres'"
+    )
 
 
 def test_an_unpinned_installed_version_is_refused(tmp_path: Path) -> None:

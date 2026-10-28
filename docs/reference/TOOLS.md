@@ -253,6 +253,31 @@ a non-ASCII path, because the failure is invisible.
 - Minimap: importing a DAE with ABMatt yields a `map` bone for map models **[doc: mkwiiki Creating a Minimap]**;
   the Blender add-on's minimap export uses ABMatt **[doc: add-on README]**.
 
+- **Windows operation recordings and stand-in (P2-T04d, ABMatt 1.3.2):**
+  [26 real invocations](../../tests/fakes/recordings/abmatt/1.3.2/windows-ops.json) use
+  the byte-exact four-texture DAE and a [minimal OBJ](../../tests/fakes/recordings/abmatt/1.3.2/inputs/map.obj)
+  verified to convert to `map_model.brres`. `scripts/record_tool_outputs.py --only abmatt`
+  regenerates them with `wimgt` on PATH except one intentionally missing-wimgt case.
+  Before recording, the setup validates the pinned rszst version, successful setup exit
+  and a BRRES output; a silent failure cannot become a false ABMatt observation.
+  The recorder replaces only variable elapsed seconds (`<duration>`) and PyInstaller's
+  process ID (`[<pid>]`) and sanitises the work path, including doubled traceback
+  separators. This keeps diagnostics and file effects comparable between runs.
+- **Observed:** `convert` DAE and OBJ write BRRES (`bres` magic); no-wimgt prints an error
+  yet exits 0 and writes a textureless BRRES. A valid pre-existing output without `-o`
+  prints "already exists" and exits 0 without changing it; with `-o` it can print
+  "Wrote file" even when bytes are unchanged. A junk pre-existing file instead crashes
+  inside frozen Python (exit -1). A missing DAE/OBJ exits 1; a missing command file
+  exits 0; bad command syntax, missing BRRES and missing destination parent exit -1.
+  `-c` appends ` for *` to its argument and can fail to parse multi-word commands.
+  Unknown/missing option arguments exit 2 with usage text. `-b ... -f set.txt -o` and
+  two-archive material copy modify BRRES files; `-c info` prints four materials on the
+  real rszst fixture archive. Textured and missing-wimgt stand-in BRRES outputs use
+  distinct markers, so downstream tests cannot mistake a texture-loss path for a
+  normal conversion; the rszst fake refuses both. Other unrecorded argv/input states
+  exit 121 without writes. No Linux ABMatt operation recording or Linux-specific help
+  capture exists, so Ubuntu fake CI is not real-tool parity.
+
 ## Blender + Blender-MKW-Utilities
 - Add-on: https://github.com/Le-Sponk/Blender-MKW-Utilities (fork of Gabriela-Orzechowska's), GPL-2.0-or-later,
   verified on Blender 4.0.2, 4.1.1, 4.2.9 LTS, 4.5.9 LTS, 5.2.1 LTS with Wiimms v2.42a and ABMatt v1.3.2 **[doc]**

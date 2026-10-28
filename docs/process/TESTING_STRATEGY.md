@@ -62,8 +62,13 @@ is missing and nothing is protected.
   another command owns → exit 108). P2-T04c: `fake_rszst.py` (import-brres, BRRES↔JSON,
   dump-presets, four-mesh recorded DAE only, marker-bearing stand-in archives, CRLF on
   Windows) and `rszst_cli.py` (clap errors/options from recorded help). Both use
-  `fake_runtime.py` (call log, outcomes and per-tool line ends) and `install.py`. ABMatt and
-  Blender fakes follow in P2-T04d/e.
+  `fake_runtime.py` (call log, outcomes and per-tool line ends) and `install.py`. P2-T04d:
+  `fake_abmatt.py` replays 26 pinned Windows 1.3.2 operations: exact DAE/textures and
+  small OBJ, copied/cmd-file BRRES stand-ins, valid/malformed existing destinations,
+  absent `wimgt`, frozen-Python errors and getopt exits. The missing-wimgt conversion
+  writes a distinct `NO-TEXTURES` marker, which downstream fakes refuse, rather than
+  masquerading as the normal archive. A changed source/command/marker or unrecorded argv
+  is refused (121). Blender follows in P2-T04e.
 - **`fake_tools_path`** (`tests/conftest.py`) installs real executables for the fakes once per
   session into a folder with a space and `é`, puts it first on PATH, and gives each test its
   own call log (`fake_tools_path.calls()` → tool, argv, cwd, in call order). One file per
@@ -76,10 +81,12 @@ is missing and nothing is protected.
   SZS/KMP/TEX0/BRRES, so fake and real outputs never mix.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
-- `scripts/record_tool_outputs.py` (P2-T04b/c) runs per-tool case tables from
+- `scripts/record_tool_outputs.py` (P2-T04b/d) runs per-tool case tables from
   `scripts/ops_cases.py` on the generated fixtures. `<os>-ops.json` keeps output, exit
   code, file effects (created/changed and first bytes), and fixture sizes/heads;
-  `test_fake_wiimm.py` and `test_fake_rszst.py` replay through the same runner.
+  `test_fake_wiimm.py`, `test_fake_rszst.py` and `test_fake_abmatt.py` replay through the
+  same runner. ABMatt's captured elapsed seconds and frozen-Python PID are replaced by
+  `<duration>` and `[<pid>]`; work paths (including escaped traceback paths) are masked.
   `ops_replay.py` checks exit/stderr/file effects exactly; stdout exactly except when a
   fake cannot compute real KMP/KCL findings (`wszst check` then exits 0 instead of 2).
   The rszst case table stores the exact DAE and four PNGs under
@@ -90,7 +97,10 @@ is missing and nothing is protected.
   the runner's LF progress-line normalization. This is a fake contract, not evidence of
   the real Linux converter's operation output. A native Linux operation recording is
   still pending. Cases needing an OS's native path behaviour are not replayed on the
-  other OS.
+  other OS. The ABMatt table stores its DAE/four PNGs and measured minimal OBJ under
+  `abmatt/1.3.2/inputs/`; no Linux help or native operation recording exists for that
+  release. Ubuntu CI checks the Windows-recording contract under a Linux executable with
+  LF/newline and exit(-1) translation, not the real Linux ABMatt output or file contents.
 - `scripts/record_tool_help.py` (P2-T04a) re-records `<os>-help.json` for every pinned CLI
   through the app's process runner, with LF newlines and the install folder replaced by
   `<tool-dir>`. It refuses a tool whose installed version differs from the catalogue pin.

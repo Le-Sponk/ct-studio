@@ -12,6 +12,20 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T04d` — (1) Record ABMatt 1.3.2 Windows conversions (DAE and OBJ), BRRES command
+  files/info and getopt/crash cases through the core runner, with volatile PID/timing
+  redacted. (2) RED replay tests against real executable stand-ins, refusing any unmeasured
+  input or argv (121). (3) Implement the `abmatt` launcher and measured subset, including
+  its wimgt dependency, real status quirks and no-write failures. (4) Review mutation,
+  platform/type/complexity gates, docs, full gate, commit/push and both CI OSes. Files:
+  `scripts/{ops_cases,record_tool_outputs}.py`, `tests/{fakes,unit}`, TOOLS.md, testing
+  strategy and phase checklist. Risk: frozen-Python errors carry volatile PID; Windows
+  operation recordings cannot establish real Linux conversion parity. Local evidence:
+  26 real Windows invocations; 12/12 fake-guard and 3/3 recorder-guard mutations caught;
+  `check.py --all` 448 passed, 3 skipped; broad suite 521 passed, 21 skipped,
+  1 deselected; real ABMatt integration subset 8 passed. Independent review's
+  missing-wimgt marker and setup-verification findings are fixed; code commit and
+  both CI OSes remain pending.
 
 
 ## Done (newest first)
@@ -557,6 +571,15 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 - **P1-T05 performance/platform detail:** the 200 MiB benchmark completed on Mint, but
   its elapsed time was not in the report; sandbox detection outside the unit fakes was
   not exercised on Linux. These are not P1-T07 CI acceptance blockers.
+
+- **P2-T04d ABMatt operation recordings are Windows-only.** The 1.3.2 Windows binary's
+  banner differs from the same-tag Linux build (which reports 1.3.1); neither Linux
+  help nor real operations have been captured. Ubuntu CI can replay Windows outputs
+  through the executable fake with LF/status translation, but that does not verify Linux
+  ABMatt's timing, diagnostics or file effects. To close: on Linux bootstrap the pinned
+  ABMatt and fixtures, run `uv run python scripts/record_tool_help.py` and
+  `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
+  recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
 - **P2-T04c rszst operation recordings are Windows-only.** Ubuntu CI exercises the
   fake's Linux executable and compares the Windows runs after translating the independently

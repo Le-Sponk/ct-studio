@@ -28,6 +28,7 @@ class Case:
     setup: tuple[tuple[str, ...], ...] = ()  # ("tool", args...) or ("@sentinel", path), ...
     compare: str = "exact"
     native_only: bool = False
+    without_wimgt: bool = False  # ABMatt's import path when its image converter is absent
 
 
 _STAGE = ("@stage",)
@@ -268,4 +269,77 @@ RSZST_CASES: tuple[Case, ...] = (
         (_DAE, _IMPORT, ("@sentinel", "afile")),
     ),
     Case("dump presets missing", ("rszst", "dump-presets", "missing.brres", "p")),
+)
+
+# --- ABMatt 1.3.2 (P2-T04d) --------------------------------------------------------------
+_AB_DAE = ("@dae",)
+_AB_OBJ = ("@abobj",)
+_AB_CONVERT = ("abmatt", "convert", "course.dae", "to", "course_model.brres", "-o")
+_AB_SOURCE = (_AB_DAE, ("rszst", "import-brres", "course.dae", "source.brres"))
+_AB_INFO = ("abmatt", "-b", "source.brres", "-c", "info")
+_AB_FILE = ("abmatt", "-b", "source.brres", "-f", "set.txt", "-o")
+ABMATT_CASES: tuple[Case, ...] = (
+    Case("usage", ("abmatt",)),
+    Case("unknown option", ("abmatt", "--bogus-flag")),
+    Case("unknown short option", ("abmatt", "-z")),
+    Case("option missing value", ("abmatt", "-b")),
+    Case("convert dae", _AB_CONVERT, (_AB_DAE,)),
+    Case("convert dae without overwrite", _AB_CONVERT[:-1], (_AB_DAE,)),
+    Case(
+        "convert existing without overwrite",
+        _AB_CONVERT[:-1],
+        (_AB_DAE, ("@sentinel", "course_model.brres")),
+    ),
+    Case("convert existing overwrite", _AB_CONVERT, (_AB_DAE, ("@sentinel", "course_model.brres"))),
+    Case("convert valid existing without overwrite", _AB_CONVERT[:-1], (_AB_DAE, _AB_CONVERT)),
+    Case("convert valid existing overwrite", _AB_CONVERT, (_AB_DAE, _AB_CONVERT)),
+    Case("convert without wimgt", _AB_CONVERT, (_AB_DAE,), without_wimgt=True),
+    Case("convert missing dae", ("abmatt", "convert", "missing.dae", "to", "missing.brres", "-o")),
+    Case(
+        "convert junk dae",
+        ("abmatt", "convert", "junk.dae", "to", "junk.brres", "-o"),
+        (("@junk", "junk.dae"),),
+        "unmodelled",
+    ),
+    Case(
+        "convert no folder",
+        ("abmatt", "convert", "course.dae", "to", "sub/course.brres", "-o"),
+        (_AB_DAE,),
+    ),
+    Case(
+        "convert obj map",
+        ("abmatt", "convert", "map.obj", "to", "map_model.brres", "-o"),
+        (_AB_OBJ,),
+    ),
+    Case(
+        "convert obj plain", ("abmatt", "convert", "map.obj", "to", "map.brres", "-o"), (_AB_OBJ,)
+    ),
+    Case(
+        "convert missing obj", ("abmatt", "convert", "missing.obj", "to", "map_model.brres", "-o")
+    ),
+    Case("info", _AB_INFO, _AB_SOURCE),
+    Case("info missing", ("abmatt", "-b", "missing.brres", "-c", "info")),
+    Case("info quiet", (*_AB_INFO, "-l", "0"), _AB_SOURCE),
+    Case("command file", _AB_FILE, (*_AB_SOURCE, ("@abcmd", "set.txt"))),
+    Case("command file without overwrite", _AB_FILE[:-1], (*_AB_SOURCE, ("@abcmd", "set.txt"))),
+    Case(
+        "command file missing",
+        ("abmatt", "-b", "source.brres", "-f", "missing.txt", "-o"),
+        _AB_SOURCE,
+    ),
+    Case(
+        "bad command file",
+        ("abmatt", "-b", "source.brres", "-f", "bad.txt", "-o"),
+        (*_AB_SOURCE, ("@abcmd", "bad.txt")),
+    ),
+    Case(
+        "inline command parsing",
+        ("abmatt", "-b", "source.brres", "-o", "-c", "set material xlu:true for *"),
+        _AB_SOURCE,
+    ),
+    Case(
+        "copy material",
+        ("abmatt", "-b", "source.brres", "-b", "dest.brres", "-f", "copy.txt", "-o"),
+        (*_AB_SOURCE, ("@copyfile", "source.brres", "dest.brres"), ("@abcmd", "copy.txt")),
+    ),
 )

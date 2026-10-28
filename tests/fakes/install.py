@@ -23,13 +23,15 @@ from pathlib import Path
 
 FAKES = Path(__file__).resolve().parent
 WIIMM = ("wszst", "wkclt", "wkmpt", "wimgt")
-TOOLS = (*WIIMM, "rszst")
+TOOLS = (*WIIMM, "rszst", "abmatt")
 _UNSAFE_IN_SH = set('"$`\\\n')
 
 
 def entry_point(tool: str) -> str:
-    module = "fake_rszst" if tool == "rszst" else "fake_wiimm"
-    args = "sys.argv[1:]" if tool == "rszst" else f"{tool!r}, sys.argv[1:]"
+    module = (
+        "fake_abmatt" if tool == "abmatt" else "fake_rszst" if tool == "rszst" else "fake_wiimm"
+    )
+    args = f"{tool!r}, sys.argv[1:]" if tool in WIIMM else "sys.argv[1:]"
     return (
         "import sys\n"
         f"sys.path.insert(0, {str(FAKES)!r})\n"
