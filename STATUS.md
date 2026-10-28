@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05c — Wiimm KCL/KMP/image/minimap operations
+**Next task:** P2-T05c — Wiimm KMP text and image encoding
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** aaeae81 (P2-T05b Windows gate and Ubuntu/Windows CI
 [run 40674591849](https://github.com/Le-Sponk/ct-studio/actions/runs/40674591849))
@@ -12,6 +12,14 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05c` — (1) Record real `wimgt encode` with `-x TEX.<fmt>` for the eight
+  non-palette formats and `--n-mipmaps 0/2`, plus invalid format/mipmap values.
+  (2) RED tests for `kmp_to_text`, `kmp_from_text`, `img_encode`: flags, exit-0/nonzero
+  ERROR handling, own overwrite refusal (encode silently overwrites), output verification.
+  (3) Fake writes a TEX0 header with format/image count; refuses unrecorded values.
+  (4) Mutations, Linux pyright, xenon, full/broad/real integration, docs, commit/push, both
+  CI OSes. Files: `core/tools/wiimm.py` (or a sibling module if over budget), adapter case
+  table, `fake_wiimm.py`, tests, TOOLS.md, phase file, STATUS.
 
 
 ## Done (newest first)
@@ -353,6 +361,10 @@
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-28 (P2-T05c): split into P2-T05c (KMP text + image encoding) and P2-T05c2
+  (KCL analysis + minimap). Image encoding alone needs eight measured formats, mipmap
+  counts and TEX0 output verification; KCL tables and the silent minimap no-op need their
+  own parsers. Phase 2 scope is unchanged.
 - 2026-10-28 (P2-T05): split the seven-adapter scope into P2-T05a–g (Wiimm check,
   analyze/create, KCL/KMP/image/minimap, auto-add; rszst/ABMatt; Blender; editors/Wine).
   Its recorded-output parsing, library-content guard, Windows ANSI-path workaround and
@@ -582,13 +594,13 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
-- **P2-T05a/b Wiimm `check`/`analyze`/`create` evidence is Windows-only.** The adapters' real
+- **P2-T05a–c Wiimm check/analyze/create/KMP/image evidence is Windows-only.** The adapters' real
   SZS/stage-directory/empty/corrupt/missing integration tests ran against native Windows
   Wiimm 2.42a; Ubuntu CI exercises only the recorded parser and the prefix-only fake
   (which the adapter must refuse). To close: on Linux bootstrap Wiimm and fixtures, run
   `uv run python scripts/record_tool_outputs.py --only wiimms-szs-tools`, commit the
-  `linux-ops.json` files and run `tests/integration/test_wiimm_adapter.py` with its
-  `os.name` skip relaxed to accept Linux. Nonblocking for the Windows-derived contract.
+  `linux-ops.json` files and run `tests/integration/test_wiimm_adapter.py` and
+  `test_wiimm_convert_adapter.py` with their `os.name` skips relaxed to accept Linux. Nonblocking for the Windows-derived contract.
 - **P2-T04e Blender operation recordings are Windows-only.** Sixteen Blender 5.2.2
   invocations exercise the pinned scripts and known-good `.blend`. Ubuntu CI replays
   Windows diagnostics with deliberate path-separator translation through the no-`bpy`

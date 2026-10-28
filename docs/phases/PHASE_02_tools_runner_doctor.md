@@ -147,9 +147,18 @@ check both file output and diagnostics (Wiimm can exit 0 without writing). Rejec
 `auto_add=True` until P2-T05d's independent library-content guard exists.
 **Acceptance:** real JSON/creation recordings, fake and real integration tests.
 
-### [ ] P2-T05c — Wiimm KCL/KMP/image/minimap operations
-Add `minimap_auto`, `kcl_analyze`, `kcl_flags`, KMP text encode/decode and `img_encode`
-with only pinned verified flags; typed parsing/outputs and real fixture/fake tests.
+### [ ] P2-T05c — Wiimm KMP text and image encoding
+Add `kmp_to_text`, `kmp_from_text` and `img_encode(png, dest, format, mipmaps)` with only
+pinned verified flags. Every writer verifies its output (KMP text `#KMP`, binary `RKMD`,
+TEX0 header format code and image count) and refuses overwrites itself, because
+`wkmpt encode` silently replaces an existing file.
+**Acceptance:** real recordings for each format/mipmap flag, fake replay, adapter unit tests
+and real Windows integration on the fixture KMP and PNGs.
+
+### [ ] P2-T05c2 — Wiimm KCL analysis and minimap patching
+Add `kcl_analyze`, `kcl_flags` (typed parsed tables) and `minimap_auto(file)`. The minimap
+patch exits 0 even when it does nothing (no `posLD`/`posRU` bones), so it must report
+whether translations were written. **Acceptance:** recorded/parsed outputs, fake and real tests.
 
 ### [ ] P2-T05d — Wiimm auto-add and creation guard
 Implement `autoadd_status()` (current path + indexed search paths) and

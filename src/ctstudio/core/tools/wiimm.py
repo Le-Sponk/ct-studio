@@ -20,7 +20,8 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.core.validation.issues import Issue
 from ctstudio.core.validation.wszst_check import parse_check
 
-_ERROR = re.compile(r"(?m)^\s*!!\s+wszst: ERROR #(\d+) \[([^\]]+)\]")
+# Any Wiimm tool (wszst, wkmpt, wimgt, ...) reports failures as ``!! <tool>: ERROR #N [NAME]``.
+ERROR_LINE = re.compile(r"(?m)^\s*!!\s+\w+: ERROR #(\d+) \[([^\]]+)\]")
 Compression = Literal["best", "fast", "none"]
 _COMPRESSION_FLAGS: dict[Compression, tuple[str, ...]] = {
     "best": (),  # the recorded default (= --compr=BEST)
@@ -71,12 +72,13 @@ class _Output:
     stderr: str
 
 
-def _executable(configured: Path | None) -> Path:
+def executable_for(tool: str, configured: Path | None) -> Path:
+    """The configured Wiimm executable, else the discovered (including dev) one."""
     if configured is not None:
         return configured.resolve()
-    location = discover(TOOL_BY_ID["wszst"], include_dev=True)
+    location = discover(TOOL_BY_ID[tool], include_dev=True)
     if location is None:
-        raise ToolNotFound("wszst", hint="Configure Wiimms SZS Tool or bootstrap the pinned tool.")
+        raise ToolNotFound(tool, hint="Configure Wiimms SZS Tools or bootstrap the pinned tools.")
     return location.path
 
 
@@ -90,7 +92,7 @@ def _invoke(
         lines[stream].append(line)
 
     result = run(
-        [_executable(executable), *args],
+        [executable_for("wszst", executable), *args],
         cwd=cwd,
         timeout=timeout,
         cancel=cancel,
@@ -105,7 +107,7 @@ def _raise_on_error(
 ) -> None:
     """``ERROR #`` fails at any exit status; so does an exit outside ``ok_exits``."""
     details = out.stderr or out.stdout
-    if match := _ERROR.search(f"{out.stderr}\n{out.stdout}"):
+    if match := ERROR_LINE.search(f"{out.stderr}\n{out.stdout}"):
         reason = f"ERROR #{match.group(1)} [{match.group(2)}]"
         raise kind(source, out.exit_code, reason, error_code=int(match.group(1)), details=details)
     if out.exit_code not in ok_exits:

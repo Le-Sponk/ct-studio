@@ -96,7 +96,9 @@ is missing and nothing is protected.
   capture a critical distinction: real empty checks exit 2 without a summary; fake
   prefixes exit 0 and the adapter refuses to call them clean. P2-T05b adds
   `analyze --json` rows; the fake replays them only for the recorded stage, empty
-  directory and unsupported file, never for an archive. Ubuntu CI verifies
+  directory and unsupported file, never for an archive. P2-T05c records eight TEX0
+  formats and mipmap counts; file effects of TEX0 outputs include the parsed header so
+  replay checks the fake's format, size and image count. Ubuntu CI verifies
   translated fake replay and recorded parser behavior, not native Linux Wiimm output.
   `test_fake_wiimm.py`, `test_fake_rszst.py`, `test_fake_abmatt.py` and
   `test_fake_blender.py` replay through the same runner. ABMatt's captured elapsed

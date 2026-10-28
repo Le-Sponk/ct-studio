@@ -19,6 +19,7 @@ import json
 import os
 import re
 import shutil
+import struct
 import sys
 import tempfile
 from collections.abc import Callable, Mapping, Sequence
@@ -28,9 +29,9 @@ import record_tool_help as rth
 import tool_paths as tp
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
-from wiimm_adapter_cases import ANALYZE_CASES, CHECK_CASES
+from wiimm_adapter_cases import ANALYZE_CASES, CHECK_CASES, ENCODE_CASES, KMP_TEXTS
 
-WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES
+WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES + ENCODE_CASES
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
@@ -100,14 +101,16 @@ def _place_blender(action: str, args: list[str], work: Path, fixture: Fixture) -
     return True
 
 
-def _place_stage(action: str, work: Path, fixture: Fixture) -> bool:
-    """Wiimm stage directories: the fixture KCL/KMP pair, or an empty U8 directory."""
+def _place_stage(action: str, args: list[str], work: Path, fixture: Fixture) -> bool:
+    """Wiimm inputs: the fixture KCL/KMP stage, an empty U8 directory, or KMP text."""
     if action == "@stage":
         (work / "stage").mkdir()
         for name in ("course.kcl", "course.kmp"):
             (work / "stage" / name).write_bytes(fixture(name))
     elif action == "@empty_stage":
         (work / "empty").mkdir()
+    elif action == "@kmptext":
+        (work / args[0]).write_text(KMP_TEXTS[args[0]], encoding="utf-8", newline="\n")
     else:
         return False
     return True
@@ -154,7 +157,7 @@ def prepare(
     """Create the case's inputs in ``work``; tool steps use ``resolve``, files ``fixture``."""
     for step in case.setup:
         action, *args = step
-        if _place_stage(action, work, fixture):
+        if _place_stage(action, args, work, fixture):
             continue
         if action == "@dae":
             for name in ("course.dae", *DAE_TEXTURES):
@@ -185,9 +188,9 @@ def snapshot(work: Path) -> dict[str, str]:
     }
 
 
-def file_effects(work: Path, before: Mapping[str, str]) -> dict[str, dict[str, str]]:
+def file_effects(work: Path, before: Mapping[str, str]) -> dict[str, dict[str, object]]:
     after = snapshot(work)
-    effects: dict[str, dict[str, str]] = {}
+    effects: dict[str, dict[str, object]] = {}
     for name in sorted(set(before) | set(after)):
         if before.get(name) == after.get(name):
             continue
@@ -195,8 +198,17 @@ def file_effects(work: Path, before: Mapping[str, str]) -> dict[str, dict[str, s
             effects[name] = {"effect": "deleted"}
             continue
         effect = "created" if name not in before else "changed"
-        effects[name] = {"effect": effect, "magic": (work / name).read_bytes()[:4].hex()}
+        effects[name] = {"effect": effect, **describe((work / name).read_bytes())}
     return effects
+
+
+def describe(data: bytes) -> dict[str, object]:
+    """First four bytes; for TEX0 also the header fields an image adapter must verify."""
+    info: dict[str, object] = {"magic": data[:4].hex()}
+    if data[:4] == b"TEX0" and len(data) >= 0x28:
+        width, height, fmt, images = struct.unpack(">HHII", data[0x1C:0x28])
+        info["tex0"] = {"width": width, "height": height, "format": fmt, "images": images}
+    return info
 
 
 def run_case(

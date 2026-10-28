@@ -26,6 +26,7 @@ from fake_runtime import Outcome, Refused, Unmodelled, finish, recordings
 
 VERSION = "2.42a"  # the pin these fakes imitate; tests compare it with tool_catalogue
 FAKE_MARK = b"\nCT-STUDIO-FAKE-ARCHIVE\n"
+FAKE_KMP_TEXT = b"#KMP fake text\n"
 YAZ0 = b"Yaz0"
 U8 = bytes.fromhex("55aa382d")
 # Real formats a fake must not pretend to read.
@@ -320,7 +321,7 @@ def wkmpt_decode(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
         stdout = f"DECODE ?:{show(raw)} -> KMPTXT:{show(where.raw)}\n"
         raise Refused(Outcome(36, stdout, error(tool, 36, f"No KMP file: {show(raw)}")))
     line = f"DECODE KMP:{show(raw)} -> KMPTXT:{show(where.raw)}\n"
-    text = b"#KMP fake text\n" + data[4:16].hex().encode("ascii") + b"\n"
+    text = FAKE_KMP_TEXT + data[4:16].hex().encode("ascii") + b"\n"
     return write_one(
         tool, line, where, text, overwrite="--overwrite" in parsed.options, exit_on_block=True
     )
@@ -336,27 +337,17 @@ def wkmpt_encode(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
     if not data.startswith(b"#KMP"):
         stdout = f"ENCODE ?:{show(raw)} -> KMP:{show(where.raw)}\n"
         raise Refused(Outcome(36, stdout, error(tool, 36, f"No KMP file: {show(raw)}")))
+    if not data.startswith(FAKE_KMP_TEXT):
+        raise Unmodelled("KMP text the fake did not write (it cannot parse KMP text)")
     line = f"ENCODE KMPTXT:{show(raw)} -> KMP:{show(where.raw)}\n"
     # Recorded: encode replaces an existing KMP even without --overwrite.
     return write_one(tool, line, where, b"RKMD" + FAKE_MARK, overwrite=True, exit_on_block=True)
 
 
 def wimgt_encode(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
-    allow(parsed, {"--dest", "--DEST", "--overwrite"})
-    raw = one_source(parsed)
-    data = read_source(tool, raw)
-    if data[:8] != PNG_SIGNATURE or data[12:16] != b"IHDR":
-        raise Unmodelled(f"{raw} is not a PNG")
-    if (data[24], data[25]) != (8, 6):
-        raise Unmodelled("only 8-bit RGBA PNGs were recorded (stored as RGB5A3)")
-    where = target(parsed)
-    if where.path.suffix != ".tex0":
-        raise Unmodelled("image output other than TEX0")
-    line = f"ENCODE PNG:{show(raw)} -> TEX.RGB5A3:{show(where.raw)}\n"
-    overwrite = "--overwrite" in parsed.options
-    return write_one(
-        tool, line, where, b"TEX0" + FAKE_MARK, overwrite=overwrite, exit_on_block=True
-    )
+    import fake_wimgt  # sibling module; it reuses this module's helpers
+
+    return fake_wimgt.encode(tool, parsed)
 
 
 # --- recorded replies, dispatch ------------------------------------------------------------

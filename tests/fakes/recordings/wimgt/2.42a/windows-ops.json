@@ -51,7 +51,13 @@
   "files": {
    "road.tex0": {
     "effect": "changed",
-    "magic": "54455830"
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 5,
+     "images": 4
+    }
    }
   }
  },
@@ -78,7 +84,13 @@
   "files": {
    "road.tex0": {
     "effect": "created",
-    "magic": "54455830"
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 5,
+     "images": 4
+    }
    }
   }
  },
@@ -105,7 +117,13 @@
   "files": {
    "n.tex0": {
     "effect": "created",
-    "magic": "54455830"
+    "magic": "54455830",
+    "tex0": {
+     "width": 48,
+     "height": 40,
+     "format": 5,
+     "images": 3
+    }
    }
   }
  },
@@ -167,6 +185,476 @@
   "exit_code": 78,
   "stdout": "",
   "stderr": "!! wimgt: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.png\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "img encode CMPR",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.CMPR",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.CMPR:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 14,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode I4",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.I4",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.I4:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 0,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode I8",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.I8",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.I8:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 1,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode IA4",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.IA4",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.IA4:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 2,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode IA8",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.IA8",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.IA8:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 3,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode RGB565",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.RGB565",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.RGB565:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 4,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode RGB5A3",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.RGB5A3",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.RGB5A3:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 5,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode RGBA32",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.RGBA32",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.RGBA32:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 6,
+     "images": 4
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode no mipmaps",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "--n-mipmaps",
+   "0",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.RGB5A3:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 5,
+     "images": 1
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode 2 mipmaps",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "--n-mipmaps",
+   "2",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.RGB5A3:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 5,
+     "images": 3
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode CMPR 2 mipmaps",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.CMPR",
+   "--n-mipmaps",
+   "2",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:road.png -> TEX.CMPR:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 64,
+     "height": 64,
+     "format": 14,
+     "images": 3
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode npot CMPR",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/bad_npot.png": {
+    "size": 143,
+    "head": "89504e470d0a1a0a0000000d4948445200000030000000280806000000b88779",
+    "sha256": "363a166263ad0b55a04d6f794f6778b84f83a7ef83a8c49f75c0a3c774e2e361"
+   }
+  },
+  "argv": [
+   "encode",
+   "bad_npot.png",
+   "-x",
+   "TEX.CMPR",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE PNG:bad_npot.png -> TEX.CMPR:t.tex0\n",
+  "stderr": "",
+  "files": {
+   "t.tex0": {
+    "effect": "created",
+    "magic": "54455830",
+    "tex0": {
+     "width": 48,
+     "height": 40,
+     "format": 14,
+     "images": 3
+    }
+   }
+  }
+ },
+ {
+  "case": "img encode bad format",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "-x",
+   "TEX.BOGUS",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "!! wimgt: ERROR #110 [SYNTAX ERROR]\n!!        Invalid keyword for option --transform: BOGUS\n-> Type 'wimgt -h' or 'wimgt help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "img encode too many mipmaps",
+  "tool": "wimgt",
+  "compare": "exact",
+  "inputs": {
+   "textures/road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971",
+    "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771"
+   }
+  },
+  "argv": [
+   "encode",
+   "road.png",
+   "--n-mipmaps",
+   "21",
+   "--dest",
+   "t.tex0"
+  ],
+  "exit_code": 108,
+  "stdout": "",
+  "stderr": "!! wimgt: ERROR #108 [SEMANTIC ERROR]\n!!        Value of --n-mipmaps too large (must not >20): 21\n-> Type 'wimgt -h' or 'wimgt help' (pipe it to a pager like 'less') for more help.\n\n",
   "files": {}
  }
 ]

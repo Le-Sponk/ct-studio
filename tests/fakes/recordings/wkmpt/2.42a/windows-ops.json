@@ -364,5 +364,47 @@
   "stdout": "",
   "stderr": "!! wkmpt: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.txt\n!!        -> No such file or directory [2]\n",
   "files": {}
+ },
+ {
+  "case": "kmp encode script error",
+  "tool": "wkmpt",
+  "compare": "unmodelled",
+  "inputs": {},
+  "argv": [
+   "encode",
+   "script_error.txt",
+   "--dest",
+   "k.kmp"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE KMPTXT:script_error.txt -> KMP:k.kmp\n* CHECK KMPTXT:script_error.txt\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ENPH\n    + WARNING: Empty section => track will freeze.\n  > Section ENPT\n    + WARNING: No elements found, but needed for racing tracks.\n  > Section ITPH\n    + WARNING: Empty section => track will freeze.\n  > Section ITPT\n    + WARNING: No elements found, but needed for racing tracks.\n  > Section CKPH\n    + WARNING: Empty section => track will freeze.\n  > Section CKPT\n    + WARNING: No elements found, but needed for racing tracks.\n    + WARNING: No check point with mode 0 (lap counter).\n  > Section STGI\n    + WARNING: No element defined.\n => 10 warnings and 1 hint for KMPTXT:script_error.txt\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "! wkmpt: Variable 'BOGUS' not found [script_error.txt @3]: bogus line here\n! wkmpt: Variable 'LINE' not found [script_error.txt @3]: line here\n! wkmpt: Variable 'HERE' not found [script_error.txt @3]: \n",
+  "files": {
+   "k.kmp": {
+    "effect": "created",
+    "magic": "524b4d44"
+   }
+  }
+ },
+ {
+  "case": "kmp encode unknown section",
+  "tool": "wkmpt",
+  "compare": "unmodelled",
+  "inputs": {},
+  "argv": [
+   "encode",
+   "unknown_section.txt",
+   "--dest",
+   "k.kmp"
+  ],
+  "exit_code": 0,
+  "stdout": "ENCODE KMPTXT:unknown_section.txt -> KMP:k.kmp\n* CHECK KMPTXT:unknown_section.txt\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section KTPT\n    + WARNING: No start point defined => track will freeze.\n  > Section ENPH\n    + WARNING: Empty section => track will freeze.\n  > Section ENPT\n    + WARNING: No elements found, but needed for racing tracks.\n  > Section ITPH\n    + WARNING: Empty section => track will freeze.\n  > Section ITPT\n    + WARNING: No elements found, but needed for racing tracks.\n  > Section CKPH\n    + WARNING: Empty section => track will freeze.\n  > Section CKPT\n    + WARNING: No elements found, but needed for racing tracks.\n    + WARNING: No check point with mode 0 (lap counter).\n  > Section STGI\n    + WARNING: No element defined.\n => 11 warnings and 1 hint for KMPTXT:unknown_section.txt\n => see https://szs.wiimm.de/cmd/wkmpt/check#desc for more info.\n\n",
+  "stderr": "",
+  "files": {
+   "k.kmp": {
+    "effect": "created",
+    "magic": "524b4d44"
+   }
+  }
  }
 ]

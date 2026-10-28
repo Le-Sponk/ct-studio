@@ -523,8 +523,9 @@ that tool's help for that subcommand does not list fails the gate.
 | abmatt | 1.3.2 (release) | usage banner | `abmatt --help` | 0 | not yet | real run, P0-T02 |
 | wkclt | 2.42a r8989 | analyze KCL | `wkclt analyze FILE.kcl` | 0 | not yet | real run, P0-T03 |
 | wkclt | 2.42a r8989 | per-flag triangle table | `wkclt flags FILE.kcl` | 0 | not yet | real run, P0-T03 |
-| wkmpt | 2.42a r8989 | compile KMP text | `wkmpt encode SRC.txt --dest OUT.kmp --overwrite` | 0 (warnings do not fail) | not yet | real run, P0-T03 |
-| wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0 | not yet | real run, P0-T03 |
+| wkmpt | 2.42a r8989 | compile KMP text | `wkmpt encode SRC.txt --dest OUT.kmp [--overwrite]` | 0, **also on script errors** (`! wkmpt:` on stderr) | adapter, P2-T05c | real run, P0-T03/P2-T05c |
+| wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0; 36 not a KMP; 64/82/78 | adapter, P2-T05c | real run, P0-T03/P2-T05c |
+| wimgt | 2.42a r8989 | PNG → TEX0 | `wimgt encode IN.png -x TEX.<FMT> [--n-mipmaps N] --dest OUT.tex0 [--overwrite]` | 0; 110 bad format; 108 N>20; 64/82/78 | adapter (TEX0 header), P2-T05c | real run, P2-T05c |
 | wszst | 2.42a r8989 | build SZS from a stage dir | `wszst create DIR --dest OUT.szs --overwrite [--compr=LEVEL]` | 0 = ok | no | real run, P0-T04 |
 | wszst | 2.42a r8989 | validate a track or stage dir | `wszst check FILE.szs\|DIR [--brief]` | **see warning below** | yes, text | real run, P0-T04/P2-T05a |
 | wszst | 2.42a r8989 | structured analysis | `wszst analyze --json FILE.szs\|DIR` | 0, **also on unsupported input** | yes, JSON | real run, P0-T04/P2-T05b |
@@ -561,6 +562,26 @@ summary-free, no-finding output **only** for the measured prefix at exit 2. The
 adapter is not a complete-track validator; it is a typed presentation of Wiimm's
 check results. Real fixtures exercise SZS and directory paths on Windows; Linux CI
 exercises the conservative fake and recorded parser contract, not native diagnostics.
+
+### wkmpt/wimgt conversions (P2-T05c, real Windows runs)
+- `wkmpt encode` **exits 0 on KMP text errors**: an unknown name prints
+  `! wkmpt: Variable 'BOGUS' not found [file @line]: …` on stderr (one `!` line, not
+  `!! … ERROR #`) and still writes a KMP; an unknown `[SECTION]` is silently ignored.
+  It also replaces an existing KMP without `--overwrite`. Non-`#KMP` input exits 36.
+- `wimgt encode -x TEX.<FMT>` writes TEX0 whose header (big-endian at 0x1C) is width,
+  height (u16), format (u32) and image count (u32). Measured codes: I4 0, I8 1, IA4 2,
+  IA8 3, RGB565 4, RGB5A3 5, RGBA32 6, CMPR 14. Without `-x`, an 8-bit RGBA PNG becomes
+  RGB5A3. Default mipmaps: 64x64 → 4 images, 48x40 → 3. `--n-mipmaps N` gives N+1
+  images (N 0–20; 21 exits 108). `-x TEX.BOGUS` exits 110. The 48x40 PNG stays 48x40.
+- `core.tools.wiimm_convert`: `kmp_to_text`, `kmp_from_text`, `img_encode(png, dest,
+  format, mipmaps=None)`. Each refuses an existing `dest` itself unless `overwrite=True`,
+  raises `WiimmError` on `ERROR #` or a `! tool:` stderr line at any exit, requires that
+  `dest` was (re)written, and checks magic (`#KMP`, `RKMD`, `TEX0`); `img_encode` also
+  checks the header format and forced image count and returns `Tex0(width, height,
+  format, images)`. Palette formats (C4/C8/C14X2) are not exposed: unmeasured.
+- The fakes write marked files: `wimgt` a TEX0 header matching the recorded format,
+  size and image count; `wkmpt encode` accepts only text its own `decode` wrote, because
+  it cannot parse KMP text (real script-error rows are replay-refused).
 
 ### wszst machine-readable output (P0-T04)
 `check --sections` and `slots --sections` are **rejected** (`ERROR #108`, exit 108).
