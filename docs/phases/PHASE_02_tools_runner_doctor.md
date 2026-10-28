@@ -155,7 +155,7 @@ TEX0 header format code and image count) and refuses overwrites itself, because
 **Acceptance:** real recordings for each format/mipmap flag, fake replay, adapter unit tests
 and real Windows integration on the fixture KMP and PNGs.
 
-### [ ] P2-T05c2 — Wiimm KCL analysis and minimap patching
+### [x] P2-T05c2 — Wiimm KCL analysis and minimap patching (commit 835eb15)
 Add `kcl_analyze`, `kcl_flags` (typed parsed tables) and `minimap_auto(file)`. The minimap
 patch exits 0 even when it does nothing (no `posLD`/`posRU` bones), so it must report
 whether translations were written. **Acceptance:** recorded/parsed outputs, fake and real tests.

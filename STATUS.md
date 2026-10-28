@@ -4,27 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05c2 — Wiimm KCL analysis and minimap patching
+**Next task:** P2-T05d — Wiimm auto-add and creation guard
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 4462aec (P2-T05c Windows gate and Ubuntu/Windows CI
-run 40680107361)
+**Last green commit:** 835eb15 (P2-T05c2 Windows gate and Ubuntu/Windows CI
+run 40685415799)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05c2` — (1) Record real `wkclt analyze`/`flags` on the fixture KCL, a KCL with
-  variant bits, junk and missing files, and `wszst minimap --auto` on an ABMatt map BRRES
-  (patched, already patched, no bones, junk, missing); retain the two ABMatt BRRES inputs.
-  (2) RED tests: typed `KclAnalysis` (triangle count, vertex/normal min/max), `KclFlags`
-  (per flag: type, variant, count; per type: count, description), `minimap_auto` returning
-  before/after/recommended translations and whether Wiimm patched, raising when no
-  `posLD`/`posRU` rows exist (exit 0, silent no-op) and on `ERROR #` at any exit.
-  (3) Fake replays recorded output only for byte-identical recorded inputs.
-  (4) Mutations, xenon, Linux pyright, full/broad/real gates, docs, commit/push, both CI.
-  Files: new `core/tools/wiimm_kcl.py`, `wiimm_adapter_cases.py`, recorder, `fake_wiimm.py`
-  (or sibling), tests, TOOLS.md, phase file, STATUS.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05c2` — new `wiimm_kcl` reads a collision file's triangle counts, ranges and
+  per-surface flag tables (both tables must agree), and patches minimap positions. Because
+  Wiimm reports success when a minimap model has no position bones, that case now fails;
+  a reported patch that leaves the file unchanged also fails. Gate 590 passed / 3 skipped;
+  broad 681; 4 new real Windows tests; mutations 15/15 (+15/12/11 earlier probes);
+  CI run 40685415799 — commit 835eb15
 - `P2-T05c` — new `wiimm_convert` turns KMP files into text and back and PNGs into TEX0
   textures in eight formats with chosen mipmap counts. It refuses to overwrite files itself
   (Wiimm silently does), fails on Wiimm's exit-0 script errors, and checks each written
