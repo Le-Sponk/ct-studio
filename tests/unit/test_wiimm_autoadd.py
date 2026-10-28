@@ -17,7 +17,6 @@ from ctstudio.core.errors import ParseError
 
 ROOT = Path(__file__).resolve().parents[1] / "fakes" / "recordings" / "wszst" / "2.42a"
 INPUTS = ROOT / "inputs"
-FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "generated"
 
 
 def _stdout(case: str) -> str:
@@ -235,7 +234,7 @@ def test_fake_refuses_an_unrecorded_library(fake_tools_path, tmp_path: Path) -> 
 def test_fake_refuses_auto_add_with_an_unrecorded_stage(fake_tools_path, tmp_path: Path) -> None:
     _synthetic_library(tmp_path)
     stage = _object_stage(tmp_path)
-    shutil.copyfile(FIXTURES / "course.kmp", stage / "course.kmp")
+    shutil.copyfile(INPUTS / "course.kmp", stage / "course.kmp")  # committed, no objects
     argv = ("create", "stage", "--dest", "a.szs", "--auto-add", "--autoadd-path", "lib")
     result = _run_fake(fake_tools_path, tmp_path, *argv)
     assert (result.returncode, result.stdout) == (121, b"")
