@@ -150,7 +150,13 @@ def _next_value(name: str, rest: list[str]) -> str:
     return rest.pop(0)
 
 
+COUNTED = frozenset({"--verbose"})  # repeats measured only for -vv (wszst autoadd)
+
+
 def _add(options: dict[str, str | bool], name: str, value: str | bool) -> None:
+    if name in COUNTED and value is True:
+        options[name] = str(int(str(options.get(name, "0"))) + 1)  # "1", "2", ...
+        return
     if name in options:
         raise Unmodelled(f"{name} given twice (Wiimm counts repeats)")
     options[name] = value
@@ -161,10 +167,14 @@ def _unknown(tool: str, name: str) -> Refused:
     return Refused(Outcome(110, "", stderr))
 
 
+# Global options measured as accepted after a command (P2-T05d: create --auto-add).
+_ALSO_ACCEPTED = {"CREATE": ("--autoadd-path",)}
+
+
 def _refuse_foreign(
     tool: str, index: OptionIndex, command: str, options: dict[str, str | bool]
 ) -> None:
-    allowed = index.commands[command]
+    allowed = {*index.commands[command], *_ALSO_ACCEPTED.get(command, ())}
     foreign = [name for name in options if name not in allowed]
     if not foreign:
         return

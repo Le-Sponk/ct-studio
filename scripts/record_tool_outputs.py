@@ -31,6 +31,7 @@ from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
 from wiimm_adapter_cases import (
     ANALYZE_CASES,
+    AUTOADD_CASES,
     CHECK_CASES,
     ENCODE_CASES,
     KCL_CASES,
@@ -38,7 +39,9 @@ from wiimm_adapter_cases import (
     RETAINED,
 )
 
-WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES + ENCODE_CASES + KCL_CASES
+WIIMM_CASES = (
+    BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES + ENCODE_CASES + KCL_CASES + AUTOADD_CASES
+)
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
@@ -108,6 +111,28 @@ def _place_blender(action: str, args: list[str], work: Path, fixture: Fixture) -
     return True
 
 
+def _objstage(work: Path, fixture: Fixture) -> None:
+    (work / "stage").mkdir()
+    (work / "stage" / "course.kcl").write_bytes(fixture("course.kcl"))
+    (work / "stage" / "course.kmp").write_bytes(fixture("objects.kmp"))
+
+
+def _synlib(work: Path, fixture: Fixture) -> None:
+    (work / "lib").mkdir()
+    (work / "lib" / "itembox.brres").write_bytes(fixture("map_model.brres"))
+
+
+def _stagebrres(work: Path, fixture: Fixture) -> None:
+    (work / "stage" / "itembox.brres").write_bytes(fixture("map_model.brres"))
+
+
+SYNTHETIC_AUTOADD: dict[str, Callable[[Path, Fixture], None]] = {
+    "@objstage": _objstage,
+    "@synlib": _synlib,
+    "@stagebrres": _stagebrres,
+}
+
+
 def _place_stage(action: str, args: list[str], work: Path, fixture: Fixture) -> bool:
     """Wiimm inputs: fixture stage, empty U8 directory, KMP text or a retained input."""
     if action == "@stage":
@@ -120,6 +145,8 @@ def _place_stage(action: str, args: list[str], work: Path, fixture: Fixture) -> 
         (work / args[0]).write_text(KMP_TEXTS[args[0]], encoding="utf-8", newline="\n")
     elif action == "@retained":
         (work / args[0]).write_bytes(fixture(args[0]))
+    elif action in SYNTHETIC_AUTOADD:
+        SYNTHETIC_AUTOADD[action](work, fixture)
     else:
         return False
     return True

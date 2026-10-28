@@ -633,8 +633,9 @@ status from `valid_track`, `warn` and empty `sha1_*` hashes, not `valid`.
 maps compression to *no flag* / `--fast` / `--no-compress` and always passes `--dest`.
 Because `create` exits 0 on `ERROR #64` (existing file) and `#82` (missing folder), it
 raises on any `ERROR #`, and then also requires that `dest` was (re)written with the
-expected `Yaz0`/U8 magic. `auto_add=True` raises `AutoAddUnavailable` before running wszst
-until P2-T05d adds a library-content check. The conservative fake replays analysis only for
+expected `Yaz0`/U8 magic. `auto_add=` takes an `AutoAddLibrary` from
+`wiimm_autoadd.autoadd_verify()` (P2-T05d, below) and adds `--auto-add --autoadd-path LIB`;
+a library with no found or any invalid file raises `AutoAddUnavailable` before wszst runs. The conservative fake replays analysis only for
 the byte-identical recorded stage, the empty directory and unsupported files; it refuses
 (exit 121) to analyse any archive, since it cannot compute real archive contents.
 
@@ -686,6 +687,42 @@ location to the search-path list. Therefore:
 
 Parser/fake recordings may use synthetic SZS paths but must preserve the real grammar above. The
 user's game data and complete filenames remain local and must not be committed.
+
+### wszst auto-add adapter (P2-T05d, measured 2026-10-29 on Windows 2.42a)
+Recorded with synthetic inputs only (fixture KCL, a KMP holding one itembox object `0x65`,
+a synthetic BRRES named `itembox.brres`); a library built locally from the user's own disc
+(`local_fixtures/`, git-ignored) confirmed the real-library counts. Measured:
+
+- `autoadd --dest LIB -vv` is the **only content check**: it compares every library file
+  with Wiimm's own list of the originals (496 entries in 2.42a) and prints
+  `LIST OF FILES IN LIB` (found, each with a hex-dump checksum line), `LIST OF MISSED FILES`
+  and `LIST OF INVALID FILES`, each closed by `  => N of 496 files found|missed|invalid.`;
+  an empty section has no count line. Exit 0 whatever the result. A wrong-content file named
+  like an original is listed as **found and invalid**. The user's own library: 459 found,
+  18 missed (files absent from the PAL disc's `Race/Course`), 0 invalid.
+- A missing `--dest` folder: `ERROR #84 [CAN'T CREATE DIRECTORY]`, exit 84.
+- `autoadd SRC --DEST LIB` prints `ANALYZE YAZ0.U8:<archive>` per **standard-named**
+  track/arena archive and `  ADD <size>, <TYPE>:<file>` per new library file. Other names
+  (e.g. `my_track.szs`) are silently skipped: exit 0 with only the `CURRENT` line; the
+  `--DEST` folder is not even created. A rerun prints the `ANALYZE` lines and no `ADD`.
+  A missing source: `ANALYZE ?:` then `ERROR #78`, exit 78. `--dest` with a missing folder:
+  `ERROR #84`, exit 84.
+- `create --auto-add --autoadd-path LIB` (`--autoadd-path` is global but accepted after
+  `create`) prints `  >> auto-add [<size>] LIB/<file>` per object taken from the library and
+  uses even an **invalid** file; with an empty library it builds silently without the
+  objects. Hence the guard refuses before running.
+
+`core.tools.wiimm_autoadd`: `autoadd_status(library=None)` parses the current and indexed
+search paths (never a readiness signal); `autoadd_create(race_course_dir, dest)` returns the
+analysed archives and added files and fails when none was analysed; `autoadd_verify(lib)`
+returns `AutoAddLibrary(found, missed, invalid)`, refusing reports whose counts, totals or
+sections disagree. The fake (`tests/fakes/fake_wiimm_autoadd.py`) replays only the recorded
+synthetic world: an empty library, the synthetic `itembox.brres` library, the synthetic
+`Course/beginner_course.szs` and creation of the recorded objects stage; anything else exits
+121. `tests/realdata/test_wiimm_autoadd_library.py` (`realdata`) verifies the user's own
+library and builds the objects stage with it; it skips when `local_fixtures/auto-add/` is
+absent. Naming the KMP objects missing from both stage and library belongs to the build
+engine (`PHASE_04_build_engine.md`), which needs the KMP object → file table.
 
 ## KMP text format (P0-T03, verified against wkmpt 2.42a)
 Hand-writing KMP text is easy to get wrong; these cost real debugging time:

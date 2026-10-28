@@ -23,3 +23,14 @@ htmlcov/
 *.wbfs
 *.rvz
 *.iso
+*.gcm
+*.ciso
+*.wia
+*.nkit.*
+*.dol
+auto-add/
+# Extracted disc trees (wit/Dolphin layouts) and Race/Course copies
+DATA/
+sys/main.dol
+files/Race/
+**/Race/Course/

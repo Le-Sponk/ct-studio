@@ -80,6 +80,7 @@ ENCODE_CASES: tuple[Case, ...] = (
 # posLD/posRU bones), the same model without bones, Wiimm's own patched result, and a KCL
 # re-encoded with variant bits set. The fakes replay these only for identical bytes.
 RETAINED = {
+    "objects.kmp": "wszst",
     "map_model.brres": "wszst",
     "map_model_patched.brres": "wszst",
     "no_bones_model.brres": "wszst",
@@ -114,4 +115,45 @@ KCL_CASES: tuple[Case, ...] = (
     _minimap("no bones", "no_bones_model.brres", (("@retained", "no_bones_model.brres"),)),
     _minimap("junk", "junk.brres", (("@junk", "junk.brres"),)),
     _minimap("missing", "missing.brres"),
+)
+
+# P2-T05d: auto-add with synthetic inputs only. ``@objstage`` is the fixture KCL with
+# ``objects.kmp`` (one itembox object, 0x65); ``@synlib`` is a library folder holding a
+# synthetic BRRES under the itembox name, which Wiimm lists as found but invalid; and
+# ``_COURSE`` is a ``Course/`` folder whose ``beginner_course.szs`` is built from that
+# stage plus the synthetic BRRES (``@stagebrres``). Nothing here is, or derives from,
+# game content.
+_OBJ = ("@objstage",)
+_LIB = ("@synlib",)
+_COURSE = (
+    ("@objstage",),
+    ("@stagebrres",),
+    ("wszst", "create", "stage", "--DEST", "Course/beginner_course.szs"),
+)
+_AA = ("wszst", "autoadd")
+AUTOADD_CASES: tuple[Case, ...] = (
+    Case("autoadd status", _AA),
+    Case("autoadd status dest", (*_AA, "--dest", "lib"), (_LIB,)),
+    Case("autoadd verify synthetic", (*_AA, "--dest", "lib", "-vv"), (_LIB,)),
+    Case("autoadd verify empty", (*_AA, "--dest", "empty", "-vv"), (_EMPTY,)),
+    Case("autoadd verify missing", (*_AA, "--dest", "nolib", "-vv")),
+    Case("autoadd build", (*_AA, "Course", "--DEST", "newlib"), _COURSE),
+    Case(
+        "autoadd build again",
+        (*_AA, "Course", "--dest", "newlib"),
+        (*_COURSE, (*_AA, "Course", "--DEST", "newlib")),
+    ),
+    Case("autoadd build empty source", (*_AA, "empty", "--DEST", "newlib"), (_EMPTY,)),
+    Case("autoadd build missing source", (*_AA, "NoSuch", "--DEST", "newlib")),
+    Case("autoadd build missing dest", (*_AA, "Course", "--dest", "nolib/x"), _COURSE),
+    Case(
+        "create auto-add",
+        ("wszst", "create", "stage", "--dest", "a.szs", "--auto-add", "--autoadd-path", "lib"),
+        (_OBJ, _LIB),
+    ),
+    Case(
+        "create auto-add empty library",
+        ("wszst", "create", "stage", "--dest", "a.szs", "--auto-add", "--autoadd-path", "empty"),
+        (_OBJ, _EMPTY),
+    ),
 )

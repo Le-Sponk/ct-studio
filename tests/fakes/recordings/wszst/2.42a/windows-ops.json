@@ -951,5 +951,301 @@
   "stdout": "",
   "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.brres\n!!        -> No such file or directory [2]\n",
   "files": {}
+ },
+ {
+  "case": "autoadd status",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: /usr/bin/auto-add\n       SEARCH PATH[0]: /usr/bin/auto-add\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd status dest",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "--dest",
+   "lib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: lib\n       SEARCH PATH[0]: lib\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd verify synthetic",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "--dest",
+   "lib",
+   "-vv"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: lib\n       SEARCH PATH[0]: lib\n\nLIST OF FILES IN lib\n  BRRES itembox.brres\n   0:  6c f7 3f 15  1a 17 17 bd  99 77 78 25  bd 4d 49 92  96 ac 29 ee  :l.?......wx%.MI...).:\n   0:  6e 36 9b 84  5e d6 f6 e3  99 5f 87 ad  15 c2 90 32  6b 2a a9 c5  :n6..^...._.....2k*..:\n  => 1 of 496 files found.\n\nLIST OF MISSED FILES IN lib\n  BRRES BGteresaSFC.brres\n  BRRES BeltCrossing.brres\n  BRRES BeltCurveA.brres\n  BRRES BeltEasy.brres\n  BRRES Block.brres\n  BRRES CarA1.brres\n  BRRES CarA2.brres\n  BRRES CarA3.brres\n  BRRES CarB.brres\n  BRRES Crane.brres\n  KCL   Crane.kcl\n  BRRES Crescent64.brres\n  BRRES DKrockGC.brres\n  BRRES DKship64.brres\n  BRRES DKtreeA64.brres\n  BRRES DKtreeB64.brres\n  BRRES DKturibashiGC.brres\n  BRRES DemoCol.brres\n  KCL   DemoCol.kcl\n  BRRES DemoJugemu.brres\n  BRRES DonkyCannonGC.brres\n  BRRES DonkyCannon_wii.brres\n  BRRES EarthRing.brres\n  BRRES Epropeller.brres\n  BRRES FireSnake.brres\n  BRRES FlagA1.brres\n  BRRES FlagA2.brres\n  BRRES FlagA3.brres\n  BRRES FlagA5.brres\n  BRRES FlagB1.brres\n  BRRES FlagB2.brres\n  BRRES FlagB3.brres\n  BRRES FlagB4.brres\n  BRRES FlamePole.brres\n  KCL   FlamePole.kcl\n  BRRES FlamePole_v.brres\n  BRRES HeyhoBallGBA.brres\n  BRRES HeyhoShipGBA.brres\n  BRRES HeyhoTreeGBA.brres\n  BRRES InsekiA.brres\n  BRRES InsekiB.brres\n  BRRES K_bomb_car.brres\n  BRRES K_bomb_car1.brres\n  BRRES K_car_body.brres\n  BRRES K_chairlift00.brres\n  BRRES K_sticklift00.brres\n  BRRES K_truck.brres\n  BRRES KmoonZ.brres\n  BRRES KoopaFigure64.brres\n  BRRES Ksticketc.brres\n  BRRES M_obj_jump.brres\n  KCL   M_obj_jump.kcl\n  BRRES M_obj_jump2.brres\n  KCL   M_obj_jump2.kcl\n  BRRES M_obj_s_jump.brres\n  KCL   M_obj_s_jump.kcl\n  BRRES M_obj_s_jump2.brres\n  KCL   M_obj_s_jump2.kcl\n  BRRES MarioGo64.brres\n  BRRES MashBalloonGC.brres\n  BRRES Mdush.brres\n  KCL   Mdush.kcl\n  BRRES MiiKanban.brres\n  BRRES MiiObj01.brres\n  BRRES MiiObj02.brres\n  BRRES MiiObj03.brres\n  BRRES MiiObjD01.brres\n  BRRES MiiObjD02.brres\n  BRRES MiiObjD03.brres\n  BRRES MiiSighKino.brres\n  BRRES MiiSignNoko.brres\n  BRRES MiiSignWario.brres\n  BRRES MiiSphinxY2.brres\n  BRRES MiiStatueBD1.brres\n  BRRES MiiStatueBL1.brres\n  BRRES MiiStatueD1.brres\n  BRRES MiiStatueD2.brres\n  BRRES MiiStatueL1.brres\n  BRRES MiiStatueL2.brres\n  BRRES MiiStatueL3.brres\n  BRRES MiiStatueM1.brres\n  BRRES MiiStatueM2.brres\n  BRRES MiiStatueP1.brres\n  BRRES PalmTree.brres\n  BRRES PeachHunsuiGC.brres\n  BRRES Piston.brres\n  BRRES Press.brres\n  BRRES Psea.brres\n  BRRES RM_ring1.brres\n  KCL   RM_ring1.kcl\n  KCL   RM_ring1b.kcl\n  KCL   RM_ring2.kcl\n  KCL   RM_ring2b.kcl\n  KCL   RM_ring2c.kcl\n  KCL   RM_ring3.kcl\n  KCL   RM_ring3b.kcl\n  KCL   RM_ring3c.kcl\n  BRRES RhMiiKanban.brres\n  BRRES SentakuDS.brres\n  BRRES ShMiiObj01.brres\n  BRRES ShMiiObj02.brres\n  BRRES ShMiiObj03.brres\n  BRRES SpaceSun.brres\n  BRRES Spot64.brres\n  BRRES StarRing.brres\n  BRRES TownBridgeDS.brres\n  KCL   TownBridgeDS.kcl\n  KCL   TownBridgeDS2.kcl\n  KCL   TownBridgeDS3.kcl\n  BRRES TownTreeDS.brres\n  BRRES TruckWagon.brres\n  BRRES Twanwan.brres\n  BRRES TwistedWay.brres\n  BRRES UtsuboDokan.brres\n  BRRES VolcanoBall1.brres\n  KCL   VolcanoPiece0.kcl\n  KCL   VolcanoPiece0b.kcl\n  KCL   VolcanoPiece0c.kcl\n  BRRES VolcanoPiece1.brres\n  KCL   VolcanoPiece1.kcl\n  KCL   VolcanoPiece11.kcl\n  KCL   VolcanoPiece11b.kcl\n  KCL   VolcanoPiece11c.kcl\n  KCL   VolcanoPiece13.kcl\n  KCL   VolcanoPiece13b.kcl\n  KCL   VolcanoPiece13c.kcl\n  KCL   VolcanoPiece14.kcl\n  KCL   VolcanoPiece14b.kcl\n  KCL   VolcanoPiece14c.kcl\n  KCL   VolcanoPiece16.kcl\n  KCL   VolcanoPiece16b.kcl\n  KCL   VolcanoPiece16c.kcl\n  KCL   VolcanoPiece18.kcl\n  KCL   VolcanoPiece18b.kcl\n  KCL   VolcanoPiece18c.kcl\n  KCL   VolcanoPiece1b.kcl\n  KCL   VolcanoPiece1c.kcl\n  KCL   VolcanoPiece2.kcl\n  KCL   VolcanoPiece2b.kcl\n  KCL   VolcanoPiece2c.kcl\n  KCL   VolcanoPiece3.kcl\n  KCL   VolcanoPiece3b.kcl\n  KCL   VolcanoPiece3c.kcl\n  KCL   VolcanoPiece4.kcl\n  KCL   VolcanoPiece4b.kcl\n  KCL   VolcanoPiece4c.kcl\n  KCL   VolcanoPiece5.kcl\n  KCL   VolcanoPiece5b.kcl\n  KCL   VolcanoPiece5c.kcl\n  KCL   VolcanoPiece7.kcl\n  KCL   VolcanoPiece7b.kcl\n  KCL   VolcanoPiece7c.kcl\n  KCL   VolcanoPiece8.kcl\n  KCL   VolcanoPiece8b.kcl\n  KCL   VolcanoPiece8c.kcl\n  KCL   VolcanoPiece9.kcl\n  KCL   VolcanoPiece9b.kcl\n  KCL   VolcanoPiece9c.kcl\n  BRRES VolcanoRock1.brres\n  KCL   VolcanoRock1.kcl\n  KCL   VolcanoRock2.kcl\n  BRRES WLarrowGC.brres\n  BRRES WLdokanGC.brres\n  KCL   WLdokanGC.kcl\n  BRRES WLfirebarGC.brres\n  BRRES WLscreenGC.brres\n  BRRES WLwallGC.brres\n  KCL   WLwallGC.kcl\n  BRRES ami.brres\n  BRRES aurora.brres\n  BRRES b_teresa.brres\n  BRRES basabasa.brres\n  BRRES bblock1.brres\n  KCL   bblock1.kcl\n  KCL   bblock1b.kcl\n  KCL   bblock2.kcl\n  KCL   bblock2b.kcl\n  KCL   bblock3.kcl\n  KCL   bblock3b.kcl\n  KCL   bblock4.kcl\n  KCL   bblock4b.kcl\n  KCL   bblock5.kcl\n  KCL   bblock5b.kcl\n  KCL   bblock6.kcl\n  KCL   bblock6b.kcl\n  KCL   bblock7.kcl\n  KCL   bblock7b.kcl\n  KCL   bblock8.kcl\n  KCL   bblock8b.kcl\n  KCL   bblock9.kcl\n  KCL   bblock9b.kcl\n  BRRES begoman_spike.brres\n  BRRES bird.brres\n  BRRES boble.brres\n  BRASD brasd/DonkyCannonGC/DonkyCannonGC.brasd\n  BRASD brasd/DonkyCannon_wii/DonkyCannon_wii.brasd\n  BRASD brasd/cow/eat.brasd\n  BRASD brasd/cow/eat_ed.brasd\n  BRASD brasd/cow/run.brasd\n  BRASD brasd/cow/surprise.brasd\n  BRASD brasd/cow/walk.brasd\n  BRASD brasd/crab/wait.brasd\n  BRASD brasd/crab/walk_l.brasd\n  BRASD brasd/crab/walk_r.brasd\n  BRASD brasd/hanachan/head_wait2.brasd\n  BRASD brasd/hanachan/walk.brasd\n  BRASD brasd/koopaFigure/vomit.brasd\n  BRASD brasd/koopaFigure/wait.brasd\n  BRASD brasd/kuribo/walk_l.brasd\n  BRASD brasd/kuribo/walk_r.brasd\n  BRASD brasd/pakkun_f/attack.brasd\n  BRASD brasd/pakkun_f/wait.brasd\n  BRASD brasd/penguin_m/walk.brasd\n  BRASD brasd/penguin_s/dive.brasd\n  BRASD brasd/penguin_s/stand_up.brasd\n  BRASD brasd/penguin_s/walk.brasd\n  BRASD brasd/poihana/throw.brasd\n  BRASD brasd/poihana/walk.brasd\n  BRASD brasd/puchi_pakkun/puchi_pakkun.brasd\n  BRASD brasd/sanbo/revive.brasd\n  BRASD brasd/tree_cannon/tree_cannon.brasd\n  BRRES bulldozer_left.brres\n  KCL   bulldozer_left.kcl\n  BRRES bulldozer_right.brres\n  KCL   bulldozer_right.kcl\n  BRRES casino_roulette.brres\n  KCL   casino_roulette.kcl\n  BRRES castleballoon1.brres\n  BRRES castleflower1.brres\n  BRRES castletree1.brres\n  BRRES castletree2.brres\n  BRRES choropu.brres\n  BRRES coin.brres\n  ?     course.0\n  BRRES cow.brres\n  BRRES crab.brres\n  BRRES cruiser.brres\n  BRRES dc_pillar.brres\n  KCL   dc_pillar.kcl\n  KCL   dc_pillar_base.kcl\n  BRRES dc_sandcone.brres\n  KCL   dc_sandcone.kcl\n  BRRES dk_miiobj00.brres\n  BRRES dkmonitor.brres\n  BRRES dokan_sfc.brres\n  BRRES donkytree1GC.brres\n  BRRES donkytree2GC.brres\n  BRRES dossun.brres\n  BREFF effect/Alarm/rk_alarm.breff\n  BREFT effect/Alarm/rk_alarm.breft\n  BREFF effect/Block/rk_block.breff\n  BREFT effect/Block/rk_block.breft\n  BREFF effect/DKfalls/rk_64DKfalls.breff\n  BREFT effect/DKfalls/rk_64DKfalls.breft\n  BREFF effect/DKrockGC/rk_DKrockGC.breff\n  BREFT effect/DKrockGC/rk_DKrockGC.breft\n  BREFF effect/DKship64/rk_DKship64.breff\n  BREFT effect/DKship64/rk_DKship64.breft\n  BREFF effect/DemoEf/rk_demo.breff\n  BREFT effect/DemoEf/rk_demo.breft\n  BREFF effect/DemoJugemu/rk_DemoJugemu.breff\n  BREFT effect/DemoJugemu/rk_DemoJugemu.breft\n  BREFF effect/DonkyCannonGC/rk_dkCannon.breff\n  BREFT effect/DonkyCannonGC/rk_dkCannon.breft\n  BREFF effect/DonkyCannon_wii/rk_dkCannon.breff\n  BREFT effect/DonkyCannon_wii/rk_dkCannon.breft\n  BREFF effect/EnvFire/rk_EnvFire.breff\n  BREFT effect/EnvFire/rk_EnvFire.breft\n  BREFF effect/EnvKareha/rk_EnvKareha.breff\n  BREFT effect/EnvKareha/rk_EnvKareha.breft\n  BREFF effect/EnvKarehaUp/rk_EnvKarehaUp.breff\n  BREFT effect/EnvKarehaUp/rk_EnvKarehaUp.breft\n  BREFF effect/EnvSnow/rk_EnvSnow.breff\n  BREFT effect/EnvSnow/rk_EnvSnow.breft\n  BREFF effect/Epropeller/rk_epropeller.breff\n  BREFT effect/Epropeller/rk_epropeller.breft\n  BREFF effect/FallBsA/rk_fallbasin.breff\n  BREFT effect/FallBsA/rk_fallbasin.breft\n  BREFF effect/FallBsB/rk_fallbasin.breff\n  BREFT effect/FallBsB/rk_fallbasin.breft\n  BREFF effect/Fall_MH/rk_ridgeFall.breff\n  BREFT effect/Fall_MH/rk_ridgeFall.breft\n  BREFF effect/Fall_Y/rk_yoshiFalls.breff\n  BREFT effect/Fall_Y/rk_yoshiFalls.breft\n  BREFF effect/FireSnake/rk_fireSnake.breff\n  BREFT effect/FireSnake/rk_fireSnake.breft\n  BREFF effect/FlamePole/rk_flamePole.breff\n  BREFT effect/FlamePole/rk_flamePole.breft\n  BREFF effect/FlamePole_v/rk_flamePole.breff\n  BREFT effect/FlamePole_v/rk_flamePole.breft\n  BREFF effect/FlamePole_v_big/rk_flamePoleL.breff\n  BREFT effect/FlamePole_v_big/rk_flamePoleL.breft\n  BREFF effect/Flash_B/rk_flashBCross.breff\n  BREFT effect/Flash_B/rk_flashBCross.breft\n  BREFF effect/Flash_L/rk_flashBeginner.breff\n  BREFT effect/Flash_L/rk_flashBeginner.breft\n  BREFF effect/Flash_M/rk_flash64mario.breff\n  BREFT effect/Flash_M/rk_flash64mario.breft\n  BREFF effect/Flash_S/rk_flashSkate.breff\n  BREFT effect/Flash_S/rk_flashSkate.breft\n  BREFF effect/Flash_W/rk_flashWaluigi.breff\n  BREFT effect/Flash_W/rk_flashWaluigi.breft\n  BREFF effect/Hanabi/rk_stHanabi.breff\n  BREFT effect/Hanabi/rk_stHanabi.breft\n  BREFF effect/HeyhoBallGBA/rk_HeyhoBallGBA.breff\n  BREFT effect/HeyhoBallGBA/rk_HeyhoBallGBA.breft\n  BREFF effect/K_bomb_car/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car/rk_K_bomb_car.breft\n  BREFF effect/K_bomb_car1/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car1/rk_K_bomb_car.breft\n  BREFF effect/Kamifubuki/rk_kamifubuki.breff\n  BREFT effect/Kamifubuki/rk_kamifubuki.breft\n  BREFF effect/KoopaFigure64/rk_koopaFire.breff\n  BREFT effect/KoopaFigure64/rk_koopaFire.breft\n  BREFF effect/PeachHunsuiGC/rk_hunsui.breff\n  BREFT effect/PeachHunsuiGC/rk_hunsui.breft\n  BREFF effect/Press/rk_press.breff\n  BREFT effect/Press/rk_press.breft\n  BREFF effect/StarRing/rk_StarRing.breff\n  BREFT effect/StarRing/rk_StarRing.breft\n  BREFF effect/Steam/rk_steam.breff\n  BREFT effect/Steam/rk_steam.breft\n  BREFF effect/TruckWagon/rk_truck.breff\n  BREFT effect/TruckWagon/rk_truck.breft\n  BREFF effect/VolcanoBall1/rk_volc.breff\n  BREFT effect/VolcanoBall1/rk_volc.breft\n  BREFF effect/begoman_spike/rk_begoman_spike.breff\n  BREFT effect/begoman_spike/rk_begoman_spike.breft\n  BREFF effect/boble/rk_boble.breff\n  BREFT effect/boble/rk_boble.breft\n  BREFF effect/choropu/rk_choropuMoko.breff\n  BREFT effect/choropu/rk_choropuMoko.breft\n  BREFF effect/coin/rk_coin.breff\n  BREFT effect/coin/rk_coin.breft\n  BREFF effect/crab/rk_crab.breff\n  BREFT effect/crab/rk_crab.breft\n  BREFF effect/cruiser/rk_cruiser.breff\n  BREFT effect/cruiser/rk_cruiser.breft\n  BREFF effect/dc_pillar/rk_dc_pillar.breff\n  BREFT effect/dc_pillar/rk_dc_pillar.breft\n  BREFF effect/dc_sandcone/rk_dc_sandcone.breff\n  BREFT effect/dc_sandcone/rk_dc_sandcone.breft\n  BREFF effect/dossun/rk_dossun.breff\n  BREFT effect/dossun/rk_dossun.breft\n  BREFF effect/entry/rk_entry.breff\n  BREFT effect/entry/rk_entry.breft\n  BREFF effect/hanachan/rk_hana.breff\n  BREFT effect/hanachan/rk_hana.breft\n  BREFF effect/honeBall/rk_honeBall.breff\n  BREFT effect/honeBall/rk_honeBall.breft\n  BREFF effect/karehayama/rk_karehayama.breff\n  BREFT effect/karehayama/rk_karehayama.breft\n  BREFF effect/koopaBall/rk_koopaBall.breff\n  BREFT effect/koopaBall/rk_koopaBall.breft\n  BREFF effect/leaf_effect/rk_leaf_effect.breff\n  BREFT effect/leaf_effect/rk_leaf_effect.breft\n  BREFF effect/penguin_l/rk_penguin_l.breff\n  BREFT effect/penguin_l/rk_penguin_l.breft\n  BREFF effect/penguin_m/rk_penguin_m.breff\n  BREFT effect/penguin_m/rk_penguin_m.breft\n  BREFF effect/penguin_s/rk_penguin_s.breff\n  BREFT effect/penguin_s/rk_penguin_s.breft\n  BREFF effect/pocha/rk_pocha.breff\n  BREFT effect/pocha/rk_pocha.breft\n  BREFF effect/pochaMori/rk_pochaLeaf.breff\n  BREFT effect/pochaMori/rk_pochaLeaf.breft\n  BREFF effect/pochaYogan/rk_pochaYogan.breff\n  BREFT effect/pochaYogan/rk_pochaYogan.breft\n  BREFF effect/poihana/rk_poihana.breff\n  BREFT effect/poihana/rk_poihana.breft\n  BREFF effect/quicksand/rk_qsandDossun.breff\n  BREFT effect/quicksand/rk_qsandDossun.breft\n  BREFF effect/sanbo/rk_sanbo.breff\n  BREFT effect/sanbo/rk_sanbo.breft\n  BREFF effect/starGate/rk_starGate.breff\n  BREFT effect/starGate/rk_starGate.breft\n  BREFF effect/taimatsu/rk_taimatsu.breff\n  BREFT effect/taimatsu/rk_taimatsu.breft\n  BREFF effect/tree_cannon/rk_dkCannon.breff\n  BREFT effect/tree_cannon/rk_dkCannon.breft\n  BREFF effect/truckChimSmk/rk_truckChimSmk.breff\n  BREFT effect/truckChimSmk/rk_truckChimSmk.breft\n  BREFF effect/truckChimSmkW/rk_truckChimSmkW.breff\n  BREFT effect/truckChimSmkW/rk_truckChimSmkW.breft\n  BREFF effect/venice_hasi/rk_venice.breff\n  BREFT effect/venice_hasi/rk_venice.breft\n  BREFF effect/volsmk/rk_volsmk.breff\n  BREFT effect/volsmk/rk_volsmk.breft\n  BREFF effect/wanwan/rk_wanwan.breff\n  BREFT effect/wanwan/rk_wanwan.breft\n  BREFF effect/woodbox/rk_woodbox.breff\n  BREFT effect/woodbox/rk_woodbox.breft\n  BRRES escalator.brres\n  KCL   escalator.kcl\n  BRRES fks_screen_wii.brres\n  BRRES gardentreeDS.brres\n  BRRES group_enemy_a.brres\n  BRRES group_enemy_a_demo.brres\n  BRRES group_enemy_b.brres\n  BRRES group_enemy_c.brres\n  BRRES group_enemy_e.brres\n  BRRES group_enemy_f.brres\n  BRRES group_monte_a.brres\n  BRRES group_monte_a_demo.brres\n  BRRES hanachan.brres\n  BRRES heyho.brres\n  BRRES heyho2.brres\n  BRRES honeBall.brres\n  BRRES ice.brres\n  BRRES karehayama.brres\n  BRRES kinoko.brres\n  BRRES kinokoT1.brres\n  KCL   kinoko_d_g.kcl\n  KCL   kinoko_d_r.kcl\n  KCL   kinoko_g.kcl\n  KCL   kinoko_r.kcl\n  BRRES koopaBall.brres\n  BRRES koopaFigure.brres\n  BRRES koopaFirebar.brres\n  BRRES kuribo.brres\n  BRRES light_house.brres\n  BRRES mare_a.brres\n  BRRES mare_b.brres\n  BRRES mariotreeGC.brres\n  BRRES mii_balloon.brres\n  BRRES miiposter.brres\n  BRRES monte_a.brres\n  BRRES moray.brres\n  BRRES obakeblockSFC.brres\n  BRRES oilSFC.brres\n  BRRES pakkun_dokan.brres\n  BRRES pakkun_f.brres\n  BRRES parasol.brres\n  BRRES peachtreeGC.brres\n  BRRES penguin_l.brres\n  BRRES penguin_m.brres\n  BRRES penguin_s.brres\n  BRRES pocha.brres\n  BRRES pochaYogan.brres\n  BRRES poihana.brres\n  ?     posteffect/posteffect.blobj\n  ?     posteffect/posteffect.bltex\n  ?     posteffect/posteffect.bti\n  ?     posteffect/posteffect2.bblm\n  ?     posteffect/posteffect2.blight\n  ?     posteffect/posteffect2.blmap\n  ?     posteffect/posteffect2.blobj\n  ?     posteffect/posteffect3.bblm\n  BRRES puchi_pakkun.brres\n  BRRES pukupuku.brres\n  BRRES pylon01.brres\n  BRRES quicksand.brres\n  BRRES r_parasol.brres\n  BRRES ridgemii00.brres\n  KCL   ring_mission_b.kcl\n  BRRES sanbo.brres\n  BRRES seagull.brres\n  BRRES skyship.brres\n  BRRES spot.brres\n  BRRES starGate.brres\n  KCL   starGate.kcl\n  BRRES sun.brres\n  BRRES sunDS.brres\n  BRRES tree_cannon.brres\n  BRRES truckChimSmk.brres\n  BRRES truckChimSmkW.brres\n  BRRES venice_hasi.brres\n  KCL   venice_hasi.kcl\n  KCL   venice_hasi_b.kcl\n  KCL   venice_hasi_wall.kcl\n  BRRES venice_nami.brres\n  BRRES venice_saku.brres\n  KCL   venice_saku.kcl\n  BRRES wanwan.brres\n  BRRES windmill.brres\n  BRRES woodbox.brres\n  => 476 of 496 files missed.\n\nLIST OF INVALID FILES IN lib\n  BRRES itembox.brres\n  => 1 of 496 files invalid.\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd verify empty",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "--dest",
+   "empty",
+   "-vv"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: empty\n       SEARCH PATH[0]: empty\n\nLIST OF FILES IN empty\n\nLIST OF MISSED FILES IN empty\n  BRRES BGteresaSFC.brres\n  BRRES BeltCrossing.brres\n  BRRES BeltCurveA.brres\n  BRRES BeltEasy.brres\n  BRRES Block.brres\n  BRRES CarA1.brres\n  BRRES CarA2.brres\n  BRRES CarA3.brres\n  BRRES CarB.brres\n  BRRES Crane.brres\n  KCL   Crane.kcl\n  BRRES Crescent64.brres\n  BRRES DKrockGC.brres\n  BRRES DKship64.brres\n  BRRES DKtreeA64.brres\n  BRRES DKtreeB64.brres\n  BRRES DKturibashiGC.brres\n  BRRES DemoCol.brres\n  KCL   DemoCol.kcl\n  BRRES DemoJugemu.brres\n  BRRES DonkyCannonGC.brres\n  BRRES DonkyCannon_wii.brres\n  BRRES EarthRing.brres\n  BRRES Epropeller.brres\n  BRRES FireSnake.brres\n  BRRES FlagA1.brres\n  BRRES FlagA2.brres\n  BRRES FlagA3.brres\n  BRRES FlagA5.brres\n  BRRES FlagB1.brres\n  BRRES FlagB2.brres\n  BRRES FlagB3.brres\n  BRRES FlagB4.brres\n  BRRES FlamePole.brres\n  KCL   FlamePole.kcl\n  BRRES FlamePole_v.brres\n  BRRES HeyhoBallGBA.brres\n  BRRES HeyhoShipGBA.brres\n  BRRES HeyhoTreeGBA.brres\n  BRRES InsekiA.brres\n  BRRES InsekiB.brres\n  BRRES K_bomb_car.brres\n  BRRES K_bomb_car1.brres\n  BRRES K_car_body.brres\n  BRRES K_chairlift00.brres\n  BRRES K_sticklift00.brres\n  BRRES K_truck.brres\n  BRRES KmoonZ.brres\n  BRRES KoopaFigure64.brres\n  BRRES Ksticketc.brres\n  BRRES M_obj_jump.brres\n  KCL   M_obj_jump.kcl\n  BRRES M_obj_jump2.brres\n  KCL   M_obj_jump2.kcl\n  BRRES M_obj_s_jump.brres\n  KCL   M_obj_s_jump.kcl\n  BRRES M_obj_s_jump2.brres\n  KCL   M_obj_s_jump2.kcl\n  BRRES MarioGo64.brres\n  BRRES MashBalloonGC.brres\n  BRRES Mdush.brres\n  KCL   Mdush.kcl\n  BRRES MiiKanban.brres\n  BRRES MiiObj01.brres\n  BRRES MiiObj02.brres\n  BRRES MiiObj03.brres\n  BRRES MiiObjD01.brres\n  BRRES MiiObjD02.brres\n  BRRES MiiObjD03.brres\n  BRRES MiiSighKino.brres\n  BRRES MiiSignNoko.brres\n  BRRES MiiSignWario.brres\n  BRRES MiiSphinxY2.brres\n  BRRES MiiStatueBD1.brres\n  BRRES MiiStatueBL1.brres\n  BRRES MiiStatueD1.brres\n  BRRES MiiStatueD2.brres\n  BRRES MiiStatueL1.brres\n  BRRES MiiStatueL2.brres\n  BRRES MiiStatueL3.brres\n  BRRES MiiStatueM1.brres\n  BRRES MiiStatueM2.brres\n  BRRES MiiStatueP1.brres\n  BRRES PalmTree.brres\n  BRRES PeachHunsuiGC.brres\n  BRRES Piston.brres\n  BRRES Press.brres\n  BRRES Psea.brres\n  BRRES RM_ring1.brres\n  KCL   RM_ring1.kcl\n  KCL   RM_ring1b.kcl\n  KCL   RM_ring2.kcl\n  KCL   RM_ring2b.kcl\n  KCL   RM_ring2c.kcl\n  KCL   RM_ring3.kcl\n  KCL   RM_ring3b.kcl\n  KCL   RM_ring3c.kcl\n  BRRES RhMiiKanban.brres\n  BRRES SentakuDS.brres\n  BRRES ShMiiObj01.brres\n  BRRES ShMiiObj02.brres\n  BRRES ShMiiObj03.brres\n  BRRES SpaceSun.brres\n  BRRES Spot64.brres\n  BRRES StarRing.brres\n  BRRES TownBridgeDS.brres\n  KCL   TownBridgeDS.kcl\n  KCL   TownBridgeDS2.kcl\n  KCL   TownBridgeDS3.kcl\n  BRRES TownTreeDS.brres\n  BRRES TruckWagon.brres\n  BRRES Twanwan.brres\n  BRRES TwistedWay.brres\n  BRRES UtsuboDokan.brres\n  BRRES VolcanoBall1.brres\n  KCL   VolcanoPiece0.kcl\n  KCL   VolcanoPiece0b.kcl\n  KCL   VolcanoPiece0c.kcl\n  BRRES VolcanoPiece1.brres\n  KCL   VolcanoPiece1.kcl\n  KCL   VolcanoPiece11.kcl\n  KCL   VolcanoPiece11b.kcl\n  KCL   VolcanoPiece11c.kcl\n  KCL   VolcanoPiece13.kcl\n  KCL   VolcanoPiece13b.kcl\n  KCL   VolcanoPiece13c.kcl\n  KCL   VolcanoPiece14.kcl\n  KCL   VolcanoPiece14b.kcl\n  KCL   VolcanoPiece14c.kcl\n  KCL   VolcanoPiece16.kcl\n  KCL   VolcanoPiece16b.kcl\n  KCL   VolcanoPiece16c.kcl\n  KCL   VolcanoPiece18.kcl\n  KCL   VolcanoPiece18b.kcl\n  KCL   VolcanoPiece18c.kcl\n  KCL   VolcanoPiece1b.kcl\n  KCL   VolcanoPiece1c.kcl\n  KCL   VolcanoPiece2.kcl\n  KCL   VolcanoPiece2b.kcl\n  KCL   VolcanoPiece2c.kcl\n  KCL   VolcanoPiece3.kcl\n  KCL   VolcanoPiece3b.kcl\n  KCL   VolcanoPiece3c.kcl\n  KCL   VolcanoPiece4.kcl\n  KCL   VolcanoPiece4b.kcl\n  KCL   VolcanoPiece4c.kcl\n  KCL   VolcanoPiece5.kcl\n  KCL   VolcanoPiece5b.kcl\n  KCL   VolcanoPiece5c.kcl\n  KCL   VolcanoPiece7.kcl\n  KCL   VolcanoPiece7b.kcl\n  KCL   VolcanoPiece7c.kcl\n  KCL   VolcanoPiece8.kcl\n  KCL   VolcanoPiece8b.kcl\n  KCL   VolcanoPiece8c.kcl\n  KCL   VolcanoPiece9.kcl\n  KCL   VolcanoPiece9b.kcl\n  KCL   VolcanoPiece9c.kcl\n  BRRES VolcanoRock1.brres\n  KCL   VolcanoRock1.kcl\n  KCL   VolcanoRock2.kcl\n  BRRES WLarrowGC.brres\n  BRRES WLdokanGC.brres\n  KCL   WLdokanGC.kcl\n  BRRES WLfirebarGC.brres\n  BRRES WLscreenGC.brres\n  BRRES WLwallGC.brres\n  KCL   WLwallGC.kcl\n  BRRES ami.brres\n  BRRES aurora.brres\n  BRRES b_teresa.brres\n  BRRES basabasa.brres\n  BRRES bblock1.brres\n  KCL   bblock1.kcl\n  KCL   bblock1b.kcl\n  KCL   bblock2.kcl\n  KCL   bblock2b.kcl\n  KCL   bblock3.kcl\n  KCL   bblock3b.kcl\n  KCL   bblock4.kcl\n  KCL   bblock4b.kcl\n  KCL   bblock5.kcl\n  KCL   bblock5b.kcl\n  KCL   bblock6.kcl\n  KCL   bblock6b.kcl\n  KCL   bblock7.kcl\n  KCL   bblock7b.kcl\n  KCL   bblock8.kcl\n  KCL   bblock8b.kcl\n  KCL   bblock9.kcl\n  KCL   bblock9b.kcl\n  BRRES begoman_spike.brres\n  BRRES bird.brres\n  BRRES boble.brres\n  BRASD brasd/DonkyCannonGC/DonkyCannonGC.brasd\n  BRASD brasd/DonkyCannon_wii/DonkyCannon_wii.brasd\n  BRASD brasd/cow/eat.brasd\n  BRASD brasd/cow/eat_ed.brasd\n  BRASD brasd/cow/run.brasd\n  BRASD brasd/cow/surprise.brasd\n  BRASD brasd/cow/walk.brasd\n  BRASD brasd/crab/wait.brasd\n  BRASD brasd/crab/walk_l.brasd\n  BRASD brasd/crab/walk_r.brasd\n  BRASD brasd/hanachan/head_wait2.brasd\n  BRASD brasd/hanachan/walk.brasd\n  BRASD brasd/koopaFigure/vomit.brasd\n  BRASD brasd/koopaFigure/wait.brasd\n  BRASD brasd/kuribo/walk_l.brasd\n  BRASD brasd/kuribo/walk_r.brasd\n  BRASD brasd/pakkun_f/attack.brasd\n  BRASD brasd/pakkun_f/wait.brasd\n  BRASD brasd/penguin_m/walk.brasd\n  BRASD brasd/penguin_s/dive.brasd\n  BRASD brasd/penguin_s/stand_up.brasd\n  BRASD brasd/penguin_s/walk.brasd\n  BRASD brasd/poihana/throw.brasd\n  BRASD brasd/poihana/walk.brasd\n  BRASD brasd/puchi_pakkun/puchi_pakkun.brasd\n  BRASD brasd/sanbo/revive.brasd\n  BRASD brasd/tree_cannon/tree_cannon.brasd\n  BRRES bulldozer_left.brres\n  KCL   bulldozer_left.kcl\n  BRRES bulldozer_right.brres\n  KCL   bulldozer_right.kcl\n  BRRES casino_roulette.brres\n  KCL   casino_roulette.kcl\n  BRRES castleballoon1.brres\n  BRRES castleflower1.brres\n  BRRES castletree1.brres\n  BRRES castletree2.brres\n  BRRES choropu.brres\n  BRRES coin.brres\n  ?     course.0\n  BRRES cow.brres\n  BRRES crab.brres\n  BRRES cruiser.brres\n  BRRES dc_pillar.brres\n  KCL   dc_pillar.kcl\n  KCL   dc_pillar_base.kcl\n  BRRES dc_sandcone.brres\n  KCL   dc_sandcone.kcl\n  BRRES dk_miiobj00.brres\n  BRRES dkmonitor.brres\n  BRRES dokan_sfc.brres\n  BRRES donkytree1GC.brres\n  BRRES donkytree2GC.brres\n  BRRES dossun.brres\n  BREFF effect/Alarm/rk_alarm.breff\n  BREFT effect/Alarm/rk_alarm.breft\n  BREFF effect/Block/rk_block.breff\n  BREFT effect/Block/rk_block.breft\n  BREFF effect/DKfalls/rk_64DKfalls.breff\n  BREFT effect/DKfalls/rk_64DKfalls.breft\n  BREFF effect/DKrockGC/rk_DKrockGC.breff\n  BREFT effect/DKrockGC/rk_DKrockGC.breft\n  BREFF effect/DKship64/rk_DKship64.breff\n  BREFT effect/DKship64/rk_DKship64.breft\n  BREFF effect/DemoEf/rk_demo.breff\n  BREFT effect/DemoEf/rk_demo.breft\n  BREFF effect/DemoJugemu/rk_DemoJugemu.breff\n  BREFT effect/DemoJugemu/rk_DemoJugemu.breft\n  BREFF effect/DonkyCannonGC/rk_dkCannon.breff\n  BREFT effect/DonkyCannonGC/rk_dkCannon.breft\n  BREFF effect/DonkyCannon_wii/rk_dkCannon.breff\n  BREFT effect/DonkyCannon_wii/rk_dkCannon.breft\n  BREFF effect/EnvFire/rk_EnvFire.breff\n  BREFT effect/EnvFire/rk_EnvFire.breft\n  BREFF effect/EnvKareha/rk_EnvKareha.breff\n  BREFT effect/EnvKareha/rk_EnvKareha.breft\n  BREFF effect/EnvKarehaUp/rk_EnvKarehaUp.breff\n  BREFT effect/EnvKarehaUp/rk_EnvKarehaUp.breft\n  BREFF effect/EnvSnow/rk_EnvSnow.breff\n  BREFT effect/EnvSnow/rk_EnvSnow.breft\n  BREFF effect/Epropeller/rk_epropeller.breff\n  BREFT effect/Epropeller/rk_epropeller.breft\n  BREFF effect/FallBsA/rk_fallbasin.breff\n  BREFT effect/FallBsA/rk_fallbasin.breft\n  BREFF effect/FallBsB/rk_fallbasin.breff\n  BREFT effect/FallBsB/rk_fallbasin.breft\n  BREFF effect/Fall_MH/rk_ridgeFall.breff\n  BREFT effect/Fall_MH/rk_ridgeFall.breft\n  BREFF effect/Fall_Y/rk_yoshiFalls.breff\n  BREFT effect/Fall_Y/rk_yoshiFalls.breft\n  BREFF effect/FireSnake/rk_fireSnake.breff\n  BREFT effect/FireSnake/rk_fireSnake.breft\n  BREFF effect/FlamePole/rk_flamePole.breff\n  BREFT effect/FlamePole/rk_flamePole.breft\n  BREFF effect/FlamePole_v/rk_flamePole.breff\n  BREFT effect/FlamePole_v/rk_flamePole.breft\n  BREFF effect/FlamePole_v_big/rk_flamePoleL.breff\n  BREFT effect/FlamePole_v_big/rk_flamePoleL.breft\n  BREFF effect/Flash_B/rk_flashBCross.breff\n  BREFT effect/Flash_B/rk_flashBCross.breft\n  BREFF effect/Flash_L/rk_flashBeginner.breff\n  BREFT effect/Flash_L/rk_flashBeginner.breft\n  BREFF effect/Flash_M/rk_flash64mario.breff\n  BREFT effect/Flash_M/rk_flash64mario.breft\n  BREFF effect/Flash_S/rk_flashSkate.breff\n  BREFT effect/Flash_S/rk_flashSkate.breft\n  BREFF effect/Flash_W/rk_flashWaluigi.breff\n  BREFT effect/Flash_W/rk_flashWaluigi.breft\n  BREFF effect/Hanabi/rk_stHanabi.breff\n  BREFT effect/Hanabi/rk_stHanabi.breft\n  BREFF effect/HeyhoBallGBA/rk_HeyhoBallGBA.breff\n  BREFT effect/HeyhoBallGBA/rk_HeyhoBallGBA.breft\n  BREFF effect/K_bomb_car/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car/rk_K_bomb_car.breft\n  BREFF effect/K_bomb_car1/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car1/rk_K_bomb_car.breft\n  BREFF effect/Kamifubuki/rk_kamifubuki.breff\n  BREFT effect/Kamifubuki/rk_kamifubuki.breft\n  BREFF effect/KoopaFigure64/rk_koopaFire.breff\n  BREFT effect/KoopaFigure64/rk_koopaFire.breft\n  BREFF effect/PeachHunsuiGC/rk_hunsui.breff\n  BREFT effect/PeachHunsuiGC/rk_hunsui.breft\n  BREFF effect/Press/rk_press.breff\n  BREFT effect/Press/rk_press.breft\n  BREFF effect/StarRing/rk_StarRing.breff\n  BREFT effect/StarRing/rk_StarRing.breft\n  BREFF effect/Steam/rk_steam.breff\n  BREFT effect/Steam/rk_steam.breft\n  BREFF effect/TruckWagon/rk_truck.breff\n  BREFT effect/TruckWagon/rk_truck.breft\n  BREFF effect/VolcanoBall1/rk_volc.breff\n  BREFT effect/VolcanoBall1/rk_volc.breft\n  BREFF effect/begoman_spike/rk_begoman_spike.breff\n  BREFT effect/begoman_spike/rk_begoman_spike.breft\n  BREFF effect/boble/rk_boble.breff\n  BREFT effect/boble/rk_boble.breft\n  BREFF effect/choropu/rk_choropuMoko.breff\n  BREFT effect/choropu/rk_choropuMoko.breft\n  BREFF effect/coin/rk_coin.breff\n  BREFT effect/coin/rk_coin.breft\n  BREFF effect/crab/rk_crab.breff\n  BREFT effect/crab/rk_crab.breft\n  BREFF effect/cruiser/rk_cruiser.breff\n  BREFT effect/cruiser/rk_cruiser.breft\n  BREFF effect/dc_pillar/rk_dc_pillar.breff\n  BREFT effect/dc_pillar/rk_dc_pillar.breft\n  BREFF effect/dc_sandcone/rk_dc_sandcone.breff\n  BREFT effect/dc_sandcone/rk_dc_sandcone.breft\n  BREFF effect/dossun/rk_dossun.breff\n  BREFT effect/dossun/rk_dossun.breft\n  BREFF effect/entry/rk_entry.breff\n  BREFT effect/entry/rk_entry.breft\n  BREFF effect/hanachan/rk_hana.breff\n  BREFT effect/hanachan/rk_hana.breft\n  BREFF effect/honeBall/rk_honeBall.breff\n  BREFT effect/honeBall/rk_honeBall.breft\n  BREFF effect/karehayama/rk_karehayama.breff\n  BREFT effect/karehayama/rk_karehayama.breft\n  BREFF effect/koopaBall/rk_koopaBall.breff\n  BREFT effect/koopaBall/rk_koopaBall.breft\n  BREFF effect/leaf_effect/rk_leaf_effect.breff\n  BREFT effect/leaf_effect/rk_leaf_effect.breft\n  BREFF effect/penguin_l/rk_penguin_l.breff\n  BREFT effect/penguin_l/rk_penguin_l.breft\n  BREFF effect/penguin_m/rk_penguin_m.breff\n  BREFT effect/penguin_m/rk_penguin_m.breft\n  BREFF effect/penguin_s/rk_penguin_s.breff\n  BREFT effect/penguin_s/rk_penguin_s.breft\n  BREFF effect/pocha/rk_pocha.breff\n  BREFT effect/pocha/rk_pocha.breft\n  BREFF effect/pochaMori/rk_pochaLeaf.breff\n  BREFT effect/pochaMori/rk_pochaLeaf.breft\n  BREFF effect/pochaYogan/rk_pochaYogan.breff\n  BREFT effect/pochaYogan/rk_pochaYogan.breft\n  BREFF effect/poihana/rk_poihana.breff\n  BREFT effect/poihana/rk_poihana.breft\n  BREFF effect/quicksand/rk_qsandDossun.breff\n  BREFT effect/quicksand/rk_qsandDossun.breft\n  BREFF effect/sanbo/rk_sanbo.breff\n  BREFT effect/sanbo/rk_sanbo.breft\n  BREFF effect/starGate/rk_starGate.breff\n  BREFT effect/starGate/rk_starGate.breft\n  BREFF effect/taimatsu/rk_taimatsu.breff\n  BREFT effect/taimatsu/rk_taimatsu.breft\n  BREFF effect/tree_cannon/rk_dkCannon.breff\n  BREFT effect/tree_cannon/rk_dkCannon.breft\n  BREFF effect/truckChimSmk/rk_truckChimSmk.breff\n  BREFT effect/truckChimSmk/rk_truckChimSmk.breft\n  BREFF effect/truckChimSmkW/rk_truckChimSmkW.breff\n  BREFT effect/truckChimSmkW/rk_truckChimSmkW.breft\n  BREFF effect/venice_hasi/rk_venice.breff\n  BREFT effect/venice_hasi/rk_venice.breft\n  BREFF effect/volsmk/rk_volsmk.breff\n  BREFT effect/volsmk/rk_volsmk.breft\n  BREFF effect/wanwan/rk_wanwan.breff\n  BREFT effect/wanwan/rk_wanwan.breft\n  BREFF effect/woodbox/rk_woodbox.breff\n  BREFT effect/woodbox/rk_woodbox.breft\n  BRRES escalator.brres\n  KCL   escalator.kcl\n  BRRES fks_screen_wii.brres\n  BRRES gardentreeDS.brres\n  BRRES group_enemy_a.brres\n  BRRES group_enemy_a_demo.brres\n  BRRES group_enemy_b.brres\n  BRRES group_enemy_c.brres\n  BRRES group_enemy_e.brres\n  BRRES group_enemy_f.brres\n  BRRES group_monte_a.brres\n  BRRES group_monte_a_demo.brres\n  BRRES hanachan.brres\n  BRRES heyho.brres\n  BRRES heyho2.brres\n  BRRES honeBall.brres\n  BRRES ice.brres\n  BRRES itembox.brres\n  BRRES karehayama.brres\n  BRRES kinoko.brres\n  BRRES kinokoT1.brres\n  KCL   kinoko_d_g.kcl\n  KCL   kinoko_d_r.kcl\n  KCL   kinoko_g.kcl\n  KCL   kinoko_r.kcl\n  BRRES koopaBall.brres\n  BRRES koopaFigure.brres\n  BRRES koopaFirebar.brres\n  BRRES kuribo.brres\n  BRRES light_house.brres\n  BRRES mare_a.brres\n  BRRES mare_b.brres\n  BRRES mariotreeGC.brres\n  BRRES mii_balloon.brres\n  BRRES miiposter.brres\n  BRRES monte_a.brres\n  BRRES moray.brres\n  BRRES obakeblockSFC.brres\n  BRRES oilSFC.brres\n  BRRES pakkun_dokan.brres\n  BRRES pakkun_f.brres\n  BRRES parasol.brres\n  BRRES peachtreeGC.brres\n  BRRES penguin_l.brres\n  BRRES penguin_m.brres\n  BRRES penguin_s.brres\n  BRRES pocha.brres\n  BRRES pochaYogan.brres\n  BRRES poihana.brres\n  ?     posteffect/posteffect.blobj\n  ?     posteffect/posteffect.bltex\n  ?     posteffect/posteffect.bti\n  ?     posteffect/posteffect2.bblm\n  ?     posteffect/posteffect2.blight\n  ?     posteffect/posteffect2.blmap\n  ?     posteffect/posteffect2.blobj\n  ?     posteffect/posteffect3.bblm\n  BRRES puchi_pakkun.brres\n  BRRES pukupuku.brres\n  BRRES pylon01.brres\n  BRRES quicksand.brres\n  BRRES r_parasol.brres\n  BRRES ridgemii00.brres\n  KCL   ring_mission_b.kcl\n  BRRES sanbo.brres\n  BRRES seagull.brres\n  BRRES skyship.brres\n  BRRES spot.brres\n  BRRES starGate.brres\n  KCL   starGate.kcl\n  BRRES sun.brres\n  BRRES sunDS.brres\n  BRRES tree_cannon.brres\n  BRRES truckChimSmk.brres\n  BRRES truckChimSmkW.brres\n  BRRES venice_hasi.brres\n  KCL   venice_hasi.kcl\n  KCL   venice_hasi_b.kcl\n  KCL   venice_hasi_wall.kcl\n  BRRES venice_nami.brres\n  BRRES venice_saku.brres\n  KCL   venice_saku.kcl\n  BRRES wanwan.brres\n  BRRES windmill.brres\n  BRRES woodbox.brres\n  => 477 of 496 files missed.\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd verify missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "--dest",
+   "nolib",
+   "-vv"
+  ],
+  "exit_code": 84,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #84 [CAN'T CREATE DIRECTORY]\n!!        Directory does not exist: nolib\nwszst: Command 'AUTOADD' returns with status #84 [CAN'T CREATE DIRECTORY]\n",
+  "files": {}
+ },
+ {
+  "case": "autoadd build",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "Course",
+   "--DEST",
+   "newlib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\nANALYZE YAZ0.U8:Course/beginner_course.szs\n  ADD    3776, BRRES:newlib/itembox.brres\n",
+  "stderr": "",
+  "files": {
+   "newlib/itembox.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "autoadd build again",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "Course",
+   "--dest",
+   "newlib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\nANALYZE YAZ0.U8:Course/beginner_course.szs\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd build empty source",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "empty",
+   "--DEST",
+   "newlib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd build missing source",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "NoSuch",
+   "--DEST",
+   "newlib"
+  ],
+  "exit_code": 78,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\nANALYZE ?:\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: NoSuch\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "autoadd build missing dest",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "Course",
+   "--dest",
+   "nolib/x"
+  ],
+  "exit_code": 84,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #84 [CAN'T CREATE DIRECTORY]\n!!        Directory does not exist: nolib/x\n",
+  "files": {}
+ },
+ {
+  "case": "create auto-add",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "a.szs",
+   "--auto-add",
+   "--autoadd-path",
+   "lib"
+  ],
+  "exit_code": 0,
+  "stdout": "  >> auto-add [3776] lib/itembox.brres\nCREATE stage/ -> YAZ0.U8:a.szs\n",
+  "stderr": "",
+  "files": {
+   "a.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create auto-add empty library",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "a.szs",
+   "--auto-add",
+   "--autoadd-path",
+   "empty"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:a.szs\n",
+  "stderr": "",
+  "files": {
+   "a.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
  }
 ]

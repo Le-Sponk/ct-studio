@@ -56,13 +56,37 @@ class WiimmCheckError(WiimmError):
 
 
 class AutoAddUnavailable(CTStudioError):
-    """Auto-add was requested, but no library has been proven usable (P2-T05d)."""
+    """Auto-add was requested with a library that was not proven usable."""
 
-    def __init__(self) -> None:
+    def __init__(self, reason: str) -> None:
         super().__init__(
-            "Wiimm auto-add is not available: no auto-add library has been verified.",
-            hint="Build without auto-add, or set up and verify an auto-add library first.",
+            f"Wiimm auto-add is not available: {reason}",
+            hint="Build without auto-add, or rebuild the library from your own game files.",
         )
+
+
+@dataclass(frozen=True)
+class AutoAddLibrary:
+    """What ``wszst autoadd --dest PATH -vv`` reported for a library folder.
+
+    Entries are ``"<TYPE> <name>"``. Wiimm checks each file against its own list of the
+    original files, so ``found`` with no ``invalid`` is evidence of real, usable content;
+    exit 0, the folder existing or the search-path list are not. It is a snapshot: verify
+    right before building.
+    """
+
+    path: Path
+    found: tuple[str, ...]
+    missed: tuple[str, ...]
+    invalid: tuple[str, ...]
+
+    def unusable_reason(self) -> str | None:
+        if self.invalid:
+            shown = ", ".join(entry.split(" ", 1)[-1] for entry in self.invalid[:3])
+            return f"{len(self.invalid)} file(s) in {self.path} are not the originals: {shown}"
+        if not self.found:
+            return f"none of the auto-add files are in {self.path}"
+        return None
 
 
 @dataclass(frozen=True)
@@ -174,7 +198,7 @@ def create_szs(
     dest: Path,
     *,
     compression: Compression = "best",
-    auto_add: bool = False,
+    auto_add: AutoAddLibrary | None = None,
     overwrite: bool = False,
     executable: Path | None = None,
     timeout: float = 300,
@@ -184,15 +208,18 @@ def create_szs(
 
     Wiimm exits 0 when the destination exists or its folder is missing (``ERROR #64``/
     ``#82`` on stderr), and ``create`` does not validate: run ``check`` afterwards.
-    ``auto_add`` is refused until an auto-add library can be verified (P2-T05d), because
-    wszst silently ignores ``--auto-add`` without one.
+    ``auto_add`` takes a library verified by ``wiimm_autoadd.autoadd_verify``; one with no
+    original files or any invalid file is refused before wszst runs, because wszst
+    silently builds without the missing objects.
     """
-    if auto_add:
-        raise AutoAddUnavailable
+    if auto_add is not None and (reason := auto_add.unusable_reason()) is not None:
+        raise AutoAddUnavailable(reason)
     stage, dest = Path(stage).resolve(), Path(dest).resolve()
     args = ["create", stage.name, "--dest", str(dest), *_COMPRESSION_FLAGS[compression]]
     if overwrite:
         args.append("--overwrite")
+    if auto_add is not None:
+        args += ["--auto-add", "--autoadd-path", str(auto_add.path)]
     before = dest.stat().st_mtime_ns if dest.exists() else None
     out = invoke(executable, args, stage.parent, timeout, cancel)
     raise_on_error(out, stage, (0,))

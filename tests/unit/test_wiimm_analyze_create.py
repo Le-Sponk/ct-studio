@@ -134,11 +134,12 @@ def test_create_missing_stage_raises(fake_tools_path, tmp_path: Path) -> None:
     assert (caught.value.error_code, caught.value.exit_code) == (78, 78)
 
 
-def test_create_auto_add_is_refused_before_running(fake_tools_path, tmp_path: Path) -> None:
-    from ctstudio.core.tools.wiimm import AutoAddUnavailable, create_szs
+def test_create_auto_add_without_found_files_is_refused(fake_tools_path, tmp_path: Path) -> None:
+    from ctstudio.core.tools.wiimm import AutoAddLibrary, AutoAddUnavailable, create_szs
 
-    with pytest.raises(AutoAddUnavailable, match="auto-add"):
-        create_szs(_stage(tmp_path), tmp_path / "out.szs", auto_add=True)
+    empty = AutoAddLibrary(tmp_path, found=(), missed=("BRRES a.brres",), invalid=())
+    with pytest.raises(AutoAddUnavailable, match="none of the auto-add files"):
+        create_szs(_stage(tmp_path), tmp_path / "out.szs", auto_add=empty)
     assert fake_tools_path.calls() == []
 
 

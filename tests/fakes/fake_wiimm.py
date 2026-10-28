@@ -38,6 +38,7 @@ ERROR_NAMES = {
     64: "FILE ALREADY EXISTS",
     78: "CAN'T OPEN FILE",
     82: "CAN'T CREATE FILE",
+    84: "CAN'T CREATE DIRECTORY",
 }
 NO_SUCH_FILE = "-> No such file or directory [2]"
 
@@ -384,6 +385,13 @@ def main(tool: str, argv: list[str]) -> int:
         parsed = wiimm_cli.parse(tool, VERSION, argv)
         if parsed.command in ("VERSION", "HELP"):
             return replay(tool, parsed)
+        if tool == "wszst" and {"AUTOADD", "--auto-add", "--autoadd-path"} & {
+            parsed.command,
+            *parsed.options,
+        }:
+            import fake_wiimm_autoadd  # recorded synthetic auto-add only (P2-T05d)
+
+            return fake_wiimm_autoadd.dispatch(tool, parsed)
         command = COMMANDS.get((tool, parsed.command))
         if command is None:
             raise Unmodelled(f"{tool} {parsed.command}")
