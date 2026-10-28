@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from ctstudio.core.tools.process import RunResult
+from ctstudio.core.tools.staging import ToolRun
 
 INPUTS = (
     Path(__file__).resolve().parents[1] / "fakes" / "recordings" / "rszst" / "5.11.5" / "inputs"
@@ -214,15 +214,13 @@ def test_exit_minus_one_and_silent_no_output_are_failures(
 ) -> None:
     from ctstudio.core.tools import riistudio
 
-    def fake_run(argv, *, cwd: Path, **_: object) -> RunResult:
+    def fake_run(cmd: object, cwd: Path, **_: object) -> ToolRun:
+        del cmd
         if write:
             (cwd / "out.brres").write_bytes(b"bres")
-        del argv
-        return RunResult(
-            exit_code=exit_code, duration=0.0, stdout_tail="", stderr_tail="", log_path=None
-        )
+        return ToolRun(exit_code, "", "")
 
-    monkeypatch.setattr(riistudio, "run", fake_run)
+    monkeypatch.setattr(riistudio, "run_collecting", fake_run)
     with pytest.raises(riistudio.RiiStudioError) as caught:
         riistudio.import_brres(
             _project(tmp_path), tmp_path / "o.brres", model_name="course", executable=tmp_path / "x"

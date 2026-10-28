@@ -10,6 +10,13 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05e2` — ABMatt conversion adapter. (1) Record adapter argv shapes from the self-made
+  fixtures (convert, info on its output, minimap info, missing texture, `textures/`
+  folder) in new `scripts/abmatt_adapter_cases.py`. (2) RED tests for new
+  `core/tools/abmatt.py`: staging (shared `staging.py`/`collada.py` extracted from
+  `riistudio.py`), wimgt on PATH or ToolNotFound, texture refs beside the DAE, exit-0
+  diagnostics treated as failure, MDL0 name checked via the info parser. (3) Fake rows.
+  (4) Real Windows integration in a `日本` folder. (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -379,6 +386,10 @@
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-29 (P2-T05e2): split into P2-T05e2 (ABMatt conversion + info parser) and
+  P2-T05e3 (material edits + copy). Probes found unanchored regex selectors, silent
+  texture loss and silently ignored keys (`drawpriority` not shown by info), each needing
+  its own recordings and guards.
 - 2026-10-29 (P2-T05e): split into P2-T05e (rszst adapter) and P2-T05e2 (ABMatt
   adapter). Probes found new rszst failure modes (any non-ASCII argv, missing textures at
   exit 0) that need their own recordings; both tools together exceed one session.
@@ -649,6 +660,11 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
   recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
+- **P2-T05e2 ABMatt conversion adapter evidence is Windows-only.** The CJK print crash,
+  texture-loss texts and staging names are measured on the Windows 1.3.2 binary only (its
+  banner says 1.3.2, the Linux build 1.3.1). Closing it: record `ABMATT_ADAPTER_CASES`
+  on Linux and run `tests/integration/test_abmatt_adapter_native.py` there with the
+  skip lifted.
 - **P2-T05e rszst adapter evidence is Windows-only.** The ASCII staging, texture and
   preset refusals are proven against the Windows build (non-ASCII argv mangled through the
   ANSI code page; missing textures replaced by a 32x32 placeholder at exit 0). The Linux

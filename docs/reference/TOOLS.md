@@ -275,7 +275,7 @@ a non-ASCII path, because the failure is invisible.
   the Blender add-on's minimap export uses ABMatt **[doc: add-on README]**.
 
 - **Windows operation recordings and stand-in (P2-T04d, ABMatt 1.3.2):**
-  [26 real invocations](../../tests/fakes/recordings/abmatt/1.3.2/windows-ops.json) use
+  [31 real invocations](../../tests/fakes/recordings/abmatt/1.3.2/windows-ops.json) use
   the byte-exact four-texture DAE and a [minimal OBJ](../../tests/fakes/recordings/abmatt/1.3.2/inputs/map.obj)
   verified to convert to `map_model.brres`. `scripts/record_tool_outputs.py --only abmatt`
   regenerates them with `wimgt` on PATH except one intentionally missing-wimgt case.
@@ -298,6 +298,23 @@ a non-ASCII path, because the failure is invisible.
   normal conversion; the rszst fake refuses both. Other unrecorded argv/input states
   exit 121 without writes. No Linux ABMatt operation recording or Linux-specific help
   capture exists, so Ubuntu fake CI is not real-tool parity.
+- **Conversion adapter (P2-T05e2, verified 1.3.2 Windows 11):**
+  `ctstudio.core.tools.abmatt.convert_model` stages `<model>.dae` (plus the textures it
+  names) → `out.brres` in a private `ctstudio-abmatt-*` folder, so the MDL0 name comes from
+  `model_name` (ASCII letters/digits; ABMatt cuts at `_`) and never from the user's file
+  name; `convert_minimap` stages `map.obj` → `map_model.brres` so the bones are made
+  (verified by `wiimm_kcl.minimap_auto` in the native test). Both put the pinned `wimgt`
+  first on PATH, then run `-b out.brres -c info` on the result; `parse_info` must read
+  every line and the model name must match. Measured silent losses the adapter turns
+  into `AbmattError`: a texture absent beside the DAE (`WARN: Failed to find image`, grey
+  solid colour, exit 0) or only in `textures/` (ABMatt does not look there, unlike rszst;
+  `No texture matching`, exit 0), and `ERROR:` lines at exit 0. Texture references must be
+  plain ASCII names beside the DAE and are checked before running. In a CJK folder the
+  run still writes then crashes printing the path (exit 0); the adapter judges the staged
+  output and the info report, not the log. Further measured: selectors are unanchored
+  regex searches (`for oad` edits `road`; `^oad$` fails "No items found", exit 1) and
+  `drawpriority` is accepted but not shown by `-c info` (for P2-T05e3).
+  Adapter rows: [`scripts/abmatt_adapter_cases.py`](../../scripts/abmatt_adapter_cases.py).
 
 ## Blender + Blender-MKW-Utilities
 - Add-on: https://github.com/Le-Sponk/Blender-MKW-Utilities (fork of Gabriela-Orzechowska's), GPL-2.0-or-later,

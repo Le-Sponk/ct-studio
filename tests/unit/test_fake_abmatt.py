@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -29,7 +30,7 @@ from ctstudio.core.tools.versions import VersionCache, probe_versions
 pytestmark = pytest.mark.timeout(60)
 VERSION = tc.ALL_TOOLS["abmatt"].version
 FOLDER = rth.RECORDINGS / "abmatt" / VERSION
-CASES = {case.name: case for case in rto.ABMATT_CASES}
+CASES = {case.name: case for case in rto.TOOLSETS["abmatt"][1]}
 OS_NAME = "windows" if os.name == "nt" else "linux"
 
 
@@ -150,6 +151,34 @@ def test_without_wimgt_brres_cannot_masquerade_as_textured(fake_tools_path, tmp_
     assert archives["convert dae"] != archives["convert without wimgt"]
     assert b"NO-TEXTURES" in archives["convert without wimgt"]
     assert b"NO-TEXTURES" not in archives["convert dae"]
+
+
+@pytest.mark.parametrize(
+    "name", ["adapter convert missing texture", "adapter convert textures folder"]
+)
+def test_texture_loss_runs_write_the_no_textures_stand_in(
+    name: str, fake_tools_path, tmp_path: Path
+) -> None:
+    row = next(item for item in records() if item["case"] == name)
+    rto.prepare(CASES[name], tmp_path, fake_tools_path.resolve, stand_ins(row, FOLDER / "inputs"))
+    result = rth.capture(
+        fake_tools_path.resolve("abmatt"), CASES[name].argv[1:], cwd=tmp_path, roots={}
+    )
+    assert result["exit_code"] == 0
+    assert b"NO-TEXTURES" in (tmp_path / "out.brres").read_bytes()
+
+
+def test_a_partly_moved_texture_layout_is_unrecorded(fake_tools_path, tmp_path: Path) -> None:
+    """Recorded: all four textures in textures/. One left beside the DAE was never run."""
+    name = "adapter convert textures folder"
+    row = next(item for item in records() if item["case"] == name)
+    rto.prepare(CASES[name], tmp_path, fake_tools_path.resolve, stand_ins(row, FOLDER / "inputs"))
+    shutil.copyfile(tmp_path / "textures" / "road.png", tmp_path / "road.png")
+    result = rth.capture(
+        fake_tools_path.resolve("abmatt"), CASES[name].argv[1:], cwd=tmp_path, roots={}
+    )
+    assert result["exit_code"] == UNMODELLED_EXIT
+    assert not (tmp_path / "out.brres").exists()
 
 
 def test_fake_raw_help_line_endings_are_platform_appropriate(

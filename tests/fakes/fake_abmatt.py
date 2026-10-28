@@ -21,6 +21,23 @@ ROWS: list[dict[str, Any]] = recordings("abmatt", VERSION, "ops")
 [HELP] = recordings("abmatt", VERSION, "help")
 MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT\n"
 NO_TEXTURES_MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT-NO-TEXTURES\n"
+MAP_MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT-MAP\n"
+# Rows whose real output lost textures; the stand-in must never pass for a textured model.
+TEXTURE_LOSS = {
+    "convert without wimgt",
+    "adapter convert missing texture",
+    "adapter convert textures folder",
+}
+# P2-T05e2 adapter rows: ``-c info`` on an archive only from the matching conversion.
+INFO_SOURCES = {
+    "adapter info": ("out.brres", MARKER),
+    "adapter minimap info": ("map_model.brres", MAP_MARKER),
+}
+# Adapter rows that moved textures out of the DAE's folder: case -> (folder, textures).
+MOVED = {
+    "adapter convert missing texture": ("unused", ("fence",)),
+    "adapter convert textures folder": ("textures", ("road", "grass", "fence", "water")),
+}
 COMMANDS = {
     "set.txt": b"set material xlu:true for road\n",
     "bad.txt": b"frobnicate everything\n",
@@ -32,14 +49,6 @@ COMMANDS = {
 
 def _exact(path: Path, data: bytes) -> bool:
     return path.is_file() and path.read_bytes() == data
-
-
-def _fixtures(row: dict[str, Any]) -> bool:
-    for name in row["inputs"]:
-        reference = FOLDER / "inputs" / name
-        if not _exact(Path(name), reference.read_bytes()):
-            return False
-    return True
 
 
 def _wimgt_matches(name: str) -> bool:
@@ -92,10 +101,36 @@ def _brres_state(name: str) -> bool:
     return name != "command file missing" or not Path("missing.txt").exists()
 
 
+def _texture(path: Path, name: str) -> bool:
+    return _exact(path, (FOLDER / "inputs" / name).read_bytes())
+
+
+def _adapter_state(name: str) -> bool:
+    """Staged adapter layouts: textures moved away, or info on a known conversion."""
+    if name in INFO_SOURCES:
+        archive, marker = INFO_SOURCES[name]
+        return _exact(Path(archive), marker)
+    folder, gone = MOVED.get(name, ("", ()))
+    return not any(Path(f"{t}.png").exists() for t in gone) and all(
+        _texture(Path(folder) / f"{t}.png", f"{t}.png") for t in gone
+    )
+
+
+def _fixtures_for(row: dict[str, Any]) -> bool:
+    """Every recorded input beside the command, except textures the case moved away."""
+    name = str(row["case"])
+    if name in INFO_SOURCES:
+        return True  # the conversion that made the archive already checked its inputs
+    moved = {f"{t}.png" for t in MOVED.get(name, ("", ()))[1]}
+    return all(_texture(Path(item), item) for item in row["inputs"] if item not in moved)
+
+
 def _state(row: dict[str, Any]) -> bool:
     name = str(row["case"])
-    if row["compare"] == "unmodelled" or not _fixtures(row) or not _wimgt_matches(name):
+    if row["compare"] == "unmodelled" or not _fixtures_for(row) or not _wimgt_matches(name):
         return False
+    if name.startswith("adapter"):
+        return _adapter_state(name) and (name in INFO_SOURCES or _convert_state(name, row))
     if name.startswith("convert"):
         return _convert_state(name, row)
     if name.startswith("info") or name in {
@@ -110,6 +145,13 @@ def _state(row: dict[str, Any]) -> bool:
     return True
 
 
+def _marker(row: dict[str, Any]) -> bytes:
+    """Texture-loss and minimap stand-ins differ, so neither passes as a textured model."""
+    if row["case"] in TEXTURE_LOSS:
+        return NO_TEXTURES_MARKER
+    return MAP_MARKER if row["argv"][1:2] == ["map.obj"] else MARKER
+
+
 def _outcome(row: dict[str, Any]) -> Outcome:
     code = int(row["exit_code"])
     if code == 4294967295:
@@ -120,7 +162,7 @@ def _outcome(row: dict[str, Any]) -> Outcome:
         stderr=str(row["stderr"]).replace("<work>", str(Path.cwd())),
         newline="\r\n" if os.name == "nt" else "\n",
     )
-    marker = NO_TEXTURES_MARKER if row["case"] == "convert without wimgt" else MARKER
+    marker = _marker(row)
     for name, effect in row["files"].items():
         if effect["effect"] not in {"created", "changed"} or effect["magic"] != "62726573":
             raise Unmodelled(f"{name}: output format not modelled")

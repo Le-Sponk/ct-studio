@@ -178,12 +178,21 @@ wrote nothing, and refuse DAEs whose referenced textures are absent (exit 0 with
 placeholder texture). **Acceptance:** recorded/fake parsers and real fixture integration on
 Windows, Ubuntu fake CI.
 
-### [ ] P2-T05e2 — ABMatt adapter
-Expose `convert` (DAE/OBJ → BRRES, minimap bones checked downstream), command-file edits
-and material copy. ABMatt may crash after writing its output (CJK path,
-UnicodeEncodeError, exit 0) and prints "ERROR:" at exit 0; success requires a new output
-file with `bres` magic. **Acceptance:** recorded/fake parsers and real fixture integration
-on Windows, Ubuntu fake CI.
+### [ ] P2-T05e2 — ABMatt conversion adapter
+Expose `convert_model` (DAE → BRRES, MDL0 name from the staged DAE stem, checked with
+`-c info`), `convert_minimap` (OBJ → `map_model.brres`; bones are checked downstream by
+the P2-T05c2 minimap adapter) and the `-c info` material parser. ABMatt may crash after
+writing its output (CJK path, UnicodeEncodeError, exit 0) and reports missing textures or
+wimgt only as text at exit 0; success requires a new `bres` output, no such diagnostics
+and a matching info report. **Acceptance:** recorded/fake parsers and real fixture
+integration on Windows, Ubuntu fake CI.
+
+### [ ] P2-T05e3 — ABMatt material edit and copy adapter
+Command-file `set material` edits with anchored, escaped selectors (ABMatt selectors are
+unanchored regex searches: `for oad` edits `road`) and checked keys/values, plus
+copy/paste between archives reporting the textures paste autofix removed. Verify edits
+through `-c info` where it shows them (xlu, cull). **Acceptance:** recorded/fake parsers
+and real fixture integration on Windows, Ubuntu fake CI.
 
 ### [ ] P2-T05f — Blender script adapter
 `blender.py:run_script(blend, script, args, timeout)` uses a nonzero

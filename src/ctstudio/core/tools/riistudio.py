@@ -18,24 +18,23 @@ from __future__ import annotations
 
 import re
 import shutil
-import tempfile
-from collections import deque
-from collections.abc import Generator
-from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
 
-from ctstudio.core.errors import CTStudioError, ToolNotFound
-from ctstudio.core.fsutil import replace_with_backup
-from ctstudio.core.tools.discovery import discover
-from ctstudio.core.tools.process import CancelToken, Stream, run
-from ctstudio.core.tools.registry import TOOL_BY_ID
+from ctstudio.core.errors import CTStudioError
+from ctstudio.core.tools.process import CancelToken
+from ctstudio.core.tools.staging import (
+    collada_images,
+    deliver,
+    executable_for,
+    occupied,
+    run_collecting,
+    stage,
+)
 
 BRRES_MAGIC = b"bres"
 BIN_MAGIC = b"RBUF"
 MODEL_NAME = re.compile(r"^[A-Za-z0-9_]{1,64}$")
-# Only <image> sources name files; <surface><init_from> names an image id.
-_IMAGE_FILE = re.compile(rb"<image\b[^>]*>\s*<init_from>\s*([^<]*?)\s*</init_from>")
-_DETAIL_LINES = 80
+_HINT = "Configure RiiStudio or bootstrap the pinned tools."
 
 
 class RiiStudioError(CTStudioError):
@@ -53,50 +52,22 @@ class RiiStudioError(CTStudioError):
         )
 
 
-def executable_for(configured: Path | None) -> Path:
-    """The configured rszst, else the discovered (including dev) one."""
-    if configured is not None:
-        return configured.resolve()
-    location = discover(TOOL_BY_ID["rszst"], include_dev=True)
-    if location is None:
-        raise ToolNotFound("rszst", hint="Configure RiiStudio or bootstrap the pinned tools.")
-    return location.path
-
-
-@contextmanager
-def _stage() -> Generator[Path]:
-    with tempfile.TemporaryDirectory(prefix="ctstudio-rszst-") as folder:
-        yield Path(folder)
-
-
 def _run(
     source: Path,
     args: list[str],
-    stage: Path,
+    work: Path,
     executable: Path | None,
     timeout: float,
     cancel: CancelToken | None,
 ) -> None:
-    lines: dict[Stream, deque[str]] = {
-        "stdout": deque(maxlen=_DETAIL_LINES),
-        "stderr": deque(maxlen=_DETAIL_LINES),
-    }
-
-    def collect(stream: Stream, line: str) -> None:
-        lines[stream].append(line)
-
-    result = run(
-        [executable_for(executable), *args],
-        cwd=stage,
-        timeout=timeout,
-        cancel=cancel,
-        on_line=collect,
-        check=False,
-    )
+    exe = executable_for("rszst", executable, _HINT)
+    result = run_collecting([exe, *args], work, timeout=timeout, cancel=cancel)
     if result.exit_code != 0:
-        details = "\n".join([*lines["stderr"], *lines["stdout"]])
         raise RiiStudioError(
-            source, f"rszst exited {result.exit_code}", exit_code=result.exit_code, details=details
+            source,
+            f"rszst exited {result.exit_code}",
+            exit_code=result.exit_code,
+            details=result.details,
         )
 
 
@@ -108,17 +79,8 @@ def _output(source: Path, path: Path, magic: bytes) -> bytes:
 
 
 def _free(source: Path, *destinations: Path, overwrite: bool) -> None:
-    for destination in destinations:
-        if destination.exists() and not overwrite:
-            raise RiiStudioError(
-                source, f"{destination} already exists (choose overwrite to replace it)"
-            )
-
-
-def _deliver(destination: Path, data: bytes) -> Path:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    replace_with_backup(destination, data)
-    return destination
+    if (taken := occupied(destinations, overwrite=overwrite)) is not None:
+        raise RiiStudioError(source, f"{taken} already exists (choose overwrite to replace it)")
 
 
 def _texture(dae: Path, reference: str) -> tuple[str, Path]:
@@ -135,15 +97,14 @@ def _texture(dae: Path, reference: str) -> tuple[str, Path]:
 
 
 def _dae_textures(dae: Path) -> dict[str, Path]:
-    data = dae.read_bytes() if dae.is_file() else b""
-    if b"<COLLADA" not in data[:4096]:
+    references = collada_images(dae.read_bytes() if dae.is_file() else b"")
+    if references is None:
         raise RiiStudioError(dae, "not a COLLADA (.dae) model file")
-    references = {match.decode("utf-8", "replace") for match in _IMAGE_FILE.findall(data)}
-    return dict(_texture(dae, reference) for reference in sorted(references))
+    return dict(_texture(dae, reference) for reference in references)
 
 
-def _copy_into(stage: Path, relative: str, source: Path) -> None:
-    target = stage / relative
+def _copy_into(work: Path, relative: str, source: Path) -> None:
+    target = work / relative
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, target)
 
@@ -174,15 +135,15 @@ def import_brres(
     args = ["import-brres", "model.dae", "out.brres", "--model-name", model_name]
     if min_mip is not None:
         args += ["--mipmaps", "--min-mip", str(min_mip)]
-    with _stage() as stage:
-        shutil.copyfile(dae, stage / "model.dae")
+    with stage("rszst") as work:
+        shutil.copyfile(dae, work / "model.dae")
         for relative, source in textures.items():
-            _copy_into(stage, relative, source)
+            _copy_into(work, relative, source)
         if presets is not None:
-            shutil.copytree(presets, stage / "presets")
+            shutil.copytree(presets, work / "presets")
             args += ["--preset-path", "presets"]
-        _run(dae, args, stage, executable, timeout, cancel)
-        return _deliver(destination, _output(dae, stage / "out.brres", BRRES_MAGIC))
+        _run(dae, args, work, executable, timeout, cancel)
+        return deliver(destination, _output(dae, work / "out.brres", BRRES_MAGIC))
 
 
 def brres_to_json(
@@ -200,12 +161,12 @@ def brres_to_json(
         raise RiiStudioError(brres, f"{destination.name} must end in .json")
     sidecar = destination.with_suffix(".bin")
     _free(brres, destination, sidecar, overwrite=overwrite)
-    with _stage() as stage:
-        shutil.copyfile(brres, stage / "in.brres")
-        _run(brres, ["brres-to-json", "in.brres", "out.json"], stage, executable, timeout, cancel)
-        json_data = _output(brres, stage / "out.json", b"{")
-        bin_data = _output(brres, stage / "out.bin", BIN_MAGIC)
-        return _deliver(destination, json_data), _deliver(sidecar, bin_data)
+    with stage("rszst") as work:
+        shutil.copyfile(brres, work / "in.brres")
+        _run(brres, ["brres-to-json", "in.brres", "out.json"], work, executable, timeout, cancel)
+        json_data = _output(brres, work / "out.json", b"{")
+        bin_data = _output(brres, work / "out.bin", BIN_MAGIC)
+        return deliver(destination, json_data), deliver(sidecar, bin_data)
 
 
 def json_to_brres(
@@ -223,13 +184,18 @@ def json_to_brres(
     if not sidecar.is_file():
         raise RiiStudioError(json_path, f"its data file {sidecar.name} is missing")
     _free(json_path, destination, overwrite=overwrite)
-    with _stage() as stage:
-        shutil.copyfile(json_path, stage / "in.json")
-        shutil.copyfile(sidecar, stage / "in.bin")
+    with stage("rszst") as work:
+        shutil.copyfile(json_path, work / "in.json")
+        shutil.copyfile(sidecar, work / "in.bin")
         _run(
-            json_path, ["json-to-brres", "in.json", "out.brres"], stage, executable, timeout, cancel
+            json_path,
+            ["json-to-brres", "in.json", "out.brres"],
+            work,
+            executable,
+            timeout,
+            cancel,
         )
-        return _deliver(destination, _output(json_path, stage / "out.brres", BRRES_MAGIC))
+        return deliver(destination, _output(json_path, work / "out.brres", BRRES_MAGIC))
 
 
 def dump_presets(
@@ -243,12 +209,12 @@ def dump_presets(
 ) -> list[Path]:
     """Write one ``.rspreset`` per material into ``folder``; other files are left alone."""
     brres, folder = Path(brres).resolve(), Path(folder).resolve()
-    with _stage() as stage:
-        shutil.copyfile(brres, stage / "in.brres")
-        _run(brres, ["dump-presets", "in.brres", "presets"], stage, executable, timeout, cancel)
-        produced = sorted((stage / "presets").glob("*.rspreset"))
+    with stage("rszst") as work:
+        shutil.copyfile(brres, work / "in.brres")
+        _run(brres, ["dump-presets", "in.brres", "presets"], work, executable, timeout, cancel)
+        produced = sorted((work / "presets").glob("*.rspreset"))
         if not produced:
             raise RiiStudioError(brres, "rszst exited 0 but wrote no presets", exit_code=0)
         data = {path.name: _output(brres, path, BRRES_MAGIC) for path in produced}
         _free(brres, *(folder / name for name in data), overwrite=overwrite)
-        return [_deliver(folder / name, payload) for name, payload in data.items()]
+        return [deliver(folder / name, payload) for name, payload in data.items()]
