@@ -140,7 +140,7 @@ on `ERROR #` even at exit 0, and on nonzero failures that are not normal `DIFFER
 invocation through the runner, real fixture archive and directory integration checks on
 Windows; Ubuntu CI checks the fake contract, not native Linux Wiimm diagnostics.
 
-### [ ] P2-T05b — Wiimm `analyze` and basic SZS creation
+### [x] P2-T05b — Wiimm `analyze` and basic SZS creation (commit aaeae81)
 `analyze(szs) -> dict` uses verified `wszst analyze --json`, preferred to `slots()` for
 status. `create_szs(stage, dest, compression, auto_add, extra)` uses recorded flags;
 check both file output and diagnostics (Wiimm can exit 0 without writing). Reject

@@ -4,28 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05b — Wiimm `analyze` and basic SZS creation
+**Next task:** P2-T05c — Wiimm KCL/KMP/image/minimap operations
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 1ec0ddd (P2-T05a Windows gate and Ubuntu/Windows CI
-[run 40669729269](https://github.com/Le-Sponk/ct-studio/actions/runs/40669729269))
+**Last green commit:** aaeae81 (P2-T05b Windows gate and Ubuntu/Windows CI
+[run 40674591849](https://github.com/Le-Sponk/ct-studio/actions/runs/40674591849))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05b` — (1) Record real `wszst analyze --json` on compressed/plain/empty archives,
-  a stage directory, junk (exit 0, `valid:0`) and missing (78); scrub `duration_usec`.
-  (2) RED tests: `analyze()` returns the parsed object and raises a typed error on
-  `valid != 1`, `ERROR #` or non-JSON; `create_szs()` maps compression to recorded flags,
-  rejects `auto_add=True` and unknown `extra`, and fails when Wiimm exits 0 with
-  `ERROR #64/#82` or writes no YAZ0/U8 file. (3) Extend the fake only for recorded
-  analyze rows (refuse others). (4) Mutations, Linux pyright, xenon, full/broad/real
-  integration, docs, commit/push, both CI OSes. Files: `core/tools/wiimm.py`, recorder
-  case table, `fake_wiimm.py`, tests, TOOLS.md, phase file, STATUS. Risk: the fake
-  must not invent analysis JSON for unrecorded inputs.
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05b` — `wiimm.analyze()` returns Wiimm's JSON analysis and fails on unsupported
+  files even though Wiimm exits 0 for them; `create_szs()` builds an SZS with best/fast/no
+  compression, fails on Wiimm's exit-0 "file exists"/"no folder" errors and checks the
+  written file; auto-add is refused until P2-T05d. Gate 519 passed / 3 skipped; broad 599;
+  7 real Windows integration; 12/12 + 11/11 mutations; Ubuntu/Windows CI run 40674591849
+  green. Linux Wiimm output gap recorded — commit aaeae81
 - `P2-T05a` — first adapter: `wiimm.check(szs|dir)` returns typed Issues from Wiimm's
   text report, raises on `ERROR #` even at exit 0 and on unexpected exits, checks the
   summary against parsed findings, and refuses the fake's prefix-only output as
