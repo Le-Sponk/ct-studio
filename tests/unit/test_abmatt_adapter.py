@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from ctstudio.core.tools import abmatt, staging
 from ctstudio.core.tools.staging import ToolRun
 
 INPUTS = (
@@ -215,6 +216,21 @@ def _scripted(
         return ToolRun(code, stdout, stderr)
 
     monkeypatch.setattr(abmatt, "run_collecting", fake_run)
+    # CI has no installed tools: nothing here may depend on discovering one.
+    monkeypatch.setattr(staging, "discover", lambda *_a, **_k: None)
+
+
+def test_missing_wimgt_is_reported_before_running(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from ctstudio.core.errors import ToolNotFound
+
+    _scripted(monkeypatch, [])
+    with pytest.raises(ToolNotFound, match="wimgt"):
+        abmatt.convert_model(
+            _project(tmp_path), tmp_path / "o.brres", model_name="course", executable=tmp_path / "x"
+        )
+    assert not (tmp_path / "o.brres").exists()
 
 
 @pytest.mark.parametrize(
@@ -267,7 +283,11 @@ def test_conversion_failures_are_typed_and_deliver_nothing(
     _scripted(monkeypatch, [convert, (0, INFO, "", None)])
     with pytest.raises(AbmattError, match=reason) as caught:
         convert_model(
-            _project(tmp_path), tmp_path / "o.brres", model_name="course", executable=tmp_path / "x"
+            _project(tmp_path),
+            tmp_path / "o.brres",
+            model_name="course",
+            executable=tmp_path / "x",
+            wimgt=tmp_path / "w.exe",
         )
     assert caught.value.details and not (tmp_path / "o.brres").exists()
 
@@ -283,7 +303,11 @@ def test_cjk_print_crash_after_writing_is_accepted_only_with_a_valid_output(
         monkeypatch, [(0, "Converting .\\course.dae... \n", crash, b"bres"), (0, INFO, "", None)]
     )
     result = convert_model(
-        _project(tmp_path), tmp_path / "o.brres", model_name="course", executable=tmp_path / "x"
+        _project(tmp_path),
+        tmp_path / "o.brres",
+        model_name="course",
+        executable=tmp_path / "x",
+        wimgt=tmp_path / "w.exe",
     )
     assert result.path.read_bytes() == b"bres"
 
@@ -308,7 +332,11 @@ def test_info_mismatch_or_failure_rejects_the_conversion(
     _scripted(monkeypatch, [(0, "Wrote file 'x'\n", "", b"bres"), info])
     with pytest.raises(AbmattError, match=reason):
         convert_model(
-            _project(tmp_path), tmp_path / "o.brres", model_name="course", executable=tmp_path / "x"
+            _project(tmp_path),
+            tmp_path / "o.brres",
+            model_name="course",
+            executable=tmp_path / "x",
+            wimgt=tmp_path / "w.exe",
         )
     assert not (tmp_path / "o.brres").exists()
 
