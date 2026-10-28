@@ -12,6 +12,24 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T04e` — (1) Measure pinned Blender 5.2.2 headless scripts, option/error paths and
+  valid/invalid `.blend` inputs through the core runner; scrub volatile timings and
+  paths, retain exact scripted/valid inputs. (2) Write failing replay and refusal tests,
+  then install an executable Blender fake as the seventh tool. (3) Run scripts under the
+  test interpreter without `bpy`, preserving Blender's observed exit, banner and quit
+  semantics; refuse unmeasured invocations rather than invent success. (4) Review, run
+  mutation/cross-platform checks and full gate, document scope, commit/push and verify
+  Ubuntu and Windows CI. Files: recorder/cases, tests/fakes, TOOLS.md, testing strategy,
+  phase checklist and STATUS. Risk: Blender elapsed times and Python tracebacks are
+  volatile; Windows recordings do not establish Linux Blender output parity. Local
+  evidence: 16 stable real Windows invocations; 11/11 assertion-failure mutations;
+  `check.py --all` 485 passed / 3 skipped; broad suite 558 passed / 21 skipped /
+  1 deselected; real Blender integration subset 11 passed. Independent review's
+  transient script-byte mismatch was resolved by re-recording, and its read/execute
+  race and partial-input-integrity findings were fixed with a single verified byte
+  snapshot and full SHA-256; version-banner-only identity and Linux limits are explicit.
+  Linux-target pyright, touched xenon/ruff and recording path-leak checks passed;
+  commit and both CI OSes are pending.
 
 
 ## Done (newest first)
@@ -556,6 +574,15 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
+- **P2-T04e Blender operation recordings are Windows-only.** Sixteen Blender 5.2.2
+  invocations exercise the pinned scripts and known-good `.blend`. Ubuntu CI replays
+  Windows diagnostics with deliberate path-separator translation through the no-`bpy`
+  executable fake; it does not verify real Linux Blender's Python embedding, output,
+  GPU/headless setup or file loading. To close: bootstrap Blender 5.2.2 and fixtures
+  on Linux, then run `uv run python scripts/record_tool_outputs.py --only blender`,
+  commit `linux-ops.json` and adjust `test_fake_blender.py` to replay the native Linux
+  evidence (including `--python-exit-code` and `.blend`). This is nonblocking for the
+  fake's Windows-derived contract.
 - **P1-T06 screenshot pixels:** Linux Qt GUI tests assert an installed font family and
   generate screenshots; CI uploaded them, but their pixels were not downloaded for visual
   inspection. Human Mint spot-check remains: `git pull && uv run ctstudio --offscreen-smoke

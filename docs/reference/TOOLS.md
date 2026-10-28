@@ -283,6 +283,28 @@ a non-ASCII path, because the failure is invisible.
   verified on Blender 4.0.2, 4.1.1, 4.2.9 LTS, 4.5.9 LTS, 5.2.1 LTS with Wiimms v2.42a and ABMatt v1.3.2 **[doc]**
 - Headless pattern used by the add-on's own tests **[doc]**:
   `blender -b --factory-startup --python verify.py -- <addon-dir>`
+- **5.2.2 Windows operation recordings (P2-T04e):** 16 real invocations through the
+  process runner, `tests/fakes/recordings/blender/5.2.2/windows-ops.json`, with exact
+  scripts and a retained 109,783-byte known-good `.blend` in `inputs/`. The recorder
+  checks that the executable's self-reported version banner matches the catalogue pin
+  (not its binary identity) and scrubs only variable report elapsed times (`<elapsed>`),
+  not the build timestamp; work-folder paths are sanitized. Each retained input has a
+  full SHA-256 in the operation recording, checked before replay.
+  `-b [good.blend] --factory-startup [--python-exit-code 7] --python SCRIPT -- ARGS`
+  runs Python and passes arguments after `--`. An ordinary script exception prints a
+  traceback but exits **0** and prints `Blender quit`; with `--python-exit-code 7`
+  it exits **7** and adds `Error: script failed`. `sys.exit(3)` exits **3** without
+  a quit line. A missing script defaults to exit **0** (or 7 with that flag).
+  **Bridge jobs must supply `--python-exit-code N` with a nonzero N** and check the
+  subprocess result; otherwise a Python failure returns 0 and looks successful.
+  Missing/unsupported `.blend` and a flag treated as a missing file exit **1**;
+  `bpy` imports work in real Blender, not in the fake test interpreter.
+  The seventh executable fake runs only byte-matched recorded scripts, checks the
+  known-good `.blend` byte-for-byte, and refuses unknown argv/inputs with **121**
+  before executing scripts. It is not a Blender renderer/add-on emulator; a live
+  script can produce a different output when its environment changes. These are
+  Windows measurements; Ubuntu fake replay translates path separators only and
+  does not verify real Linux Blender behaviour.
 - KCL export: objects must end in `_F` + 4 uppercase hex digits; exporter reports exported/skipped
   objects and extents on stdout (`[MKW Utilities] KCL export: …`) **[doc]**; default un-bean mode
   `LOWER` passes `--kcl-script=<plugin dir>/lower-walls.txt` to `wkclt` **[doc]**.

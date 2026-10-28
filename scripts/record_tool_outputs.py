@@ -1,8 +1,8 @@
-"""Record real tool operations on generated fixtures for P2-T04b/c/d fakes.
+"""Record real tool operations on generated fixtures for P2-T04b/c/d/e fakes.
 
 Run after ``scripts/bootstrap_tools.py`` and ``scripts/fixtures/make_fixtures.py``::
 
-    uv run python scripts/record_tool_outputs.py [--only wiimms-szs-tools|riistudio|abmatt]
+    uv run python scripts/record_tool_outputs.py [--only wiimms-szs-tools|riistudio|abmatt|blender]
 
 Every case (``scripts/ops_cases.py``) runs in a fresh work folder: copy fixtures, run setup
 commands with the same tools, snapshot the files, run the case through the core runner, then
@@ -26,7 +26,7 @@ from pathlib import Path
 
 import record_tool_help as rth
 import tool_paths as tp
-from ops_cases import ABMATT_CASES, RSZST_CASES, WIIMM, WIIMM_CASES, Case
+from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, WIIMM_CASES, Case
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
@@ -51,11 +51,20 @@ def normalize_abmatt(record: dict[str, object]) -> dict[str, object]:
     return {**record, "stdout": stdout, "stderr": stderr}
 
 
+def normalize_blender(record: dict[str, object]) -> dict[str, object]:
+    """Only scrub Blender's variable report-time prefix, not its build time."""
+    stdout = re.sub(
+        r"(?m)^\d\d:\d\d\.\d{3}(?=  (?:reports|blend)\s+\|)", "<elapsed>", str(record["stdout"])
+    )
+    return {**record, "stdout": stdout}
+
+
 # What to record, by bootstrap tool name: its executables and its case table.
 TOOLSETS: dict[str, tuple[tuple[str, ...], tuple[Case, ...]]] = {
     "wiimms-szs-tools": (WIIMM, WIIMM_CASES),
     "riistudio": (("rszst",), RSZST_CASES),
     "abmatt": (("abmatt",), ABMATT_CASES),
+    "blender": (("blender",), BLENDER_CASES),
 }
 
 
@@ -69,6 +78,20 @@ def _place_abmatt(action: str, args: list[str], work: Path, fixture: Fixture) ->
     else:
         return False
     return True
+
+
+def _place_blender(action: str, args: list[str], work: Path, fixture: Fixture) -> bool:
+    if action == "@blscript":
+        (work / args[0]).write_bytes(fixture(args[0]))
+    elif action == "@blend":
+        (work / "good.blend").write_bytes(fixture("good.blend"))
+    else:
+        return False
+    return True
+
+
+def _place_special(action: str, args: list[str], work: Path, fixture: Fixture) -> bool:
+    return _place_blender(action, args, work, fixture) or _place_abmatt(action, args, work, fixture)
 
 
 def _setup_archive(action: str, args: list[str], work: Path) -> None:
@@ -122,7 +145,7 @@ def prepare(
             (work / args[0]).write_bytes(b"not a track file\n" * 4)
         elif action == "@texture":
             (work / args[0]).write_bytes(fixture(f"textures/{args[0]}"))
-        elif _place_abmatt(action, args, work, fixture):
+        elif _place_special(action, args, work, fixture):
             continue
         else:
             _setup_tool(action, args, work, resolve, env)
@@ -164,15 +187,19 @@ def run_case(
 ) -> dict[str, object]:
     """Run one case in a fresh folder under ``root``; record what it did to the files.
 
-    ``inputs`` lists each fixture file the case used with its size and first 32 bytes, so
-    the fakes' replay can rebuild stand-ins without Blender or the real tools.
+    ``inputs`` lists each fixture file the case used with its size, first 32 bytes and
+    full SHA-256, so retained inputs can be checked byte-for-byte before replay.
     """
     work = Path(tempfile.mkdtemp(prefix="case ", dir=root))
     used: dict[str, dict[str, object]] = {}
 
     def tracked(name: str) -> bytes:
         data = fixture(name)
-        used[name] = {"size": len(data), "head": data[:32].hex()}
+        used[name] = {
+            "size": len(data),
+            "head": data[:32].hex(),
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
         return data
 
     try:
@@ -185,6 +212,8 @@ def run_case(
         )
         if tool == "abmatt":
             record = normalize_abmatt(record)
+        elif tool == "blender":
+            record = normalize_blender(record)
         record["files"] = file_effects(work, before)
         return {"case": case.name, "tool": tool, "compare": case.compare, "inputs": used, **record}
     finally:
@@ -213,35 +242,64 @@ def resolver(toolset: str) -> Resolve:
         return lambda _tool: tp.RSZST
     if toolset == "abmatt":
         return lambda tool: tp.ABMATT if tool == "abmatt" else tp.RSZST
+    if toolset == "blender":
+        return lambda _tool: tp.BLENDER
     bin_dir = tp.TOOLS_DIR / "wiimms-szs-tools" / "bin"
     return lambda tool: tp.exe(bin_dir / tool)
+
+
+def verify_blender_source(installed_json: Path, exe: Path) -> None:
+    """Refuse a version-banner mismatch; this cannot authenticate executable bytes."""
+    pin = rth.pinned_version("blender", installed_json)
+    result = rth.capture(exe, ["--version"], cwd=exe.parent, roots={})
+    if result["exit_code"] != 0 or not str(result["stdout"]).startswith(f"Blender {pin} LTS\n"):
+        raise rth.RecordError(f"blender version mismatch: expected {pin} LTS")
+
+
+def _recording_fixture(toolset: str, version: str) -> Fixture:
+    if toolset == "abmatt":
+        verify_abmatt_source(tp.TOOLS_DIR / "installed.json", tp.RSZST)
+    if toolset == "blender":
+        verify_blender_source(tp.TOOLS_DIR / "installed.json", tp.BLENDER)
+    needed = "course.dae" if toolset in {"riistudio", "abmatt"} else "course.kmp"
+    if toolset != "blender" and not (FIXTURES / needed).is_file():
+        raise rth.RecordError("generate fixtures first: scripts/fixtures/make_fixtures.py")
+    abmatt_inputs = rth.RECORDINGS / "abmatt" / version / "inputs"
+    blender_inputs = rth.RECORDINGS / "blender" / version / "inputs"
+    if toolset == "blender" and not (blender_inputs / "good.blend").is_file():
+        raise rth.RecordError("retain the generated good.blend input before recording")
+
+    def fixture(name: str) -> bytes:
+        directory = (
+            blender_inputs
+            if toolset == "blender"
+            else abmatt_inputs
+            if name == "map.obj"
+            else FIXTURES
+        )
+        return (directory / name).read_bytes()
+
+    return fixture
+
+
+def _retain_import_inputs(toolset: str, version: str) -> None:
+    if toolset not in {"riistudio", "abmatt"}:
+        return
+    inputs = rth.RECORDINGS / ("rszst" if toolset == "riistudio" else "abmatt") / version / "inputs"
+    inputs.mkdir(exist_ok=True)
+    for name in ("course.dae", *DAE_TEXTURES):
+        (inputs / name).write_bytes((FIXTURES / name).read_bytes())
 
 
 def record(toolset: str) -> None:
     tools, cases = TOOLSETS[toolset]
     version = rth.pinned_version(toolset, tp.TOOLS_DIR / "installed.json")
-    if toolset == "abmatt":
-        verify_abmatt_source(tp.TOOLS_DIR / "installed.json", tp.RSZST)
-    needed = "course.dae" if toolset in {"riistudio", "abmatt"} else "course.kmp"
-    if not (FIXTURES / needed).is_file():
-        raise rth.RecordError("generate fixtures first: scripts/fixtures/make_fixtures.py")
-    abmatt_inputs = rth.RECORDINGS / "abmatt" / version / "inputs"
-
-    def fixture(name: str) -> bytes:
-        return (abmatt_inputs if name == "map.obj" else FIXTURES).joinpath(name).read_bytes()
-
+    fixture = _recording_fixture(toolset, version)
     env = tp.tools_env() if toolset == "abmatt" else None
     with tempfile.TemporaryDirectory(prefix="ct ops é ") as root:
         records = [run_case(case, resolver(toolset), Path(root), fixture, env) for case in cases]
     write(records, tools, version, "windows" if sys.platform == "win32" else "linux")
-    if toolset in {"riistudio", "abmatt"}:
-        # Byte-exact import fixtures are retained for stand-in replay on either OS.
-        inputs = (
-            rth.RECORDINGS / ("rszst" if toolset == "riistudio" else "abmatt") / version / "inputs"
-        )
-        inputs.mkdir(exist_ok=True)
-        for name in ("course.dae", *DAE_TEXTURES):
-            (inputs / name).write_bytes((FIXTURES / name).read_bytes())
+    _retain_import_inputs(toolset, version)
 
 
 def main(argv: Sequence[str] | None = None) -> int:

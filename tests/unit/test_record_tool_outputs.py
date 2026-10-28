@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -83,6 +85,74 @@ def test_nonzero_setup_exit_is_rejected_even_without_an_output_contract(tmp_path
     case = rto.Case("failed setup", ("abmatt",), (("rszst", "-c", "import sys; sys.exit(1)"),))
     with pytest.raises(rth.RecordError, match=r"setup rszst exited 1"):
         rto.prepare(case, work, lambda _tool: exe, lambda _name: b"")
+
+
+def test_blender_scrubs_only_elapsed_time() -> None:
+    record: dict[str, object] = {
+        "stdout": '00:00.625  reports          | ERROR Cannot read file "<work>/bad.blend"\n'
+        '00:01.123  blend            | Read blend: "<work>/good.blend"\n'
+        "Blender 5.2.2 LTS (hash xyz built 2026-09-15 01:37:04)\n",
+        "stderr": "Traceback: boom at 00:00.321\n",
+    }
+    clean = rto.normalize_blender(record)
+    stdout = str(record["stdout"])
+    assert clean["stdout"] == stdout.replace("00:00.625", "<elapsed>").replace(
+        "00:01.123", "<elapsed>"
+    )
+    assert clean["stderr"] == record["stderr"]
+    assert stdout.startswith("00:00.625")
+
+
+def test_blender_recording_covers_python_and_file_states() -> None:
+    rows = rto.load("blender", "5.2.2")
+    assert {str(row["case"]) for row in rows} == {case.name for case in rto.BLENDER_CASES}
+    assert {
+        "script args",
+        "script exception exit 7",
+        "script exits 3",
+        "valid blend",
+        "missing blend",
+        "junk blend",
+        "unknown option",
+        "bpy only in real Blender",
+    } <= {str(row["case"]) for row in rows}
+    assert all("00:00." not in str(row["stdout"]) for row in rows)
+    assert any(row["files"] for row in rows)
+
+
+def test_blender_recorded_input_digest_matches_entire_retained_file() -> None:
+    inputs = rth.RECORDINGS / "blender" / "5.2.2" / "inputs"
+    rows = rto.load("blender", "5.2.2")
+    verified = 0
+    for row in rows:
+        for name, metadata in cast(dict[str, dict[str, object]], row["inputs"]).items():
+            assert metadata["sha256"] == hashlib.sha256((inputs / name).read_bytes()).hexdigest()
+            verified += 1
+    assert verified >= 10
+
+
+def test_run_case_tracks_full_digest_of_used_inputs(fake_tools_path, tmp_path: Path) -> None:
+    inputs = rth.RECORDINGS / "blender" / "5.2.2" / "inputs"
+    case = next(case for case in rto.BLENDER_CASES if case.name == "script writes")
+    record = rto.run_case(
+        case, fake_tools_path.resolve, tmp_path, lambda name: (inputs / name).read_bytes()
+    )
+    metadata = cast(dict[str, dict[str, object]], record["inputs"])["write.py"]
+    assert metadata["sha256"] == hashlib.sha256((inputs / "write.py").read_bytes()).hexdigest()
+
+
+def test_blender_recorder_refuses_wrong_or_missing_pinned_build(
+    fake_tools_path, tmp_path: Path
+) -> None:
+    installed = tmp_path / "installed.json"
+    pin = tc.ALL_TOOLS["blender"].version
+    installed.write_text(json.dumps({"blender": {"version": pin}}), encoding="utf-8")
+    rto.verify_blender_source(installed, fake_tools_path.resolve("blender"))
+    with pytest.raises(rth.RecordError, match=r"blender version mismatch"):
+        rto.verify_blender_source(installed, fake_tools_path.resolve("abmatt"))
+    installed.write_text(json.dumps({"blender": {"version": "0.1.0"}}), encoding="utf-8")
+    with pytest.raises(rth.RecordError, match=r"0\.1\.0.*pinned"):
+        rto.verify_blender_source(installed, fake_tools_path.resolve("blender"))
 
 
 def test_abmatt_scrubs_duration_and_frozen_process_id() -> None:

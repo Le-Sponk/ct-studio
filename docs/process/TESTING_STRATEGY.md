@@ -68,7 +68,13 @@ is missing and nothing is protected.
   absent `wimgt`, frozen-Python errors and getopt exits. The missing-wimgt conversion
   writes a distinct `NO-TEXTURES` marker, which downstream fakes refuse, rather than
   masquerading as the normal archive. A changed source/command/marker or unrecorded argv
-  is refused (121). Blender follows in P2-T04e.
+  is refused (121). P2-T04e: `fake_blender.py` installs the seventh executable, runs
+  byte-matched recorded Python scripts with the test interpreter and `sys.argv` as
+  Blender receives it, and uses the recorded 5.2.2 banner/quit, exception status,
+  missing-file diagnostics and exact known-good `.blend` bytes. A script requiring
+  `bpy` fails with an honest `ModuleNotFoundError`, not false real-Blender success;
+  unrecorded scripts, file bytes and flags fail 121 before execution. Bridge jobs must
+  set a nonzero `--python-exit-code` because Blender returns 0 on Python exceptions.
 - **`fake_tools_path`** (`tests/conftest.py`) installs real executables for the fakes once per
   session into a folder with a space and `é`, puts it first on PATH, and gives each test its
   own call log (`fake_tools_path.calls()` → tool, argv, cwd, in call order). One file per
@@ -81,12 +87,15 @@ is missing and nothing is protected.
   SZS/KMP/TEX0/BRRES, so fake and real outputs never mix.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
-- `scripts/record_tool_outputs.py` (P2-T04b/d) runs per-tool case tables from
-  `scripts/ops_cases.py` on the generated fixtures. `<os>-ops.json` keeps output, exit
+- `scripts/record_tool_outputs.py` (P2-T04b/e) runs per-tool case tables from
+  `scripts/ops_cases.py` on the generated or retained fixtures. `<os>-ops.json` keeps output, exit
   code, file effects (created/changed and first bytes), and fixture sizes/heads;
-  `test_fake_wiimm.py`, `test_fake_rszst.py` and `test_fake_abmatt.py` replay through the
-  same runner. ABMatt's captured elapsed seconds and frozen-Python PID are replaced by
-  `<duration>` and `[<pid>]`; work paths (including escaped traceback paths) are masked.
+  new retained inputs also record a full SHA-256 so changes beyond the header fail
+  replay. `test_fake_wiimm.py`, `test_fake_rszst.py`, `test_fake_abmatt.py` and
+  `test_fake_blender.py` replay through the same runner. ABMatt's captured elapsed
+  seconds and frozen-Python PID are replaced by `<duration>` and `[<pid>]`; Blender
+  report elapsed time becomes
+  `<elapsed>` (its build timestamp is preserved); work paths are masked.
   `ops_replay.py` checks exit/stderr/file effects exactly; stdout exactly except when a
   fake cannot compute real KMP/KCL findings (`wszst check` then exits 0 instead of 2).
   The rszst case table stores the exact DAE and four PNGs under
@@ -101,6 +110,13 @@ is missing and nothing is protected.
   `abmatt/1.3.2/inputs/`; no Linux help or native operation recording exists for that
   release. Ubuntu CI checks the Windows-recording contract under a Linux executable with
   LF/newline and exit(-1) translation, not the real Linux ABMatt output or file contents.
+  Blender retains a byte-identical 109,783-byte generated `.blend` and scripts under
+  `blender/5.2.2/inputs/`, so re-recording uses stable bytes even when fixture generation
+  changes. Its Windows-only diagnostics are compared on Ubuntu with path separators
+  translated deliberately; CI does not measure real Linux Blender. The real Blender
+  `bpy.py` case is separately asserted to fail honestly under the no-`bpy` fake; it
+  cannot be an exact-output replay. A live environment-driven script output proves
+  execution rather than a hard-coded recorded effect.
 - `scripts/record_tool_help.py` (P2-T04a) re-records `<os>-help.json` for every pinned CLI
   through the app's process runner, with LF newlines and the install folder replaced by
   `<tool-dir>`. It refuses a tool whose installed version differs from the catalogue pin.

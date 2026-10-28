@@ -1,0 +1,352 @@
+[
+ {
+  "case": "background idle",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "-b",
+   "--factory-startup"
+  ],
+  "exit_code": 0,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "script args",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "ok.py",
+   "--",
+   "a b",
+   "é"
+  ],
+  "exit_code": 0,
+  "stdout": "ARGS ['a b', 'é']\nok\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "absolute script",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "<work>\\ok.py",
+   "--",
+   "x"
+  ],
+  "exit_code": 0,
+  "stdout": "ARGS ['x']\nok\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "script with unicode path",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "script é.py": {
+    "size": 26,
+    "head": "7072696e7428226e6f6e2d61736369692073637269707422290a",
+    "sha256": "79b0591dfc41dab53069d51b01eecd07393a2d60e147ce2b3d61c830fec8b1af"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "script é.py"
+  ],
+  "exit_code": 0,
+  "stdout": "non-ascii script\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "script writes",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "write.py": {
+    "size": 180,
+    "head": "696d706f7274206f730a66726f6d20706174686c696220696d706f7274205061",
+    "sha256": "9e83351afd0eddb89b988d3b32eef96687eca66666519563aadcba20d95c6db0"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "write.py"
+  ],
+  "exit_code": 0,
+  "stdout": "saved\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {
+   "result.txt": {
+    "effect": "created",
+    "magic": "67656e65"
+   }
+  }
+ },
+ {
+  "case": "script exception",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "boom.py": {
+    "size": 27,
+    "head": "72616973652052756e74696d654572726f722822626f6f6d22290a",
+    "sha256": "13ef2add1379057a2ac8756ddca27bfc4ba09adefe2fd8f1dde0ebb5d60e9166"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "boom.py"
+  ],
+  "exit_code": 0,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<work>\\boom.py\", line 1, in <module>\n    raise RuntimeError(\"boom\")\nRuntimeError: boom\n",
+  "files": {}
+ },
+ {
+  "case": "script exception exit 7",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "boom.py": {
+    "size": 27,
+    "head": "72616973652052756e74696d654572726f722822626f6f6d22290a",
+    "sha256": "13ef2add1379057a2ac8756ddca27bfc4ba09adefe2fd8f1dde0ebb5d60e9166"
+   }
+  },
+  "argv": [
+   "-b",
+   "--python-exit-code",
+   "7",
+   "--factory-startup",
+   "--python",
+   "boom.py"
+  ],
+  "exit_code": 7,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<work>\\boom.py\", line 1, in <module>\n    raise RuntimeError(\"boom\")\nRuntimeError: boom\n\nError: script failed, file: 'boom.py', exiting.\n",
+  "files": {}
+ },
+ {
+  "case": "script exits 3",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "quit3.py": {
+    "size": 24,
+    "head": "696d706f7274207379730a0a7379732e657869742833290a",
+    "sha256": "32dcae0713b2738c521084f04181b8b813ead6fb2a51fd254ae1400137f3281b"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "quit3.py"
+  ],
+  "exit_code": 3,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "missing script",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "missing.py"
+  ],
+  "exit_code": 0,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "OSError: Python file \"<work>\\missing.py\" could not be opened: No such file or directory\n",
+  "files": {}
+ },
+ {
+  "case": "missing script exit 7",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python-exit-code",
+   "7",
+   "--python",
+   "missing.py"
+  ],
+  "exit_code": 7,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "OSError: Python file \"<work>\\missing.py\" could not be opened: No such file or directory\n\nError: script failed, file: 'missing.py', exiting.\n",
+  "files": {}
+ },
+ {
+  "case": "valid blend",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "good.blend": {
+    "size": 109783,
+    "head": "28b52ffda0410601002537004a47801149601a9e03bbc5fc073d06dc160d5e9f",
+    "sha256": "d15880708e772f12821541d3ef8241904124160aef921d9797e2b8731cd2ea0e"
+   },
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "good.blend",
+   "--factory-startup",
+   "--python",
+   "ok.py",
+   "--",
+   "x"
+  ],
+  "exit_code": 0,
+  "stdout": "<elapsed>  blend            | Read blend: \"<work>\\good.blend\"\nARGS ['x']\nok\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "missing blend",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "missing.blend",
+   "--factory-startup",
+   "--python",
+   "ok.py"
+  ],
+  "exit_code": 1,
+  "stdout": "<elapsed>  reports          | ERROR Cannot read file \"<work>\\missing.blend\": No such file or directory\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "junk blend",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "junk.blend",
+   "--factory-startup",
+   "--python",
+   "ok.py"
+  ],
+  "exit_code": 1,
+  "stdout": "<elapsed>  reports          | ERROR File format is not supported in file \"<work>\\junk.blend\"\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "unknown option",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "--bogus-flag",
+   "-b"
+  ],
+  "exit_code": 1,
+  "stdout": "<elapsed>  reports          | ERROR Cannot read file \"<work>\\--bogus-flag\": No such file or directory\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "unknown argument, loading as file: --bogus-flag\n",
+  "files": {}
+ },
+ {
+  "case": "bpy only in real Blender",
+  "tool": "blender",
+  "compare": "bpy_missing",
+  "inputs": {
+   "bpy.py": {
+    "size": 81,
+    "head": "696d706f72742062707920202320707972696768743a2069676e6f72655b7265",
+    "sha256": "28ae0e6f3f8701e532446041089f301f611c75e8c54c5b9cf962fa526b163630"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python",
+   "bpy.py"
+  ],
+  "exit_code": 0,
+  "stdout": "bpy: bpy\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "bpy missing exit 7",
+  "tool": "blender",
+  "compare": "bpy_missing",
+  "inputs": {
+   "bpy.py": {
+    "size": 81,
+    "head": "696d706f72742062707920202320707972696768743a2069676e6f72655b7265",
+    "sha256": "28ae0e6f3f8701e532446041089f301f611c75e8c54c5b9cf962fa526b163630"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python-exit-code",
+   "7",
+   "--python",
+   "bpy.py"
+  ],
+  "exit_code": 0,
+  "stdout": "bpy: bpy\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ }
+]

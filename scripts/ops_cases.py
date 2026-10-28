@@ -343,3 +343,58 @@ ABMATT_CASES: tuple[Case, ...] = (
         (*_AB_SOURCE, ("@copyfile", "source.brres", "dest.brres"), ("@abcmd", "copy.txt")),
     ),
 )
+
+# --- Blender 5.2.2 (P2-T04e) --------------------------------------------------------------
+_BL = ("blender", "-b", "--factory-startup")
+BLENDER_CASES: tuple[Case, ...] = (
+    Case("background idle", _BL),
+    Case("script args", (*_BL, "--python", "ok.py", "--", "a b", "é"), (("@blscript", "ok.py"),)),
+    Case(
+        "absolute script",
+        (*_BL, "--python", "{work}{sep}ok.py", "--", "x"),
+        (("@blscript", "ok.py"),),
+    ),
+    Case(
+        "script with unicode path",
+        (*_BL, "--python", "script é.py"),
+        (("@blscript", "script é.py"),),
+    ),
+    Case("script writes", (*_BL, "--python", "write.py"), (("@blscript", "write.py"),)),
+    Case("script exception", (*_BL, "--python", "boom.py"), (("@blscript", "boom.py"),)),
+    Case(
+        "script exception exit 7",
+        (*_BL[:2], "--python-exit-code", "7", "--factory-startup", "--python", "boom.py"),
+        (("@blscript", "boom.py"),),
+    ),
+    Case("script exits 3", (*_BL, "--python", "quit3.py"), (("@blscript", "quit3.py"),)),
+    Case("missing script", (*_BL, "--python", "missing.py")),
+    Case("missing script exit 7", (*_BL, "--python-exit-code", "7", "--python", "missing.py")),
+    Case(
+        "valid blend",
+        ("blender", "-b", "good.blend", "--factory-startup", "--python", "ok.py", "--", "x"),
+        (("@blend",), ("@blscript", "ok.py")),
+    ),
+    Case(
+        "missing blend",
+        ("blender", "-b", "missing.blend", "--factory-startup", "--python", "ok.py"),
+        (("@blscript", "ok.py"),),
+    ),
+    Case(
+        "junk blend",
+        ("blender", "-b", "junk.blend", "--factory-startup", "--python", "ok.py"),
+        (("@junk", "junk.blend"), ("@blscript", "ok.py")),
+    ),
+    Case("unknown option", ("blender", "--bogus-flag", "-b")),
+    Case(
+        "bpy only in real Blender",
+        (*_BL, "--python", "bpy.py"),
+        (("@blscript", "bpy.py"),),
+        "bpy_missing",
+    ),
+    Case(
+        "bpy missing exit 7",
+        (*_BL, "--python-exit-code", "7", "--python", "bpy.py"),
+        (("@blscript", "bpy.py"),),
+        "bpy_missing",
+    ),
+)

@@ -6,6 +6,7 @@ recording, and ``assert_like_recording`` checks a fake run against the real one.
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Callable, Mapping
 from pathlib import Path
 
@@ -28,10 +29,23 @@ def stand_ins(record: Mapping[str, object], kept: Path) -> Callable[[str], bytes
             data = path.read_bytes()
             assert len(data) == size, f"{path} is not the recorded input; re-record"
             assert data.startswith(head), f"{path} is not the recorded input; re-record"
+            if digest := inputs[name].get("sha256"):
+                assert hashlib.sha256(data).hexdigest() == digest, (
+                    f"{path} digest differs; re-record"
+                )
             return data
+        assert "sha256" not in inputs[name], f"{path} is a missing retained input; re-record"
         return head + b"\0" * (size - len(head))
 
     return fixture
+
+
+def _assert_exit_and_effects(fake: Mapping[str, object], record: Mapping[str, object]) -> None:
+    # A fake never invents findings: where the real exit code reports them, it exits 0.
+    expected_exit = 0 if record["compare"] == "findings" else record["exit_code"]
+    assert fake["exit_code"] == expected_exit
+    assert fake["stderr"] == record["stderr"]
+    assert fake["files"] == record["files"]
 
 
 def assert_like_recording(fake: Mapping[str, object], record: Mapping[str, object]) -> None:
@@ -41,11 +55,7 @@ def assert_like_recording(fake: Mapping[str, object], record: Mapping[str, objec
         assert fake["exit_code"] == UNMODELLED_EXIT, "the fake must refuse this case"
         assert (fake["stdout"], fake["files"]) == ("", {})
         return
-    # A fake never invents findings: where the real exit code reports them, it exits 0.
-    expected_exit = 0 if compare == "findings" else record["exit_code"]
-    assert fake["exit_code"] == expected_exit
-    assert fake["stderr"] == record["stderr"]
-    assert fake["files"] == record["files"]
+    _assert_exit_and_effects(fake, record)
     if compare == "exact":
         assert fake["stdout"] == record["stdout"]
         return
