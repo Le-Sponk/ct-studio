@@ -4,26 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05c — Wiimm KMP text and image encoding
+**Next task:** P2-T05c2 — Wiimm KCL analysis and minimap patching
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** aaeae81 (P2-T05b Windows gate and Ubuntu/Windows CI
-[run 40674591849](https://github.com/Le-Sponk/ct-studio/actions/runs/40674591849))
-**Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
+**Last green commit:** 4462aec (P2-T05c Windows gate and Ubuntu/Windows CI
+run 40680107361)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05c` — (1) Record real `wimgt encode` with `-x TEX.<fmt>` for the eight
-  non-palette formats and `--n-mipmaps 0/2`, plus invalid format/mipmap values.
-  (2) RED tests for `kmp_to_text`, `kmp_from_text`, `img_encode`: flags, exit-0/nonzero
-  ERROR handling, own overwrite refusal (encode silently overwrites), output verification.
-  (3) Fake writes a TEX0 header with format/image count; refuses unrecorded values.
-  (4) Mutations, Linux pyright, xenon, full/broad/real integration, docs, commit/push, both
-  CI OSes. Files: `core/tools/wiimm.py` (or a sibling module if over budget), adapter case
-  table, `fake_wiimm.py`, tests, TOOLS.md, phase file, STATUS.
-
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05c` — new `wiimm_convert` turns KMP files into text and back and PNGs into TEX0
+  textures in eight formats with chosen mipmap counts. It refuses to overwrite files itself
+  (Wiimm silently does), fails on Wiimm's exit-0 script errors, and checks each written
+  file's header. P2-T05c2 (KCL + minimap) split out. Gate 557 passed / 3 skipped; broad 644;
+  7 new real Windows tests; 15/15 + 12/12 + 11/11 mutations; CI run 40680107361 — commit 4462aec
 - `P2-T05b` — `wiimm.analyze()` returns Wiimm's JSON analysis and fails on unsupported
   files even though Wiimm exits 0 for them; `create_szs()` builds an SZS with best/fast/no
   compression, fails on Wiimm's exit-0 "file exists"/"no folder" errors and checks the

@@ -147,7 +147,7 @@ check both file output and diagnostics (Wiimm can exit 0 without writing). Rejec
 `auto_add=True` until P2-T05d's independent library-content guard exists.
 **Acceptance:** real JSON/creation recordings, fake and real integration tests.
 
-### [ ] P2-T05c — Wiimm KMP text and image encoding
+### [x] P2-T05c — Wiimm KMP text and image encoding (commit 4462aec)
 Add `kmp_to_text`, `kmp_from_text` and `img_encode(png, dest, format, mipmaps)` with only
 pinned verified flags. Every writer verifies its output (KMP text `#KMP`, binary `RKMD`,
 TEX0 header format code and image count) and refuses overwrites itself, because
