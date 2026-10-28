@@ -4,26 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05d — Wiimm auto-add and creation guard
+**Next task:** P2-T05e — rszst and ABMatt adapters
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 835eb15 (P2-T05c2 Windows gate and Ubuntu/Windows CI
-run 40685415799)
+**Last green commit:** fa4c6d4 (P2-T05d Windows gate and Ubuntu/Windows CI
+run 40714144995)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05d` — (1) Record with synthetic inputs only: `wszst autoadd` status (default and
-  `--dest`), `autoadd --dest LIB -vv` on an empty, a wrong-content and a missing library, `autoadd
-  SRC --DEST LIB` build from a synthetic `Course/beginner_course.szs` (synthetic content), from an empty
-  and a missing source, and `create --auto-add --autoadd-path` on the fixture stage.
-  (2) RED tests: `autoadd_status()` parses current/search paths; `autoadd_create()` counts
-  `ANALYZE`/`ADD` lines and fails on none; `autoadd_verify()` parses `-vv` found/missed/invalid
-  lists and counts; `create_szs(auto_add_library=…)` runs only when ≥1 file is found and none is
-  invalid, else `AutoAddUnavailable` with the reason. (3) Fake replays these synthetic rows.
-  (4) `realdata` test on the user's own library built locally under `local_fixtures/` (git-
-  ignored; nothing game-derived is committed or recorded). (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05d` — new `wiimm_autoadd` reads auto-add search paths, builds a library from a
+  `Race/Course` folder (fails when Wiimm read no standard-named archive) and checks a
+  library with `-vv` against Wiimm's list of originals. `create_szs(auto_add=)` now takes
+  that report and refuses a library with no original files or any wrong file before
+  running, since Wiimm silently builds without (or with wrong) objects. Recordings use
+  synthetic inputs only; a `realdata` test passed against the user's own library built in
+  git-ignored `local_fixtures/` (459 found, 18 missed, 0 invalid). `.gitignore` now also
+  guards other disc-image formats and extracted disc trees. 18/18 mutants; gate 624; broad
+  720 passed/21 skipped; real Windows 4 + realdata 1 — commits 8bbbc47, fa4c6d4.
 - `P2-T05c2` — new `wiimm_kcl` reads a collision file's triangle counts, ranges and
   per-surface flag tables (both tables must agree), and patches minimap positions. Because
   Wiimm reports success when a minimap model has no position bones, that case now fails;

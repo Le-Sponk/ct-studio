@@ -160,7 +160,7 @@ Add `kcl_analyze`, `kcl_flags` (typed parsed tables) and `minimap_auto(file)`. T
 patch exits 0 even when it does nothing (no `posLD`/`posRU` bones), so it must report
 whether translations were written. **Acceptance:** recorded/parsed outputs, fake and real tests.
 
-### [ ] P2-T05d — Wiimm auto-add and creation guard
+### [x] P2-T05d — Wiimm auto-add and creation guard
 Implement `autoadd_status()` (current path + indexed search paths) and
 `autoadd_create(race_course_dir, dest)` (count `ANALYZE YAZ0.U8:<path>` lines; no summary).
 Add synthetic-path fake recordings. `create_szs(auto_add=True)` may proceed **only** when an
