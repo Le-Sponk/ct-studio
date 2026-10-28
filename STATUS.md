@@ -559,12 +559,13 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   not exercised on Linux. These are not P1-T07 CI acceptance blockers.
 
 - **P2-T04c rszst operation recordings are Windows-only.** Ubuntu CI will exercise the
-  fake's Linux executable and compare the Windows runs after translating the differences
-  independently verified by both OSes' help/version recordings. That does not prove the
-  Linux real converter's progress or file effects. Closing it: on a Linux checkout with
-  the pinned source-built rszst 5.11.5 and generated fixtures, run `uv run python
-  scripts/record_tool_outputs.py --only riistudio` and commit `linux-ops.json`; then make
-  `test_fake_rszst.py` replay the native recording. No Mint action needed for this task.
+  fake's Linux executable and compare the Windows runs after translating the independently
+  verified help/version differences and the runner's LF progress-line normalization.
+  That does not prove the Linux real converter's progress or file effects. Closing it:
+  on a Linux checkout with the pinned source-built rszst 5.11.5 and generated fixtures,
+  run `uv run python scripts/record_tool_outputs.py --only riistudio` and commit
+  `linux-ops.json`; then make `test_fake_rszst.py` replay the native recording. No
+  Mint action needed for this task.
 - **P2-T04b operation recordings are Windows-only.** The Linux fakes replay the Windows runs
   of Wiimm 2.42a (path display differs: the Cygwin build prints `/` for `\`). Closing it:
   on Linux run `scripts/record_tool_outputs.py` after bootstrap + fixtures, commit

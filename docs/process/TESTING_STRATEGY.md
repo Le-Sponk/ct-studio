@@ -86,9 +86,11 @@ is missing and nothing is protected.
   `rszst/5.11.5/inputs/`, because its modelled import accepts only those bytes and the
   recorded option combinations. Fake archives/JSON/sidecars/presets require exact
   marker-bearing contents; altered ones exit 121. The Windows operation recording is
-  translated for the Linux fake using both platforms' captured help/version banners;
-  a native Linux operation recording is still pending. Cases needing an OS's
-  native path behaviour are not replayed on the other OS.
+  translated for the Linux fake using both platforms' captured help/version banners and
+  the runner's LF progress-line normalization. This is a fake contract, not evidence of
+  the real Linux converter's operation output. A native Linux operation recording is
+  still pending. Cases needing an OS's native path behaviour are not replayed on the
+  other OS.
 - `scripts/record_tool_help.py` (P2-T04a) re-records `<os>-help.json` for every pinned CLI
   through the app's process runner, with LF newlines and the install folder replaced by
   `<tool-dir>`. It refuses a tool whose installed version differs from the catalogue pin.

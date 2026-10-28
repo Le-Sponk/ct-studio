@@ -4,9 +4,10 @@ Every case in ``tests/fakes/recordings/rszst/<version>/windows-ops.json`` (made 
 ``scripts/record_tool_outputs.py`` with the real rszst) is replayed against the fake through
 the core runner, with the recorded fixture DAE and stand-ins for the other inputs.
 
-The Linux build prints the same text with its own build banner and program name and exits
-255 where Windows reports -1 (the help/version recordings from both OSes show exactly that),
-so on Linux the Windows operation recordings are compared after that translation.
+The Linux help/version recordings show a different build banner and program name and exit
+255 where Windows reports -1. Linux operation recordings are still missing; the Linux fake
+replays the Windows operations with LF-based progress normalization, not a claim about the
+real Linux converter.
 """
 
 from __future__ import annotations
@@ -52,13 +53,22 @@ def banner(platform_name: str) -> str:
     return str(cli_records(platform_name)[0]["stdout"]).split("\n")[2]
 
 
-def for_this_os(record: dict[str, object]) -> dict[str, object]:
-    """The Windows recording as the Linux build prints it (see the module docstring)."""
-    if os.name == "nt":
+def for_this_os(record: dict[str, object], platform_name: str = OS_NAME) -> dict[str, object]:
+    """Translate Windows operation output to our LF-based Linux fake's visible text.
+
+    Windows emits CRLF plus progress CR. With LF on Linux, the runner strips a CR at the
+    end of a progress line; this translation does not claim real Linux operation parity.
+    """
+    if platform_name == "windows":
         return record
 
     def text(value: object) -> str:
-        return str(value).replace(banner("windows"), banner("linux")).replace("rszst.exe", "rszst")
+        return (
+            str(value)
+            .replace(banner("windows"), banner("linux"))
+            .replace("rszst.exe", "rszst")
+            .replace("\r\n", "\n")
+        )
 
     code = 255 if record["exit_code"] == WINDOWS_EXIT else record["exit_code"]
     return {
@@ -102,6 +112,19 @@ def test_operation_template_uses_its_recorded_banner_on_other_platform(
     monkeypatch.setattr(fake_rszst.cli, "BANNER", "DIFFERENT LINUX BANNER")
     assert fake_rszst.template("import").startswith("Processing...")
     assert "RiiStudio CLI Alpha" not in fake_rszst.template("import")
+
+
+def test_linux_progress_translation_matches_lf_fake_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Windows' final progress CR is stripped by the runner when fake Linux emits LF."""
+    from ctstudio.core.tools.process import _split
+
+    recorded = next(r for r in rto.load("rszst", VERSION) if r["case"] == "import missing")
+    expected = for_this_os(recorded, platform_name="linux")
+    monkeypatch.setattr(rszst_cli, "BANNER", banner("linux"))
+    monkeypatch.setattr(rszst_cli, "NEWLINE", "\n")
+    outcome = fake_rszst.reply(-1, fake_rszst.template("import missing"))
+    _, lines = _split(outcome.stdout.replace("\n", outcome.newline))
+    assert "".join(line + "\n" for line in lines) == expected["stdout"]
 
 
 def test_the_os_translation_matches_both_help_recordings() -> None:
