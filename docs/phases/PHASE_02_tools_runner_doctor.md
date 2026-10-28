@@ -122,7 +122,7 @@ command parse error exit -1 with a frozen-Python traceback; `-c 'X for *'` appen
 ` for *` and fails.
 **Acceptance:** as P2-T04b for `abmatt`.
 
-### [ ] P2-T04e — Blender fake
+### [x] P2-T04e — Blender fake (commit bf90cb0)
 `blender -b [FILE] --factory-startup [--python-exit-code N] --python SCRIPT -- ARGS`: the fake
 runs SCRIPT with the test interpreter (no `bpy`, so a script that needs it fails as an honest
 `ModuleNotFoundError`) and frames it like Blender 5.2.2: the version banner, `Blender quit`,

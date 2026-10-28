@@ -4,36 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04e — Blender fake
+**Next task:** P2-T05 — Adapters
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 78f66cc (P2-T04d Windows gate and Ubuntu/Windows CI
-[run 40645167987](https://github.com/Le-Sponk/ct-studio/actions/runs/40645167987))
+**Last green commit:** bf90cb0 (P2-T04e Windows gate and Ubuntu/Windows CI
+[run 40660325955](https://github.com/Le-Sponk/ct-studio/actions/runs/40660325955))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T04e` — (1) Measure pinned Blender 5.2.2 headless scripts, option/error paths and
-  valid/invalid `.blend` inputs through the core runner; scrub volatile timings and
-  paths, retain exact scripted/valid inputs. (2) Write failing replay and refusal tests,
-  then install an executable Blender fake as the seventh tool. (3) Run scripts under the
-  test interpreter without `bpy`, preserving Blender's observed exit, banner and quit
-  semantics; refuse unmeasured invocations rather than invent success. (4) Review, run
-  mutation/cross-platform checks and full gate, document scope, commit/push and verify
-  Ubuntu and Windows CI. Files: recorder/cases, tests/fakes, TOOLS.md, testing strategy,
-  phase checklist and STATUS. Risk: Blender elapsed times and Python tracebacks are
-  volatile; Windows recordings do not establish Linux Blender output parity. Local
-  evidence: 16 stable real Windows invocations; 11/11 assertion-failure mutations;
-  `check.py --all` 485 passed / 3 skipped; broad suite 558 passed / 21 skipped /
-  1 deselected; real Blender integration subset 11 passed. Independent review's
-  transient script-byte mismatch was resolved by re-recording, and its read/execute
-  race and partial-input-integrity findings were fixed with a single verified byte
-  snapshot and full SHA-256; version-banner-only identity and Linux limits are explicit.
-  Linux-target pyright, touched xenon/ruff and recording path-leak checks passed;
-  commit and both CI OSes are pending.
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T04e` — seventh executable fake replays 16 real Blender 5.2.2 Windows headless
+  runs using retained Python scripts and a known-good `.blend`. It executes exactly
+  verified script bytes with the test interpreter, refuses unknown inputs (121),
+  mirrors measured banner/quit/error exits and checks full input SHA-256; a `bpy` import
+  fails honestly under the fake. Independent review findings fixed or documented;
+  11/11 mutation assertions caught; full gate 485 passed / 3 skipped, broad suite
+  558 passed / 21 skipped, real Blender subset 11 passed — commit bf90cb0
+  ([CI 40660325955](https://github.com/Le-Sponk/ct-studio/actions/runs/40660325955),
+  Ubuntu and Windows green). Native Linux Blender operations remain unrecorded.
 - `P2-T04d` — ABMatt 1.3.2 fake replays 26 real Windows operations through the runner:
   DAE/OBJ conversion, material copy/edit, info, getopt and frozen errors. Exact inputs,
   separate texture-loss marker, verified rszst setup; unrecorded states exit 121. Review
