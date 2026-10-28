@@ -4,24 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04c — rszst fake and operation recordings
+**Next task:** P2-T04d — ABMatt fake and operation recordings
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** dd99b04 (P2-T04b Windows gate and Ubuntu/Windows CI
-[run 40595338853](https://github.com/Le-Sponk/ct-studio/actions/runs/40595338853))
+**Last green commit:** 3caa5f6 (P2-T04c Windows gate and Ubuntu/Windows CI
+[run 40615110381](https://github.com/Le-Sponk/ct-studio/actions/runs/40615110381))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T04c` — (1) `make_fixture_blend.py` exports `course.dae` (built-in writer, textures
-  copied) next to `course.kcl`. (2) `record_tool_outputs.py`: per-tool case tables; rszst
-  cases → `rszst/5.11.5/<os>-ops.json`. (3) RED: `test_fake_rszst.py` replays them through
-  the core runner. (4) `tests/fakes/fake_rszst.py` (clap model from the recorded help) and
-  `install.py` adds `rszst`. (5) Gate, mutation probe, docs, commit, CI. Risk: progress bars
-  use `\r` inside lines; the runner keeps them, so the fake must emit the same bytes.
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T04c` — rszst 5.11.5 fake replays 39 real Windows operations through the runner;
+  exact DAE/four PNG bytes, observed option combinations and strict marker contents only
+  (unmodelled → 121). The generated DAE has LF in Git. 7/7 review mutations caught;
+  gate 401 passed / 3 skipped, Ubuntu and Windows CI green — commits 4c9f209, 3caa5f6
+  ([CI 40615110381](https://github.com/Le-Sponk/ct-studio/actions/runs/40615110381)).
+  Native Linux operation output remains an explicit recording gap.
 - `P2-T04b` — fake wszst/wkclt/wkmpt/wimgt replay 57 recorded real operations and 22 help
   runs; real getopt errors (110/108); anything unrecorded exits 121 with nothing written;
   `fake_tools_path` installs real launchers (Windows `.exe`, Linux sh/Python) on PATH with a
@@ -325,7 +325,7 @@
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
-- 2026-10-29 (P2-T04c): split into P2-T04c (rszst), P2-T04d (ABMatt) and P2-T04e (Blender),
+- 2026-10-28 (P2-T04c): split into P2-T04c (rszst), P2-T04d (ABMatt) and P2-T04e (Blender),
   one tool per task. Measuring the three real tools on Windows found three unrelated
   behaviours (clap with -1 for help too; a frozen-Python script that exits 0 on "already
   exists"; Blender framing script output), and rszst first needs a DAE fixture.
@@ -558,8 +558,8 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   its elapsed time was not in the report; sandbox detection outside the unit fakes was
   not exercised on Linux. These are not P1-T07 CI acceptance blockers.
 
-- **P2-T04c rszst operation recordings are Windows-only.** Ubuntu CI will exercise the
-  fake's Linux executable and compare the Windows runs after translating the independently
+- **P2-T04c rszst operation recordings are Windows-only.** Ubuntu CI exercises the
+  fake's Linux executable and compares the Windows runs after translating the independently
   verified help/version differences and the runner's LF progress-line normalization.
   That does not prove the Linux real converter's progress or file effects. Closing it:
   on a Linux checkout with the pinned source-built rszst 5.11.5 and generated fixtures,

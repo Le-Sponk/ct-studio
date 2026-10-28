@@ -98,7 +98,7 @@ nothing written; discovery and version probes find the fakes on PATH. 18/18 muta
 fakes caught. CI run 40595338853 green on Ubuntu (sh/Python launchers) and Windows (`.exe`).
 Not verified: Linux recordings of the real tools (the fakes fall back to the Windows ones).
 
-### [ ] P2-T04c — rszst fake and operation recordings
+### [x] P2-T04c — rszst fake and operation recordings
 `scripts/fixtures/make_fixtures.py` also exports `course.dae` (the add-on's built-in COLLADA
 writer, textures beside it), so rszst has a real fixture input. `scripts/record_tool_outputs.py`
 grows a per-tool case table and records real `rszst` 5.11.5 runs: `import-brres` (default and
