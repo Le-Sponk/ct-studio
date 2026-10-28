@@ -521,8 +521,8 @@ that tool's help for that subcommand does not list fails the gate.
 | wimgt | 2.42a r8989 | version banner | `wimgt version` | 0 | not yet | real run, P0-T02 |
 | blender | 5.2.2 LTS | version | `blender --version` | 0 | not yet | real run, P0-T02 |
 | abmatt | 1.3.2 (release) | usage banner | `abmatt --help` | 0 | not yet | real run, P0-T02 |
-| wkclt | 2.42a r8989 | analyze KCL | `wkclt analyze FILE.kcl` | 0 | not yet | real run, P0-T03 |
-| wkclt | 2.42a r8989 | per-flag triangle table | `wkclt flags FILE.kcl` | 0 | not yet | real run, P0-T03 |
+| wkclt | 2.42a r8989 | analyze KCL | `wkclt analyze FILE.kcl` | 0; 36 not KCL/OBJ; 78 missing; 108 on `--long` | adapter, P2-T05c2 | real run, P0-T03/P2-T05c2 |
+| wkclt | 2.42a r8989 | per-flag triangle table | `wkclt flags FILE.kcl` | 0; 36; 78 | adapter, P2-T05c2 | real run, P0-T03/P2-T05c2 |
 | wkmpt | 2.42a r8989 | compile KMP text | `wkmpt encode SRC.txt --dest OUT.kmp [--overwrite]` | 0, **also on script errors** (`! wkmpt:` on stderr) | adapter, P2-T05c | real run, P0-T03/P2-T05c |
 | wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0; 36 not a KMP; 64/82/78 | adapter, P2-T05c | real run, P0-T03/P2-T05c |
 | wimgt | 2.42a r8989 | PNG → TEX0 | `wimgt encode IN.png -x TEX.<FMT> [--n-mipmaps N] --dest OUT.tex0 [--overwrite]` | 0; 110 bad format; 108 N>20; 64/82/78 | adapter (TEX0 header), P2-T05c | real run, P2-T05c |
@@ -562,6 +562,30 @@ summary-free, no-finding output **only** for the measured prefix at exit 2. The
 adapter is not a complete-track validator; it is a typed presentation of Wiimm's
 check results. Real fixtures exercise SZS and directory paths on Windows; Linux CI
 exercises the conservative fake and recorded parser contract, not native diagnostics.
+
+### KCL reports and minimap patching (P2-T05c2, real Windows runs)
+- `wkclt analyze FILE` prints `N / N  vertex normal` then `min:`/`max negative:`/
+  `min positive:`/`max:` rows (vertex, normal columns, `%e` floats). Junk exits 36
+  (`No KCL or OBJ file`), a missing file 78.
+- `wkclt flags FILE` prints a `* CHECK KCL` block on **stderr**, then on stdout one row
+  per flag (`0x212c = 0x0c | 0x109 << 5 : W X Y Z Ty : count = pct%`; flag = type |
+  variant << 5) and a type table (`T 0x0c : 96 = 32.88% : Wall`). `--brief` drops the
+  flag rows. Re-encoding the fixture OBJ with group suffixes `_F0120`/`_F212c` produced
+  the retained `variant.kcl`.
+- `wszst minimap --auto FILE.brres` prints a left-down/right-up table (`Idx+Id+Flags`,
+  `Scale`, `Rotation`, `Translation`, ` Recommend.`); when it patches it prints a second
+  table with the new translations and `PATCH MINIMAP BRRES:FILE`, rewriting the file in
+  place deterministically (two runs give identical bytes). Already-recommended values:
+  one table, no PATCH line, file untouched. **No bones or junk: header only, exit 0,
+  file untouched.** Missing file: 78.
+- `core.tools.wiimm_kcl`: `kcl_analyze` → `KclAnalysis`, `kcl_flags` → `KclFlags`
+  (flag and type tables must agree or `ParseError`), `minimap_auto` → `MinimapPatch(
+  patched, before, after, recommended)`; no minimap rows raise `WiimmError` (exit 0), and
+  a PATCH line with unchanged file bytes is an error.
+- `fake_wiimm_replay` replays these reports only for inputs whose SHA-256 matches a
+  retained recorded input (`map_model.brres`, `map_model_patched.brres`,
+  `no_bones_model.brres` under `wszst/2.42a/inputs`, `variant.kcl` under `wkclt`) and
+  writes the real patched bytes; any other KCL/BRRES is `Unmodelled`.
 
 ### wkmpt/wimgt conversions (P2-T05c, real Windows runs)
 - `wkmpt encode` **exits 0 on KMP text errors**: an unknown name prints

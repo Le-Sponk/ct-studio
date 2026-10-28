@@ -66,7 +66,7 @@ class AutoAddUnavailable(CTStudioError):
 
 
 @dataclass(frozen=True)
-class _Output:
+class WiimmOutput:
     exit_code: int
     stdout: str
     stderr: str
@@ -82,28 +82,34 @@ def executable_for(tool: str, configured: Path | None) -> Path:
     return location.path
 
 
-def _invoke(
-    executable: Path | None, args: list[str], cwd: Path, timeout: float, cancel: CancelToken | None
-) -> _Output:
-    """Run wszst collecting complete streams (the runner keeps only bounded tails)."""
+def invoke(
+    executable: Path | None,
+    args: list[str],
+    cwd: Path,
+    timeout: float,
+    cancel: CancelToken | None,
+    *,
+    tool: str = "wszst",
+) -> WiimmOutput:
+    """Run a Wiimm tool collecting complete streams (the runner keeps only bounded tails)."""
     lines: dict[Stream, list[str]] = {"stdout": [], "stderr": []}
 
     def collect(stream: Stream, line: str) -> None:
         lines[stream].append(line)
 
     result = run(
-        [executable_for("wszst", executable), *args],
+        [executable_for(tool, executable), *args],
         cwd=cwd,
         timeout=timeout,
         cancel=cancel,
         on_line=collect,
         check=False,
     )
-    return _Output(result.exit_code, "\n".join(lines["stdout"]), "\n".join(lines["stderr"]))
+    return WiimmOutput(result.exit_code, "\n".join(lines["stdout"]), "\n".join(lines["stderr"]))
 
 
-def _raise_on_error(
-    out: _Output, source: Path, ok_exits: tuple[int, ...], kind: type[WiimmError] = WiimmError
+def raise_on_error(
+    out: WiimmOutput, source: Path, ok_exits: tuple[int, ...], kind: type[WiimmError] = WiimmError
 ) -> None:
     """``ERROR #`` fails at any exit status; so does an exit outside ``ok_exits``."""
     details = out.stderr or out.stdout
@@ -128,8 +134,8 @@ def check(
     without a findings summary is incomplete, never evidence of a clean track.
     """
     source = Path(source).resolve()
-    out = _invoke(executable, ["check", source.name], source.parent, timeout, cancel)
-    _raise_on_error(out, source, (0, 2), WiimmCheckError)
+    out = invoke(executable, ["check", source.name], source.parent, timeout, cancel)
+    raise_on_error(out, source, (0, 2), WiimmCheckError)
     return parse_check(out.stdout, source, exit_code=out.exit_code)
 
 
@@ -148,8 +154,8 @@ def analyze(
     file exits 0 with ``valid: 0`` and is raised as a ``WiimmError``.
     """
     source = Path(source).resolve()
-    out = _invoke(executable, ["analyze", "--json", source.name], source.parent, timeout, cancel)
-    _raise_on_error(out, source, (0,))
+    out = invoke(executable, ["analyze", "--json", source.name], source.parent, timeout, cancel)
+    raise_on_error(out, source, (0,))
     try:
         parsed: object = json.loads(out.stdout)
     except json.JSONDecodeError as exc:
@@ -188,14 +194,14 @@ def create_szs(
     if overwrite:
         args.append("--overwrite")
     before = dest.stat().st_mtime_ns if dest.exists() else None
-    out = _invoke(executable, args, stage.parent, timeout, cancel)
-    _raise_on_error(out, stage, (0,))
+    out = invoke(executable, args, stage.parent, timeout, cancel)
+    raise_on_error(out, stage, (0,))
     _require_archive(dest, before, compression, out)
     return dest
 
 
 def _require_archive(
-    dest: Path, before: int | None, compression: Compression, out: _Output
+    dest: Path, before: int | None, compression: Compression, out: WiimmOutput
 ) -> None:
     """Exit 0 and no ERROR still do not prove a write: require a new file of the format."""
     written = dest.is_file() and dest.stat().st_mtime_ns != before

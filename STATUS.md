@@ -11,6 +11,17 @@ run 40680107361)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05c2` — (1) Record real `wkclt analyze`/`flags` on the fixture KCL, a KCL with
+  variant bits, junk and missing files, and `wszst minimap --auto` on an ABMatt map BRRES
+  (patched, already patched, no bones, junk, missing); retain the two ABMatt BRRES inputs.
+  (2) RED tests: typed `KclAnalysis` (triangle count, vertex/normal min/max), `KclFlags`
+  (per flag: type, variant, count; per type: count, description), `minimap_auto` returning
+  before/after/recommended translations and whether Wiimm patched, raising when no
+  `posLD`/`posRU` rows exist (exit 0, silent no-op) and on `ERROR #` at any exit.
+  (3) Fake replays recorded output only for byte-identical recorded inputs.
+  (4) Mutations, xenon, Linux pyright, full/broad/real gates, docs, commit/push, both CI.
+  Files: new `core/tools/wiimm_kcl.py`, `wiimm_adapter_cases.py`, recorder, `fake_wiimm.py`
+  (or sibling), tests, TOOLS.md, phase file, STATUS.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -589,13 +600,13 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
-- **P2-T05a–c Wiimm check/analyze/create/KMP/image evidence is Windows-only.** The adapters' real
+- **P2-T05a–c2 Wiimm check/analyze/create/KMP/image/KCL/minimap evidence is Windows-only.** The adapters' real
   SZS/stage-directory/empty/corrupt/missing integration tests ran against native Windows
   Wiimm 2.42a; Ubuntu CI exercises only the recorded parser and the prefix-only fake
   (which the adapter must refuse). To close: on Linux bootstrap Wiimm and fixtures, run
   `uv run python scripts/record_tool_outputs.py --only wiimms-szs-tools`, commit the
   `linux-ops.json` files and run `tests/integration/test_wiimm_adapter.py` and
-  `test_wiimm_convert_adapter.py` with their `os.name` skips relaxed to accept Linux. Nonblocking for the Windows-derived contract.
+  `test_wiimm_convert_adapter.py`/`test_wiimm_kcl_adapter.py` with their `os.name` skips relaxed to accept Linux. Nonblocking for the Windows-derived contract.
 - **P2-T04e Blender operation recordings are Windows-only.** Sixteen Blender 5.2.2
   invocations exercise the pinned scripts and known-good `.blend`. Ubuntu CI replays
   Windows diagnostics with deliberate path-separator translation through the no-`bpy`

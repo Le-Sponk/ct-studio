@@ -74,3 +74,44 @@ ENCODE_CASES: tuple[Case, ...] = (
         for name in KMP_TEXTS
     ),
 )
+
+# P2-T05c2: KCL analysis/flags and minimap patching. Inputs beyond the generated fixture
+# are retained whole under recordings/<tool>/<version>/inputs: an ABMatt map BRRES (with
+# posLD/posRU bones), the same model without bones, Wiimm's own patched result, and a KCL
+# re-encoded with variant bits set. The fakes replay these only for identical bytes.
+RETAINED = {
+    "map_model.brres": "wszst",
+    "map_model_patched.brres": "wszst",
+    "no_bones_model.brres": "wszst",
+    "variant.kcl": "wkclt",
+}
+
+
+def _kcl(command: str, label: str, source: str, setup: tuple[tuple[str, ...], ...]) -> Case:
+    return Case(f"kcl {command} {label}".strip(), ("wkclt", command, source), setup)
+
+
+def _minimap(label: str, source: str, setup: tuple[tuple[str, ...], ...] = ()) -> Case:
+    return Case(f"minimap auto {label}", ("wszst", "minimap", "--auto", source), setup)
+
+
+_KCL_INPUTS = (
+    ("", "stage/course.kcl", (_STAGE,)),
+    ("variant", "variant.kcl", (("@retained", "variant.kcl"),)),
+    ("junk", "junk.kcl", (("@junk", "junk.kcl"),)),
+    ("missing", "missing.kcl", ()),
+)
+KCL_CASES: tuple[Case, ...] = (
+    *(
+        _kcl(command, label, source, setup)
+        for command in ("analyze", "flags")
+        for label, source, setup in _KCL_INPUTS
+    ),
+    _minimap("brres", "map_model.brres", (("@retained", "map_model.brres"),)),
+    _minimap(
+        "brres patched", "map_model_patched.brres", (("@retained", "map_model_patched.brres"),)
+    ),
+    _minimap("no bones", "no_bones_model.brres", (("@retained", "no_bones_model.brres"),)),
+    _minimap("junk", "junk.brres", (("@junk", "junk.brres"),)),
+    _minimap("missing", "missing.brres"),
+)

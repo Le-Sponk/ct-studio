@@ -29,9 +29,16 @@ import record_tool_help as rth
 import tool_paths as tp
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
-from wiimm_adapter_cases import ANALYZE_CASES, CHECK_CASES, ENCODE_CASES, KMP_TEXTS
+from wiimm_adapter_cases import (
+    ANALYZE_CASES,
+    CHECK_CASES,
+    ENCODE_CASES,
+    KCL_CASES,
+    KMP_TEXTS,
+    RETAINED,
+)
 
-WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES + ENCODE_CASES
+WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES + ANALYZE_CASES + ENCODE_CASES + KCL_CASES
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
@@ -102,7 +109,7 @@ def _place_blender(action: str, args: list[str], work: Path, fixture: Fixture) -
 
 
 def _place_stage(action: str, args: list[str], work: Path, fixture: Fixture) -> bool:
-    """Wiimm inputs: the fixture KCL/KMP stage, an empty U8 directory, or KMP text."""
+    """Wiimm inputs: fixture stage, empty U8 directory, KMP text or a retained input."""
     if action == "@stage":
         (work / "stage").mkdir()
         for name in ("course.kcl", "course.kmp"):
@@ -111,6 +118,8 @@ def _place_stage(action: str, args: list[str], work: Path, fixture: Fixture) -> 
         (work / "empty").mkdir()
     elif action == "@kmptext":
         (work / args[0]).write_text(KMP_TEXTS[args[0]], encoding="utf-8", newline="\n")
+    elif action == "@retained":
+        (work / args[0]).write_bytes(fixture(args[0]))
     else:
         return False
     return True
@@ -305,6 +314,8 @@ def _recording_fixture(toolset: str, version: str) -> Fixture:
         raise rth.RecordError("retain the generated good.blend input before recording")
 
     def fixture(name: str) -> bytes:
+        if name in RETAINED:
+            return (rth.RECORDINGS / RETAINED[name] / version / "inputs" / name).read_bytes()
         directory = (
             blender_inputs
             if toolset == "blender"

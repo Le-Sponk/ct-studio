@@ -853,5 +853,103 @@
   "stdout": "\n",
   "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
   "files": {}
+ },
+ {
+  "case": "minimap auto brres",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "map_model.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of BRRES:map_model.brres\n\n               ______________left-down_______________    _______________right-up_______________\n-----------------------------------------------------------------------------------------------\nIdx+Id+Flags:         1         1     0x11c                     2         2     0x11c\nScale:              1.0       1.0       1.0                   1.0       1.0       1.0\nRotation            0.0       0.0       0.0                   0.0       0.0       0.0\nTranslation:    -6000.0       0.0    6100.0                6100.0       0.0   -6000.0\n Recommend.:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n-----------------------------------------------------------------------------------------------\nIdx+Id+Flags:         1         1     0x31f                     2         2     0x31f\nScale:              1.0       1.0       1.0                   1.0       1.0       1.0\nRotation            0.0       0.0       0.0                   0.0       0.0       0.0\nTranslation:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n-----------------------------------------------------------------------------------------------\nPATCH MINIMAP BRRES:map_model.brres\n",
+  "stderr": "",
+  "files": {
+   "map_model.brres": {
+    "effect": "changed",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "minimap auto brres patched",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model_patched.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "0063166ad84e3a7b977ab14d2cbebe0916e2a11ca6dc787fece4579336ed7c7e"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "map_model_patched.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of BRRES:map_model_patched.brres\n\n               ______________left-down_______________    _______________right-up_______________\n-----------------------------------------------------------------------------------------------\nIdx+Id+Flags:         1         1     0x31f                     2         2     0x31f\nScale:              1.0       1.0       1.0                   1.0       1.0       1.0\nRotation            0.0       0.0       0.0                   0.0       0.0       0.0\nTranslation:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n Recommend.:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n-----------------------------------------------------------------------------------------------\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "minimap auto no bones",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "no_bones_model.brres": {
+    "size": 3328,
+    "head": "62726573feff000000000d0000100002726f6f74000000580000002800000001",
+    "sha256": "a7af7a86c1aa8501e08621dfc8eda425561100e2445f5cac431df31f275571da"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "no_bones_model.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of BRRES:no_bones_model.brres\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "minimap auto junk",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "minimap",
+   "--auto",
+   "junk.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of ?:junk.brres\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "minimap auto missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "minimap",
+   "--auto",
+   "missing.brres"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.brres\n!!        -> No such file or directory [2]\n",
+  "files": {}
  }
 ]

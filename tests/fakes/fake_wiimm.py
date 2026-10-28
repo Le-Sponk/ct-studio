@@ -272,15 +272,15 @@ def wszst_analyze(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
 
 
 def wszst_minimap(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
-    allow(parsed, {"--auto"})
-    if "--auto" not in parsed.options:
-        raise Unmodelled("minimap without --auto")
-    raw = one_source(parsed)
-    if not Path(raw).exists():
-        raise Unmodelled("minimap of a missing file")
-    if any(name.startswith("map_model") for name in yaz0_archive(tool, raw)):
-        raise Unmodelled("minimap with a map model (the real tool patches it)")
-    return Outcome(0, f"\nMinimap data of YAZ0:{show(raw)}\n")
+    import fake_wiimm_replay  # sibling module; it reuses this module's helpers
+
+    return fake_wiimm_replay.minimap(tool, parsed)
+
+
+def wkclt_report(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
+    import fake_wiimm_replay
+
+    return fake_wiimm_replay.kcl_report(tool, parsed)
 
 
 # --- wkclt / wkmpt / wimgt -----------------------------------------------------------------
@@ -371,6 +371,8 @@ COMMANDS: dict[tuple[str, str], Command] = {
     ("wszst", "MINIMAP"): wszst_minimap,
     ("wszst", "ANALYZE"): wszst_analyze,
     ("wkclt", "DECODE"): wkclt_decode,
+    ("wkclt", "ANALYZE"): wkclt_report,
+    ("wkclt", "FLAGS"): wkclt_report,
     ("wkmpt", "DECODE"): wkmpt_decode,
     ("wkmpt", "ENCODE"): wkmpt_encode,
     ("wimgt", "ENCODE"): wimgt_encode,
