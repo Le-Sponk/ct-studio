@@ -131,7 +131,7 @@ def _texture(dae: Path, reference: str) -> tuple[str, Path]:
     for candidate in (relative, PurePosixPath("textures") / relative):
         if (dae.parent / candidate).is_file():
             return candidate.as_posix(), dae.parent / candidate
-    return reference, dae.parent / reference
+    raise RiiStudioError(dae, f"texture file missing: {reference} (rszst would substitute a blank)")
 
 
 def _dae_textures(dae: Path) -> dict[str, Path]:
