@@ -4,32 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04d — ABMatt fake and operation recordings
+**Next task:** P2-T04e — Blender fake
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 3caa5f6 (P2-T04c Windows gate and Ubuntu/Windows CI
-[run 40615110381](https://github.com/Le-Sponk/ct-studio/actions/runs/40615110381))
+**Last green commit:** 78f66cc (P2-T04d Windows gate and Ubuntu/Windows CI
+[run 40645167987](https://github.com/Le-Sponk/ct-studio/actions/runs/40645167987))
 **Last phase gate passed:** P1 — 2026-09-28, tag `phase-01-done` (review: docs/reviews/PHASE_01_REVIEW.md)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T04d` — (1) Record ABMatt 1.3.2 Windows conversions (DAE and OBJ), BRRES command
-  files/info and getopt/crash cases through the core runner, with volatile PID/timing
-  redacted. (2) RED replay tests against real executable stand-ins, refusing any unmeasured
-  input or argv (121). (3) Implement the `abmatt` launcher and measured subset, including
-  its wimgt dependency, real status quirks and no-write failures. (4) Review mutation,
-  platform/type/complexity gates, docs, full gate, commit/push and both CI OSes. Files:
-  `scripts/{ops_cases,record_tool_outputs}.py`, `tests/{fakes,unit}`, TOOLS.md, testing
-  strategy and phase checklist. Risk: frozen-Python errors carry volatile PID; Windows
-  operation recordings cannot establish real Linux conversion parity. Local evidence:
-  26 real Windows invocations; 12/12 fake-guard and 3/3 recorder-guard mutations caught;
-  `check.py --all` 448 passed, 3 skipped; broad suite 521 passed, 21 skipped,
-  1 deselected; real ABMatt integration subset 8 passed. Independent review's
-  missing-wimgt marker and setup-verification findings are fixed; code commit and
-  both CI OSes remain pending.
 
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T04d` — ABMatt 1.3.2 fake replays 26 real Windows operations through the runner:
+  DAE/OBJ conversion, material copy/edit, info, getopt and frozen errors. Exact inputs,
+  separate texture-loss marker, verified rszst setup; unrecorded states exit 121. Review
+  findings fixed; 12/12 fake and 3/3 recorder mutations caught; gate 448 passed / 3 skipped,
+  broad 521 passed / 21 skipped, real ABMatt integration 8 passed — commit 78f66cc
+  ([CI 40645167987](https://github.com/Le-Sponk/ct-studio/actions/runs/40645167987),
+  Ubuntu and Windows green). Real Linux ABMatt operations remain unrecorded.
 - `P2-T04c` — rszst 5.11.5 fake replays 39 real Windows operations through the runner;
   exact DAE/four PNG bytes, observed option combinations and strict marker contents only
   (unmodelled → 121). The generated DAE has LF in Git. 7/7 review mutations caught;
@@ -574,7 +567,7 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 
 - **P2-T04d ABMatt operation recordings are Windows-only.** The 1.3.2 Windows binary's
   banner differs from the same-tag Linux build (which reports 1.3.1); neither Linux
-  help nor real operations have been captured. Ubuntu CI can replay Windows outputs
+  help nor real operations have been captured. Ubuntu CI replays Windows outputs
   through the executable fake with LF/status translation, but that does not verify Linux
   ABMatt's timing, diagnostics or file effects. To close: on Linux bootstrap the pinned
   ABMatt and fixtures, run `uv run python scripts/record_tool_help.py` and

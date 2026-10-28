@@ -113,7 +113,7 @@ progress bars count distinct instanced geometries.
 clap errors as recorded; non-ASCII absolute paths fail like the real Windows build
 (`FileNotExist`) and are unmodelled on Linux; anything unrecorded exits 121.
 
-### [ ] P2-T04d — ABMatt fake and operation recordings
+### [x] P2-T04d — ABMatt fake and operation recordings (commit 78f66cc)
 Same for `abmatt` 1.3.2: `convert` DAE/OBJ → BRRES (with/without `-o`, existing destination),
 `-b FILE -f CMDS -o`, `-b FILE -c info`; getopt errors (exit 2). Measured on Windows: it needs
 `wimgt` on PATH (else an `ERROR: wimgt not found` line and no textures); "already exists" and a
