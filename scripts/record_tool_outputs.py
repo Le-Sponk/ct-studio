@@ -26,7 +26,11 @@ from pathlib import Path
 
 import record_tool_help as rth
 import tool_paths as tp
-from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, WIIMM_CASES, Case
+from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
+from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
+from wiimm_check_cases import CHECK_CASES
+
+WIIMM_CASES = BASE_WIIMM_CASES + CHECK_CASES
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
@@ -90,6 +94,19 @@ def _place_blender(action: str, args: list[str], work: Path, fixture: Fixture) -
     return True
 
 
+def _place_stage(action: str, work: Path, fixture: Fixture) -> bool:
+    """Wiimm stage directories: the fixture KCL/KMP pair, or an empty U8 directory."""
+    if action == "@stage":
+        (work / "stage").mkdir()
+        for name in ("course.kcl", "course.kmp"):
+            (work / "stage" / name).write_bytes(fixture(name))
+    elif action == "@empty_stage":
+        (work / "empty").mkdir()
+    else:
+        return False
+    return True
+
+
 def _place_special(action: str, args: list[str], work: Path, fixture: Fixture) -> bool:
     return _place_blender(action, args, work, fixture) or _place_abmatt(action, args, work, fixture)
 
@@ -131,11 +148,9 @@ def prepare(
     """Create the case's inputs in ``work``; tool steps use ``resolve``, files ``fixture``."""
     for step in case.setup:
         action, *args = step
-        if action == "@stage":
-            (work / "stage").mkdir()
-            for name in ("course.kcl", "course.kmp"):
-                (work / "stage" / name).write_bytes(fixture(name))
-        elif action == "@dae":
+        if _place_stage(action, work, fixture):
+            continue
+        if action == "@dae":
             for name in ("course.dae", *DAE_TEXTURES):
                 (work / name).write_bytes(fixture(name))
         elif action == "@sentinel":

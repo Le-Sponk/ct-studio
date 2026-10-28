@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05 — Adapters
+**Next task:** P2-T05a — Wiimm `check` and Issues
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** bf90cb0 (P2-T04e Windows gate and Ubuntu/Windows CI
 [run 40660325955](https://github.com/Le-Sponk/ct-studio/actions/runs/40660325955))
@@ -12,6 +12,17 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05a` — (1) Inspect real `wszst check` fixture, directory, corrupt and missing
+  recordings; capture any missing directory/warning cases before parsing. (2) RED tests
+  for typed Issues and the deceptive exit statuses, using the installed fake via the core
+  process runner and real fixture integration. (3) Implement only `wiimm.check` plus the
+  shared Issue type/error mapping; never equate exit 0 with valid or exit 2 with failure.
+  (4) Review/mutate, verify Linux-target pyright, complexity, full/broad tests and real
+  integration, document the Windows-recording gap, commit/push and verify both CI OSes.
+  Files: `src/ctstudio/core/{validation/issues.py,validation/wszst_check.py,tools/wiimm.py}`,
+  fake/recorder only if coverage needs new rows, tests, TOOLS.md, phase checklist and
+  STATUS. Risk: Wiimm reports findings on both streams and can return 0 for corrupt
+  input; fake output is intentionally only a prefix, not real findings.
 
 
 ## Done (newest first)
@@ -341,6 +352,11 @@
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-28 (P2-T05): split the seven-adapter scope into P2-T05a–g (Wiimm check,
+  analyze/create, KCL/KMP/image/minimap, auto-add; rszst/ABMatt; Blender; editors/Wine).
+  Its recorded-output parsing, library-content guard, Windows ANSI-path workaround and
+  platform-specific launch contracts cannot fit one ~400-line session; each subtask has
+  its own real/fake acceptance and both-OS CI. Phase 2 scope is unchanged.
 - 2026-10-28 (P2-T04c): split into P2-T04c (rszst), P2-T04d (ABMatt) and P2-T04e (Blender),
   one tool per task. Measuring the three real tools on Windows found three unrelated
   behaviours (clap with -1 for help too; a frozen-Python script that exits 0 on "already
@@ -565,6 +581,13 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
+- **P2-T05a Wiimm `check` findings are Windows-only evidence.** The adapter's real
+  SZS/stage-directory/empty/corrupt/missing integration tests ran against native Windows
+  Wiimm 2.42a; Ubuntu CI exercises only the recorded parser and the prefix-only fake
+  (which the adapter must refuse). To close: on Linux bootstrap Wiimm and fixtures, run
+  `uv run python scripts/record_tool_outputs.py --only wiimms-szs-tools`, commit the
+  `linux-ops.json` files and run `tests/integration/test_wiimm_check_adapter.py` with its
+  `os.name` skip relaxed to accept Linux. Nonblocking for the Windows-derived contract.
 - **P2-T04e Blender operation recordings are Windows-only.** Sixteen Blender 5.2.2
   invocations exercise the pinned scripts and known-good `.blend`. Ubuntu CI replays
   Windows diagnostics with deliberate path-separator translation through the no-`bpy`

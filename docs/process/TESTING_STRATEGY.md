@@ -88,10 +88,15 @@ is missing and nothing is protected.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
 - `scripts/record_tool_outputs.py` (P2-T04b/e) runs per-tool case tables from
-  `scripts/ops_cases.py` on the generated or retained fixtures. `<os>-ops.json` keeps output, exit
-  code, file effects (created/changed and first bytes), and fixture sizes/heads;
-  new retained inputs also record a full SHA-256 so changes beyond the header fail
-  replay. `test_fake_wiimm.py`, `test_fake_rszst.py`, `test_fake_abmatt.py` and
+  `scripts/ops_cases.py` and `scripts/wiimm_check_cases.py` on the generated or retained
+  fixtures. `<os>-ops.json` keeps output, exit code, file effects (created/changed and
+  first bytes), and input sizes/heads. The Wiimm fixture KCL/KMP and PNG bytes are
+  retained beside each affected recording, with full SHA-256 so re-recording checks
+  them byte-for-byte. The P2-T05a directory, empty directory and empty archive cases
+  capture a critical distinction: real empty checks exit 2 without a summary; fake
+  prefixes exit 0 and the adapter refuses to call them clean. Ubuntu CI verifies
+  translated fake replay and recorded parser behavior, not native Linux Wiimm output.
+  `test_fake_wiimm.py`, `test_fake_rszst.py`, `test_fake_abmatt.py` and
   `test_fake_blender.py` replay through the same runner. ABMatt's captured elapsed
   seconds and frozen-Python PID are replaced by `<duration>` and `[<pid>]`; Blender
   report elapsed time becomes

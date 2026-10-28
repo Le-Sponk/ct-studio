@@ -130,43 +130,58 @@ exit 0 on a script exception unless `--python-exit-code`, `sys.exit(n)` → n wi
 an unknown argument loaded as a file (exit 1), a missing/unsupported `.blend` exit 1.
 **Acceptance:** as P2-T04b for `blender`; `fake_tools_path` provides all seven tools.
 
-### [ ] P2-T05 — Adapters
-Thin typed facades; flags only from TOOLS.md:
-**From S1 (P0-T04), non-negotiable for `wiimm.py`:** `wszst check` exits 2 for valid *and*
-broken tracks but 0 for a corrupt file, so `check()` must parse output and raise on
-`ERROR #`, never branch on the exit code. Add `analyze(szs) -> dict` (`analyze --json`)
-and prefer it for status; it supersedes `slots()`.
-- `wiimm.py`: `create_szs(stage, dest, compression, auto_add, extra)`, `check(szs|dir) -> list[Issue]`,
-  `analyze(szs) -> dict`, `minimap_auto(file)`, `kcl_analyze(kcl)`, `kcl_flags(kcl)`, `kmp_to_text/ from_text`,
-  `img_encode(png, dest, format, mipmaps)`, `autoadd_status()`, and
-  `autoadd_create(race_course_dir, dest)`. The auto-add parser follows the human recording in
-  TOOLS.md: status returns the current path plus indexed search paths, while create success is exit
-  0 plus one `ANALYZE YAZ0.U8:<path>` line per processed archive (there is no summary). Add fake-tool
-  outputs with synthetic paths for both forms. `auto_add=True` must fail loudly unless a separate
-  content check says the library is usable: status exit 0, directory existence, and search-path
-  count do **not** establish that (wszst otherwise ignores the flag silently).
-- `abmatt.py`, `rszst.py`: only the operations S3/S4/S5 proved useful.
-  **From P0-T13 (native Windows):** `rszst` cannot open a non-ASCII absolute path (it reads
-  argv through the ANSI code page and reports `FileNotExist`); run it with `cwd` = the file's
-  directory and bare file names — always, so there is one code path. Failure exit status is
-  -1 as the OS reports it (255 Linux, 0xFFFFFFFF Windows): test "non-zero", never a literal.
-  ABMatt can crash *after* writing its output (CJK path → `UnicodeEncodeError`, exit 0), so
-  success = the output file exists and parses, not a clean log.
-- `blender.py`: `run_script(blend, script, args, timeout)`.
-- `editors.py`: `open_in(tool_id, file)` using the S7 launch contracts (TOOLS.md); `wine.py`: prefix
-  handling, `winepath`. S7 pinned the shape: **one path per launch, one process per launch**, never
-  two documents (BrawlCrate's second argument is a node path *inside* the first file, Blender's
-  replaces the first). Options go **after** the path — Lorenzi's editor opens `argv[1]` whatever it
-  is. `wine.py` must select the prefix by executable architecture (PE32 → win32, PE32+ → win64;
-  `Bad EXE format` otherwise) and convert with `winepath -w`. `open_in` returns "launched", never
-  "opened": RiiStudio stays up with an empty window after a failed load, and two of the five editors
-  never name the file in their window title, so neither liveness nor titles can be checked.
-  Natively on Windows (P0-T13) none of the four editors registers a file association, so launch
-  by argv, never `ShellExecute` on the document. RiiStudio silently opens nothing for a
-  non-ASCII path: `open_in` must warn before launching it on one.
-Parsers produce dataclasses/Issues; parsing code has unit tests against recordings.
-**Acceptance:** unit tests with recordings; `-m integration` tests run each adapter against real tools
-on the fixture.
+### [ ] P2-T05a — Wiimm `check` and Issues
+Add `wiimm.py` with `check(szs|dir) -> list[Issue]`. Parse recorded `wszst check` output into
+shared typed Issues (severity, component, code, message, hint, source, file/wiki where known).
+Do **not** use exit status as pass/fail: valid and broken tracks exit 2, while a corrupt file
+may exit 0 with `ERROR #39`. Run via the core runner with `check=False`; raise a typed error
+on `ERROR #` even at exit 0, and on nonzero failures that are not normal `DIFFER`.
+**Acceptance:** recorded good/warnings/corrupt/missing cases and parser unit tests, fake
+invocation through the runner, real fixture archive and directory integration checks on
+Windows; Ubuntu CI checks the fake contract, not native Linux Wiimm diagnostics.
+
+### [ ] P2-T05b — Wiimm `analyze` and basic SZS creation
+`analyze(szs) -> dict` uses verified `wszst analyze --json`, preferred to `slots()` for
+status. `create_szs(stage, dest, compression, auto_add, extra)` uses recorded flags;
+check both file output and diagnostics (Wiimm can exit 0 without writing). Reject
+`auto_add=True` until P2-T05d's independent library-content guard exists.
+**Acceptance:** real JSON/creation recordings, fake and real integration tests.
+
+### [ ] P2-T05c — Wiimm KCL/KMP/image/minimap operations
+Add `minimap_auto`, `kcl_analyze`, `kcl_flags`, KMP text encode/decode and `img_encode`
+with only pinned verified flags; typed parsing/outputs and real fixture/fake tests.
+
+### [ ] P2-T05d — Wiimm auto-add and creation guard
+Implement `autoadd_status()` (current path + indexed search paths) and
+`autoadd_create(race_course_dir, dest)` (count `ANALYZE YAZ0.U8:<path>` lines; no summary).
+Add synthetic-path fake recordings. `create_szs(auto_add=True)` may proceed **only** when an
+independent content check proves a usable library: status exit 0, directory existence
+and search-path count alone are insufficient; otherwise fail loudly.
+**Acceptance:** status/create parsers and fake tests, guarded real integration where the
+user's own library is available; no bundled game content.
+
+### [ ] P2-T05e — rszst and ABMatt adapters
+Expose only S3/S4/S5-proven operations. Run rszst with cwd = the file's directory and
+bare file names, always: Windows argv mangles non-ASCII absolute paths. Treat exit(-1)
+as nonzero (255 Linux, 0xFFFFFFFF Windows), not a literal. ABMatt may crash after writing
+its output (CJK path, UnicodeEncodeError, exit 0); success requires a parsed output file.
+**Acceptance:** recorded/fake parsers and real fixture integration on Windows, Ubuntu fake CI.
+
+### [ ] P2-T05f — Blender script adapter
+`blender.py:run_script(blend, script, args, timeout)` uses a nonzero
+`--python-exit-code`, since Python exceptions otherwise exit 0. Test real 5.2.2 on a
+fixture and the conservative fake; preserve timeout and error details.
+
+### [ ] P2-T05g — Editor launch and Wine adapters
+`editors.py:open_in(tool_id, file)` follows S7: one path/process per launch; options after
+the path (Lorenzi opens argv[1] as a file), no native Windows ShellExecute associations.
+Return "launched", never "opened": RiiStudio may stay alive with an empty window and
+some editors never name the file. Warn on Windows non-ASCII RiiStudio paths. `wine.py`
+selects prefixes by PE architecture (PE32 → win32, PE32+ → win64; Bad EXE format otherwise)
+and converts with `winepath -w`. Test Linux/Wine and native Windows contracts independently.
+
+All adapter flags come from TOOLS.md; parsers have tests against recordings, and available
+real tools are exercised by `-m integration` on fixtures. One subtask per session.
 
 ### [ ] P2-T06 — `ctstudio doctor`
 Table: tool, status (found/missing/too old/sandboxed), version, path, launcher, used for, fix hint.

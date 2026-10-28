@@ -526,7 +526,7 @@ that tool's help for that subcommand does not list fails the gate.
 | wkmpt | 2.42a r8989 | compile KMP text | `wkmpt encode SRC.txt --dest OUT.kmp --overwrite` | 0 (warnings do not fail) | not yet | real run, P0-T03 |
 | wkmpt | 2.42a r8989 | decode KMP to text | `wkmpt decode FILE.kmp --dest OUT.txt --overwrite [--brief]` | 0 | not yet | real run, P0-T03 |
 | wszst | 2.42a r8989 | build SZS from a stage dir | `wszst create DIR --dest OUT.szs --overwrite [--compr=LEVEL]` | 0 = ok | no | real run, P0-T04 |
-| wszst | 2.42a r8989 | validate a track | `wszst check FILE.szs [--brief]` | **see warning below** | yes, text | real run, P0-T04 |
+| wszst | 2.42a r8989 | validate a track or stage dir | `wszst check FILE.szs\|DIR [--brief]` | **see warning below** | yes, text | real run, P0-T04/P2-T05a |
 | wszst | 2.42a r8989 | structured analysis | `wszst analyze --json FILE.szs` | 0 | yes, JSON | real run, P0-T04 |
 | wszst | 2.42a r8989 | list archive contents | `wszst list [--long] FILE.szs` | 0 | yes, text | real run, P0-T04 |
 | wszst | 2.42a r8989 | slot proposals | `wszst slots FILE.szs` | 0 | yes, text | real run, P0-T04 |
@@ -541,12 +541,26 @@ Verified by real runs; see [SPIKES.md §S1](../dev/SPIKES.md#s1--wiimms-assemble
 | File not on disk | 78 (`CAN'T OPEN FILE`) | yes |
 
 The adapter must parse output and treat `ERROR #` as failure regardless of exit code.
-`wszst create` is normal (0 = success); only `check` behaves this way.
+`wszst create` is normal (0 = success); only `check` behaves this way. A successful
+check of a completely empty directory or SZS prints **only** `CHECK U8:<dir>` or
+`CHECK YAZ0.U8:<file>`, **no summary**, and exits 2. By contrast the conservative fake
+prints only that same prefix but exits 0; the adapter rejects such incomplete fake
+output rather than reporting the track clean. Empty input with zero Issues is not
+proof of track completeness: `analyze --json` is the status source (P2-T05b).
 
 Output severities are prefixed `+ WARNING:`, `- HINT:`, `* INFO:`, and the run ends with
 `=> N warnings, M hints and K info for <type>:<path>`. `-B/--brief` drops hints.
 Missing components are only reported when a KMP is present:
 `+ WARNING: Missing file:    ./course_model.brres (or '_d' variant)`.
+P2-T05a's `core.tools.wiimm.check(Path, executable=...)` runs the CLI via the core
+runner with exit checking disabled, gathers the complete report rather than its bounded
+tail, raises `WiimmCheckError` on `ERROR #` (including exit 0) or an unexpected exit,
+and maps findings to `Issue(severity, component, code, message, hint, source, file,
+wiki)`. It checks the printed summary against parsed finding counts. It accepts
+summary-free, no-finding output **only** for the measured prefix at exit 2. The
+adapter is not a complete-track validator; it is a typed presentation of Wiimm's
+check results. Real fixtures exercise SZS and directory paths on Windows; Linux CI
+exercises the conservative fake and recorded parser contract, not native diagnostics.
 
 ### wszst machine-readable output (P0-T04)
 `check --sections` and `slots --sections` are **rejected** (`ERROR #108`, exit 108).

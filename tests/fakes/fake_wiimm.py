@@ -18,6 +18,7 @@ import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 
 import wiimm_cli
@@ -145,15 +146,32 @@ def yaz0_archive(tool: str, raw: str) -> dict[str, dict[str, object]]:
 # --- wszst ---------------------------------------------------------------------------------
 
 
-def wszst_create(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
+def _is_empty(name: str, folder: Path) -> bool:
+    return name == "empty" and folder.is_dir() and not any(folder.iterdir())
+
+
+def _empty_archive(parsed: wiimm_cli.Parsed, where: Target) -> bytes:
+    """Only the exact recorded empty-stage creation is modelled."""
+    if where.raw != "empty.szs" or set(parsed.options) != {"--dest"}:
+        raise Unmodelled("unrecorded empty archive creation")
+    return YAZ0 + FAKE_MARK + b"{}"  # exact recorded invocation, not real SZS bytes
+
+
+def _create_options(parsed: wiimm_cli.Parsed) -> bool:
+    """Validate recorded creation flags; return whether the archive is uncompressed."""
     allow(parsed, {"--dest", "--DEST", "--overwrite", "--no-compress", "--fast", "--compr"})
-    source = one_source(parsed)
     compr = parsed.options.get("--compr")
     if compr is not None and not re.fullmatch(r"[0-9]", str(compr)):
         raise Unmodelled(f"--compr={compr}")
     plain = "--no-compress" in parsed.options
     if plain and ({"--fast", "--compr"} & set(parsed.options)):
         raise Unmodelled("--no-compress with a compression level")
+    return plain
+
+
+def wszst_create(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
+    plain = _create_options(parsed)
+    source = one_source(parsed)
     name = source.rstrip("/\\")
     default = f"./{name}.szs" if name and Path(name).name == name else None
     where = target(parsed, default)
@@ -168,7 +186,7 @@ def wszst_create(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
         raise Unmodelled("create from a single file")
     label, magic = ("U8", U8) if plain else ("YAZ0.U8", YAZ0)
     line = f"CREATE {shown} -> {label}:{show(where.raw)}\n"
-    data = fake_archive(magic, folder)
+    data = _empty_archive(parsed, where) if _is_empty(name, folder) else fake_archive(magic, folder)
     overwrite = "--overwrite" in parsed.options
     return write_one(tool, line, where, data, overwrite=overwrite, exit_on_block=False)
 
@@ -192,9 +210,33 @@ def _magic_text(magic_hex: str) -> str:
     return "".join(chr(byte) if 0x20 < byte < 0x7F else "." for byte in bytes.fromhex(magic_hex))
 
 
+def _known_stage(folder: Path) -> bool:
+    """Only the byte-identical recorded fixture can justify a fake directory prefix."""
+    row = next(
+        row for row in recordings("wszst", VERSION, "ops") if row["case"] == "check directory"
+    )
+    inputs = row["inputs"]
+    if {entry.name for entry in folder.iterdir()} != {"course.kcl", "course.kmp"}:
+        return False
+    return all(
+        not (path := folder / name).is_symlink()
+        and path.is_file()
+        and sha256(path.read_bytes()).hexdigest() == info["sha256"]
+        for name, info in inputs.items()
+    )
+
+
 def wszst_check(tool: str, parsed: wiimm_cli.Parsed) -> Outcome:
     allow(parsed, {"--brief"})
     raw = one_source(parsed)
+    if Path(raw).is_dir():
+        if "--brief" in parsed.options:
+            raise Unmodelled("brief check of a directory")
+        if raw == "empty" and not any(Path(raw).iterdir()):
+            return Outcome(0, "\nCHECK U8:empty\n")
+        if not _known_stage(Path(raw)):
+            raise Unmodelled("check of an unrecorded directory")
+        return Outcome(0, f"\nCHECK U8:{show(raw)}\n")
     archive = read_archive(read_source(tool, raw, stdout="\nCHECK ?:\n"))
     if archive is None:
         message = f"CHECK doesn't support file format '?': {show(raw)}"
