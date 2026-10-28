@@ -1,0 +1,1339 @@
+[
+ {
+  "case": "import",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File out.brres will be overwritten by this operation.\n",
+  "files": {
+   "out.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import existing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "",
+  "files": {
+   "out.brres": {
+    "effect": "changed",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import default dest",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File course.brres will be overwritten by this operation.\n",
+  "files": {
+   "course.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import model name",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--model-name",
+   "vrcorn"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: vrcorn\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File out.brres will be overwritten by this operation.\n",
+  "files": {
+   "out.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import mipmaps",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--mipmaps",
+   "--min-mip",
+   "64"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File out.brres will be overwritten by this operation.\n",
+  "files": {
+   "out.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import missing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "import-brres",
+   "missing.dae",
+   "x.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\r\nFailed to parse args: FileNotExist\n",
+  "stderr": "Error: File missing.dae does not exist.\nFailed to parse args: FileNotExist\n",
+  "files": {}
+ },
+ {
+  "case": "import junk",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "import-brres",
+   "junk.dae",
+   "j.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\n\nFailed to parse: Assimp failed to read scene\n",
+  "stderr": "Warning: File j.brres will be overwritten by this operation.\nFailed to parse: Assimp failed to read scene\n",
+  "files": {}
+ },
+ {
+  "case": "import no folder",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "sub/x.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File sub/x.brres will be overwritten by this operation.\n",
+  "files": {}
+ },
+ {
+  "case": "import presets",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "pre.brres",
+   "--preset-path",
+   "presets"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rInfo: Reading presets from presets\nExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\rExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n\n",
+  "stderr": "Warning: File pre.brres will be overwritten by this operation.\n",
+  "files": {
+   "pre.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import presets missing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--preset-path",
+   "nothere"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: course\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File out.brres will be overwritten by this operation.\nWarning: Preset path nothere does not exist not valid.\n",
+  "files": {
+   "out.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import absolute paths",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "<work>\\course.dae",
+   "<work>\\abs.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\r\nFailed to parse args: FileNotExist\n",
+  "stderr": "Error: File <work>\\course.dae does not exist.\nFailed to parse args: FileNotExist\n",
+  "files": {}
+ },
+ {
+  "case": "import unknown flag",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--bogus-flag"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '--bogus-flag' found\n\n  tip: to pass '--bogus-flag' as a value, use '-- --bogus-flag'\n\nUsage: rszst.exe import-brres <FROM> <TO>\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import misspelt flag",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--model-na",
+   "v"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '--model-na' found\n\n  tip: a similar argument exists: '--model-name'\n\nUsage: rszst.exe import-brres --model-name <MODEL_NAME> <FROM> <TO>\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import value missing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--model-name"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: a value is required for '--model-name <MODEL_NAME>' but none was supplied\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import misspelt short suggestion",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--x",
+   "1"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '--x' found\n\n  tip: a similar argument exists: '--max-mip'\n\nUsage: rszst.exe import-brres --max-mip <MAX_MIP> <FROM> <TO>\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import unknown flag first",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "import-brres",
+   "--bogus-flag",
+   "course.dae"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '--bogus-flag' found\n\n  tip: to pass '--bogus-flag' as a value, use '-- --bogus-flag'\n\nUsage: rszst.exe import-brres [OPTIONS] <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import unknown flag after source",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "--nametag"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '--nametag' found\n\n  tip: to pass '--nametag' as a value, use '-- --nametag'\n\nUsage: rszst.exe import-brres <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import unknown short",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "-z"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '-z' found\n\n  tip: to pass '-z' as a value, use '-- -z'\n\nUsage: rszst.exe import-brres [OPTIONS] <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import extra positional",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "extra"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument 'extra' found\n\nUsage: rszst.exe import-brres [OPTIONS] <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import repeated option",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--model-name",
+   "a",
+   "--model-name",
+   "b"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: the argument '--model-name <MODEL_NAME>' cannot be used multiple times\n\nUsage: rszst.exe import-brres [OPTIONS] <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import bad number",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--min-mip",
+   "abc"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: invalid value 'abc' for '--min-mip <MIN_MIP>': invalid digit found in string\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "import equals value",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "import-brres",
+   "course.dae",
+   "out.brres",
+   "--model-name=vrcorn"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nProcessing...                   [>                                                                     ] 0 %\rExcluding tangents/bitangents\nExcluding boneweights\nExcluding animations\nExcluding lights\nExcluding cameras\nModel name: vrcorn\nOptimizing meshes 0/0           [>                                                                     ] 0 %\rOptimizing meshes (0 / 4)       [>                                                                     ] 0 %\rOptimizing meshes (1 / 4)       [=================>                                                    ] 25 %\rOptimizing meshes (2 / 4)       [===================================>                                  ] 50 %\rOptimizing meshes (3 / 4)       [====================================================>                 ] 75 %\rOptimizing meshes (4 / 4)       [======================================================================] 100 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 0/4            [>                                                                     ] 0 %\rCompiling meshes 1/4            [=================>                                                    ] 25 %\rCompiling meshes 2/4            [===================================>                                  ] 50 %\rCompiling meshes 3/4            [====================================================>                 ] 75 %\rApplying material presets       [>                                                                     ] 0 %\r\n",
+  "stderr": "Warning: File out.brres will be overwritten by this operation.\n",
+  "files": {
+   "out.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "import no source",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "import-brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: the following required arguments were not provided:\n  <FROM>\n\nUsage: rszst.exe import-brres <FROM> [TO]\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "to json unknown flag",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "brres-to-json",
+   "out.brres",
+   "out.json",
+   "--bogus-flag"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unexpected argument '--bogus-flag' found\n\n  tip: to pass '--bogus-flag' as a value, use '-- --bogus-flag'\n\nUsage: rszst.exe brres-to-json <FROM> <TO>\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "unknown subcommand",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "IMPORT-BRRES",
+   "course.dae",
+   "x.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "error: unrecognized subcommand 'IMPORT-BRRES'\n\nUsage: rszst.exe <COMMAND>\n\nFor more information, try '--help'.\n\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n::\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "to json",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "brres-to-json",
+   "out.brres",
+   "out.json"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "",
+  "files": {
+   "out.bin": {
+    "effect": "created",
+    "magic": "52425546"
+   },
+   "out.json": {
+    "effect": "created",
+    "magic": "7b226368"
+   }
+  }
+ },
+ {
+  "case": "to json default dest",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "brres-to-json",
+   "out.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "",
+  "files": {
+   "out.bin": {
+    "effect": "created",
+    "magic": "52425546"
+   },
+   "out.json": {
+    "effect": "created",
+    "magic": "7b226368"
+   }
+  }
+ },
+ {
+  "case": "to json existing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "brres-to-json",
+   "out.brres",
+   "out.json"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "Warning: File out.json will be overwritten by this operation.\n",
+  "files": {
+   "out.bin": {
+    "effect": "created",
+    "magic": "52425546"
+   },
+   "out.json": {
+    "effect": "changed",
+    "magic": "7b226368"
+   }
+  }
+ },
+ {
+  "case": "to json missing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "brres-to-json",
+   "missing.brres",
+   "m.json"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nFolderNotExist\n",
+  "stderr": "Error: File missing.brres does not exist.\n",
+  "files": {}
+ },
+ {
+  "case": "to json junk",
+  "tool": "rszst",
+  "compare": "unmodelled",
+  "inputs": {},
+  "argv": [
+   "brres-to-json",
+   "j.brres",
+   "j.json"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExpected magic identifier root at 16. Instead saw \nnot.\n",
+  "stderr": "brres_read_from_bytes:0x10: warning: Expected magic identifier root at 16. Instead saw \nnot.\n\tOffset\t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n\t000010\t0A 6E 6F 74 20 61 20 74 72 61 63 6B 20 66 69 6C .not a track fil\n\t      \t^~~~~~~~~~~                                     ^~~~\n",
+  "files": {}
+ },
+ {
+  "case": "to json no folder",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "brres-to-json",
+   "out.brres",
+   "sub/o.json"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "from json",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "json-to-brres",
+   "out.json",
+   "back.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n",
+  "stderr": "",
+  "files": {
+   "back.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "from json missing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "json-to-brres",
+   "missing.json",
+   "b.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nFailed to read file at \"missing.json\"\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "from json without bin",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "json-to-brres",
+   "j.json",
+   "b.brres"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nFailed to read file at \"j.bin\"\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "dump presets",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "dump-presets",
+   "out.brres",
+   "presets"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "Dumping Presets BRRES,out.brres => presets\n",
+  "files": {
+   "presets/fence.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "presets/grass.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "presets/road.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "presets/water.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "dump presets default dest",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "dump-presets",
+   "out.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "Dumping Presets BRRES,out.brres => out.presets\n",
+  "files": {
+   "out.presets/fence.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "out.presets/grass.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "out.presets/road.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "out.presets/water.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "dump presets existing folder",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "dump-presets",
+   "out.brres",
+   "full"
+  ],
+  "exit_code": 0,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\nExtra TREF data\ncoord, chan, enable, map: 7, 7, 0, 7\n",
+  "stderr": "Warning: Folder full will be overwritten by this operation.\nDumping Presets BRRES,out.brres => full\n",
+  "files": {
+   "full/fence.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "full/grass.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   },
+   "full/road.rspreset": {
+    "effect": "changed",
+    "magic": "62726573"
+   },
+   "full/water.rspreset": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "dump presets onto a file",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {
+   "course.dae": {
+    "size": 36485,
+    "head": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574"
+   },
+   "road.png": {
+    "size": 185,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "grass.png": {
+    "size": 186,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   },
+   "fence.png": {
+    "size": 129,
+    "head": "89504e470d0a1a0a0000000d49484452000000200000004008060000007b8e75"
+   },
+   "water.png": {
+    "size": 3487,
+    "head": "89504e470d0a1a0a0000000d4948445200000040000000400806000000aa6971"
+   }
+  },
+  "argv": [
+   "dump-presets",
+   "out.brres",
+   "afile"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n",
+  "stderr": "Error: Cannot write folder to afile--file exists with the same name!\nNotAFolder\n",
+  "files": {}
+ },
+ {
+  "case": "dump presets missing",
+  "tool": "rszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "dump-presets",
+   "missing.brres",
+   "p"
+  ],
+  "exit_code": 4294967295,
+  "stdout": "RiiStudio CLI Alpha 5.11.5 (Built May 22 2025 at 15:54:40, Clang 19.1.5)\n",
+  "stderr": "Error: File missing.brres does not exist.\nFileNotExist\n",
+  "files": {}
+ }
+]

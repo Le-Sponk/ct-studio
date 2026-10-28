@@ -3,7 +3,8 @@
 
     uv run python scripts/fixtures/make_fixtures.py
 
-Runs the Blender generator for both variants, exports course.kcl from the good one with
+Runs the Blender generator for both variants, exports course.kcl and course.dae (with its
+textures beside it) from the good one with
 the vendored add-on, and compiles the fixture KMP with wkmpt.
 Output goes to tests/fixtures/generated/ (gitignored, see TESTING_STRATEGY section 3).
 

@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T04c — rszst, ABMatt and Blender fakes
+**Next task:** P2-T04c — rszst fake and operation recordings
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** dd99b04 (P2-T04b Windows gate and Ubuntu/Windows CI
 [run 40595338853](https://github.com/Le-Sponk/ct-studio/actions/runs/40595338853))
@@ -12,7 +12,12 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-_none_
+- `P2-T04c` — (1) `make_fixture_blend.py` exports `course.dae` (built-in writer, textures
+  copied) next to `course.kcl`. (2) `record_tool_outputs.py`: per-tool case tables; rszst
+  cases → `rszst/5.11.5/<os>-ops.json`. (3) RED: `test_fake_rszst.py` replays them through
+  the core runner. (4) `tests/fakes/fake_rszst.py` (clap model from the recorded help) and
+  `install.py` adds `rszst`. (5) Gate, mutation probe, docs, commit, CI. Risk: progress bars
+  use `\r` inside lines; the runner keeps them, so the fake must emit the same bytes.
 
 
 ## Done (newest first)
@@ -320,6 +325,10 @@ _none_
 
 ## Plan changes
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
+- 2026-10-29 (P2-T04c): split into P2-T04c (rszst), P2-T04d (ABMatt) and P2-T04e (Blender),
+  one tool per task. Measuring the three real tools on Windows found three unrelated
+  behaviours (clap with -1 for help too; a frozen-Python script that exits 0 on "already
+  exists"; Blender framing script output), and rszst first needs a DAE fixture.
 - 2026-10-28 (P2-T04b): split again into P2-T04b (Wiimm fakes + real operation recordings +
   `fake_tools_path`) and P2-T04c (rszst/ABMatt/Blender fakes). Measuring the real tools
   showed per-tool error behaviour the fakes must copy (e.g. `wszst create` keeps an existing
@@ -549,6 +558,13 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   its elapsed time was not in the report; sandbox detection outside the unit fakes was
   not exercised on Linux. These are not P1-T07 CI acceptance blockers.
 
+- **P2-T04c rszst operation recordings are Windows-only.** Ubuntu CI will exercise the
+  fake's Linux executable and compare the Windows runs after translating the differences
+  independently verified by both OSes' help/version recordings. That does not prove the
+  Linux real converter's progress or file effects. Closing it: on a Linux checkout with
+  the pinned source-built rszst 5.11.5 and generated fixtures, run `uv run python
+  scripts/record_tool_outputs.py --only riistudio` and commit `linux-ops.json`; then make
+  `test_fake_rszst.py` replay the native recording. No Mint action needed for this task.
 - **P2-T04b operation recordings are Windows-only.** The Linux fakes replay the Windows runs
   of Wiimm 2.42a (path display differs: the Cygwin build prints `/` for `\`). Closing it:
   on Linux run `scripts/record_tool_outputs.py` after bootstrap + fixtures, commit

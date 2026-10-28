@@ -59,8 +59,11 @@ is missing and nothing is protected.
   P2-T04b: `tests/fakes/fake_wiimm.py` (wszst create/list/check/minimap --auto, wkclt decode,
   wkmpt decode/encode, wimgt encode, plus `version`/`help`), `wiimm_cli.py` (getopt as the
   real tools parse it, from their recorded `--xhelp`: unknown option → exit 110, an option
-  another command owns → exit 108), `fake_runtime.py` (call log, outcomes, LF output) and
-  `install.py`. rszst/ABMatt/Blender fakes follow in P2-T04c.
+  another command owns → exit 108). P2-T04c: `fake_rszst.py` (import-brres, BRRES↔JSON,
+  dump-presets, four-mesh recorded DAE only, marker-bearing stand-in archives, CRLF on
+  Windows) and `rszst_cli.py` (clap errors/options from recorded help). Both use
+  `fake_runtime.py` (call log, outcomes and per-tool line ends) and `install.py`. ABMatt and
+  Blender fakes follow in P2-T04d/e.
 - **`fake_tools_path`** (`tests/conftest.py`) installs real executables for the fakes once per
   session into a folder with a space and `é`, puts it first on PATH, and gives each test its
   own call log (`fake_tools_path.calls()` → tool, argv, cwd, in call order). One file per
@@ -69,16 +72,23 @@ is missing and nothing is protected.
   launcher (distlib `t64.exe`, from the pip wheel bundled with CPython) + a zip, so they are real
   `.exe` files; Linux: an executable sh/Python polyglot (a `#!` line cannot hold a path with
   spaces).
-- Archives a fake writes carry a marker and list the source files' sizes and magic; a fake
-  refuses (121) to read a real SZS/KMP/TEX0, so fake and real outputs never mix.
+- Archives a fake writes carry a marker; a fake refuses (121) to read a real
+  SZS/KMP/TEX0/BRRES, so fake and real outputs never mix.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
-- `scripts/record_tool_outputs.py` (P2-T04b) runs a case table of real Wiimm operations on
-  the generated fixtures (`<os>-ops.json`: output, exit code, files created/changed with their
-  first bytes, and the size + first 32 bytes of each fixture used). `test_fake_wiimm.py`
-  replays every case against the fakes with stand-in inputs of the same size and leading
-  bytes; stdout must match exactly, or as a prefix where the real tool goes on to print
-  KMP/KCL findings a fake cannot compute (`wszst check` then exits 0 instead of 2).
+- `scripts/record_tool_outputs.py` (P2-T04b/c) runs per-tool case tables from
+  `scripts/ops_cases.py` on the generated fixtures. `<os>-ops.json` keeps output, exit
+  code, file effects (created/changed and first bytes), and fixture sizes/heads;
+  `test_fake_wiimm.py` and `test_fake_rszst.py` replay through the same runner.
+  `ops_replay.py` checks exit/stderr/file effects exactly; stdout exactly except when a
+  fake cannot compute real KMP/KCL findings (`wszst check` then exits 0 instead of 2).
+  The rszst case table stores the exact DAE and four PNGs under
+  `rszst/5.11.5/inputs/`, because its modelled import accepts only those bytes and the
+  recorded option combinations. Fake archives/JSON/sidecars/presets require exact
+  marker-bearing contents; altered ones exit 121. The Windows operation recording is
+  translated for the Linux fake using both platforms' captured help/version banners;
+  a native Linux operation recording is still pending. Cases needing an OS's
+  native path behaviour are not replayed on the other OS.
 - `scripts/record_tool_help.py` (P2-T04a) re-records `<os>-help.json` for every pinned CLI
   through the app's process runner, with LF newlines and the install folder replaced by
   `<tool-dir>`. It refuses a tool whose installed version differs from the catalogue pin.

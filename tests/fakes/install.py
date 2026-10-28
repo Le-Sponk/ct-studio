@@ -23,15 +23,18 @@ from pathlib import Path
 
 FAKES = Path(__file__).resolve().parent
 WIIMM = ("wszst", "wkclt", "wkmpt", "wimgt")
+TOOLS = (*WIIMM, "rszst")
 _UNSAFE_IN_SH = set('"$`\\\n')
 
 
 def entry_point(tool: str) -> str:
+    module = "fake_rszst" if tool == "rszst" else "fake_wiimm"
+    args = "sys.argv[1:]" if tool == "rszst" else f"{tool!r}, sys.argv[1:]"
     return (
         "import sys\n"
         f"sys.path.insert(0, {str(FAKES)!r})\n"
-        "import fake_wiimm\n"
-        f"raise SystemExit(fake_wiimm.main({tool!r}, sys.argv[1:]))\n"
+        f"import {module}\n"
+        f"raise SystemExit({module}.main({args}))\n"
     )
 
 
@@ -42,9 +45,9 @@ def install(directory: Path, python: Path | None = None) -> dict[str, Path]:
         stub = _windows_launcher()
         return {
             tool: _write_exe(directory / f"{tool}.exe", stub, interpreter, entry_point(tool))
-            for tool in WIIMM
+            for tool in TOOLS
         }
-    return {tool: _write_script(directory / tool, interpreter, entry_point(tool)) for tool in WIIMM}
+    return {tool: _write_script(directory / tool, interpreter, entry_point(tool)) for tool in TOOLS}
 
 
 def _windows_launcher() -> bytes:

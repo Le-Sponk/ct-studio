@@ -23,6 +23,7 @@ import record_tool_outputs as rto
 import tool_catalogue as tc
 import wiimm_cli
 from fake_runtime import UNMODELLED_EXIT
+from ops_replay import assert_like_recording, stand_ins
 
 from ctstudio.core.tools.discovery import discover
 from ctstudio.core.tools.registry import TOOL_BY_ID
@@ -31,7 +32,7 @@ from ctstudio.core.tools.versions import VersionCache, probe_versions
 pytestmark = pytest.mark.timeout(60)
 
 VERSION = tc.ALL_TOOLS["wiimms-szs-tools"].version
-CASES = {case.name: case for case in rto.CASES}
+CASES = {case.name: case for case in rto.WIIMM_CASES}
 
 
 def recorded_cases() -> list[object]:
@@ -51,16 +52,6 @@ def help_records() -> list[object]:
     return params
 
 
-def stand_ins(record: dict[str, object]):
-    inputs: dict[str, dict[str, object]] = record["inputs"]  # type: ignore[assignment]
-
-    def fixture(name: str) -> bytes:
-        head = bytes.fromhex(str(inputs[name]["head"]))
-        return head + b"\0" * (int(str(inputs[name]["size"])) - len(head))
-
-    return fixture
-
-
 def test_every_recorded_case_is_still_in_the_case_table() -> None:
     recorded = {str(record["case"]) for tool in rto.WIIMM for record in rto.load(tool, VERSION)}
     assert recorded == set(CASES), "re-run scripts/record_tool_outputs.py after editing CASES"
@@ -72,21 +63,10 @@ def test_fake_matches_the_recorded_real_run(
 ) -> None:
     root = tmp_path / "ct ops é"
     root.mkdir()
-    fake = rto.run_case(
-        CASES[str(record["case"])], fake_tools_path.resolve, root, stand_ins(record)
-    )
-
-    # A fake never invents findings: where the real exit code reports them, it exits 0.
-    expected_exit = 0 if record["compare"] == "findings" else record["exit_code"]
-    assert fake["exit_code"] == expected_exit
-    assert fake["stderr"] == record["stderr"]
-    assert fake["files"] == record["files"]
-    if record["compare"] == "exact":
-        assert fake["stdout"] == record["stdout"]
-    else:
-        lines = str(fake["stdout"]).splitlines(keepends=True)
-        assert lines, "a fake prints at least the real opening line"
-        assert lines == str(record["stdout"]).splitlines(keepends=True)[: len(lines)]
+    kept = rth.RECORDINGS / str(record["tool"]) / VERSION / "inputs"
+    case = CASES[str(record["case"])]
+    fake = rto.run_case(case, fake_tools_path.resolve, root, stand_ins(record, kept))
+    assert_like_recording(fake, record)
 
 
 @pytest.mark.parametrize(("tool", "record"), help_records())

@@ -290,28 +290,52 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--addon",
         type=Path,
-        help="importable Blender-MKW-Utilities package dir; when given, also export course.kcl",
+        help="importable Blender-MKW-Utilities package dir; when given, also export course.kcl"
+        " and course.dae",
     )
     return parser.parse_args(argv)
 
 
-def export_kcl(addon_dir: Path, dest: Path) -> None:
-    """Export the KCL collection with the add-on, as S2 proved headlessly (P0-T05).
+def export_with_addon(addon_dir: Path, out_dir: Path) -> None:
+    """Export course.kcl and course.dae with the add-on, as S2 proved headlessly (P0-T05).
 
-    Uses the add-on's own exporter so the fixture matches what users produce; it needs
-    wkclt on PATH, which make_fixtures.py provides.
+    Uses the add-on's own exporters so the fixtures match what users produce; the KCL one
+    needs wkclt on PATH, which make_fixtures.py provides. The DAE uses the built-in
+    writer (no external converter) and copies textures beside it for rszst's fixture.
     """
     sys.path.insert(0, str(addon_dir.parent))
     __import__(addon_dir.name).register()
-    bpy.ops.object.select_all(action="DESELECT")
-    for obj in bpy.data.collections["KCL"].objects:
-        obj.select_set(True)
-    result = bpy.ops.kcl.export(
+    for collection, dest, export in (
+        ("KCL", out_dir / "course.kcl", _export_kcl),
+        ("Course", out_dir / "course.dae", _export_dae),
+    ):
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in bpy.data.collections[collection].objects:
+            obj.select_set(True)
+        result = export(dest)
+        if result != {"FINISHED"} or not dest.is_file():
+            raise SystemExit(f"{dest.name} export failed: {result}")
+        if dest.suffix == ".dae":
+            # The built-in exporter writes CRLF on Windows; recordings must survive
+            # Git's LF checkout on either OS byte-for-byte.
+            dest.write_bytes(dest.read_bytes().replace(b"\r\n", b"\n"))
+        print(f"[fixture] wrote {dest.name} ({dest.stat().st_size} bytes)")
+
+
+def _export_kcl(dest: Path) -> set[str]:
+    return bpy.ops.kcl.export(
         filepath=str(dest), kclExportScale=EXPORT_SCALE, kclExportUnBeanCorner="LOWER"
     )
-    if result != {"FINISHED"} or not dest.is_file():
-        raise SystemExit(f"KCL export failed: {result}")
-    print(f"[fixture] wrote {dest.name} ({dest.stat().st_size} bytes)")
+
+
+def _export_dae(dest: Path) -> set[str]:
+    return bpy.ops.export.autodesk_dae(
+        filepath=str(dest),
+        daeExportScale=EXPORT_SCALE,
+        daeExportSelection=True,
+        daeExportMethod="BUILTIN",
+        daeExportCopyTextures=True,
+    )
 
 
 def main() -> int:
@@ -368,7 +392,7 @@ def main() -> int:
     print(f"[fixture] manifest: {manifest_path.name}")
     # After the save, so registering the add-on never leaks into the committed-size .blend.
     if args.addon:
-        export_kcl(args.addon, out_dir / "course.kcl")
+        export_with_addon(args.addon, out_dir)
     return 0
 
 

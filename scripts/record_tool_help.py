@@ -108,6 +108,9 @@ def clean(text: str, roots: Mapping[Path, str]) -> str:
 def _spellings(folder: Path) -> set[str]:
     resolved = folder.resolve()
     variants = {str(folder), folder.as_posix(), str(resolved), resolved.as_posix()}
+    # Programs reading argv through the Windows ANSI code page print a non-ASCII path with
+    # each such character replaced (rszst: "é" -> U+FFFD once decoded); hide that form too.
+    variants |= {"".join(c if c.isascii() else "\ufffd" for c in text) for text in variants}
     return variants | {_cygwin(resolved)} if sys.platform == "win32" else variants
 
 

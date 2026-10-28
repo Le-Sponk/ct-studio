@@ -98,11 +98,37 @@ nothing written; discovery and version probes find the fakes on PATH. 18/18 muta
 fakes caught. CI run 40595338853 green on Ubuntu (sh/Python launchers) and Windows (`.exe`).
 Not verified: Linux recordings of the real tools (the fakes fall back to the Windows ones).
 
-### [ ] P2-T04c — rszst, ABMatt and Blender fakes
-Same runtime for `rszst` (clap errors, exit -1, `FileNotExist`), `abmatt` (pipe-table flags,
-exit 2 for unknown options) and `blender` (`--version` banner; unknown arguments load as files).
-Record their operation outputs the same way.
-**Acceptance:** as P2-T04b for these three tools; `fake_tools_path` provides all seven.
+### [ ] P2-T04c — rszst fake and operation recordings
+`scripts/fixtures/make_fixtures.py` also exports `course.dae` (the add-on's built-in COLLADA
+writer, textures beside it), so rszst has a real fixture input. `scripts/record_tool_outputs.py`
+grows a per-tool case table and records real `rszst` 5.11.5 runs: `import-brres` (default and
+explicit destination, `--model-name`, `--mipmaps --min-mip`, `--preset-path` present/missing,
+missing input, junk input, missing destination folder), `brres-to-json`, `json-to-brres`,
+`dump-presets` (new/existing folder, destination is a file) and clap errors (unknown, misspelt
+and value-less options, unknown subcommand). Measured on Windows: every failure *and* `--help`
+/ `--version` exit -1; an existing destination is replaced silently, but a fresh one gets
+"will be overwritten"; a missing destination folder exits 0 and writes nothing; the mesh
+progress bars count distinct instanced geometries.
+**Acceptance:** as P2-T04b for `rszst`: replay equals the recordings through the core runner;
+clap errors as recorded; non-ASCII absolute paths fail like the real Windows build
+(`FileNotExist`) and are unmodelled on Linux; anything unrecorded exits 121.
+
+### [ ] P2-T04d — ABMatt fake and operation recordings
+Same for `abmatt` 1.3.2: `convert` DAE/OBJ → BRRES (with/without `-o`, existing destination),
+`-b FILE -f CMDS -o`, `-b FILE -c info`; getopt errors (exit 2). Measured on Windows: it needs
+`wimgt` on PATH (else an `ERROR: wimgt not found` line and no textures); "already exists" and a
+missing command file exit **0**; a missing `convert` input exits 1, a missing `-b` file and a
+command parse error exit -1 with a frozen-Python traceback; `-c 'X for *'` appends its own
+` for *` and fails.
+**Acceptance:** as P2-T04b for `abmatt`.
+
+### [ ] P2-T04e — Blender fake
+`blender -b [FILE] --factory-startup [--python-exit-code N] --python SCRIPT -- ARGS`: the fake
+runs SCRIPT with the test interpreter (no `bpy`, so a script that needs it fails as an honest
+`ModuleNotFoundError`) and frames it like Blender 5.2.2: the version banner, `Blender quit`,
+exit 0 on a script exception unless `--python-exit-code`, `sys.exit(n)` → n with no quit line,
+an unknown argument loaded as a file (exit 1), a missing/unsupported `.blend` exit 1.
+**Acceptance:** as P2-T04b for `blender`; `fake_tools_path` provides all seven tools.
 
 ### [ ] P2-T05 — Adapters
 Thin typed facades; flags only from TOOLS.md:

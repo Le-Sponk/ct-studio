@@ -89,6 +89,42 @@ S3b must characterize those before any backend/default decision.
   wall, preset behaviour including the silent rename miss, minimap bones). Only exit statuses of
   failures differ, as above.
 
+### Operation recordings and stand-in (P2-T04c, verified Alpha 5.11.5 Windows 11)
+[39 real CLI runs](../../tests/fakes/recordings/rszst/5.11.5/windows-ops.json) on the
+[generated four-material DAE fixture](../../tests/fakes/recordings/rszst/5.11.5/inputs/course.dae)
+cover import, JSON round-trip, preset export/reimport, missing/corrupt files, overwrite,
+missing parent directories, and clap errors. `scripts/record_tool_outputs.py --only riistudio`
+regenerates them through the core runner. Every run records stdout, stderr, exit status,
+input sizes/magic and created/changed files. Observed details:
+- `import-brres` replaces an existing destination silently; if absent it warns "will be
+  overwritten". It can exit 0 even when the output parent is missing, writing nothing.
+- The progress bars contain carriage returns within lines and count four instanced meshes,
+  rather than output files. `--preset-path` reads the exported folder and adds four "Extra
+  TREF data" pairs; a missing preset folder only warns. One- and three-mesh probe DAEs
+  changed the progress count; they are not inputs the stand-in accepts.
+- `brres-to-json` creates a JSON and a `.bin` sidecar; a missing parent exits 0 without
+  either file. `json-to-brres` reports a missing JSON or `.bin` in stdout. `dump-presets`
+  writes four `.rspreset` files, replaces existing ones but preserves other files in the
+  folder; if the destination is a file, it exits -1 and leaves it intact.
+- All clap errors (unexpected/misspelt/repeated/value-less options, extra positional,
+  unknown subcommand) print to stdout, exit -1 (0xFFFFFFFF on Windows, 255 on Linux),
+  and do not write a file. The help-derived option table and a Jaro suggestion threshold
+  >0.7 reproduce the measured `--modl`→`--model-name`, `--x`→`--max-mip`, etc.
+- On Windows, an absolute path in a folder with `é` becomes `FileNotExist` with `�` in
+  the error path: the prebuilt CLI reads its argv through the ANSI code page. Relative
+  paths in the same folder work. Do not infer the Linux absolute-path behaviour from it.
+
+`tests/fakes/fake_rszst.py` accepts only the exact recorded DAE and all four texture
+bytes, and only option combinations observed on the real converter. Its
+`bres`/JSON/sidecar/presets are exact marker-bearing test stand-ins, not real formats;
+modified stand-ins are refused.
+Unrecorded behaviour exits 121 without writing anything. The
+[Linux help recordings](../../tests/fakes/recordings/rszst/5.11.5/linux-cli.json)
+show its banner and program name
+differ while the text is otherwise equivalent; they do NOT verify Linux operation output.
+A native `linux-ops.json` is still needed before claiming the real Linux CLI's progress,
+paths and file effects match the Windows operation recording.
+
 ### Verified conversion commands (S3b, rszst Alpha 5.11.5 / ABMatt 1.3.2, Linux)
 
 | Tool | Operation | Exact argv template | Exit codes | Verified how |

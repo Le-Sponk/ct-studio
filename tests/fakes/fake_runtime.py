@@ -33,6 +33,7 @@ class Outcome:
     stderr: str = ""
     writes: list[tuple[Path, bytes]] = field(default_factory=list)
     make_parents: bool = False  # create missing folders for ``writes`` (Wiimm ``--DEST``)
+    newline: str = "\n"  # how "\n" in stdout/stderr reaches the pipe
 
 
 class Refused(Exception):
@@ -79,13 +80,13 @@ def finish(tool: str, argv: Sequence[str], run: Callable[[], Outcome]) -> int:
         if outcome.make_parents:
             path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
-    _emit(sys.stdout, outcome.stdout)
-    _emit(sys.stderr, outcome.stderr)
+    _emit(sys.stdout, outcome.stdout.replace("\n", outcome.newline))
+    _emit(sys.stderr, outcome.stderr.replace("\n", outcome.newline))
     return outcome.exit_code
 
 
 def _emit(stream: object, text: str) -> None:
-    # Bytes, so Windows text mode cannot turn "\n" into "\r\n": the real tools print "\n".
+    # Bytes, so Windows text mode cannot add "\r": each fake chooses its line ends.
     buffer = stream.buffer  # type: ignore[attr-defined]
     buffer.write(text.encode("utf-8"))
     buffer.flush()
