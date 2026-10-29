@@ -10,6 +10,13 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05g2` — Wine adapter. **Waiting on the human's Linux Mint run** of
+  `spikes/p2t05g2_wine_probe.py` (stdlib only; downloads pinned RiiStudio, BrawlCrate and
+  Lorenzi releases by SHA-256 into `~/ct-studio-wine-probe`, builds win64/win32 prefixes plus
+  one in a non-ASCII folder, measures `winepath -w/-u`, wrong-architecture launches, launcher
+  survival and `wineserver -k`, then `winetricks dotnet48` + BrawlCrate). Its
+  `summary.json` (home/user name redacted) decides the adapter design; nothing in `src/`
+  until then.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -761,6 +768,9 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
 
 ## Needs human — non-blocking
+- **P2-T05g2 Linux Wine probe (2026-10-29).** Run `python3 spikes/p2t05g2_wine_probe.py` on
+  the Mint desktop after installing Wine, winetricks, 7-Zip and wmctrl; paste back
+  `~/ct-studio-wine-probe/summary.json`. Blocks P2-T05g2 only.
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
