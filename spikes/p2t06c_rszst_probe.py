@@ -109,8 +109,10 @@ def wine_route(out: Path) -> dict[str, object]:
     started = time.monotonic()
     if not (prefix / "system.reg").is_file():
         env = {**os.environ, **QUIET_WINE, "WINEPREFIX": str(prefix), "WINEARCH": "win64"}
-        subprocess.run(["wineboot", "-i"], env=env, capture_output=True, timeout=600, check=False)  # noqa: S607
-        subprocess.run(["wineserver", "-w"], env=env, capture_output=True, timeout=600, check=False)  # noqa: S607
+        # Mint/Ubuntu wine 9.0 has no standalone wineboot; this is what P2-T05g2 measured.
+        _quiet(["wine", "wineboot", "-u"], env)
+        server = shutil.which("wineserver") or "/usr/lib/wine/wineserver64"
+        _quiet([server, "-w"], env)
     timings["prefix_s"] = round(time.monotonic() - started, 1)
     wrapper = out / "rszst-wine"
     lines = [f"export {name}={shlex.quote(value)}" for name, value in QUIET_WINE.items()]
@@ -130,6 +132,10 @@ def wine_route(out: Path) -> dict[str, object]:
         **timings,
         **result,
     }
+
+
+def _quiet(argv: list[str], env: Mapping[str, str]) -> None:
+    subprocess.run(argv, env=env, capture_output=True, timeout=600, check=False)  # noqa: S603
 
 
 def native_route(exe: Path, out: Path) -> dict[str, object]:
