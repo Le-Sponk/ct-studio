@@ -273,6 +273,17 @@ an honest description of its cost:
    affected, do not fail deep in a build with a confusing error.
 **Acceptance:** tests with fakes for each branch; the Linux build path has an integration test that
 is `slow` + `realdata`-style opt-in (it takes ~1 h); `doctor --json` reports which route was used.
+Plan (2026-10-30): routes 1, 2, 3 and 5 built here; route 4 (Wine) and the real Linux build
+are measured in P2-T06c on the Mint machine. `ctstudio setup rszst [--dry-run] [--jobs N]`;
+managed folder `<user data>/tools/riistudio-5.11.5/` counts only with `setup.json`.
+
+### [ ] P2-T06c — Measure the Linux `rszst` routes on the Mint machine
+Split from P2-T06b (2026-10-30). Run the opt-in source-build integration test and a Wine +
+`rszst.exe` probe (version, `import-brres` on the self-made fixture, non-ASCII paths, exit
+codes) on Linux Mint 22.3. Fix the build recipe for the distro's compilers if needed; offer
+the Wine route only if the measured operations match the Windows recordings.
+**Acceptance:** the Linux build test passes on real hardware, or its failure is recorded with
+the corrected recipe; the Wine route is enabled with evidence or documented as rejected.
 
 ### [ ] P2-T07 — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),

@@ -10,9 +10,11 @@ from typing import Literal
 
 from ctstudio.core import platform as ct_platform
 from ctstudio.core.errors import ToolNotFound
+from ctstudio.core.tools import rszst_setup
 from ctstudio.core.tools.spec import ToolSpec
 
 Launcher = Literal["direct", "wine", "flatpak"]
+Source = Literal["setting", "path", "standard", "managed", "flatpak", "dev"]
 
 
 @dataclass(frozen=True)
@@ -21,7 +23,7 @@ class ToolLocation:
 
     path: Path
     version: str | None
-    source: Literal["setting", "path", "standard", "flatpak", "dev"]
+    source: Source
     launcher: Launcher
     app_id: str | None = None
 
@@ -35,6 +37,7 @@ class DiscoveryEnvironment:
     home: Path
     variables: Mapping[str, str]
     sandbox: Literal["flatpak", "snap"] | None
+    data_dir: Path | None = None  # CT Studio's user data; holds the managed rszst (P2-T06b)
 
     @classmethod
     def from_system(cls) -> DiscoveryEnvironment:
@@ -44,6 +47,7 @@ class DiscoveryEnvironment:
             home=Path.home(),
             variables=dict(os.environ),
             sandbox=ct_platform.sandbox_kind(),
+            data_dir=ct_platform.user_directories().data,
         )
 
 
@@ -54,7 +58,7 @@ def _executable(candidate: Path, platform: str) -> bool:
 def _location(
     spec: ToolSpec,
     path: Path,
-    source: Literal["setting", "path", "standard", "flatpak", "dev"],
+    source: Source,
     platform: str,
 ) -> ToolLocation:
     launcher: Launcher = (
@@ -164,6 +168,17 @@ def _flatpak_blender(env: DiscoveryEnvironment) -> ToolLocation | None:
     return None
 
 
+def _managed_location(spec: ToolSpec, env: DiscoveryEnvironment) -> ToolLocation | None:
+    """CT Studio's own rszst, only once its setup finished (``setup.json``)."""
+    if spec.id != "rszst" or env.data_dir is None or env.platform == "other":
+        return None
+    root = rszst_setup.managed_root(env.data_dir)
+    if rszst_setup.read_record(root) is None:
+        return None
+    exe = rszst_setup.managed_executable(root, env.platform)
+    return _location(spec, exe, "managed", env.platform) if _executable(exe, env.platform) else None
+
+
 def _direct_location(spec: ToolSpec, env: DiscoveryEnvironment) -> ToolLocation | None:
     separator = ";" if env.platform == "windows" else ":"
     path_dirs = (Path(entry) for entry in env.variables.get("PATH", "").split(separator) if entry)
@@ -207,6 +222,9 @@ def discover(
         flatpak_location = _flatpak_blender(env)
         if flatpak_location is not None:
             return flatpak_location
+    managed = _managed_location(spec, env)
+    if managed is not None:
+        return managed
     if include_dev:
         return _dev_location(spec, env, dev_root)
     return None

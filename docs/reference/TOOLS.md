@@ -1109,6 +1109,36 @@ version. Probes run real child processes (fake executables with their own path,
 size and mtime) through the P2-T03 runner. A real-tool version check on this
 machine is deferred to the P2-T06 doctor checkpoint.
 
+## Getting `rszst` (P2-T06b)
+RiiStudio is never bundled (ADR-004). Routes, in the order `doctor` and the Tools page offer
+them:
+1. **Existing** — an `rszst` on PATH, in a standard folder or set in settings. Doctor JSON
+   `"route": "existing"`. Instant.
+2. **Windows download** — `ctstudio setup rszst` fetches the pinned official
+   `RiiStudio_Windows.zip` (Alpha 5.11.5, 43,609,164 bytes, SHA-256 `79f4f761…8a38`) into
+   `<user data>/tools/riistudio-5.11.5/`. Size and checksum are checked while streaming; a
+   member name that is absolute, has a drive or contains `..` rejects the archive; then
+   `rszst --version` must print `RiiStudio CLI Alpha 5.11.5`. `"route": "download"`.
+3. **Linux source build** — the same command runs the S3a recipe (RiiStudio `09e5754`,
+   Corrosion v0.4.10 `9943de7`, clang, `-include memory`, `-lstdc++exp`) into the same
+   folder as six logged, cancellable steps (`build.log`), after a preflight of programs,
+   development headers and 4 GB of disk that prints the `apt` command. About 1 hour.
+   `"route": "build"`.
+4. **Wine + `rszst.exe`** — **not offered**: unmeasured (P2-T06c).
+5. **Degrade** — without rszst, doctor says models import through ABMatt (slower; no
+   material preset capture or BRRES JSON round-trip).
+
+A managed copy counts only once `setup.json` (written last) names an executable inside the
+folder, so an interrupted download or build is never discovered. Discovery order: setting,
+PATH, standard folders, Flatpak (Blender), **managed**, `.tools/` (developer opt-in).
+`--dry-run` prints the plan and the exact commands without changing anything.
+
+**[verified P2-T06b, Windows 11]** the real download route
+(`tests/integration/test_rszst_setup_real.py`, network-marked) passed into a `données é`
+folder in 6.7 s and doctor reported `found 5.11.5 route=download`. **[unverified]** the Linux
+build on Mint 22.3 (noble ships GCC 13; S3a used GCC 14, whose `libstdc++exp` the link
+needs, hence `libstdc++-14-dev` in the package list) — P2-T06c.
+
 ## `ctstudio doctor` (P2-T06)
 `core/tools/doctor.diagnose()` discovers every registry tool the way the adapters do
 (`include_dev=True`, so `.tools/` copies count and are labelled "developer copy"), probes

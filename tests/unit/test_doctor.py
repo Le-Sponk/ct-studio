@@ -375,6 +375,7 @@ def test_json_is_plain_data_with_every_field(
         "used_for": "SZS assembly, validation and analysis",
         "fix": None,
         "note": None,
+        "route": None,
     }
 
 

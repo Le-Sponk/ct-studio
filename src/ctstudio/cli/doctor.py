@@ -23,10 +23,12 @@ _LABELS = {
 _SOURCES = {
     "path": "from PATH",
     "standard": "standard location",
+    "managed": "installed by CT Studio",
     "setting": "your setting",
     "dev": "developer copy in .tools",
     "flatpak": "Flatpak",
 }
+_ROUTES = {"download": "downloaded by CT Studio", "build": "built from source by CT Studio"}
 _HEADERS = ("Tool", "Status", "Version", "Used for")
 
 
@@ -59,7 +61,7 @@ def _row(check: ToolCheck) -> tuple[str, str, str, str]:
 def _details(check: ToolCheck) -> list[str]:
     lines = []
     if check.path is not None:
-        where = _SOURCES.get(check.source or "", check.source or "unknown")
+        where = _ROUTES.get(check.route or "") or _SOURCES.get(check.source or "", "unknown")
         lines.append(f"    path: {check.path.as_posix()} ({check.launcher}, {where})")
     if check.fix:
         lines.append(f"    fix: {check.fix}")

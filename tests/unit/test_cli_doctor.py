@@ -131,11 +131,24 @@ def test_sources_are_described_in_words() -> None:
         ("setting", "your setting"),
         ("dev", "developer copy in .tools"),
         ("flatpak", "Flatpak"),
+        ("managed", "installed by CT Studio"),
     ]:
         check = ToolCheck(
             "x", "X", "found", False, "y", path=Path("/p/x"), launcher="direct", source=source
         )
         assert f"(direct, {words})" in render(Report("linux", (check,)))
+
+
+@pytest.mark.parametrize(
+    ("route", "words"),
+    [("download", "downloaded by CT Studio"), ("build", "built from source by CT Studio")],
+)
+def test_a_managed_rszst_says_how_it_was_installed(route: str, words: str) -> None:
+    check = ToolCheck(
+        "rszst", "RiiStudio CLI", "found", False, "y", path=Path("/d/rszst"),
+        launcher="direct", source="managed", route=route,
+    )  # fmt: skip
+    assert f"(direct, {words})" in render(Report("linux", (check,)))
 
 
 # --- the subcommand -----------------------------------------------------------------------------

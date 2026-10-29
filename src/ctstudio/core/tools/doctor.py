@@ -20,13 +20,14 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Literal
 
 from ctstudio.core.tools.discovery import DiscoveryEnvironment, ToolLocation, discover
 from ctstudio.core.tools.editors import PREFIX_RECIPES
 from ctstudio.core.tools.registry import TOOL_BY_ID, TOOL_SPECS
+from ctstudio.core.tools.rszst_setup import WITHOUT_RSZST, managed_root, missing_fix, read_record
 from ctstudio.core.tools.spec import ToolSpec
 from ctstudio.core.tools.versions import VersionCache, VersionResult, probe_versions
 
@@ -51,6 +52,7 @@ class ToolCheck:
     source: str | None = None
     fix: str | None = None  # what the user should do; None when nothing is needed
     note: str | None = None  # extra facts that need no action
+    route: str | None = None  # rszst only: "existing", "download" or "build" (P2-T06b)
 
 
 @dataclass(frozen=True)
@@ -84,6 +86,7 @@ def _check_json(check: ToolCheck) -> dict[str, object]:
         "used_for": check.used_for,
         "fix": check.fix,
         "note": check.note,
+        "route": check.route,
     }
 
 
@@ -167,9 +170,22 @@ def diagnose(
     results = {result.tool_id: result for result in probed}
     wine = discover(TOOL_BY_ID["wine"], environment=env) if env.platform == "linux" else None
     checks = [
-        _classify(spec, env.platform, found.get(spec.id), results, wine, required) for spec in specs
+        _with_route(_classify(spec, env.platform, found.get(spec.id), results, wine, required), env)
+        for spec in specs
     ]
     return Report(env.platform, tuple(checks))
+
+
+def _with_route(check: ToolCheck, env: DiscoveryEnvironment) -> ToolCheck:
+    """Say how rszst got here, or how to get it: it has no installer of its own (ADR-004)."""
+    if check.tool_id != "rszst" or check.status == "not_needed":
+        return check
+    if check.status == "missing":
+        return replace(check, fix=missing_fix(env.platform), note=WITHOUT_RSZST)
+    record = None
+    if check.source == "managed" and env.data_dir is not None:
+        record = read_record(managed_root(env.data_dir))
+    return replace(check, route=record.route if record is not None else "existing")
 
 
 def _discover_all(

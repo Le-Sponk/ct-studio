@@ -1,8 +1,9 @@
 """`ctstudio` entry point.
 
 No arguments launch the GUI; `--offscreen-smoke` captures a headless PNG; `doctor` checks
-the external tools (P2-T06). Only the stdlib and package metadata are imported until a path
-is selected, and CLI subcommands never import Qt.
+the external tools (P2-T06); `setup rszst` fetches or builds RiiStudio's CLI (P2-T06b).
+Only the stdlib and package metadata are imported until a path is selected, and CLI
+subcommands never import Qt.
 """
 
 from __future__ import annotations
@@ -28,10 +29,11 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="PNG",
         help="render the dashboard to a PNG without opening a display, then exit",
     )
-    from ctstudio.cli import doctor
+    from ctstudio.cli import doctor, setup
 
     subcommands = parser.add_subparsers(dest="command", metavar="COMMAND")
     doctor.add_parser(subcommands)
+    setup.add_parser(subcommands)
     return parser
 
 
@@ -39,8 +41,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Parse ``argv`` (default: ``sys.argv[1:]``) and return the process exit code."""
     parser = _build_parser()
     args = parser.parse_args(argv)
-    if args.command == "doctor":
-        return _doctor(args)
+    if args.command in ("doctor", "setup"):
+        return _cli(args)
     if args.offscreen_smoke is not None:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
     from ctstudio.core.errors import CTStudioError
@@ -55,14 +57,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
 
-def _doctor(args: argparse.Namespace) -> int:
-    from ctstudio.cli import doctor
+def _cli(args: argparse.Namespace) -> int:
+    from ctstudio.cli import doctor, setup
     from ctstudio.core.errors import CTStudioError
     from ctstudio.core.logging import configure_logging
 
     try:
         configure_logging()
-        return doctor.run(args)
+        return (doctor if args.command == "doctor" else setup).run(args)
     except CTStudioError as exc:
         print(exc, file=sys.stderr)
         return 1

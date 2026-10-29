@@ -10,6 +10,21 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T06b` — rszst first-run setup (Windows download, Linux source build, honest degrade).
+  1. `core/tools/rszst_setup.py`: the pin (Alpha 5.11.5, source `09e5754`, Corrosion v0.4.10
+     `9943de7`, Windows zip SHA-256), the managed folder `<user data>/tools/riistudio-5.11.5/`
+     (complete only with `setup.json`), per-platform plan + preflight (Linux: commands,
+     pkg-config modules, free disk, ~1 h estimate; Windows: download size), and the doctor
+     texts (route used, fix per platform, affected features when missing).
+  2. `core/tools/rszst_install.py`: Windows = user-initiated pinned download, SHA-256 check,
+     zip-slip-safe unpack, `--version` check; Linux = the S3a recipe as cancellable
+     `process.run` steps logged to `build.log`. Both write `setup.json` last.
+  3. Discovery finds the managed copy (source `managed`, after PATH/standard). Doctor JSON
+     gains `route`. CLI `ctstudio setup rszst [--dry-run]`.
+  4. Tests with fakes for every branch; Linux build integration test is opt-in
+     (`slow`, `CTSTUDIO_RSZST_BUILD=1`). Split: **P2-T06c** measures the Linux build on Mint
+     (noble's GCC 13 may lack `libstdc++exp`) and Wine + `rszst.exe`, which stays unoffered
+     until measured.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T06` — `ctstudio doctor [--json] [--recheck]` lists every external tool with status
@@ -428,6 +443,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-10-30 (P2-T06b): split into P2-T06b (setup routes, download, build runner, doctor)
+  and P2-T06c (measure the Linux source build and Wine + `rszst.exe` on the Mint machine,
+  then fix the recipe / enable the Wine route). Neither Linux route can run on this
+  Windows machine.
 - 2026-10-29: P2-T05g split. Editor launch stays P2-T05g; the Wine adapter (PE-architecture
   prefixes, `winepath -w`, `launcher=wine` in `open_in`) becomes P2-T05g2, because Wine is
   Linux-only and nothing about it can be measured on the Windows dev host.
