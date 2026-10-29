@@ -194,7 +194,7 @@ copy/paste between archives reporting the textures paste autofix removed. Verify
 through `-c info` where it shows them (xlu, cull). **Acceptance:** recorded/fake parsers
 and real fixture integration on Windows, Ubuntu fake CI.
 
-### [ ] P2-T05f — Blender script adapter
+### [x] P2-T05f — Blender script adapter
 `blender.py:run_script(blend, script, args, timeout)` uses a nonzero
 `--python-exit-code`, since Python exceptions otherwise exit 0. Test real 5.2.2 on a
 fixture and the conservative fake; preserve timeout and error details.

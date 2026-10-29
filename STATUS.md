@@ -4,25 +4,23 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05f — Blender script adapter
+**Next task:** P2-T05g — Editor launch and Wine adapters
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 0f3c816 (P2-T05e Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05f` — Blender script adapter. (1) Record adapter-shaped rows (absolute script in
-  the work folder, `--python-exit-code 113` *before* `--python`, optional absolute
-  `.blend`, args after `--`) in new `scripts/blender_adapter_cases.py`; the fake echoes the
-  script path as given. (2) RED tests for new `core/tools/blender.py:run_script`: argv
-  order, script/blend checked first, Flatpak/Wine launchers refused (unverified), typed
-  `BlenderError` for script exception (113 + `Error: script failed`), script `sys.exit(N)`
-  and unreadable `.blend` (exit 1 + report line), traceback summary in the message and
-  full stderr in details, timeout/cancel passed to the runner, extra tool folders on
-  PATH. (3) Real Windows integration in a `é 日本` folder incl. a timeout that stops
-  Blender. (4) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05f` — new `core/tools/blender.run_script(blend, script, args, …)` runs a script in
+  headless Blender with `--python-exit-code 113` placed before `--python` (measured: after
+  it, or outside 1..255, a failing script exits 0). Inputs are checked first, Flatpak is
+  refused until verified, tool folders go first on PATH, and every nonzero exit is a
+  typed `BlenderError` (script exception line, unreadable `.blend`, or exit N) with the
+  output tails as details. 29/29 mutants; gate 770 (767 passed); broad 875; real Windows
+  test in a `dossier é 日本` folder (arguments, failures, timeout stops Blender) 3 passed.
+  CI green both jobs — commit c850029
 - `P2-T05e3` — new `core/tools/abmatt_edit` (`edit_materials`, `paste_material`) sets
   translucency and cull mode, and copies one material onto another in the same or another
   archive, on staged copies. Every selector is anchored, escaped and model-qualified
@@ -682,6 +680,11 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
   recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
+- **P2-T05f Blender script adapter evidence is Windows-only.** Flag order, exit codes and
+  the unreadable-`.blend` report are measured on Windows 5.2.2; Flatpak Blender is refused,
+  not run. Closing it: on Linux record the `BLENDER_ADAPTER_CASES` rows and run
+  `tests/integration/test_blender_adapter_native.py`; verify Flatpak path access before
+  allowing it.
 - **P2-T05e3 ABMatt material edit/paste evidence is Windows-only.** Selector semantics,
   the silent no-op edit and paste's texture removal are measured on the Windows 1.3.2
   binary. Closing it: record the P2-T05e3 rows of `ABMATT_ADAPTER_CASES` on Linux and run
