@@ -6,6 +6,7 @@ Discovery looks in CT Studio's own folder (``<user data>/tools/riistudio-5.11.5`
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Literal
 
@@ -73,10 +74,25 @@ def test_an_unfinished_managed_copy_is_ignored(tmp_path: Path) -> None:
     assert discover(RSZST, environment=_env(tmp_path, "linux")) is None
 
 
-def test_path_wins_over_the_managed_copy(tmp_path: Path) -> None:
+def test_the_users_own_copy_wins_over_the_managed_copy(tmp_path: Path) -> None:
     _managed(tmp_path, "linux", "build")
-    mine = _exe(tmp_path / "my bin" / "rszst")
-    found = discover(RSZST, environment=_env(tmp_path, "linux", str(mine.parent)))
+    # ~/bin, not PATH: a Linux-style PATH cannot hold a Windows drive path on the CI host.
+    mine = _exe(tmp_path / "home" / "bin" / "rszst")
+    found = discover(RSZST, environment=_env(tmp_path, "linux"))
+    assert found is not None and (found.path, found.source) == (mine.resolve(), "standard")
+
+
+@pytest.mark.parametrize("platform", ["windows", "linux"])
+def test_path_wins_over_the_managed_copy(platform: Platform, tmp_path: Path) -> None:
+    exe = _managed(tmp_path, platform, "download" if platform == "windows" else "build")
+    mine = _exe(tmp_path / "my bin" / exe.name)
+    env = _env(tmp_path, platform)
+    env = DiscoveryEnvironment(
+        platform, env.root, env.home, {"PATH": f"{mine.parent}"}, None, data_dir=env.data_dir
+    )
+    if platform == "linux" and os.name == "nt":
+        pytest.skip("a Linux-style PATH cannot hold a Windows drive path")
+    found = discover(RSZST, environment=env)
     assert found is not None and (found.path, found.source) == (mine.resolve(), "path")
 
 
