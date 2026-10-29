@@ -364,6 +364,24 @@ a non-ASCII path, because the failure is invisible.
   script can produce a different output when its environment changes. These are
   Windows measurements; Ubuntu fake replay translates path separators only and
   does not verify real Linux Blender behaviour.
+- **Script adapter (P2-T05f, Windows 5.2.2):** `ctstudio.core.tools.blender.run_script(blend,
+  script, args, *, timeout, executable, tool_dirs, cancel, log_path, on_line)` runs
+  `blender -b [ABS.blend] --factory-startup --python-exit-code 113 --python ABS.py [-- ARGS]`
+  in the script's folder. Measured: `--python-exit-code` placed **after** `--python` is
+  ignored (a failing script exits 0), and N outside 1..255 is not usable, so the adapter
+  always puts 113 first. Arguments after the first `--` reach `sys.argv` verbatim, including
+  further `--` and `-b`; absolute paths with spaces, `é` and `日本` work (native test).
+  Every nonzero exit raises `BlenderError` (with `exit_code`; `details` = stderr then stdout
+  tails): 113 **with** Blender's `Error: script failed` line → the script's last exception
+  line; 1 with a `| ERROR …` stdout report → "could not open X.blend: …"; anything else →
+  "blender exited N" (so a script's own `sys.exit(113)` is not mistaken for an exception).
+  The script, `.py` suffix, `.blend` suffix/existence and NUL-free text arguments are
+  checked before Blender starts. `tool_dirs` are prepended to PATH because
+  `--factory-startup` ignores add-on tool preferences. A Flatpak-discovered Blender is
+  refused with `ToolNotFound` until its sandbox paths are verified. Runner timeouts and
+  cancellation propagate; the native test shows a timed-out script is stopped before it
+  can write. Adapter rows: [`scripts/blender_adapter_cases.py`](../../scripts/blender_adapter_cases.py);
+  the fake repeats the script path exactly as given in `Error: script failed`.
 - KCL export: objects must end in `_F` + 4 uppercase hex digits; exporter reports exported/skipped
   objects and extents on stdout (`[MKW Utilities] KCL export: …`) **[doc]**; default un-bean mode
   `LOWER` passes `--kcl-script=<plugin dir>/lower-walls.txt` to `wkclt` **[doc]**.

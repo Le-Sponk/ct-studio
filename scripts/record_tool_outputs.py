@@ -28,6 +28,7 @@ from pathlib import Path
 import record_tool_help as rth
 import tool_paths as tp
 from abmatt_adapter_cases import ABMATT_ADAPTER_CASES, ABMATT_ADAPTER_COMMANDS
+from blender_adapter_cases import BLENDER_ADAPTER_CASES
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
 from rszst_adapter_cases import RSZST_ADAPTER_CASES
@@ -88,7 +89,7 @@ TOOLSETS: dict[str, tuple[tuple[str, ...], tuple[Case, ...]]] = {
     "wiimms-szs-tools": (WIIMM, WIIMM_CASES),
     "riistudio": (("rszst",), RSZST_CASES + RSZST_ADAPTER_CASES),
     "abmatt": (("abmatt",), ABMATT_CASES + ABMATT_ADAPTER_CASES),
-    "blender": (("blender",), BLENDER_CASES),
+    "blender": (("blender",), BLENDER_CASES + BLENDER_ADAPTER_CASES),
 }
 
 

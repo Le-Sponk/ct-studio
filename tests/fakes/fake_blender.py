@@ -24,6 +24,9 @@ ROWS: list[dict[str, Any]] = recordings("blender", VERSION, "ops")
 HELP: list[dict[str, Any]] = recordings("blender", VERSION, "help")
 BANNER = str(ROWS[0]["stdout"]).split("\n\nBlender quit\n")[0] + "\n"
 NEWLINE = "\r\n" if os.name == "nt" else "\n"
+JUNK_BLEND = {"junk blend", "adapter junk blend"}
+# Rows whose recorded stdout starts with Blender's "Read blend" report line.
+READS_BLEND = {"valid blend", "adapter blend"}
 
 
 def _verified_inputs(row: dict[str, Any]) -> dict[str, bytes] | None:
@@ -43,7 +46,7 @@ def _verified_inputs(row: dict[str, Any]) -> dict[str, bytes] | None:
 def _file_state(name: str) -> bool:
     if name == "script writes":
         return not Path("result.txt").exists()
-    if name == "junk blend":
+    if name in JUNK_BLEND:
         return _exact(Path("junk.blend"), b"not a track file\n" * 4)
     missing = {
         "missing blend": "missing.blend",
@@ -124,8 +127,9 @@ def _execute_script(
 def _script_outcome(row: dict[str, Any], argv: list[str], path: Path, source: bytes) -> Outcome:
     printed, errors, code, failed = _execute_script(path, argv, source)
     exit_on_error = failed and "--python-exit-code" in argv
-    if exit_on_error:
-        errors += f"\nError: script failed, file: '{path.name}', exiting.\n"
+    if exit_on_error:  # Blender repeats the script path exactly as it was given
+        given = argv[argv.index("--python") + 1]
+        errors += f"\nError: script failed, file: '{given}', exiting.\n"
     exit_code = (
         code
         if code is not None
@@ -134,9 +138,7 @@ def _script_outcome(row: dict[str, Any], argv: list[str], path: Path, source: by
         else 0
     )
     prefix = (
-        _substitute(str(row["stdout"]).partition("ARGS ")[0])
-        if row["case"] == "valid blend"
-        else ""
+        _substitute(str(row["stdout"]).partition("ARGS ")[0]) if row["case"] in READS_BLEND else ""
     )
     stdout = prefix + printed + BANNER + ("" if code is not None else "\nBlender quit\n")
     return Outcome(exit_code=exit_code, stdout=stdout, stderr=errors, newline=NEWLINE)
@@ -145,13 +147,17 @@ def _script_outcome(row: dict[str, Any], argv: list[str], path: Path, source: by
 def _outcome(row: dict[str, Any], argv: list[str], verified: dict[str, bytes]) -> Outcome:
     name = str(row["case"])
     path = _script_path(argv)
-    if path is None or name in {
-        "missing blend",
-        "junk blend",
-        "unknown option",
-        "missing script",
-        "missing script exit 7",
-    }:
+    if (
+        path is None
+        or name in JUNK_BLEND
+        or name
+        in {
+            "missing blend",
+            "unknown option",
+            "missing script",
+            "missing script exit 7",
+        }
+    ):
         return Outcome(
             exit_code=int(row["exit_code"]),
             stdout=_substitute(str(row["stdout"])),

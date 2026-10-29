@@ -10,6 +10,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05f` — Blender script adapter. (1) Record adapter-shaped rows (absolute script in
+  the work folder, `--python-exit-code 113` *before* `--python`, optional absolute
+  `.blend`, args after `--`) in new `scripts/blender_adapter_cases.py`; the fake echoes the
+  script path as given. (2) RED tests for new `core/tools/blender.py:run_script`: argv
+  order, script/blend checked first, Flatpak/Wine launchers refused (unverified), typed
+  `BlenderError` for script exception (113 + `Error: script failed`), script `sys.exit(N)`
+  and unreadable `.blend` (exit 1 + report line), traceback summary in the message and
+  full stderr in details, timeout/cancel passed to the runner, extra tool folders on
+  PATH. (3) Real Windows integration in a `é 日本` folder incl. a timeout that stops
+  Blender. (4) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->

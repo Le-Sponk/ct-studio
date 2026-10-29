@@ -199,6 +199,13 @@ and real fixture integration on Windows, Ubuntu fake CI.
 `--python-exit-code`, since Python exceptions otherwise exit 0. Test real 5.2.2 on a
 fixture and the conservative fake; preserve timeout and error details.
 
+Plan (2026-10-29): measured first: the exit-code flag must precede `--python`; `sys.exit(N)`
+exits N silently; an unreadable `.blend` exits 1 with a stdout report only. Record five
+adapter-shaped rows, extend the fake to echo the script path as given, RED unit tests
+(argv order, input checks, typed failures, Flatpak refusal, runner options), then a real
+Windows test in a `é 日本` folder (arguments, failures, timeout stops Blender) and a
+mutation probe. Flatpak/Linux behaviour stays unverified and is refused, not guessed.
+
 ### [ ] P2-T05g — Editor launch and Wine adapters
 `editors.py:open_in(tool_id, file)` follows S7: one path/process per launch; options after
 the path (Lorenzi opens argv[1] as a file), no native Windows ShellExecute associations.

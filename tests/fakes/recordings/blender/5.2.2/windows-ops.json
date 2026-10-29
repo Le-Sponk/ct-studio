@@ -348,5 +348,139 @@
   "stdout": "bpy: bpy\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
   "stderr": "",
   "files": {}
+ },
+ {
+  "case": "adapter script",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python-exit-code",
+   "113",
+   "--python",
+   "<work>\\ok.py",
+   "--",
+   "a b",
+   "é",
+   "--",
+   "-b"
+  ],
+  "exit_code": 0,
+  "stdout": "ARGS ['a b', 'é', '--', '-b']\nok\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "adapter blend",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "good.blend": {
+    "size": 109783,
+    "head": "28b52ffda0410601002537004a47801149601a9e03bbc5fc073d06dc160d5e9f",
+    "sha256": "d15880708e772f12821541d3ef8241904124160aef921d9797e2b8731cd2ea0e"
+   },
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "<work>\\good.blend",
+   "--factory-startup",
+   "--python-exit-code",
+   "113",
+   "--python",
+   "<work>\\ok.py",
+   "--",
+   "x"
+  ],
+  "exit_code": 0,
+  "stdout": "<elapsed>  blend            | Read blend: \"<work>\\good.blend\"\nARGS ['x']\nok\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "adapter exception",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "boom.py": {
+    "size": 27,
+    "head": "72616973652052756e74696d654572726f722822626f6f6d22290a",
+    "sha256": "13ef2add1379057a2ac8756ddca27bfc4ba09adefe2fd8f1dde0ebb5d60e9166"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python-exit-code",
+   "113",
+   "--python",
+   "<work>\\boom.py"
+  ],
+  "exit_code": 113,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<work>\\boom.py\", line 1, in <module>\n    raise RuntimeError(\"boom\")\nRuntimeError: boom\n\nError: script failed, file: '<work>\\boom.py', exiting.\n",
+  "files": {}
+ },
+ {
+  "case": "adapter script exits 3",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "quit3.py": {
+    "size": 24,
+    "head": "696d706f7274207379730a0a7379732e657869742833290a",
+    "sha256": "32dcae0713b2738c521084f04181b8b813ead6fb2a51fd254ae1400137f3281b"
+   }
+  },
+  "argv": [
+   "-b",
+   "--factory-startup",
+   "--python-exit-code",
+   "113",
+   "--python",
+   "<work>\\quit3.py"
+  ],
+  "exit_code": 3,
+  "stdout": "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "adapter junk blend",
+  "tool": "blender",
+  "compare": "exact",
+  "inputs": {
+   "ok.py": {
+    "size": 112,
+    "head": "696d706f7274207379730a0a7072696e74282241524753222c20726570722873",
+    "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7"
+   }
+  },
+  "argv": [
+   "-b",
+   "<work>\\junk.blend",
+   "--factory-startup",
+   "--python-exit-code",
+   "113",
+   "--python",
+   "<work>\\ok.py"
+  ],
+  "exit_code": 1,
+  "stdout": "<elapsed>  reports          | ERROR File format is not supported in file \"<work>\\junk.blend\"\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)\n\nBlender quit\n",
+  "stderr": "",
+  "files": {}
  }
 ]

@@ -25,7 +25,7 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 
 VERSION = "5.2.2"
 FOLDER = rth.RECORDINGS / "blender" / VERSION
-CASES = {case.name: case for case in rto.BLENDER_CASES}
+CASES = {case.name: case for case in rto.TOOLSETS["blender"][1]}
 pytestmark = pytest.mark.timeout(60)
 
 

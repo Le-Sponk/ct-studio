@@ -105,8 +105,11 @@ def test_blender_scrubs_only_elapsed_time() -> None:
 
 def test_blender_recording_covers_python_and_file_states() -> None:
     rows = rto.load("blender", "5.2.2")
-    assert {str(row["case"]) for row in rows} == {case.name for case in rto.BLENDER_CASES}
+    assert {str(row["case"]) for row in rows} == {case.name for case in rto.TOOLSETS["blender"][1]}
     assert {
+        "adapter script",
+        "adapter exception",
+        "adapter junk blend",
         "script args",
         "script exception exit 7",
         "script exits 3",
