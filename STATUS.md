@@ -4,29 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T06 — `ctstudio doctor`
+**Next task:** P2-T06b — How Linux users get `rszst` (first-run setup)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 52f87e1 (P2-T05g2; Windows gate, Ubuntu/Windows CI, Linux Wine run by the human)
+**Last green commit:** 5d361e3 (P2-T06; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T06` — `ctstudio doctor [--json] [--recheck]`.
-  1. `core/tools/doctor.py`: `diagnose()` discovers every registry tool exactly as the
-     adapters do (`include_dev=True`), probes versions through `versions.probe_versions`
-     (cache; `--recheck` forces) and classifies each: found / missing / too old (version below
-     `min_version`) / sandboxed (Flatpak location, which adapters refuse) / not needed (no
-     executable for this OS, e.g. Wine on Windows), with a plain fix hint. Wine-launched
-     editors on Linux get a hint when Wine itself is missing. Required for core: `wszst`.
-  2. `cli/doctor.py`: text table (tool, status, version, launcher, used for; path and fix on
-     the line below) and `--json`; `__main__` gains the `doctor` subcommand without importing Qt.
-  3. Exit 0 unless a required tool is missing or too old (exit 1).
-  Acceptance: fake-environment tests for every status; exact text snapshot from a fixed
-  report; JSON shape; exit codes; a real-tool integration run on this machine (`.tools`).
-  Files: `core/tools/doctor.py`, `cli/doctor.py`, `__main__.py`, tests, TOOLS.md, ARCHITECTURE.
-  Risk: Linux real-tool run not available here (CI covers fakes only) → platform gap.
-
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T06` — `ctstudio doctor [--json] [--recheck]` lists every external tool with status
+  (found / missing / too old / not working / needs Wine / sandboxed / not needed), version,
+  path, how it was found and a plain fix hint; exit 1 only when the required `wszst` is not
+  ready. Versions come from the cached P2-T02b prober; no GUI, Wine or Flatpak process is
+  started. RiiStudio's GUI is now also found in the bootstrapped `.tools/riistudio/`. Real run
+  on this Windows machine: Wiimm 2.42a ×4, rszst 5.11.5, Blender 5.2.2 probed; exit 0.
+  27/27 mutants; gate 893; broad 1008. CI green both jobs — commit 5d361e3
 - `P2-T05g2` — Windows editors run on Linux through Wine. New `core/tools/wine.py` reads the
   editor's PE architecture and the prefix's `#arch=`, refuses a 64-bit editor in a win32
   prefix before starting, converts the document with `winepath.exe -w`, and watches the
@@ -680,6 +672,10 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
+- **P2-T06 doctor on Linux with real tools.** Windows real-tool output is measured
+  (`tests/integration/test_doctor_real.py`, 2 passed); Linux runs only fake trees in CI. To
+  close: on the Mint machine, `uv run ctstudio doctor` and the same integration test with a
+  bootstrapped `.tools/` (Wine, Wine editors and Flatpak rows included).
 - **P2-T05a–d Wiimm check/analyze/create/KMP/image/KCL/minimap/auto-add evidence is Windows-only.** The adapters' real
   SZS/stage-directory/empty/corrupt/missing integration tests ran against native Windows
   Wiimm 2.42a; Ubuntu CI exercises only the recorded parser and the prefix-only fake

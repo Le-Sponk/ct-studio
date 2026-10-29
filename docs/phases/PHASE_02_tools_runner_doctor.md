@@ -240,7 +240,7 @@ editors and prefixes (run by the human), mutation probe.
 All adapter flags come from TOOLS.md; parsers have tests against recordings, and available
 real tools are exercised by `-m integration` on fixtures. One subtask per session.
 
-### [ ] P2-T06 — `ctstudio doctor`
+### [x] P2-T06 — `ctstudio doctor` (commit 5d361e3)
 Table: tool, status (found/missing/too old/sandboxed), version, path, launcher, used for, fix hint.
 `--json` for machines. Exit 0 even if optional tools are missing; non-zero only if required-for-core
 tools (wszst) missing.
