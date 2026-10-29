@@ -251,7 +251,7 @@ JSON shape from a fixed report, fake Windows/Linux trees for every status, a rea
 against `.tools/` (`tests/integration/test_doctor_real.py`); the "container" is the Ubuntu CI
 job (fakes) until a Linux real-tool run.
 
-### [ ] P2-T06b — How Linux users get `rszst` (first-run setup)
+### [x] P2-T06b — How Linux users get `rszst` (first-run setup) (commits d92c3e4, 3e0095e)
 **Why this needs a task:** ADR-004 makes `rszst` the BRRES import backend, but RiiStudio publishes
 **Windows and macOS assets only** — there is no Linux release and no package. S3a built it from
 source in ~55 min (the recipe is in [SPIKES.md §S3](../dev/SPIKES.md)), which is not something a

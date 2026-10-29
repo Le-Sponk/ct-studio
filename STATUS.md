@@ -4,29 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T06b — How Linux users get `rszst` (first-run setup)
+**Next task:** P2-T06c — Measure the Linux `rszst` routes on the Mint machine
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 5d361e3 (P2-T06; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** 3e0095e (P2-T06b; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T06b` — rszst first-run setup (Windows download, Linux source build, honest degrade).
-  1. `core/tools/rszst_setup.py`: the pin (Alpha 5.11.5, source `09e5754`, Corrosion v0.4.10
-     `9943de7`, Windows zip SHA-256), the managed folder `<user data>/tools/riistudio-5.11.5/`
-     (complete only with `setup.json`), per-platform plan + preflight (Linux: commands,
-     pkg-config modules, free disk, ~1 h estimate; Windows: download size), and the doctor
-     texts (route used, fix per platform, affected features when missing).
-  2. `core/tools/rszst_install.py`: Windows = user-initiated pinned download, SHA-256 check,
-     zip-slip-safe unpack, `--version` check; Linux = the S3a recipe as cancellable
-     `process.run` steps logged to `build.log`. Both write `setup.json` last.
-  3. Discovery finds the managed copy (source `managed`, after PATH/standard). Doctor JSON
-     gains `route`. CLI `ctstudio setup rszst [--dry-run]`.
-  4. Tests with fakes for every branch; Linux build integration test is opt-in
-     (`slow`, `CTSTUDIO_RSZST_BUILD=1`). Split: **P2-T06c** measures the Linux build on Mint
-     (noble's GCC 13 may lack `libstdc++exp`) and Wine + `rszst.exe`, which stays unoffered
-     until measured.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T06b` — `ctstudio setup rszst [--dry-run] [--jobs N]`: Windows downloads the pinned
+  official RiiStudio 5.11.5 release (size + SHA-256 while streaming, unsafe archive names
+  refused, banner checked); Linux builds the pinned S3a source as six logged, cancellable
+  steps after a programs/headers/disk preflight. Both land in `<user data>/tools/
+  riistudio-5.11.5/` and count only once `setup.json` is written. Discovery adds the
+  `managed` source; doctor reports `route` (existing/download/build) and, when rszst is
+  missing, the route for this OS and what is lost. Real Windows download verified (6.7 s).
+  38/38 mutants; gate 975; broad 1089. CI green both jobs — commits d92c3e4, 3e0095e
 - `P2-T06` — `ctstudio doctor [--json] [--recheck]` lists every external tool with status
   (found / missing / too old / not working / needs Wine / sandboxed / not needed), version,
   path, how it was found and a plain fix hint; exit 1 only when the required `wszst` is not
@@ -443,6 +436,8 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-10-30 (P2-T06b, CI): the Windows CI job failed once on a test that put a Windows
+  drive path into a Linux-style PATH; fixed in 3e0095e.
 - 2026-10-30 (P2-T06b): split into P2-T06b (setup routes, download, build runner, doctor)
   and P2-T06c (measure the Linux source build and Wine + `rszst.exe` on the Mint machine,
   then fix the recipe / enable the Wine route). Neither Linux route can run on this
@@ -691,6 +686,9 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
+- **P2-T06b Linux rszst build is unmeasured.** The recipe is S3a's (Debian 13, GCC 14);
+  Mint 22.3/noble defaults to GCC 13. P2-T06c runs
+  `tests/integration/test_rszst_setup_real.py` with `CTSTUDIO_RSZST_BUILD=1` on Mint.
 - **P2-T06 doctor on Linux with real tools.** Windows real-tool output is measured
   (`tests/integration/test_doctor_real.py`, 2 passed); Linux runs only fake trees in CI. To
   close: on the Mint machine, `uv run ctstudio doctor` and the same integration test with a
