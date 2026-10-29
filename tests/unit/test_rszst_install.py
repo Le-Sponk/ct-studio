@@ -14,7 +14,7 @@ import zipfile
 from collections.abc import Callable, Sequence
 from dataclasses import replace
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from version_fakes import fake_executable
@@ -23,7 +23,7 @@ from ctstudio.core.errors import Cancelled, CTStudioError, ToolFailed
 from ctstudio.core.tools import rszst_install as install
 from ctstudio.core.tools.process import CancelToken, RunResult
 from ctstudio.core.tools.rszst_install import SetupFailed, build_linux, download_windows
-from ctstudio.core.tools.rszst_setup import PIN, Preflight, SetupRecord, read_record
+from ctstudio.core.tools.rszst_setup import PIN, Preflight, SetupRecord, Toolchain, read_record
 
 pytestmark = pytest.mark.timeout(60)
 BANNER = "RiiStudio Parser 1.0\nRiiStudio CLI Alpha 5.11.5 (Built May 22 2025, Clang 19.1.5)"
@@ -240,7 +240,7 @@ def test_the_banner_check_reports_a_missing_program(tmp_path: Path) -> None:
 # --- Linux build ---------------------------------------------------------------------------------
 
 
-READY = Preflight((), (), 50 * 1024**3)
+READY = Preflight((), (), 50 * 1024**3, Toolchain("clang", "clang++", None, None))
 
 
 class Runner:
@@ -295,6 +295,16 @@ def test_the_build_runs_every_step_logs_and_records(tmp_path: Path) -> None:
         assert call["cancel"] is None and call["on_line"] is not None
     assert runner.calls[-1]["env"] == {"CXXFLAGS": "-include memory"}
     assert runner.calls[-1]["timeout"] == 4 * 3600
+
+
+def test_the_build_uses_the_toolchain_preflight_found(tmp_path: Path) -> None:
+    rust = Path("/usr/lib/rust-1.85/bin")
+    found = Preflight((), (), 50 * 1024**3, Toolchain("clang-19", "clang++-19", rust, (1, 85)))
+    runner = Runner()
+    build_linux(tmp_path / "r", jobs=1, preflight_result=found, runner=runner, banner=_banner())
+    configure = cast("tuple[str, ...]", runner.calls[4]["argv"])
+    assert "-DCMAKE_C_COMPILER=clang-19" in configure
+    assert f"-DRust_CARGO={rust / 'cargo'}" in configure
 
 
 def test_the_build_refuses_to_start_when_preflight_fails(tmp_path: Path) -> None:

@@ -23,6 +23,7 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.core.tools.rszst_install import build_linux, download_windows
 from ctstudio.core.tools.rszst_setup import (
     BUILD_ESTIMATE,
+    EXPECTED_TOOLCHAIN,
     PIN,
     Step,
     build_steps,
@@ -108,7 +109,8 @@ def _linux(root: Path, args: argparse.Namespace, token: CancelToken) -> int:
         print(line)
     if args.dry_run:
         print("Commands that will run:")
-        for step in build_steps(root, jobs=jobs):
+        toolchain = checked.toolchain or EXPECTED_TOOLCHAIN
+        for step in build_steps(root, jobs=jobs, toolchain=toolchain):
             print(f"  {shlex.join(step.argv)}")
         print("Nothing was changed (dry run).")
         return 0 if checked.ok else 1

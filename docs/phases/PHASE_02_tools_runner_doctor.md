@@ -284,6 +284,10 @@ codes) on Linux Mint 22.3. Fix the build recipe for the distro's compilers if ne
 the Wine route only if the measured operations match the Windows recordings.
 **Acceptance:** the Linux build test passes on real hardware, or its failure is recorded with
 the corrected recipe; the Wine route is enabled with evidence or documented as rejected.
+Plan (2026-10-30): before the run, preflight learned to use the versioned Rust 1.85 and
+clang-19 packages (noble's default Cargo 1.75 cannot read the pinned lock file).
+`spikes/p2t06c_rszst_probe.py` replays the 49 recorded Windows cases under Wine and against
+the built `rszst`, comparing exit code, output and files.
 
 ### [ ] P2-T07 — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),

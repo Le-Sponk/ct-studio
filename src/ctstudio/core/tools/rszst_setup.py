@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -63,8 +64,14 @@ PIN = Pin(
 )
 RELEASES_PAGE = PIN.windows_zip_url.split("/download/")[0]
 
-# Linux build needs (S3a on Debian 13). Unverified on Mint/noble: P2-T06c.
-COMMANDS = ("git", "cmake", "make", "clang", "clang++", "cargo", "rustc", "pkg-config")
+# Linux build needs. S3a used Debian 13 (Rust 1.85, clang 19, GCC 14). Ubuntu 24.04 / Mint 22
+# ship Rust 1.75 by default, which cannot read the pinned Cargo.lock (version 4 needs Cargo
+# 1.78), so the versioned rustc-1.85/cargo-1.85 packages (in /usr/lib/rust-1.85/bin) and
+# clang-19 are preferred when present. Measured on Mint in P2-T06c.
+COMMANDS = ("git", "cmake", "make", "pkg-config")
+CLANGS = (("clang-19", "clang++-19"), ("clang", "clang++"))
+RUST_MIN = (1, 78)
+RUST_LABEL = "Rust 1.78 or newer (rustc and cargo)"
 HEADERS = {  # apt package -> a header it installs under /usr/include
     "mesa-common-dev": "GL/gl.h",
     "libglfw3-dev": "GLFW/glfw3.h",
@@ -77,10 +84,10 @@ BUILD_PACKAGES = (
     "build-essential",
     "git",
     "cmake",
-    "clang",
-    "cargo",
-    "rustc",
     "pkg-config",
+    "clang-19",
+    "rustc-1.85",
+    "cargo-1.85",
     *HEADERS,
     "libstdc++-14-dev",  # provides libstdc++exp, which the final link needs (S3a)
 )
@@ -149,22 +156,43 @@ class Step:
     env: dict[str, str] = field(default_factory=dict[str, str])
 
 
-def build_steps(root: Path, *, jobs: int) -> tuple[Step, ...]:
+@dataclass(frozen=True)
+class Toolchain:
+    cc: str
+    cxx: str
+    rust_bin: Path | None  # a versioned Rust folder; None = rustc/cargo from PATH
+    rust_version: tuple[int, int] | None
+
+
+def build_steps(
+    root: Path, *, jobs: int, toolchain: Toolchain, path: str | None = None
+) -> tuple[Step, ...]:
     """The S3a recipe, pinned, building into ``root``; run in order."""
     if jobs < 1:
         raise ValueError("jobs must be at least 1")
     src, corrosion, build = root / "source", root / "corrosion", root / "build"
     memory = "-include memory"  # bundled code uses std::unique_ptr without <memory>
+    rust_flags: tuple[str, ...] = ()
+    rust_env: dict[str, str] = {}
+    if toolchain.rust_bin is not None:
+        rust_flags = (
+            f"-DRust_COMPILER={toolchain.rust_bin / 'rustc'}",
+            f"-DRust_CARGO={toolchain.rust_bin / 'cargo'}",
+        )
+        inherited = path if path is not None else os.environ.get("PATH", "")
+        rust_env = {"PATH": os.pathsep.join([str(toolchain.rust_bin), inherited])}
     configure = (
         *("cmake", "-S", str(src), "-B", str(build)),
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DCMAKE_C_COMPILER=clang",
-        "-DCMAKE_CXX_COMPILER=clang++",
+        f"-DCMAKE_C_COMPILER={toolchain.cc}",
+        f"-DCMAKE_CXX_COMPILER={toolchain.cxx}",
         f"-DCMAKE_CXX_FLAGS={memory}",
         "-DCMAKE_CXX_STANDARD_LIBRARIES=-lstdc++exp",
         f"-DCPM_corrosion_SOURCE={corrosion}",
+        *rust_flags,
     )
     compile_argv = ("cmake", "--build", str(build), "--target", "cli", "--parallel", str(jobs))
+    compile_env = {"CXXFLAGS": memory, **rust_env}
     return (
         Step("Download RiiStudio source", _clone(PIN.source_tag, PIN.source_url, src), root, 1800),
         Step("Check out the pinned commit", _checkout(src, PIN.source_commit), root, 120),
@@ -177,8 +205,8 @@ def build_steps(root: Path, *, jobs: int) -> tuple[Step, ...]:
             root,
             120,
         ),
-        Step("Configure", configure, root, 1800),
-        Step("Compile (the long part)", compile_argv, root, 4 * 3600, {"CXXFLAGS": memory}),
+        Step("Configure", configure, root, 1800, rust_env),
+        Step("Compile (the long part)", compile_argv, root, 4 * 3600, compile_env),
     )
 
 
@@ -190,11 +218,16 @@ def _checkout(repo: Path, commit: str) -> tuple[str, ...]:
     return ("git", "-C", str(repo), "checkout", "--detach", commit)
 
 
+# What the apt command in BUILD_PACKAGES installs on Ubuntu 24.04 / Mint 22; shown by dry runs.
+EXPECTED_TOOLCHAIN = Toolchain("clang-19", "clang++-19", Path("/usr/lib/rust-1.85/bin"), (1, 85))
+
+
 @dataclass(frozen=True)
 class Preflight:
     missing_commands: tuple[str, ...]
     missing_headers: tuple[str, ...]
     free_bytes: int
+    toolchain: Toolchain | None = None
     need_bytes: int = BUILD_DISK_BYTES
     estimate: str = f"{BUILD_ESTIMATE} on a 4-core machine"
 
@@ -217,12 +250,15 @@ class Preflight:
         if self.missing_commands:
             out.append("Missing programs: " + ", ".join(self.missing_commands))
         if self.missing_headers:
-            out.append("Missing libraries (development files): " + ", ".join(self.missing_headers))
+            names = ", ".join(self.missing_headers)
+            out.append(f"Missing libraries (development files): {names}")
         if not self._room:
             free, need = self.free_bytes / GB, self.need_bytes / GB
             out.append(
                 f"Not enough free disk space: {free:.1f} GB free, about {need:.1f} GB needed."
             )
+        if self.toolchain is not None and self.toolchain.rust_version is None:
+            out.append(f"Rust version not checked: the build needs {RUST_LABEL}.")
         if self.install_command:
             out.extend(["Install them with:", f"  {self.install_command}"])
         return out
@@ -241,17 +277,40 @@ def preflight(
 ) -> Preflight:
     """What the Linux build still needs on this machine, checked without running anything."""
     entries = (path if path is not None else os.environ.get("PATH", "")).split(os.pathsep)
-    search = [
-        *(Path(entry) for entry in entries if entry),
-        root / "usr/local/bin",
-        root / "usr/bin",
-    ]
-    missing_commands = tuple(name for name in COMMANDS if not _on(search, name))
+    search = [*(Path(e) for e in entries if e), root / "usr/local/bin", root / "usr/bin"]
+    missing = [name for name in COMMANDS if not _on(search, name)]
+    toolchain, absent = _toolchain(root, search)
     include = root / "usr/include"
-    missing_headers = tuple(
-        pkg for pkg, header in HEADERS.items() if not (include / header).is_file()
-    )
-    return Preflight(missing_commands, missing_headers, free_space(_nearest_existing(target)))
+    headers = tuple(pkg for pkg, header in HEADERS.items() if not (include / header).is_file())
+    free = free_space(_nearest_existing(target))
+    return Preflight((*missing, *absent), headers, free, toolchain)
+
+
+def _toolchain(root: Path, search: list[Path]) -> tuple[Toolchain | None, list[str]]:
+    clang = next(((cc, cxx) for cc, cxx in CLANGS if _on(search, cc) and _on(search, cxx)), None)
+    rust = _versioned_rust(root) or _path_rust(search)
+    absent = ([] if clang else ["clang"]) + ([] if rust else [RUST_LABEL])
+    if clang is None or rust is None:
+        return None, absent
+    return Toolchain(clang[0], clang[1], rust[0], rust[1]), absent
+
+
+def _versioned_rust(root: Path) -> tuple[Path, tuple[int, int]] | None:
+    """The newest ``/usr/lib/rust-X.Y/bin`` with rustc and cargo, if new enough."""
+    found: list[tuple[tuple[int, int], Path]] = []
+    for folder in (root / "usr/lib").glob("rust-*/bin"):
+        match = re.fullmatch(r"rust-(\d+)\.(\d+)", folder.parent.name)
+        if match and _runnable(folder / "rustc") and _runnable(folder / "cargo"):
+            found.append(((int(match.group(1)), int(match.group(2))), folder))
+    usable = [item for item in found if item[0] >= RUST_MIN]
+    if not usable:
+        return None
+    version, folder = max(usable)
+    return folder, version
+
+
+def _path_rust(search: list[Path]) -> tuple[None, None] | None:
+    return (None, None) if _on(search, "rustc") and _on(search, "cargo") else None
 
 
 def _on(folders: list[Path], name: str) -> bool:

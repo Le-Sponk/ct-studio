@@ -16,10 +16,10 @@ from ctstudio.__main__ import main
 from ctstudio.cli import setup as cli_setup
 from ctstudio.core.errors import Cancelled
 from ctstudio.core.tools.rszst_install import SetupFailed
-from ctstudio.core.tools.rszst_setup import PIN, Preflight
+from ctstudio.core.tools.rszst_setup import PIN, Preflight, Toolchain
 
 pytestmark = pytest.mark.timeout(60)
-READY = Preflight((), (), 50 * 1024**3)
+READY = Preflight((), (), 50 * 1024**3, Toolchain("clang", "clang++", None, None))
 NOT_READY = Preflight(("cmake",), ("libssl-dev",), 50 * 1024**3)
 
 
@@ -104,6 +104,17 @@ def test_a_dry_run_only_explains(
     out = capsys.readouterr().out
     assert "Nothing was changed (dry run)." in out
     assert "git clone --branch Alpha-5.11.5" in out  # the exact recipe is shown
+    assert "-DRust_CARGO=" not in out  # READY found Rust on PATH
+
+
+def test_a_dry_run_on_an_unready_machine_shows_the_expected_toolchain(
+    world: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _on(monkeypatch, "linux")
+    world["preflight"] = NOT_READY
+    main(["setup", "rszst", "--dry-run"])
+    out = capsys.readouterr().out
+    assert "-DCMAKE_C_COMPILER=clang-19" in out and "-DRust_CARGO=" in out and "rust-1.85" in out
 
 
 def test_a_dry_run_shows_what_is_missing(

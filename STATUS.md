@@ -10,6 +10,15 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T06c` — Measure the Linux `rszst` routes on the Mint machine. Plan (2026-10-30):
+  (1) recipe fix found before the run: noble's default Cargo 1.75 cannot read the pinned
+  lock file, so preflight now picks `/usr/lib/rust-1.85/bin` (or any 1.78+) and `clang-19`
+  and passes them to CMake (18/18 mutants caught); (2) human runs on Mint: `apt` packages,
+  `ctstudio setup rszst` (real build, ~1 h), `ctstudio doctor`, the opt-in build test
+  reusing that folder, and `spikes/p2t06c_rszst_probe.py`, which replays the 49 recorded
+  Windows cases with `rszst.exe` under Wine and with the built `rszst` (the replay matched
+  49/49 against real Windows `rszst.exe` here, 11.9 s); (3) from the results, fix the
+  recipe if needed and enable or reject the Wine route. Acceptance as in the phase file.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T06b` — `ctstudio setup rszst [--dry-run] [--jobs N]`: Windows downloads the pinned
@@ -686,9 +695,10 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
-- **P2-T06b Linux rszst build is unmeasured.** The recipe is S3a's (Debian 13, GCC 14);
-  Mint 22.3/noble defaults to GCC 13. P2-T06c runs
-  `tests/integration/test_rszst_setup_real.py` with `CTSTUDIO_RSZST_BUILD=1` on Mint.
+- **P2-T06c Linux rszst run (2026-10-30), waiting on the human.** Instructions given in
+  chat: install the build packages, `uv run ctstudio setup rszst` (~1 h), `ctstudio doctor`,
+  the opt-in build test and `spikes/p2t06c_rszst_probe.py`; paste back the build tail,
+  doctor output, test result and `~/ct-studio-rszst-probe/summary.json`.
 - **P2-T06 doctor on Linux with real tools.** Windows real-tool output is measured
   (`tests/integration/test_doctor_real.py`, 2 passed); Linux runs only fake trees in CI. To
   close: on the Mint machine, `uv run ctstudio doctor` and the same integration test with a

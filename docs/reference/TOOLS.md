@@ -1136,8 +1136,17 @@ PATH, standard folders, Flatpak (Blender), **managed**, `.tools/` (developer opt
 **[verified P2-T06b, Windows 11]** the real download route
 (`tests/integration/test_rszst_setup_real.py`, network-marked) passed into a `données é`
 folder in 6.7 s and doctor reported `found 5.11.5 route=download`. **[unverified]** the Linux
-build on Mint 22.3 (noble ships GCC 13; S3a used GCC 14, whose `libstdc++exp` the link
-needs, hence `libstdc++-14-dev` in the package list) — P2-T06c.
+build on Mint 22.3 — P2-T06c.
+
+Linux toolchain (P2-T06c, checked against the Ubuntu 24.04 archive, 2026-10-30): noble's
+default `cargo` is 1.75, which cannot read the pinned `Cargo.lock` (lock format 4 needs Cargo
+1.78+); the versioned `rustc-1.85`/`cargo-1.85` packages install into `/usr/lib/rust-1.85/bin`
+without touching `/usr/bin`. Preflight therefore picks the newest `/usr/lib/rust-X.Y/bin` with
+both `rustc` and `cargo` at 1.78 or newer, else `rustc`+`cargo` on PATH (version not checked,
+said so), and passes it to CMake as `-DRust_COMPILER`/`-DRust_CARGO` with that folder first
+on the build's PATH. `clang-19`/`clang++-19` (S3a's compiler) are preferred over plain
+`clang`. noble's GCC is 13; `libstdc++-14-dev` supplies GCC 14's `libstdc++exp`, which the
+link needs. The `apt` line installs exactly these.
 
 ## `ctstudio doctor` (P2-T06)
 `core/tools/doctor.diagnose()` discovers every registry tool the way the adapters do

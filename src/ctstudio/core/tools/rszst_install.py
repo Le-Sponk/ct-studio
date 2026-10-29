@@ -24,6 +24,7 @@ from ctstudio.core.errors import Cancelled, CTStudioError, ToolFailed, ToolTimed
 from ctstudio.core.tools import process
 from ctstudio.core.tools.process import CancelToken, LineCallback, RunResult
 from ctstudio.core.tools.rszst_setup import (
+    EXPECTED_TOOLCHAIN,
     PIN,
     RELEASES_PAGE,
     Preflight,
@@ -195,7 +196,8 @@ def build_linux(
     if root.exists():
         shutil.rmtree(root)
     root.mkdir(parents=True)
-    steps = build_steps(root, jobs=jobs)
+    toolchain = preflight_result.toolchain or EXPECTED_TOOLCHAIN
+    steps = build_steps(root, jobs=jobs, toolchain=toolchain)
     for number, step in enumerate(steps, start=1):
         if on_step is not None:
             on_step(number, len(steps), step)
