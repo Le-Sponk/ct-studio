@@ -206,7 +206,7 @@ adapter-shaped rows, extend the fake to echo the script path as given, RED unit 
 Windows test in a `é 日本` folder (arguments, failures, timeout stops Blender) and a
 mutation probe. Flatpak/Linux behaviour stays unverified and is refused, not guessed.
 
-### [ ] P2-T05g — Editor launch adapter (split 2026-10-29: Wine moved to P2-T05g2)
+### [x] P2-T05g — Editor launch adapter (split 2026-10-29: Wine moved to P2-T05g2)
 `editors.py:open_in(tool_id, file)` follows S7: one path/process per launch; options after
 the path (Lorenzi opens argv[1] as a file), no native Windows ShellExecute associations.
 Return "launched", never "opened": RiiStudio may stay alive with an empty window and

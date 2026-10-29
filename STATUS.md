@@ -4,21 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05g — Editor launch and Wine adapters
+**Next task:** P2-T05g2 — Wine adapter (Linux)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** a3ffe26 (P2-T05f closeout; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** 5352567 (P2-T05g; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05g` — editor launch adapter (Wine split off to P2-T05g2). New
-  `core/tools/editors.py:open_in(tool_id, file, *, executable=None) -> Launched` (pid,
-  path, warnings): absolute document, measured types only, one path per launch, options
-  after the path, cwd = the document's folder, `launch_detached`; Wine/Flatpak launchers
-  refused with a typed error; non-ASCII path warning for RiiStudio. Unit tests, a native
-  Windows test opening each installed editor in a `é 日本` folder, mutation probe, docs.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05g` — new `core/tools/editors.open_in(tool_id, document)` starts BrawlCrate,
+  RiiStudio, Lorenzi, KMP Cloud or Blender on one document (measured types only, path
+  first, options after, detached, cwd = document folder) and returns `Launched`, never
+  "opened". RiiStudio on a non-ASCII path launches with a warning; Wine/Flatpak launchers
+  are refused until P2-T05g2 (split off). Probe: one window per launch for all five, either
+  cwd; detached editors outlive the launcher. 22/22 mutants; gate 797 (794 passed); broad
+  907; native Windows test in `dossier é 日本` 5 passed. CI green both jobs — commit 5352567
 - `P2-T05f` — new `core/tools/blender.run_script(blend, script, args, …)` runs a script in
   headless Blender with `--python-exit-code 113` placed before `--python` (measured: after
   it, or outside 1..255, a failing script exits 0). Inputs are checked first, Flatpak is
@@ -689,6 +690,10 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
   recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
+- **P2-T05g editor launch evidence is Windows-only.** One window per launch, cwd
+  independence and launcher survival are measured natively on Windows 11; on Linux every
+  Windows editor is a Wine launch, which `open_in` refuses until P2-T05g2. Closing it: P2-T05g2
+  plus `tests/integration/test_editors_native.py`'s Linux counterpart.
 - **P2-T05f Blender script adapter evidence is Windows-only.** Flag order, exit codes and
   the unreadable-`.blend` report are measured on Windows 5.2.2; Flatpak Blender is refused,
   not run. Closing it: on Linux record the `BLENDER_ADAPTER_CASES` rows and run
