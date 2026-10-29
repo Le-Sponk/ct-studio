@@ -4,33 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05g2 — Wine adapter (Linux)
+**Next task:** P2-T06 — `ctstudio doctor`
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 5352567 (P2-T05g; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** 52f87e1 (P2-T05g2; Windows gate, Ubuntu/Windows CI, Linux Wine run by the human)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05g2` — Wine adapter (Linux). Measured by the human's Mint 22.3 run of
-  `spikes/p2t05g2_wine_probe.py` (Wine 9.0 Ubuntu, winetricks 20240105; results in TOOLS.md):
-  1. `launch_detached(..., watch=s)`: capture output to a temp file and, if the process exits
-     non-zero within `s` seconds, raise `ToolFailed` with its tail (wrong-arch and missing-.NET
-     launches exited in 0.5 s; good ones were still running at 25 s).
-  2. New `core/tools/wine.py`: PE architecture from the header (PE32/i386 → win32,
-     PE32+/x86-64 → win64), prefix architecture from `system.reg` `#arch=`, refuse a mismatch
-     before launching; `winepath.exe -w` through `run()`; launch `[wine, exe, winpath, *opts]`
-     with `WINEPREFIX`, watched 3 s; classify `Bad EXE format` / `Wine Mono is not installed`.
-  3. `editors.open_in(..., wine_prefix=, wine=)` accepts `launcher=wine` (discovered or a
-     configured `.exe` on Linux); Flatpak stays refused.
-  4. Unit tests with fakes; Linux integration test (skips elsewhere) reusing
-     `~/ct-studio-wine-probe`, for the human to run; mutation probe; TOOLS/ARCHITECTURE docs.
-  Acceptance: wrong prefix or missing .NET is a typed error with a fix hint, never a silent
-  "launched"; Unicode paths reach the editor as Windows paths; Windows behaviour unchanged.
-  Files: `process.py`, `wine.py` (new), `editors.py`, tests, TOOLS.md, phase file.
-  Risk: the watch window is measured on one machine; failures after 3 s stay unreported
-  (same "launched, not opened" contract as native).
-
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05g2` — Windows editors run on Linux through Wine. New `core/tools/wine.py` reads the
+  editor's PE architecture and the prefix's `#arch=`, refuses a 64-bit editor in a win32
+  prefix before starting, converts the document with `winepath.exe -w`, and watches the
+  launch for 3 s (`launch_detached(watch=)`) so `Bad EXE format` and `Wine Mono is not
+  installed` (with the `winetricks -q dotnet48 win10` fix) are typed errors, not a silent
+  "launched". `open_in(..., wine_prefix=, wine_executable=)` routes Wine editors and names the
+  measured prefix recipe when none is given; Blender never runs in Wine, Flatpak still
+  refused. Measured by the human's Mint 22.3 / Wine 9.0 probe run. 38/38 mutants; gate 847;
+  broad 960; **Linux integration test 5 passed on the human's Mint desktop (27 s)**. CI green
+  both jobs — commit 793e1fc (status 52f87e1)
 - `P2-T05g` — new `core/tools/editors.open_in(tool_id, document)` starts BrawlCrate,
   RiiStudio, Lorenzi, KMP Cloud or Blender on one document (measured types only, path
   first, options after, detached, cwd = document folder) and returns `Launched`, never
@@ -708,10 +699,12 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
   recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
-- **P2-T05g editor launch evidence is Windows-only.** One window per launch, cwd
-  independence and launcher survival are measured natively on Windows 11; on Linux every
-  Windows editor is a Wine launch, which `open_in` refuses until P2-T05g2. Closing it: P2-T05g2
-  plus `tests/integration/test_editors_native.py`'s Linux counterpart.
+- **P2-T05g/g2 editor launches.** Native Windows evidence is Windows 11 only. The Linux side
+  is now measured on one machine (Mint 22.3 Cinnamon X11, Wine 9.0 Ubuntu): RiiStudio,
+  Lorenzi and BrawlCrate (win32 + dotnet48) start through `open_in` on a `dossier é 日本`
+  path, and the wrong-prefix / missing-.NET errors are real (`test_wine_editors.py`, 5 passed).
+  Still unmeasured: KMP Cloud under Wine, other Wine versions/distros, Wayland sessions, and
+  Linux-native Blender through `open_in`.
 - **P2-T05f Blender script adapter evidence is Windows-only.** Flag order, exit codes and
   the unreadable-`.blend` report are measured on Windows 5.2.2; Flatpak Blender is refused,
   not run. Closing it: on Linux record the `BLENDER_ADAPTER_CASES` rows and run
@@ -779,11 +772,6 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
 
 ## Needs human — non-blocking
-- **P2-T05g2 Linux check (2026-10-29).** Code is in `793e1fc` (CI green on both). On the Mint
-  desktop, with `~/ct-studio-wine-probe` from the probe still present: `git pull`, `uv sync`,
-  then `uv run pytest -m integration tests/integration/test_wine_editors.py -v -rs`; paste the
-  output. Closes P2-T05g2 (5 tests: three editors start on a `dossier é 日本` path, a 64-bit
-  editor is refused in a win32 prefix, BrawlCrate without .NET is explained).
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->

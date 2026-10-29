@@ -222,7 +222,7 @@ measured document types (BrawlCrate/RiiStudio `.brres`, Lorenzi/KMP Cloud `.kmp`
 captured launcher; a native Windows test that opens each installed editor and reads its
 windows; mutation probe.
 
-### [ ] P2-T05g2 — Wine adapter (Linux)
+### [x] P2-T05g2 — Wine adapter (Linux) (commit 793e1fc; Linux run by the human, 5 passed)
 `wine.py` selects prefixes by PE architecture (PE32 → win32, PE32+ → win64; Bad EXE format
 otherwise) and converts with `winepath -w`; `editors.open_in` then accepts `launcher=wine`.
 Needs a Linux machine with Wine for recordings (none on the Windows dev host). Test the
