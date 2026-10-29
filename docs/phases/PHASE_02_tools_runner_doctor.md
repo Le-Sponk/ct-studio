@@ -187,7 +187,7 @@ wimgt only as text at exit 0; success requires a new `bres` output, no such diag
 and a matching info report. **Acceptance:** recorded/fake parsers and real fixture
 integration on Windows, Ubuntu fake CI.
 
-### [ ] P2-T05e3 — ABMatt material edit and copy adapter
+### [x] P2-T05e3 — ABMatt material edit and copy adapter
 Command-file `set material` edits with anchored, escaped selectors (ABMatt selectors are
 unanchored regex searches: `for oad` edits `road`) and checked keys/values, plus
 copy/paste between archives reporting the textures paste autofix removed. Verify edits

@@ -4,24 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T05e3 — ABMatt material edits and copy
+**Next task:** P2-T05f — Blender script adapter
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 0f3c816 (P2-T05e Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05e3` — ABMatt material edit and copy adapter. (1) Record staged adapter rows
-  (`in.brres` + `edit.txt`; `src.brres`/`dst.brres` + `paste.txt`; info before/after,
-  no-op edit) in `scripts/abmatt_adapter_cases.py`. (2) RED tests for new
-  `core/tools/abmatt_edit.py`: typed `MaterialEdit` (xlu, cull only: the two keys
-  `-c info` shows), anchored escaped `^name$ … model ^m$` selectors, material must exist
-  before running, the after-info must equal the expected table exactly, no-op edits leave
-  the user file untouched, paste reports removed textures and WARN lines. `parse_info`
-  gains layer names. (3) Fake rows. (4) Real Windows integration: edit, no-op,
-  cross-archive, within-archive and minimap paste. (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T05e3` — new `core/tools/abmatt_edit` (`edit_materials`, `paste_material`) sets
+  translucency and cull mode, and copies one material onto another in the same or another
+  archive, on staged copies. Every selector is anchored, escaped and model-qualified
+  (ABMatt's are regex searches: `.` matched `matX001`); materials must exist first; no-op
+  edits are skipped (ABMatt silently writes nothing); otherwise the archive must change and
+  its whole `-c info` table must equal the expected one. Paste reports the textures ABMatt
+  removes. 25/25 mutants (P2-T05e2 rerun 25/25); gate 739; broad 844; real Windows
+  integration 3 passed in `日本` folders (edit, same-archive and minimap paste). Commit
+  cf2f28e (both CI jobs green).
 - `P2-T05e2` — new `core/tools/abmatt` (`convert_model`, `convert_minimap`, `parse_info`)
   stages `<model>.dae` → `out.brres` and `map.obj` → `map_model.brres` so the model name
   comes from the caller and minimap bones are made only for minimaps; puts the pinned
