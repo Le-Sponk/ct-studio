@@ -10,6 +10,15 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05e3` — ABMatt material edit and copy adapter. (1) Record staged adapter rows
+  (`in.brres` + `edit.txt`; `src.brres`/`dst.brres` + `paste.txt`; info before/after,
+  no-op edit) in `scripts/abmatt_adapter_cases.py`. (2) RED tests for new
+  `core/tools/abmatt_edit.py`: typed `MaterialEdit` (xlu, cull only: the two keys
+  `-c info` shows), anchored escaped `^name$ … model ^m$` selectors, material must exist
+  before running, the after-info must equal the expected table exactly, no-op edits leave
+  the user file untouched, paste reports removed textures and WARN lines. `parse_info`
+  gains layer names. (3) Fake rows. (4) Real Windows integration: edit, no-op,
+  cross-archive, within-archive and minimap paste. (5) Gates, docs, commit, both CI.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -663,6 +672,10 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
   `uv run python scripts/record_tool_outputs.py --only abmatt`, commit the Linux
   recordings, and update the replay to use them. Nonblocking for this Windows-pinned task.
 
+- **P2-T05e3 ABMatt material edit/paste evidence is Windows-only.** Selector semantics,
+  the silent no-op edit and paste's texture removal are measured on the Windows 1.3.2
+  binary. Closing it: record the P2-T05e3 rows of `ABMATT_ADAPTER_CASES` on Linux and run
+  `tests/integration/test_abmatt_edit_native.py` there with the skip lifted.
 - **P2-T05e2 ABMatt conversion adapter evidence is Windows-only.** The CJK print crash,
   texture-loss texts and staging names are measured on the Windows 1.3.2 binary only (its
   banner says 1.3.2, the Linux build 1.3.1). Closing it: record `ABMATT_ADAPTER_CASES`

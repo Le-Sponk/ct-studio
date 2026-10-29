@@ -27,7 +27,7 @@ from pathlib import Path
 
 import record_tool_help as rth
 import tool_paths as tp
-from abmatt_adapter_cases import ABMATT_ADAPTER_CASES
+from abmatt_adapter_cases import ABMATT_ADAPTER_CASES, ABMATT_ADAPTER_COMMANDS
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
 from rszst_adapter_cases import RSZST_ADAPTER_CASES
@@ -54,6 +54,7 @@ ABMATT_CMDS = {
     "set.txt": "set material xlu:true for road\n",
     "bad.txt": "frobnicate everything\n",
     "copy.txt": "copy material for road in source.brres\npaste material for road in dest.brres\n",
+    **ABMATT_ADAPTER_COMMANDS,
 }
 
 
@@ -95,7 +96,8 @@ def _place_abmatt(action: str, args: list[str], work: Path, fixture: Fixture) ->
     if action == "@abobj":
         (work / "map.obj").write_bytes(fixture("map.obj"))
     elif action == "@abcmd":
-        (work / args[0]).write_text(ABMATT_CMDS[args[0]], encoding="utf-8", newline="\n")
+        text = ABMATT_CMDS[args[-1]]  # ("@abcmd", name[, text key])
+        (work / args[0]).write_text(text, encoding="utf-8", newline="\n")
     elif action == "@copyfile":
         (work / args[1]).write_bytes((work / args[0]).read_bytes())
     elif action == "@move":  # a file or folder; creates the target's parent

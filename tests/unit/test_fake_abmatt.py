@@ -16,7 +16,9 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "tests" / "fakes"))
 
+import fake_abmatt  # type: ignore[reportMissingImports] - tests/fakes on sys.path
 import record_tool_help as rth
 import record_tool_outputs as rto
 import tool_catalogue as tc
@@ -179,6 +181,32 @@ def test_a_partly_moved_texture_layout_is_unrecorded(fake_tools_path, tmp_path: 
     )
     assert result["exit_code"] == UNMODELLED_EXIT
     assert not (tmp_path / "out.brres").exists()
+
+
+def test_fake_edit_texts_are_the_recorded_command_files() -> None:
+    from abmatt_adapter_cases import ABMATT_ADAPTER_COMMANDS
+
+    assert {name: text.encode() for name, text in ABMATT_ADAPTER_COMMANDS.items()} == (
+        fake_abmatt.EDIT_TEXTS
+    )
+
+
+@pytest.mark.parametrize(
+    ("archive", "data"),
+    [("src.brres", fake_abmatt.MARKER), ("dst.brres", fake_abmatt.EDIT_MARKER)],
+    ids=["unedited source", "edited target"],
+)
+def test_paste_refuses_archives_other_than_the_recorded_pair(
+    archive: str, data: bytes, fake_tools_path, tmp_path: Path
+) -> None:
+    name = "adapter paste"
+    row = next(item for item in records() if item["case"] == name)
+    rto.prepare(CASES[name], tmp_path, fake_tools_path.resolve, stand_ins(row, FOLDER / "inputs"))
+    (tmp_path / archive).write_bytes(data)
+    result = rth.capture(
+        fake_tools_path.resolve("abmatt"), CASES[name].argv[1:], cwd=tmp_path, roots={}
+    )
+    assert result["exit_code"] == UNMODELLED_EXIT
 
 
 def test_fake_raw_help_line_endings_are_platform_appropriate(

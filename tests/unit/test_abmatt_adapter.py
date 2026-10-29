@@ -50,8 +50,8 @@ def test_parse_info_reads_model_and_materials() -> None:
     from ctstudio.core.tools.abmatt import MaterialInfo, parse_info
 
     assert parse_info(INFO) == (
-        MaterialInfo("course", "road", xlu=False, cull="inside"),
-        MaterialInfo("course", "grass", xlu=True, cull="none"),
+        MaterialInfo("course", "road", xlu=False, cull="inside", layers=("road",)),
+        MaterialInfo("course", "grass", xlu=True, cull="none", layers=("grass",)),
     )
 
 

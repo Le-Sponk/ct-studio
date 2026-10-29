@@ -315,6 +315,27 @@ a non-ASCII path, because the failure is invisible.
   regex searches (`for oad` edits `road`; `^oad$` fails "No items found", exit 1) and
   `drawpriority` is accepted but not shown by `-c info` (for P2-T05e3).
   Adapter rows: [`scripts/abmatt_adapter_cases.py`](../../scripts/abmatt_adapter_cases.py).
+- **Material edit and paste adapter (P2-T05e3, verified 1.3.2 Windows 11):**
+  `ctstudio.core.tools.abmatt_edit.edit_materials` sets `xlu`/`cullmode` (the only keys
+  `-c info` shows) on a staged `in.brres` via `edit.txt`; `paste_material` stages
+  `src.brres`/`dst.brres` with `paste.txt`. Measured: command-file selectors are
+  unanchored regex searches (`.` matches anything, so `^mat.001$` also edits `matX001`;
+  `in model cours` matches `course`), so every selector is `for ^<re.escape(name)>$ in
+  model ^<model>$`, and with two `-b` archives `in <archive> model ^<model>$` (`in model
+  … in <archive>` is a parse error; an escaped `src\.brres` is read as a path). A
+  selection matching nothing exits 1 ("No items found"), `PasteError` exits 1 for a
+  multi-match copy, unknown keys exit -1 with the key list, bad values exit 1
+  (`cullmode` is none/outside/inside/all; `drawpriority` 0-254 with an off-by-one
+  message, ints only). An edit that changes nothing prints a blank line, writes nothing
+  and exits 0: the adapter skips no-op edits and otherwise requires the archive to
+  change, then requires the full `-c info` table to equal the expected one (row order,
+  layers included). Paste carries settings and layer references, removes target textures
+  left unused ("Unused textures: {'grass'} / (FIXED): Remove textures", reported as
+  `removed_textures`), and pastes the source texture into another archive that lacks it
+  (minimap paste: TEX0 added plus a "does not have UV channel(s)" WARN, reported in
+  `warnings`). The copy source is never rewritten. `-d` with two `-b` files fails
+  ("Multiple files for single destination"). `info tex0 for *` lists textures; `info
+  texture` is a parse error.
 
 ## Blender + Blender-MKW-Utilities
 - Add-on: https://github.com/Le-Sponk/Blender-MKW-Utilities (fork of Gabriela-Orzechowska's), GPL-2.0-or-later,

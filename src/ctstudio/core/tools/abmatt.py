@@ -19,7 +19,8 @@ from __future__ import annotations
 import os
 import re
 import shutil
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
 from pathlib import Path, PurePosixPath
 
 from ctstudio.core.errors import CTStudioError
@@ -36,7 +37,7 @@ from ctstudio.core.tools.staging import (
 
 MODEL_NAME = re.compile(r"^[A-Za-z0-9]{1,64}$")  # ABMatt cuts the name at the first "_"
 _INFO_ROW = re.compile(r"^>([^\s>-]+)->(\S+)\txlu:([01]) cull:(inside|outside|none|all)$")
-_INFO_LAYER = re.compile(r"^  \S+:\tScale:\(.*\) Rot:.* Trans:\(.*\)$")
+_INFO_LAYER = re.compile(r"^  (\S+):\tScale:\(.*\) Rot:.* Trans:\(.*\)$")
 _FAILURE_TEXT = re.compile(
     r"^(?:ERROR:.*|WARN: Failed to find image .*|No texture matching .*)$", re.MULTILINE
 )
@@ -64,6 +65,7 @@ class MaterialInfo:
     material: str
     xlu: bool
     cull: str
+    layers: tuple[str, ...] = ()  # texture layer names, in order
 
 
 @dataclass(frozen=True)
@@ -74,25 +76,27 @@ class Conversion:
 
 def parse_info(text: str, source: Path = Path("archive.brres")) -> tuple[MaterialInfo, ...]:
     """``abmatt -b FILE -c info``: one ``>model->material`` row per material, then layers."""
-    rows: list[MaterialInfo] = []
+    rows: list[tuple[MaterialInfo, list[str]]] = []
     for line in filter(None, (raw.rstrip("\r") for raw in text.splitlines())):
         if match := _INFO_ROW.match(line):
             model, material, xlu, cull = match.groups()
-            rows.append(MaterialInfo(model, material, xlu == "1", cull))
-        elif not (rows and _INFO_LAYER.match(line)):
+            rows.append((MaterialInfo(model, material, xlu == "1", cull), []))
+        elif rows and (layer := _INFO_LAYER.match(line)):
+            rows[-1][1].append(layer.group(1))
+        else:
             raise AbmattError(source, f"unexpected line in the info report: {line!r}")
     if not rows:
         raise AbmattError(source, "the info report lists no materials")
-    return tuple(rows)
+    return tuple(replace(row, layers=tuple(layers)) for row, layers in rows)
 
 
-def _tool_env(wimgt: Path | None) -> dict[str, str]:
+def tool_env(wimgt: Path | None) -> dict[str, str]:
     """ABMatt shells out to ``wimgt`` from PATH; put the pinned one first."""
     folder = wimgt.parent if wimgt is not None else executable_for("wimgt", None, _HINT).parent
     return {**os.environ, "PATH": os.pathsep.join([str(folder), os.environ.get("PATH", "")])}
 
 
-def _check_run(source: Path, result: ToolRun) -> None:
+def check_run(source: Path, result: ToolRun) -> None:
     if result.exit_code != 0:
         raise AbmattError(
             source,
@@ -108,37 +112,54 @@ def _check_run(source: Path, result: ToolRun) -> None:
 
 
 @dataclass(frozen=True)
+class AbmattRunner:
+    """One configured ABMatt: its executable, a PATH with wimgt, and run limits."""
+
+    executable: Path
+    env: Mapping[str, str]
+    timeout: float
+    cancel: CancelToken | None
+
+    def run(self, work: Path, source: Path, args: list[str]) -> ToolRun:
+        """Run in ``work``; nonzero exits and ABMatt's exit-0 failure texts raise."""
+        result = run_collecting(
+            [self.executable, *args], work, env=self.env, timeout=self.timeout, cancel=self.cancel
+        )
+        check_run(source, result)
+        return result
+
+    def info(self, work: Path, source: Path, archive: str) -> tuple[MaterialInfo, ...]:
+        return parse_info(self.run(work, source, ["-b", archive, "-c", "info"]).stdout, source)
+
+
+def runner(
+    executable: Path | None, wimgt: Path | None, timeout: float, cancel: CancelToken | None
+) -> AbmattRunner:
+    return AbmattRunner(
+        executable_for("abmatt", executable, _HINT), tool_env(wimgt), timeout, cancel
+    )
+
+
+@dataclass(frozen=True)
 class _Job:
     source: Path
     staged: str
     output: str
     model: str
-    executable: Path | None
-    wimgt: Path | None
-    timeout: float
-    cancel: CancelToken | None
 
 
 def _convert(
-    job: _Job, work: Path, extra: dict[str, Path]
+    tool: AbmattRunner, job: _Job, work: Path, extra: dict[str, Path]
 ) -> tuple[bytes, tuple[MaterialInfo, ...]]:
     shutil.copyfile(job.source, work / job.staged)
     for relative, path in extra.items():
         shutil.copyfile(path, work / relative)
-    exe = executable_for("abmatt", job.executable, _HINT)
-    env = _tool_env(job.wimgt)
-
-    def run(args: list[str]) -> ToolRun:
-        result = run_collecting([exe, *args], work, env=env, timeout=job.timeout, cancel=job.cancel)
-        _check_run(job.source, result)
-        return result
-
-    converted = run(["convert", job.staged, "to", job.output, "-o"])
+    converted = tool.run(work, job.source, ["convert", job.staged, "to", job.output, "-o"])
     data = (work / job.output).read_bytes() if (work / job.output).is_file() else b""
     if not data.startswith(b"bres"):
         reason = f"abmatt exited 0 but wrote no valid {job.output}"
         raise AbmattError(job.source, reason, exit_code=0, details=converted.details)
-    materials = parse_info(run(["-b", job.output, "-c", "info"]).stdout, job.source)
+    materials = tool.info(work, job.source, job.output)
     if names := {m.model for m in materials} - {job.model}:
         raise AbmattError(
             job.source, f"the model came out named {sorted(names)[0]!r}, not {job.model!r}"
@@ -189,11 +210,10 @@ def convert_model(
         )
     textures = _textures(dae)
     _free(dae, destination, overwrite)
-    job = _Job(
-        dae, f"{model_name}.dae", "out.brres", model_name, executable, wimgt, timeout, cancel
-    )
+    tool = runner(executable, wimgt, timeout, cancel)
+    job = _Job(dae, f"{model_name}.dae", "out.brres", model_name)
     with stage("abmatt") as work:
-        data, materials = _convert(job, work, textures)
+        data, materials = _convert(tool, job, work, textures)
         return Conversion(deliver(destination, data), materials)
 
 
@@ -215,7 +235,8 @@ def convert_minimap(
     if obj.suffix.lower() != ".obj":
         raise AbmattError(obj, "a minimap must be converted from an OBJ file")
     _free(obj, destination, overwrite)
-    job = _Job(obj, "map.obj", "map_model.brres", "map", executable, wimgt, timeout, cancel)
+    tool = runner(executable, wimgt, timeout, cancel)
+    job = _Job(obj, "map.obj", "map_model.brres", "map")
     with stage("abmatt") as work:
-        data, materials = _convert(job, work, {})
+        data, materials = _convert(tool, job, work, {})
         return Conversion(deliver(destination, data), materials)

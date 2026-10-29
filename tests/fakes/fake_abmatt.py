@@ -22,6 +22,8 @@ ROWS: list[dict[str, Any]] = recordings("abmatt", VERSION, "ops")
 MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT\n"
 NO_TEXTURES_MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT-NO-TEXTURES\n"
 MAP_MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT-MAP\n"
+EDIT_MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT-EDITED\n"
+PASTE_MARKER = b"bres\nCT-STUDIO-FAKE-ABMATT-PASTED\n"
 # Rows whose real output lost textures; the stand-in must never pass for a textured model.
 TEXTURE_LOSS = {
     "convert without wimgt",
@@ -32,7 +34,34 @@ TEXTURE_LOSS = {
 INFO_SOURCES = {
     "adapter info": ("out.brres", MARKER),
     "adapter minimap info": ("map_model.brres", MAP_MARKER),
+    "adapter edit info": ("in.brres", MARKER),
+    "adapter edited info": ("in.brres", EDIT_MARKER),
+    "adapter paste source info": ("src.brres", EDIT_MARKER),
+    "adapter paste target info": ("dst.brres", MARKER),
+    "adapter pasted info": ("dst.brres", PASTE_MARKER),
 }
+# P2-T05e3 staged edits: case -> (archives it must find, command file, its exact text).
+EDIT_TEXTS = {
+    "edit.txt": (
+        b"set material xlu:true for ^road$ in model ^course$\n"
+        b"set material cullmode:none for ^grass$ in model ^course$\n"
+    ),
+    "noop.txt": b"set material xlu:false for ^road$ in model ^course$\n",
+    "paste.txt": (
+        b"copy material for ^road$ in src.brres model ^course$\n"
+        b"paste material for ^grass$ in dst.brres model ^course$\n"
+    ),
+}
+EDITS = {
+    "adapter edit": ({"in.brres": MARKER}, "edit.txt", EDIT_TEXTS["edit.txt"]),
+    "adapter edit unchanged": ({"in.brres": MARKER}, "edit.txt", EDIT_TEXTS["noop.txt"]),
+    "adapter paste": (
+        {"src.brres": EDIT_MARKER, "dst.brres": MARKER},
+        "paste.txt",
+        EDIT_TEXTS["paste.txt"],
+    ),
+}
+WRITES = {"adapter edit": EDIT_MARKER, "adapter paste": PASTE_MARKER}
 # Adapter rows that moved textures out of the DAE's folder: case -> (folder, textures).
 MOVED = {
     "adapter convert missing texture": ("unused", ("fence",)),
@@ -110,6 +139,10 @@ def _adapter_state(name: str) -> bool:
     if name in INFO_SOURCES:
         archive, marker = INFO_SOURCES[name]
         return _exact(Path(archive), marker)
+    if name in EDITS:
+        archives, command, text = EDITS[name]
+        found = all(_exact(Path(archive), data) for archive, data in archives.items())
+        return found and _exact(Path(command), text)
     folder, gone = MOVED.get(name, ("", ()))
     return not any(Path(f"{t}.png").exists() for t in gone) and all(
         _texture(Path(folder) / f"{t}.png", f"{t}.png") for t in gone
@@ -119,36 +152,46 @@ def _adapter_state(name: str) -> bool:
 def _fixtures_for(row: dict[str, Any]) -> bool:
     """Every recorded input beside the command, except textures the case moved away."""
     name = str(row["case"])
-    if name in INFO_SOURCES:
+    if name in INFO_SOURCES or name in EDITS:
         return True  # the conversion that made the archive already checked its inputs
     moved = {f"{t}.png" for t in MOVED.get(name, ("", ()))[1]}
     return all(_texture(Path(item), item) for item in row["inputs"] if item not in moved)
+
+
+_BRRES_CASES = {
+    "command file",
+    "command file without overwrite",
+    "command file missing",
+    "bad command file",
+    "inline command parsing",
+    "copy material",
+}
+
+
+def _named_state(name: str, row: dict[str, Any]) -> bool:
+    if name.startswith("adapter"):
+        staged = name in INFO_SOURCES or name in EDITS
+        return _adapter_state(name) and (staged or _convert_state(name, row))
+    if name.startswith("convert"):
+        return _convert_state(name, row)
+    if name.startswith("info") or name in _BRRES_CASES:
+        return _brres_state(name)
+    return True
 
 
 def _state(row: dict[str, Any]) -> bool:
     name = str(row["case"])
     if row["compare"] == "unmodelled" or not _fixtures_for(row) or not _wimgt_matches(name):
         return False
-    if name.startswith("adapter"):
-        return _adapter_state(name) and (name in INFO_SOURCES or _convert_state(name, row))
-    if name.startswith("convert"):
-        return _convert_state(name, row)
-    if name.startswith("info") or name in {
-        "command file",
-        "command file without overwrite",
-        "command file missing",
-        "bad command file",
-        "inline command parsing",
-        "copy material",
-    }:
-        return _brres_state(name)
-    return True
+    return _named_state(name, row)
 
 
 def _marker(row: dict[str, Any]) -> bytes:
     """Texture-loss and minimap stand-ins differ, so neither passes as a textured model."""
     if row["case"] in TEXTURE_LOSS:
         return NO_TEXTURES_MARKER
+    if row["case"] in WRITES:
+        return WRITES[row["case"]]
     return MAP_MARKER if row["argv"][1:2] == ["map.obj"] else MARKER
 
 
