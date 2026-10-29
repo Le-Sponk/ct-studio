@@ -6,7 +6,7 @@
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
 **Next task:** P2-T05g — Editor launch and Wine adapters
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 0f3c816 (P2-T05e Windows gate and Ubuntu/Windows CI)
+**Last green commit:** a3ffe26 (P2-T05f closeout; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
