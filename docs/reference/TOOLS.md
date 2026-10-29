@@ -585,6 +585,19 @@ rows remain the **Linux** contracts (ADR-019).
 stayed up with an empty editor and no dialog. `open_in()` must not report success from a
 healthy process, and must not check window titles (two of five never name the file).
 
+**`editors.open_in` (P2-T05g, native Windows only).** `open_in(tool_id, document, *,
+executable=None) -> Launched(tool_id, pid, document, warnings)` resolves the document,
+accepts only the measured types (BrawlCrate/RiiStudio `.brres`, Lorenzi/KMP Cloud `.kmp`,
+Blender `.blend`; case-insensitive), and runs `[editor, document, *options]` through
+`launch_detached` with cwd = the document's folder (BrawlCrate gets `/audio:none` after the
+path). P2-T05g probe, Windows 11, document in `dossier é 日本`: every editor started one
+window per launch with cwd = the document folder **or** the editor folder (RiiStudio still
+loads its relative `./fonts`); titles named the file for BrawlCrate, Lorenzi and Blender only.
+A detached editor survived its launcher exiting **and** a plain `taskkill /F` of it; only
+`taskkill /T` of the launcher's tree took it down. RiiStudio on a non-ASCII path launches
+with a warning (silent empty load). Discovered `wine`/`flatpak` launchers raise
+`ToolNotFound` until P2-T05g2; there is no Wine adapter yet.
+
 ## Verified command table (fill in; adapters must only use rows marked verified)
 Every flag in this table and the S3b conversion table is checked against the pinned tool's
 recorded help by `tests/unit/test_help_contract.py` (P2-T04a; recordings in

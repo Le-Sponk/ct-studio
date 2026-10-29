@@ -10,6 +10,12 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T05g` — editor launch adapter (Wine split off to P2-T05g2). New
+  `core/tools/editors.py:open_in(tool_id, file, *, executable=None) -> Launched` (pid,
+  path, warnings): absolute document, measured types only, one path per launch, options
+  after the path, cwd = the document's folder, `launch_detached`; Wine/Flatpak launchers
+  refused with a typed error; non-ASCII path warning for RiiStudio. Unit tests, a native
+  Windows test opening each installed editor in a `é 日本` folder, mutation probe, docs.
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -405,6 +411,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-10-29: P2-T05g split. Editor launch stays P2-T05g; the Wine adapter (PE-architecture
+  prefixes, `winepath -w`, `launcher=wine` in `open_in`) becomes P2-T05g2, because Wine is
+  Linux-only and nothing about it can be measured on the Windows dev host.
 <!-- Date · what changed · why (evidence link) · affected ADR/phase files -->
 - 2026-10-29 (P2-T05e2): split into P2-T05e2 (ABMatt conversion + info parser) and
   P2-T05e3 (material edits + copy). Probes found unanchored regex selectors, silent

@@ -206,13 +206,27 @@ adapter-shaped rows, extend the fake to echo the script path as given, RED unit 
 Windows test in a `é 日本` folder (arguments, failures, timeout stops Blender) and a
 mutation probe. Flatpak/Linux behaviour stays unverified and is refused, not guessed.
 
-### [ ] P2-T05g — Editor launch and Wine adapters
+### [ ] P2-T05g — Editor launch adapter (split 2026-10-29: Wine moved to P2-T05g2)
 `editors.py:open_in(tool_id, file)` follows S7: one path/process per launch; options after
 the path (Lorenzi opens argv[1] as a file), no native Windows ShellExecute associations.
 Return "launched", never "opened": RiiStudio may stay alive with an empty window and
-some editors never name the file. Warn on Windows non-ASCII RiiStudio paths. `wine.py`
-selects prefixes by PE architecture (PE32 → win32, PE32+ → win64; Bad EXE format otherwise)
-and converts with `winepath -w`. Test Linux/Wine and native Windows contracts independently.
+some editors never name the file. Warn on Windows non-ASCII RiiStudio paths.
+
+Plan (2026-10-29), measured first on Windows with `launch_detached` from a `dossier é 日本`
+folder: all five editors start one window per launch whether cwd is the document's folder
+or the editor's (RiiStudio still finds its `./fonts`); BrawlCrate, Lorenzi and Blender name
+the file in the title, RiiStudio and KMP Cloud never do; a detached editor outlives its
+launcher exiting or being killed, but not `taskkill /T` of the launcher. Accept only the
+measured document types (BrawlCrate/RiiStudio `.brres`, Lorenzi/KMP Cloud `.kmp`, Blender
+`.blend`); refuse Wine and Flatpak launchers until P2-T05g2 verifies them. Unit tests with a
+captured launcher; a native Windows test that opens each installed editor and reads its
+windows; mutation probe.
+
+### [ ] P2-T05g2 — Wine adapter (Linux)
+`wine.py` selects prefixes by PE architecture (PE32 → win32, PE32+ → win64; Bad EXE format
+otherwise) and converts with `winepath -w`; `editors.open_in` then accepts `launcher=wine`.
+Needs a Linux machine with Wine for recordings (none on the Windows dev host). Test the
+Linux/Wine contract independently of the native Windows one.
 
 All adapter flags come from TOOLS.md; parsers have tests against recordings, and available
 real tools are exercised by `-m integration` on fixtures. One subtask per session.
