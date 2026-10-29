@@ -296,6 +296,10 @@ GL resources created lazily and released on project close. `paintGL` only draws.
 Structured logging (JSON lines) to the user log dir; one log file per build in `.ctstudio/logs/`;
 "Copy diagnostics" in Help (versions, tool table, last build log tail, no personal paths beyond
 what the user approves); `ctstudio doctor [--json]`.
+P2-T06: `core/tools/doctor.py` builds the tool report (no subprocess of its own; versions via
+`versions.py`), `cli/doctor.py` renders it as a table or JSON, and `__main__` dispatches the
+`doctor` subcommand without importing Qt. Exit 1 only when a required tool (`wszst`) is not
+ready; optional tools only add fix hints.
 
 P1-T04 foundation: `core/logging.py` configures the package logger once at startup via
 `configure_logging()` (`platformdirs.user_log_dir("ctstudio")/ctstudio.log`, UTF-8 JSON lines,

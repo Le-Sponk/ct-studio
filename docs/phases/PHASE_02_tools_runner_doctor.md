@@ -245,6 +245,11 @@ Table: tool, status (found/missing/too old/sandboxed), version, path, launcher, 
 `--json` for machines. Exit 0 even if optional tools are missing; non-zero only if required-for-core
 tools (wszst) missing.
 **Acceptance:** integration test in container; snapshot test of text layout with fakes.
+Plan (2026-10-29): statuses found / missing / too old / not working / needs Wine / sandboxed /
+not needed; `--recheck` forces version probes; required = `wszst`. Exact text snapshot and
+JSON shape from a fixed report, fake Windows/Linux trees for every status, a real-tool run
+against `.tools/` (`tests/integration/test_doctor_real.py`); the "container" is the Ubuntu CI
+job (fakes) until a Linux real-tool run.
 
 ### [ ] P2-T06b — How Linux users get `rszst` (first-run setup)
 **Why this needs a task:** ADR-004 makes `rszst` the BRRES import backend, but RiiStudio publishes

@@ -1108,3 +1108,24 @@ The prober ignores the exit status because `rszst` prints its banner and exits -
 version. Probes run real child processes (fake executables with their own path,
 size and mtime) through the P2-T03 runner. A real-tool version check on this
 machine is deferred to the P2-T06 doctor checkpoint.
+
+## `ctstudio doctor` (P2-T06)
+`core/tools/doctor.diagnose()` discovers every registry tool the way the adapters do
+(`include_dev=True`, so `.tools/` copies count and are labelled "developer copy"), probes
+versions only for directly launched tools through `versions.probe_versions` (cache;
+`--recheck` forces), and never starts a GUI, Wine or Flatpak process. Statuses: found,
+missing (fix = official download page), too old (probed version below `min_version`; no
+registry floor is set yet, so this cannot happen with the shipped table), not working
+(probe failed or timed out), needs Wine (Linux Windows-editor without `wine`), sandboxed
+(Flatpak-only Blender, refused by the adapters), not needed (no executable for this OS).
+Linux Wine editors carry the measured prefix recipe as a note. Only `wszst` is required:
+`ctstudio doctor` exits 1 when it is not "found", otherwise 0; `--json` prints the same data
+(format 1). Unrecognised version output is "found" with a note, not a failure.
+
+**[verified P2-T06, Windows 11, real `.tools/`]** `uv run ctstudio doctor --recheck` exit 0:
+Wiimm `wszst`/`wkclt`/`wkmpt`/`wimgt` 2.42a, `rszst` 5.11.5, Blender 5.2.2 (real probes);
+ABMatt, RiiStudio, Lorenzi and KMP Cloud found without a version (no verified version
+command); BrawlCrate (installed on the Desktop, not a searched location), Dolphin and
+DolphinTool missing; Wine and winetricks "not needed". The RiiStudio GUI is now also
+discovered in the bootstrapped `.tools/riistudio/` folder next to `rszst`. Linux real-tool
+output is not yet measured (CI runs fakes only).

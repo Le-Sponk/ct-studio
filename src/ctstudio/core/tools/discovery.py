@@ -119,8 +119,8 @@ _DEV_PATHS: dict[str, dict[str, tuple[str, ...]]] = {
         "linux": ("s7-brawlcrate-bin/BrawlCrate.exe",),
     },
     "riistudio": {
-        "windows": ("s7-riistudio-win/RiiStudio.exe",),
-        "linux": ("s7-riistudio-win/RiiStudio.exe",),
+        "windows": ("s7-riistudio-win/RiiStudio.exe", "riistudio/RiiStudio.exe"),
+        "linux": ("s7-riistudio-win/RiiStudio.exe", "riistudio/RiiStudio.exe"),
     },
     "kmp_editor_lorenzi": {
         "windows": ("s7-lorenzi-win/Lorenzi's KMP Editor.exe",),

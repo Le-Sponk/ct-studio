@@ -156,6 +156,9 @@ def test_linux_gui_editor_requires_wine_launcher(tmp_path: Path) -> None:
         ("windows", "rszst", "riistudio/rszst.exe"),
         ("linux", "rszst", "riistudio-build-pinned/source/cli/rszst"),
         ("windows", "kmp_cloud", "s7-kmp-cloud/KMP Cloud.exe"),
+        # The bootstrapped RiiStudio release folder holds the GUI next to rszst (P2-T06).
+        ("windows", "riistudio", "riistudio/RiiStudio.exe"),
+        ("linux", "riistudio", "riistudio/RiiStudio.exe"),
         ("linux", "brawlcrate", "s7-brawlcrate-bin/BrawlCrate.exe"),
     ],
 )
@@ -171,7 +174,7 @@ def test_developer_tools_are_opt_in(
     assert location.path == found.resolve()
     assert location.source == "dev"
     assert location.launcher == (
-        "wine" if platform == "linux" and tool == "brawlcrate" else "direct"
+        "wine" if platform == "linux" and tool in {"brawlcrate", "riistudio"} else "direct"
     )
 
 

@@ -1,7 +1,8 @@
 """`ctstudio` entry point.
 
-No arguments launch the GUI; `--offscreen-smoke` captures a headless PNG.
-Only the stdlib and package metadata are imported until a GUI path is selected.
+No arguments launch the GUI; `--offscreen-smoke` captures a headless PNG; `doctor` checks
+the external tools (P2-T06). Only the stdlib and package metadata are imported until a path
+is selected, and CLI subcommands never import Qt.
 """
 
 from __future__ import annotations
@@ -27,6 +28,10 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="PNG",
         help="render the dashboard to a PNG without opening a display, then exit",
     )
+    from ctstudio.cli import doctor
+
+    subcommands = parser.add_subparsers(dest="command", metavar="COMMAND")
+    doctor.add_parser(subcommands)
     return parser
 
 
@@ -34,6 +39,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Parse ``argv`` (default: ``sys.argv[1:]``) and return the process exit code."""
     parser = _build_parser()
     args = parser.parse_args(argv)
+    if args.command == "doctor":
+        return _doctor(args)
     if args.offscreen_smoke is not None:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
     from ctstudio.core.errors import CTStudioError
@@ -43,6 +50,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         configure_logging()
         return run_gui(args.offscreen_smoke)
+    except CTStudioError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+
+
+def _doctor(args: argparse.Namespace) -> int:
+    from ctstudio.cli import doctor
+    from ctstudio.core.errors import CTStudioError
+    from ctstudio.core.logging import configure_logging
+
+    try:
+        configure_logging()
+        return doctor.run(args)
     except CTStudioError as exc:
         print(exc, file=sys.stderr)
         return 1

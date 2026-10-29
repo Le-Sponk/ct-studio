@@ -10,6 +10,21 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T06` — `ctstudio doctor [--json] [--recheck]`.
+  1. `core/tools/doctor.py`: `diagnose()` discovers every registry tool exactly as the
+     adapters do (`include_dev=True`), probes versions through `versions.probe_versions`
+     (cache; `--recheck` forces) and classifies each: found / missing / too old (version below
+     `min_version`) / sandboxed (Flatpak location, which adapters refuse) / not needed (no
+     executable for this OS, e.g. Wine on Windows), with a plain fix hint. Wine-launched
+     editors on Linux get a hint when Wine itself is missing. Required for core: `wszst`.
+  2. `cli/doctor.py`: text table (tool, status, version, launcher, used for; path and fix on
+     the line below) and `--json`; `__main__` gains the `doctor` subcommand without importing Qt.
+  3. Exit 0 unless a required tool is missing or too old (exit 1).
+  Acceptance: fake-environment tests for every status; exact text snapshot from a fixed
+  report; JSON shape; exit codes; a real-tool integration run on this machine (`.tools`).
+  Files: `core/tools/doctor.py`, `cli/doctor.py`, `__main__.py`, tests, TOOLS.md, ARCHITECTURE.
+  Risk: Linux real-tool run not available here (CI covers fakes only) → platform gap.
+
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T05g2` — Windows editors run on Linux through Wine. New `core/tools/wine.py` reads the
