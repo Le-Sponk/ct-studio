@@ -779,6 +779,11 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
 
 ## Needs human — non-blocking
+- **P2-T05g2 Linux check (2026-10-29).** Code is in `793e1fc` (CI green on both). On the Mint
+  desktop, with `~/ct-studio-wine-probe` from the probe still present: `git pull`, `uv sync`,
+  then `uv run pytest -m integration tests/integration/test_wine_editors.py -v -rs`; paste the
+  output. Closes P2-T05g2 (5 tests: three editors start on a `dossier é 日本` path, a 64-bit
+  editor is refused in a win32 prefix, BrawlCrate without .NET is explained).
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
