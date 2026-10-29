@@ -228,6 +228,15 @@ otherwise) and converts with `winepath -w`; `editors.open_in` then accepts `laun
 Needs a Linux machine with Wine for recordings (none on the Windows dev host). Test the
 Linux/Wine contract independently of the native Windows one.
 
+Plan (2026-10-29), from the human's Mint 22.3 / Wine 9.0 probe run: `launch_detached` gains
+`watch=` (non-zero exit within the window → `ToolFailed` with the output tail); `wine.py`
+reads PE and prefix architecture, refuses a 64-bit editor in a win32 prefix up front,
+converts with `winepath.exe -w`, launches watched for 3 s and explains `Bad EXE format` and
+`Wine Mono is not installed`; `open_in(..., wine_prefix=, wine_executable=)` routes Wine
+editors (discovered or a configured `.exe` on Linux) and names the measured prefix recipe
+when none is given. Unit tests with fakes, a Linux-only integration test reusing the probe's
+editors and prefixes (run by the human), mutation probe.
+
 All adapter flags come from TOOLS.md; parsers have tests against recordings, and available
 real tools are exercised by `-m integration` on fixtures. One subtask per session.
 

@@ -220,7 +220,10 @@ wrote, a timestamped backup is made — no exceptions.
   behind after a clean exit are also stopped.
 - Windows: `CREATE_NO_WINDOW` for CLI tools; GUI editors launched detached.
 - Linux: Windows-only GUI tools (BrawlCrate, KMP Cloud) run via a configured Wine prefix; paths
-  converted with `winepath`. Sandboxed installs (Flatpak/Snap) handled per lessons from the
+  converted with `winepath`. P2-T05g2 (`core/tools/wine.py`): the PE header decides the
+  prefix architecture and a mismatch is refused before launch; the launch is watched for 3 s
+  (`launch_detached(watch=)`) because Wine reports a wrong prefix or missing .NET by exiting
+  at once. Sandboxed installs (Flatpak/Snap) handled per lessons from the
   Blender add-on (desktop launches don't inherit shell PATH; sandboxed apps can't see host paths).
 - Discovery order: explicit user setting → PATH → standard install locations → `.tools/` (dev).
   Results cached with invalidation; "Re-check" always available.

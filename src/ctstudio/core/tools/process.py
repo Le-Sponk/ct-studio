@@ -14,6 +14,7 @@ import math
 import os
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from collections import deque
@@ -156,16 +157,40 @@ def run(
 
 
 def launch_detached(
-    cmd: Sequence[str | Path], *, cwd: Path, env: Mapping[str, str] | None = None
+    cmd: Sequence[str | Path],
+    *,
+    cwd: Path,
+    env: Mapping[str, str] | None = None,
+    watch: float = 0.0,
 ) -> int:
     """Start a GUI editor that outlives this call and CT Studio; return its process id.
 
-    Its output is discarded and it is not part of any killable tree. A daemon thread reaps
-    it on exit so no zombie remains on POSIX.
+    It is not part of any killable tree, and a daemon thread reaps it on exit so no zombie
+    remains on POSIX. With ``watch`` seconds, its combined output goes to an anonymous
+    temporary file and a non-zero exit within that time raises ``ToolFailed`` with the last
+    lines (Wine reports a wrong prefix or missing .NET that way, P2-T05g2). An exit 0 counts
+    as a hand-over. Without ``watch`` the output is discarded.
     """
+    if watch < 0:
+        raise ValueError("watch must not be negative")
     argv = _argv(cmd)
     _require_folder(cwd)
-    proc = _popen(argv, cwd, _environment(env), detached=True)
+    if not watch:
+        return _reaped(_popen(argv, cwd, _environment(env), detached=True))
+    with tempfile.TemporaryFile() as output:  # the editor keeps its own handle open
+        proc = _popen(argv, cwd, _environment(env), detached=True, output=output)
+        try:
+            code = proc.wait(timeout=watch)
+        except subprocess.TimeoutExpired:
+            return _reaped(proc)
+        if code != 0:
+            output.seek(0)
+            lines = output.read().decode("utf-8", errors="replace").splitlines()
+            raise ToolFailed(argv, code, "\n".join(lines[-TAIL_LINES:]), None)
+        return proc.pid
+
+
+def _reaped(proc: subprocess.Popen[bytes]) -> int:
     threading.Thread(target=proc.wait, name=f"reap-{proc.pid}", daemon=True).start()
     return proc.pid
 
@@ -197,9 +222,17 @@ def _environment(extra: Mapping[str, str] | None) -> dict[str, str] | None:
 
 
 def _popen(
-    argv: list[str], cwd: Path, env: dict[str, str] | None, *, detached: bool
+    argv: list[str],
+    cwd: Path,
+    env: dict[str, str] | None,
+    *,
+    detached: bool,
+    output: IO[bytes] | None = None,
 ) -> subprocess.Popen[bytes]:
-    pipe = subprocess.DEVNULL if detached else subprocess.PIPE
+    pipe: int | IO[bytes] = subprocess.DEVNULL if detached else subprocess.PIPE
+    errors: int | IO[bytes] = pipe
+    if output is not None:
+        pipe, errors = output, subprocess.STDOUT
     try:
         if sys.platform == "win32":
             if detached:
@@ -217,7 +250,7 @@ def _popen(
                 env=env,
                 stdin=subprocess.DEVNULL,
                 stdout=pipe,
-                stderr=pipe,
+                stderr=errors,
                 bufsize=0,
                 creationflags=flags,
             )
@@ -227,7 +260,7 @@ def _popen(
             env=env,
             stdin=subprocess.DEVNULL,
             stdout=pipe,
-            stderr=pipe,
+            stderr=errors,
             bufsize=0,
             start_new_session=True,
         )

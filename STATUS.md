@@ -10,13 +10,24 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T05g2` — Wine adapter. **Waiting on the human's Linux Mint run** of
-  `spikes/p2t05g2_wine_probe.py` (stdlib only; downloads pinned RiiStudio, BrawlCrate and
-  Lorenzi releases by SHA-256 into `~/ct-studio-wine-probe`, builds win64/win32 prefixes plus
-  one in a non-ASCII folder, measures `winepath -w/-u`, wrong-architecture launches, launcher
-  survival and `wineserver -k`, then `winetricks dotnet48` + BrawlCrate). Its
-  `summary.json` (home/user name redacted) decides the adapter design; nothing in `src/`
-  until then.
+- `P2-T05g2` — Wine adapter (Linux). Measured by the human's Mint 22.3 run of
+  `spikes/p2t05g2_wine_probe.py` (Wine 9.0 Ubuntu, winetricks 20240105; results in TOOLS.md):
+  1. `launch_detached(..., watch=s)`: capture output to a temp file and, if the process exits
+     non-zero within `s` seconds, raise `ToolFailed` with its tail (wrong-arch and missing-.NET
+     launches exited in 0.5 s; good ones were still running at 25 s).
+  2. New `core/tools/wine.py`: PE architecture from the header (PE32/i386 → win32,
+     PE32+/x86-64 → win64), prefix architecture from `system.reg` `#arch=`, refuse a mismatch
+     before launching; `winepath.exe -w` through `run()`; launch `[wine, exe, winpath, *opts]`
+     with `WINEPREFIX`, watched 3 s; classify `Bad EXE format` / `Wine Mono is not installed`.
+  3. `editors.open_in(..., wine_prefix=, wine=)` accepts `launcher=wine` (discovered or a
+     configured `.exe` on Linux); Flatpak stays refused.
+  4. Unit tests with fakes; Linux integration test (skips elsewhere) reusing
+     `~/ct-studio-wine-probe`, for the human to run; mutation probe; TOOLS/ARCHITECTURE docs.
+  Acceptance: wrong prefix or missing .NET is a typed error with a fix hint, never a silent
+  "launched"; Unicode paths reach the editor as Windows paths; Windows behaviour unchanged.
+  Files: `process.py`, `wine.py` (new), `editors.py`, tests, TOOLS.md, phase file.
+  Risk: the watch window is measured on one machine; failures after 3 s stay unreported
+  (same "launched, not opened" contract as native).
 
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
@@ -768,9 +779,6 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
 
 ## Needs human — non-blocking
-- **P2-T05g2 Linux Wine probe (2026-10-29).** Run `python3 spikes/p2t05g2_wine_probe.py` on
-  the Mint desktop after installing Wine, winetricks, 7-Zip and wmctrl; paste back
-  `~/ct-studio-wine-probe/summary.json`. Blocks P2-T05g2 only.
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->

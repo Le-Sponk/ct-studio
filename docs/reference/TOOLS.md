@@ -544,6 +544,41 @@ a non-ASCII path, because the failure is invisible.
 - `winepath -w` works and is what the adapter should use, **but** Wine also accepts a raw POSIX path
   through its `Z:` mapping (BrawlCrate opened one). Convert anyway; do not rely on the accident.
 
+**P2-T05g2 probe (Linux Mint 22.3 Cinnamon X11, kernel 7.0, Wine `9.0~repack-4build3` Ubuntu,
+winetricks 20240105; `spikes/p2t05g2_wine_probe.py`, run by the human 2026-10-29).** Measured:
+- `/usr/bin/wine` is the only launcher on PATH (no `wine64`); `wineserver` is `/usr/bin/wineserver`.
+- PE headers: RiiStudio 5.11.5 `PE32+ x86-64` (console subsystem), Lorenzi 0.7.7 `PE32+ x86-64`,
+  BrawlCrate v0.42h1 `PE32 i386` .NET. `system.reg` starts with `#arch=win32|win64`; a win64
+  prefix has `syswow64`. `wineboot -u` took 6–8 s per new prefix, also for `préfixe 64 é`.
+- `winepath -w` and `winepath.exe -w` agree: `/home/…/dossier é 日本/pièce course.kmp` →
+  `Z:\home\…\dossier é 日本\pièce course.kmp`, the same for a missing file, round-trips with
+  `-u`, and a non-ASCII prefix folder changes nothing. rc 0 every time.
+- Good launches (RiiStudio and Lorenzi in win64, BrawlCrate in win32 + dotnet48 + win10):
+  first window at 2.8–3.8 s and **`wine` itself was still running at 25 s** (for RiiStudio and
+  Lorenzi the window belongs to a child, with `start.exe` in the same session). RiiStudio
+  started on a `dossier é 日本` path (unlike native Windows) and on a raw POSIX path; its
+  title never names the file. Lorenzi's title is `[Z:/…/pièce course.kmp] -- …`; BrawlCrate's
+  `BrawlCrate v0.42-h1 - Z:\…\pièce map_model.brres`.
+- Failures are immediate and textual: a PE32+ editor in a win32 prefix → rc 1 at 0.5 s,
+  `ShellExecuteEx failed: Bad EXE format for Z:\…\RiiStudio.exe.`; BrawlCrate without .NET →
+  rc 255 at 0.5 s, `err:mscoree:CLRRuntimeInfo_GetRuntimeHost Wine Mono is not installed`.
+- `SIGTERM` to the `wine` launcher closed Lorenzi's window; `wineserver -k` closed every window.
+- `winetricks -q dotnet48` rc 0 in 121 s, `winetricks -q win10` rc 0 in 3 s, on a win32 prefix.
+
+**`wine.py` + `editors.open_in` (P2-T05g2).** `exe_arch` reads the PE header (PE32/i386 →
+win32, PE32+/x86-64 → win64, anything else refused); `prefix_arch` reads `#arch=` from the
+`system.reg` header only. A 64-bit editor in a win32 prefix is refused **before** anything
+starts. The document goes through `winepath.exe -w` (`run()`, 60 s timeout, last stdout line
+must look like `X:\…`), then `[wine, exe, <windows path>, *options]` starts with
+`WINEPREFIX` via `launch_detached(watch=3.0)`: a non-zero exit within 3 s raises, translated
+to `WineError` for `Wine Mono is not installed` (hint: `winetricks -q dotnet48 win10`) and
+`Bad EXE format`, otherwise `ToolFailed` with the last 50 output lines. On Linux,
+`open_in(..., wine_prefix=)` runs a discovered `launcher="wine"` editor or a configured `.exe`
+that way; without a prefix it raises with the measured recipe for that editor (`win32` +
+dotnet48 for BrawlCrate/KMP Cloud, `win64` for RiiStudio/Lorenzi). Blender is never run in
+Wine; Flatpak stays refused. The RiiStudio non-ASCII warning is native-only. Not measured:
+KMP Cloud under this Wine, failures after 3 s, Wayland sessions.
+
 ---
 
 ## Launch contracts (S7, P0-T10 — verified by real GUI launches unless marked)
@@ -595,8 +630,8 @@ window per launch with cwd = the document folder **or** the editor folder (RiiSt
 loads its relative `./fonts`); titles named the file for BrawlCrate, Lorenzi and Blender only.
 A detached editor survived its launcher exiting **and** a plain `taskkill /F` of it; only
 `taskkill /T` of the launcher's tree took it down. RiiStudio on a non-ASCII path launches
-with a warning (silent empty load). Discovered `wine`/`flatpak` launchers raise
-`ToolNotFound` until P2-T05g2; there is no Wine adapter yet.
+with a warning (silent empty load). Wine launches: see "Wine / winetricks" (P2-T05g2);
+Flatpak launchers still raise `ToolNotFound`.
 
 ## Verified command table (fill in; adapters must only use rows marked verified)
 Every flag in this table and the S3b conversion table is checked against the pinned tool's
