@@ -8,6 +8,7 @@ lookup is a stub, so these run on any OS. A build only counts once ``setup.json`
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any, cast
@@ -267,15 +268,28 @@ def test_a_finished_build_is_not_repeated(tmp_path: Path) -> None:
     assert again.calls == []
 
 
+def _failing_git(folder: Path) -> Path:
+    if sys.platform == "win32":
+        # A copied python.exe: `git clone ...` makes it look for a script named "clone", exit 2.
+        return fake_executable(folder, "git")
+    folder.mkdir(parents=True)
+    git = folder / "git"
+    git.write_text(
+        f"#!{Path(sys.executable).resolve()}\nimport sys\nsys.exit(2)\n", encoding="utf-8"
+    )
+    git.chmod(0o755)
+    return git
+
+
 def test_the_real_runner_accepts_the_steps_and_reports_a_failing_one(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Regression (Mint, 2026-10-30): bare "git" reached ``process.run``, which raised ValueError.
 
-    Real ``shutil.which`` and real ``process.run``: a fake ``git`` (a Python interpreter, so
-    ``git clone ...`` exits 2) on PATH must surface as a setup failure at step 1.
+    Real ``shutil.which`` and real ``process.run``: a fake ``git`` that always exits 2 on
+    PATH must surface as a setup failure at step 1.
     """
-    git = fake_executable(tmp_path / "bin", "git")
+    git = _failing_git(tmp_path / "bin")
     monkeypatch.setenv("PATH", str(git.parent))
     root = tmp_path / "riistudio-5.11.5"
     with pytest.raises(SetupFailed, match="failed at step “Download RiiStudio source”"):
