@@ -158,7 +158,11 @@ def test_build_steps_are_the_pinned_s3a_recipe(tmp_path: Path) -> None:
     assert steps[5].argv == (
         "cmake", "--build", str(build), "--target", "cli", "--parallel", "3",
     )  # fmt: skip
-    rust_path = {"PATH": os.pathsep.join([str(rust), "/usr/bin"])}
+    # Git dependencies via the git CLI: Ubuntu's cargo-1.85 libgit2 bug (Mint run 2).
+    rust_path = {
+        "CARGO_NET_GIT_FETCH_WITH_CLI": "true",
+        "PATH": os.pathsep.join([str(rust), "/usr/bin"]),
+    }
     assert steps[4].env == rust_path
     assert steps[5].env == {"CXXFLAGS": "-include memory", **rust_path}
     assert steps[0].env == {}
@@ -171,7 +175,8 @@ def test_rust_from_path_adds_no_rust_flags(tmp_path: Path) -> None:
     steps = build_steps(tmp_path, jobs=1, toolchain=plain, path="/usr/bin")
     assert not [arg for arg in steps[4].argv if arg.startswith("-DRust_")]
     assert "-DCMAKE_C_COMPILER=clang" in steps[4].argv
-    assert steps[4].env == {} and steps[5].env == {"CXXFLAGS": "-include memory"}
+    cli = {"CARGO_NET_GIT_FETCH_WITH_CLI": "true"}
+    assert steps[4].env == cli and steps[5].env == {"CXXFLAGS": "-include memory", **cli}
 
 
 def test_jobs_must_be_positive(tmp_path: Path) -> None:

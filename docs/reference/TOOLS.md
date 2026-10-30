@@ -1147,6 +1147,10 @@ said so), and passes it to CMake as `-DRust_COMPILER`/`-DRust_CARGO` with that f
 on the build's PATH. `clang-19`/`clang++-19` (S3a's compiler) are preferred over plain
 `clang`. noble's GCC is 13; `libstdc++-14-dev` supplies GCC 14's `libstdc++exp`, which the
 link needs. The `apt` line installs exactly these.
+**[measured P2-T06c, Mint 22.3]** Ubuntu's `cargo-1.85` cannot fetch git dependencies
+("invalid version 0 on git_proxy_options"; Launchpad bug 2139436 covers cargo 1.83–1.89,
+fixed in 1.91); RiiStudio has two (`wbz-to-szs-rs`, `zip-extract`), so the configure and
+compile steps set `CARGO_NET_GIT_FETCH_WITH_CLI=true` and cargo fetches with the `git` CLI.
 
 ## `ctstudio doctor` (P2-T06)
 `core/tools/doctor.diagnose()` discovers every registry tool the way the adapters do

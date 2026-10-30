@@ -25,6 +25,12 @@
   with `shutil.which` on the step's own PATH (Rust folder first); a missing one is a plain
   setup failure naming the apt line. The stand-in now enforces the rule and a new test drives
   the real runner (RED reproduced the Mint error); 6/6 mutants caught.
+  Mint run 2: configure passed (clang 19.1.1, Rust 1.85.1 found); compile stopped at 23%:
+  cargo could not fetch RiiStudio's two git dependencies (`wbz-to-szs-rs`, `zip-extract`):
+  "invalid version 0 on git_proxy_options" — Ubuntu's cargo-1.83..1.89 libgit2 mismatch
+  (Launchpad bug 2139436; fixed in cargo-1.91). Fixed: configure/compile set
+  `CARGO_NET_GIT_FETCH_WITH_CLI=true` (git CLI fetch). A failed step now prints the log's
+  first error lines ("What went wrong:") instead of only the log path.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T06b` — `ctstudio setup rszst [--dry-run] [--jobs N]`: Windows downloads the pinned

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 import shutil
 import tempfile
 import urllib.request
@@ -245,11 +246,36 @@ def _run_step(
             check=True,
         )
     except (ToolFailed, ToolTimedOut) as exc:
+        found = _error_lines(root / "build.log")
+        shown = (
+            "\n".join(["What went wrong:", *(f"  {line}" for line in found), ""]) if found else ""
+        )
         raise SetupFailed(
             f"Building RiiStudio failed at step “{step.name}”.",
-            hint=_log_hint(root),
+            hint=shown + _log_hint(root),
             details=exc.details,
         ) from exc
+
+
+# Lines that say why a build failed: compiler/linker/CMake errors and cargo's "Caused by"
+# chain, e.g. "invalid version 0 on git_proxy_options". Parallel jobs bury them mid-log.
+_ERROR = re.compile(
+    r"error(\[E\d+\])?:|fatal error|undefined reference|ld returned|CMake Error|"
+    r"git_proxy_options|not found$|No such file"
+)
+_SHOWN_ERRORS = 12
+
+
+def _error_lines(log: Path) -> list[str]:
+    """The first few error lines of this run's log (without the [out]/[err] tags)."""
+    try:
+        text = log.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    run = text[text.rfind("# run ") :] if "# run " in text else text
+    lines = (re.sub(r"^\[(out|err)\] ", "", line).strip() for line in run.splitlines())
+    hits = [line for line in lines if _ERROR.search(line) and not line.startswith("warning")]
+    return list(dict.fromkeys(hits))[:_SHOWN_ERRORS]
 
 
 def _ignore(_stream: str, _line: str) -> None:

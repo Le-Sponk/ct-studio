@@ -96,7 +96,10 @@ def test_the_build_runs_every_step_logs_and_records(tmp_path: Path) -> None:
         assert call["log_path"] == root / "build.log"
         assert call["cwd"] == root and call["check"] is True
         assert call["cancel"] is None and call["on_line"] is not None
-    assert runner.calls[-1]["env"] == {"CXXFLAGS": "-include memory"}
+    assert runner.calls[-1]["env"] == {
+        "CXXFLAGS": "-include memory",
+        "CARGO_NET_GIT_FETCH_WITH_CLI": "true",
+    }
     assert runner.calls[-1]["timeout"] == 4 * 3600
 
 
@@ -181,6 +184,52 @@ def test_a_failed_step_keeps_the_log_and_names_the_step(tmp_path: Path) -> None:
     assert "Configure" in caught.value.user_message
     assert str(root / "build.log") in (caught.value.hint or "")
     assert read_record(root) is None and root.is_dir()  # kept for the log; not a setup
+
+
+class FailsWithLog(Runner):
+    """Fails at the compile step after writing what the Mint run 2 log looked like."""
+
+    def __call__(self, cmd: Sequence[str | Path], **kwargs: Any) -> RunResult:
+        if len(self.calls) == 5:
+            log = cast(Path, kwargs["log_path"])
+            noise = "".join(f"[err] warning: unused variable `x{i}`\n" for i in range(300))
+            log.write_text(
+                "# run argv=['cmake', '-S'] (an earlier attempt)\n"
+                "[err] error: an old failure from a previous attempt\n"
+                "# run argv=['cmake', '--build']\n"
+                "[err] warning: optional header pkg.h not found\n"
+                "[out] [ 14%] Building CXX object glm.cpp.o\n"
+                "[err] error: failed to get `wbz_converter` as a dependency of package `c-wbz`\n"
+                "[err]   failed to load source for dependency `wbz_converter`\n"
+                "[err]   invalid version 0 on git_proxy_options; class=Invalid (3)\n"
+                f"{noise}"
+                "[err] error: failed to get `zip-extract` as a dependency of `riistudio_rs`\n"
+                "[err] gmake: *** [Makefile:801: cli] Error 2\n",
+                encoding="utf-8",
+            )
+        return super().__call__(cmd, **kwargs)
+
+
+def test_a_failed_step_shows_the_first_error_lines_from_the_log(tmp_path: Path) -> None:
+    root = tmp_path / "riistudio-5.11.5"
+    with pytest.raises(SetupFailed) as caught:
+        build_linux(root, jobs=1, which=which_bin, preflight_result=READY,
+                    runner=FailsWithLog(fail_at=5), banner=_banner())  # fmt: skip
+    hint = caught.value.hint or ""
+    assert "error: failed to get `wbz_converter`" in hint
+    assert "invalid version 0 on git_proxy_options" in hint
+    assert "error: failed to get `zip-extract` as a dependency of `riistudio_rs`" in hint
+    assert "warning:" not in hint and "[err]" not in hint
+    assert "previous attempt" not in hint  # only this run's errors
+    assert hint.rstrip().endswith(f"The full output is in {root / 'build.log'}.")
+
+
+def test_a_failed_step_without_error_lines_points_at_the_log_only(tmp_path: Path) -> None:
+    root = tmp_path / "riistudio-5.11.5"
+    with pytest.raises(SetupFailed) as caught:
+        build_linux(root, jobs=1, which=which_bin, preflight_result=READY,
+                    runner=Runner(fail_at=5), banner=_banner())  # fmt: skip
+    assert caught.value.hint == f"The full output is in {root / 'build.log'}."
 
 
 def test_a_cancelled_build_is_not_a_setup(tmp_path: Path) -> None:

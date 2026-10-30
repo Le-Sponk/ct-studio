@@ -173,14 +173,14 @@ def build_steps(
     src, corrosion, build = root / "source", root / "corrosion", root / "build"
     memory = "-include memory"  # bundled code uses std::unique_ptr without <memory>
     rust_flags: tuple[str, ...] = ()
-    rust_env: dict[str, str] = {}
+    rust_env: dict[str, str] = dict(CARGO_ENV)
     if toolchain.rust_bin is not None:
         rust_flags = (
             f"-DRust_COMPILER={toolchain.rust_bin / 'rustc'}",
             f"-DRust_CARGO={toolchain.rust_bin / 'cargo'}",
         )
         inherited = path if path is not None else os.environ.get("PATH", "")
-        rust_env = {"PATH": os.pathsep.join([str(toolchain.rust_bin), inherited])}
+        rust_env["PATH"] = os.pathsep.join([str(toolchain.rust_bin), inherited])
     configure = (
         *("cmake", "-S", str(src), "-B", str(build)),
         "-DCMAKE_BUILD_TYPE=Release",
@@ -217,6 +217,11 @@ def _clone(tag: str, url: str, into: Path) -> tuple[str, ...]:
 def _checkout(repo: Path, commit: str) -> tuple[str, ...]:
     return ("git", "-C", str(repo), "checkout", "--detach", commit)
 
+
+# Ubuntu's cargo-1.85 (and 1.83-1.89) is linked against a libgit2 it cannot drive: every git
+# dependency fails with "invalid version 0 on git_proxy_options" (Launchpad bug 2139436,
+# measured on Mint 22.3 in P2-T06c; RiiStudio has two). Fetching with the git CLI avoids it.
+CARGO_ENV = {"CARGO_NET_GIT_FETCH_WITH_CLI": "true"}
 
 # What the apt command in BUILD_PACKAGES installs on Ubuntu 24.04 / Mint 22; shown by dry runs.
 EXPECTED_TOOLCHAIN = Toolchain("clang-19", "clang++-19", Path("/usr/lib/rust-1.85/bin"), (1, 85))
