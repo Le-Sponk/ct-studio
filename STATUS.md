@@ -31,6 +31,11 @@
   (Launchpad bug 2139436; fixed in cargo-1.91). Fixed: configure/compile set
   `CARGO_NET_GIT_FETCH_WITH_CLI=true` (git CLI fetch). A failed step now prints the log's
   first error lines ("What went wrong:") instead of only the log path.
+  Mint run 3: the git-CLI fetch worked ("[new ref] 4b795212…") but cargo-1.85 still opens
+  the checkout with libgit2 and failed the same way, so that workaround was removed. The bug
+  is Won't Fix for 1.83–1.89 and fixed in cargo-1.91 (noble-updates, no libgit2 dependency):
+  the preflight now skips versioned Rust 1.83–1.90 (says so) and the apt line installs
+  rustc-1.91/cargo-1.91. 8/8 mutants caught.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T06b` — `ctstudio setup rszst [--dry-run] [--jobs N]`: Windows downloads the pinned

@@ -1140,17 +1140,19 @@ build on Mint 22.3 — P2-T06c.
 
 Linux toolchain (P2-T06c, checked against the Ubuntu 24.04 archive, 2026-10-30): noble's
 default `cargo` is 1.75, which cannot read the pinned `Cargo.lock` (lock format 4 needs Cargo
-1.78+); the versioned `rustc-1.85`/`cargo-1.85` packages install into `/usr/lib/rust-1.85/bin`
+1.78+); the versioned `rustc-1.91`/`cargo-1.91` packages install into `/usr/lib/rust-1.91/bin`
 without touching `/usr/bin`. Preflight therefore picks the newest `/usr/lib/rust-X.Y/bin` with
 both `rustc` and `cargo` at 1.78 or newer, else `rustc`+`cargo` on PATH (version not checked,
 said so), and passes it to CMake as `-DRust_COMPILER`/`-DRust_CARGO` with that folder first
 on the build's PATH. `clang-19`/`clang++-19` (S3a's compiler) are preferred over plain
 `clang`. noble's GCC is 13; `libstdc++-14-dev` supplies GCC 14's `libstdc++exp`, which the
 link needs. The `apt` line installs exactly these.
-**[measured P2-T06c, Mint 22.3]** Ubuntu's `cargo-1.85` cannot fetch git dependencies
-("invalid version 0 on git_proxy_options"; Launchpad bug 2139436 covers cargo 1.83–1.89,
-fixed in 1.91); RiiStudio has two (`wbz-to-szs-rs`, `zip-extract`), so the configure and
-compile steps set `CARGO_NET_GIT_FETCH_WITH_CLI=true` and cargo fetches with the `git` CLI.
+**[measured P2-T06c, Mint 22.3]** Ubuntu's `cargo-1.83`…`1.89` cannot open git dependencies
+("invalid version 0 on git_proxy_options"; Launchpad bug 2139436, Won't Fix; fixed in
+`cargo-1.91`). `CARGO_NET_GIT_FETCH_WITH_CLI=true` does not help: the fetch succeeds but the
+checkout still goes through libgit2. RiiStudio has two git dependencies (`wbz-to-szs-rs`,
+`zip-extract`), so the preflight skips versioned Rust 1.83–1.90 (and says so) and the `apt`
+line installs `rustc-1.91`/`cargo-1.91` (noble-updates universe, `/usr/lib/rust-1.91/bin`).
 
 ## `ctstudio doctor` (P2-T06)
 `core/tools/doctor.diagnose()` discovers every registry tool the way the adapters do

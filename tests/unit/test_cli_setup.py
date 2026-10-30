@@ -114,7 +114,7 @@ def test_a_dry_run_on_an_unready_machine_shows_the_expected_toolchain(
     world["preflight"] = NOT_READY
     main(["setup", "rszst", "--dry-run"])
     out = capsys.readouterr().out
-    assert "-DCMAKE_C_COMPILER=clang-19" in out and "-DRust_CARGO=" in out and "rust-1.85" in out
+    assert "-DCMAKE_C_COMPILER=clang-19" in out and "-DRust_CARGO=" in out and "rust-1.91" in out
 
 
 def test_a_dry_run_shows_what_is_missing(

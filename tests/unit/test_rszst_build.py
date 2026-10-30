@@ -96,16 +96,13 @@ def test_the_build_runs_every_step_logs_and_records(tmp_path: Path) -> None:
         assert call["log_path"] == root / "build.log"
         assert call["cwd"] == root and call["check"] is True
         assert call["cancel"] is None and call["on_line"] is not None
-    assert runner.calls[-1]["env"] == {
-        "CXXFLAGS": "-include memory",
-        "CARGO_NET_GIT_FETCH_WITH_CLI": "true",
-    }
+    assert runner.calls[-1]["env"] == {"CXXFLAGS": "-include memory"}
     assert runner.calls[-1]["timeout"] == 4 * 3600
 
 
 def test_the_build_uses_the_toolchain_preflight_found(tmp_path: Path) -> None:
-    rust = Path("/usr/lib/rust-1.85/bin")
-    found = Preflight((), (), 50 * 1024**3, Toolchain("clang-19", "clang++-19", rust, (1, 85)))
+    rust = Path("/usr/lib/rust-1.91/bin")
+    found = Preflight((), (), 50 * 1024**3, Toolchain("clang-19", "clang++-19", rust, (1, 91)))
     runner = Runner()
     build_linux(
         tmp_path / "r",
@@ -121,8 +118,8 @@ def test_the_build_uses_the_toolchain_preflight_found(tmp_path: Path) -> None:
 
 
 def test_build_programs_are_found_on_each_steps_own_path(tmp_path: Path) -> None:
-    rust = Path(os.path.abspath("/usr/lib/rust-1.85/bin"))
-    found = Preflight((), (), 50 * 1024**3, Toolchain("clang-19", "clang++-19", rust, (1, 85)))
+    rust = Path(os.path.abspath("/usr/lib/rust-1.91/bin"))
+    found = Preflight((), (), 50 * 1024**3, Toolchain("clang-19", "clang++-19", rust, (1, 91)))
     searched: list[tuple[str, str | None]] = []
 
     def which(cmd: str, mode: int = 0, path: str | None = None) -> str | None:

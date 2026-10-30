@@ -66,12 +66,17 @@ RELEASES_PAGE = PIN.windows_zip_url.split("/download/")[0]
 
 # Linux build needs. S3a used Debian 13 (Rust 1.85, clang 19, GCC 14). Ubuntu 24.04 / Mint 22
 # ship Rust 1.75 by default, which cannot read the pinned Cargo.lock (version 4 needs Cargo
-# 1.78), so the versioned rustc-1.85/cargo-1.85 packages (in /usr/lib/rust-1.85/bin) and
-# clang-19 are preferred when present. Measured on Mint in P2-T06c.
+# 1.78), so a versioned rustc-X.Y/cargo-X.Y package (in /usr/lib/rust-X.Y/bin) and clang-19
+# are preferred when present. Ubuntu's cargo 1.83-1.90 builds cannot open git dependencies
+# ("invalid version 0 on git_proxy_options", Launchpad bug 2139436, Won't Fix; measured on
+# Mint 22.3 in P2-T06c, and CARGO_NET_GIT_FETCH_WITH_CLI does not help: the fetch succeeds,
+# the checkout still goes through libgit2). RiiStudio has two, so those versions are skipped
+# and the apt line installs 1.91, where Ubuntu fixed it.
 COMMANDS = ("git", "cmake", "make", "pkg-config")
 CLANGS = (("clang-19", "clang++-19"), ("clang", "clang++"))
 RUST_MIN = (1, 78)
 RUST_LABEL = "Rust 1.78 or newer (rustc and cargo)"
+BROKEN_RUST = ((1, 83), (1, 90))  # Ubuntu's versioned cargo in this range: bug 2139436
 HEADERS = {  # apt package -> a header it installs under /usr/include
     "mesa-common-dev": "GL/gl.h",
     "libglfw3-dev": "GLFW/glfw3.h",
@@ -86,8 +91,8 @@ BUILD_PACKAGES = (
     "cmake",
     "pkg-config",
     "clang-19",
-    "rustc-1.85",
-    "cargo-1.85",
+    "rustc-1.91",
+    "cargo-1.91",
     *HEADERS,
     "libstdc++-14-dev",  # provides libstdc++exp, which the final link needs (S3a)
 )
@@ -173,14 +178,14 @@ def build_steps(
     src, corrosion, build = root / "source", root / "corrosion", root / "build"
     memory = "-include memory"  # bundled code uses std::unique_ptr without <memory>
     rust_flags: tuple[str, ...] = ()
-    rust_env: dict[str, str] = dict(CARGO_ENV)
+    rust_env: dict[str, str] = {}
     if toolchain.rust_bin is not None:
         rust_flags = (
             f"-DRust_COMPILER={toolchain.rust_bin / 'rustc'}",
             f"-DRust_CARGO={toolchain.rust_bin / 'cargo'}",
         )
         inherited = path if path is not None else os.environ.get("PATH", "")
-        rust_env["PATH"] = os.pathsep.join([str(toolchain.rust_bin), inherited])
+        rust_env = {"PATH": os.pathsep.join([str(toolchain.rust_bin), inherited])}
     configure = (
         *("cmake", "-S", str(src), "-B", str(build)),
         "-DCMAKE_BUILD_TYPE=Release",
@@ -218,13 +223,8 @@ def _checkout(repo: Path, commit: str) -> tuple[str, ...]:
     return ("git", "-C", str(repo), "checkout", "--detach", commit)
 
 
-# Ubuntu's cargo-1.85 (and 1.83-1.89) is linked against a libgit2 it cannot drive: every git
-# dependency fails with "invalid version 0 on git_proxy_options" (Launchpad bug 2139436,
-# measured on Mint 22.3 in P2-T06c; RiiStudio has two). Fetching with the git CLI avoids it.
-CARGO_ENV = {"CARGO_NET_GIT_FETCH_WITH_CLI": "true"}
-
 # What the apt command in BUILD_PACKAGES installs on Ubuntu 24.04 / Mint 22; shown by dry runs.
-EXPECTED_TOOLCHAIN = Toolchain("clang-19", "clang++-19", Path("/usr/lib/rust-1.85/bin"), (1, 85))
+EXPECTED_TOOLCHAIN = Toolchain("clang-19", "clang++-19", Path("/usr/lib/rust-1.91/bin"), (1, 91))
 
 
 @dataclass(frozen=True)
@@ -233,6 +233,7 @@ class Preflight:
     missing_headers: tuple[str, ...]
     free_bytes: int
     toolchain: Toolchain | None = None
+    skipped_rust: tuple[str, ...] = ()  # versioned Rust found but unusable (bug 2139436)
     need_bytes: int = BUILD_DISK_BYTES
     estimate: str = f"{BUILD_ESTIMATE} on a 4-core machine"
 
@@ -266,7 +267,17 @@ class Preflight:
             out.append(f"Rust version not checked: the build needs {RUST_LABEL}.")
         if self.install_command:
             out.extend(["Install them with:", f"  {self.install_command}"])
-        return out
+        return out + self._skipped_note()
+
+    def _skipped_note(self) -> list[str]:
+        if not self.skipped_rust or self.toolchain is not None:
+            return []
+        found = ", ".join(self.skipped_rust)
+        return [
+            f"Not used: Rust {found} from Ubuntu, whose cargo cannot download RiiStudio's"
+            " git dependencies (Ubuntu bug 2139436). The apt line above installs Rust 1.91,"
+            " which works."
+        ]
 
 
 def disk_free(path: Path) -> int:
@@ -284,30 +295,45 @@ def preflight(
     entries = (path if path is not None else os.environ.get("PATH", "")).split(os.pathsep)
     search = [*(Path(e) for e in entries if e), root / "usr/local/bin", root / "usr/bin"]
     missing = [name for name in COMMANDS if not _on(search, name)]
-    toolchain, absent = _toolchain(root, search)
+    found = _rust_folders(root)
+    toolchain, absent = _toolchain(found, search)
     include = root / "usr/include"
     headers = tuple(pkg for pkg, header in HEADERS.items() if not (include / header).is_file())
     free = free_space(_nearest_existing(target))
-    return Preflight((*missing, *absent), headers, free, toolchain)
+    skipped = tuple(f"{v[0]}.{v[1]}" for v, _ in sorted(found) if _broken(v))
+    return Preflight((*missing, *absent), headers, free, toolchain, skipped)
 
 
-def _toolchain(root: Path, search: list[Path]) -> tuple[Toolchain | None, list[str]]:
+def _toolchain(
+    found: list[tuple[tuple[int, int], Path]], search: list[Path]
+) -> tuple[Toolchain | None, list[str]]:
     clang = next(((cc, cxx) for cc, cxx in CLANGS if _on(search, cc) and _on(search, cxx)), None)
-    rust = _versioned_rust(root) or _path_rust(search)
+    rust = _versioned_rust(found) or _path_rust(search)
     absent = ([] if clang else ["clang"]) + ([] if rust else [RUST_LABEL])
     if clang is None or rust is None:
         return None, absent
     return Toolchain(clang[0], clang[1], rust[0], rust[1]), absent
 
 
-def _versioned_rust(root: Path) -> tuple[Path, tuple[int, int]] | None:
-    """The newest ``/usr/lib/rust-X.Y/bin`` with rustc and cargo, if new enough."""
+def _rust_folders(root: Path) -> list[tuple[tuple[int, int], Path]]:
+    """Every ``/usr/lib/rust-X.Y/bin`` holding both rustc and cargo, at 1.78 or newer."""
     found: list[tuple[tuple[int, int], Path]] = []
     for folder in (root / "usr/lib").glob("rust-*/bin"):
         match = re.fullmatch(r"rust-(\d+)\.(\d+)", folder.parent.name)
         if match and _runnable(folder / "rustc") and _runnable(folder / "cargo"):
             found.append(((int(match.group(1)), int(match.group(2))), folder))
-    usable = [item for item in found if item[0] >= RUST_MIN]
+    return [item for item in found if item[0] >= RUST_MIN]
+
+
+def _broken(version: tuple[int, int]) -> bool:
+    return BROKEN_RUST[0] <= version <= BROKEN_RUST[1]
+
+
+def _versioned_rust(
+    found: list[tuple[tuple[int, int], Path]],
+) -> tuple[Path, tuple[int, int]] | None:
+    """The newest versioned Rust that can build RiiStudio."""
+    usable = [item for item in found if not _broken(item[0])]
     if not usable:
         return None
     version, folder = max(usable)

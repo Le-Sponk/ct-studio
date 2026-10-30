@@ -117,7 +117,7 @@ def test_a_missing_folder_is_not_a_setup(tmp_path: Path) -> None:
 
 # --- Linux build steps ---------------------------------------------------------------------------
 
-TOOLS = setup.Toolchain("clang-19", "clang++-19", Path("/usr/lib/rust-1.85/bin"), (1, 85))
+TOOLS = setup.Toolchain("clang-19", "clang++-19", Path("/usr/lib/rust-1.91/bin"), (1, 91))
 
 
 def test_build_steps_are_the_pinned_s3a_recipe(tmp_path: Path) -> None:
@@ -143,7 +143,7 @@ def test_build_steps_are_the_pinned_s3a_recipe(tmp_path: Path) -> None:
     assert steps[3].argv[-1] == "9943de73df25ddb06bf6105baeca002ae54e45f3"
     configure = steps[4].argv
     assert configure[:5] == ("cmake", "-S", str(src), "-B", str(build))
-    rust = Path("/usr/lib/rust-1.85/bin")
+    rust = Path("/usr/lib/rust-1.91/bin")
     for flag in (
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_C_COMPILER=clang-19",
@@ -158,11 +158,7 @@ def test_build_steps_are_the_pinned_s3a_recipe(tmp_path: Path) -> None:
     assert steps[5].argv == (
         "cmake", "--build", str(build), "--target", "cli", "--parallel", "3",
     )  # fmt: skip
-    # Git dependencies via the git CLI: Ubuntu's cargo-1.85 libgit2 bug (Mint run 2).
-    rust_path = {
-        "CARGO_NET_GIT_FETCH_WITH_CLI": "true",
-        "PATH": os.pathsep.join([str(rust), "/usr/bin"]),
-    }
+    rust_path = {"PATH": os.pathsep.join([str(rust), "/usr/bin"])}
     assert steps[4].env == rust_path
     assert steps[5].env == {"CXXFLAGS": "-include memory", **rust_path}
     assert steps[0].env == {}
@@ -175,8 +171,7 @@ def test_rust_from_path_adds_no_rust_flags(tmp_path: Path) -> None:
     steps = build_steps(tmp_path, jobs=1, toolchain=plain, path="/usr/bin")
     assert not [arg for arg in steps[4].argv if arg.startswith("-DRust_")]
     assert "-DCMAKE_C_COMPILER=clang" in steps[4].argv
-    cli = {"CARGO_NET_GIT_FETCH_WITH_CLI": "true"}
-    assert steps[4].env == cli and steps[5].env == {"CXXFLAGS": "-include memory", **cli}
+    assert steps[4].env == {} and steps[5].env == {"CXXFLAGS": "-include memory"}
 
 
 def test_jobs_must_be_positive(tmp_path: Path) -> None:
@@ -194,7 +189,7 @@ def _machine(
     *,
     commands: tuple[str, ...] = (),
     headers: bool = False,
-    rust: tuple[str, ...] = ("1.85",),
+    rust: tuple[str, ...] = ("1.91",),
 ) -> Path:
     root = tmp_path / "root"
     (root / "usr/bin").mkdir(parents=True)
@@ -222,7 +217,9 @@ def _free(gigabytes: float) -> setup.FreeSpace:
 
 
 def test_a_ready_machine_passes_preflight(tmp_path: Path) -> None:
-    root = _machine(tmp_path, commands=READY_COMMANDS, headers=True, rust=("1.75", "1.85", "1.80"))
+    root = _machine(
+        tmp_path, commands=READY_COMMANDS, headers=True, rust=("1.75", "1.85", "1.91", "1.80")
+    )
     result = preflight(tmp_path / "data" / "x", root=root, path="", free_space=_free(20))
     assert result.ok
     assert (result.missing_commands, result.missing_headers) == ((), ())
@@ -230,7 +227,7 @@ def test_a_ready_machine_passes_preflight(tmp_path: Path) -> None:
     assert result.free_bytes == 20 * GB
     assert "about 1 hour" in result.estimate
     assert result.toolchain == setup.Toolchain(
-        "clang-19", "clang++-19", root / "usr/lib/rust-1.85/bin", (1, 85)
+        "clang-19", "clang++-19", root / "usr/lib/rust-1.91/bin", (1, 91)
     )
     assert result.lines() == []
 
@@ -261,7 +258,7 @@ def test_clang_19_without_its_cxx_half_falls_back_to_plain_clang(tmp_path: Path)
 
 def test_a_rust_folder_without_cargo_does_not_count(tmp_path: Path) -> None:
     root = _machine(tmp_path, commands=READY_COMMANDS, headers=True, rust=("1.80",))
-    _tool(root / "usr/lib/rust-1.85/bin/rustc")  # newer, but no cargo beside it
+    _tool(root / "usr/lib/rust-1.91/bin/rustc")  # newer, but no cargo beside it
     result = preflight(tmp_path / "d", root=root, path="", free_space=_free(9))
     assert result.toolchain is not None
     assert result.toolchain.rust_bin == root / "usr/lib/rust-1.80/bin"
@@ -274,7 +271,7 @@ def test_the_versioned_rust_wins_over_rust_on_path(tmp_path: Path) -> None:
         _tool(mine / name)
     result = preflight(tmp_path / "d", root=root, path=str(mine), free_space=_free(9))
     assert result.toolchain is not None
-    assert result.toolchain.rust_bin == root / "usr/lib/rust-1.85/bin"
+    assert result.toolchain.rust_bin == root / "usr/lib/rust-1.91/bin"
 
 
 def test_rustc_on_path_without_cargo_is_missing(tmp_path: Path) -> None:
@@ -310,7 +307,7 @@ def test_an_empty_machine_lists_everything_and_the_apt_command(tmp_path: Path) -
     assert result.missing_commands == (*setup.COMMANDS, "clang", setup.RUST_LABEL)
     assert result.missing_headers == tuple(setup.HEADERS)
     assert result.install_command == "sudo apt install -y " + " ".join(BUILD_PACKAGES)
-    for package in ("git", "clang-19", "rustc-1.85", "cargo-1.85", "libstdc++-14-dev"):
+    for package in ("git", "clang-19", "rustc-1.91", "cargo-1.91", "libstdc++-14-dev"):
         assert package in BUILD_PACKAGES
 
 
