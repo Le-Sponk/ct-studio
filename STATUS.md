@@ -19,6 +19,12 @@
   Windows cases with `rszst.exe` under Wine and with the built `rszst` (the replay matched
   49/49 against real Windows `rszst.exe` here, 11.9 s); (3) from the results, fix the
   recipe if needed and enable or reject the Wine route. Acceptance as in the phase file.
+  Mint run 1 (2026-10-30): step 1 crashed with `ValueError: cmd[0] must be an absolute
+  executable path` — build steps passed bare `git`/`cmake` to `process.run`, and the unit
+  tests' stand-in runner did not enforce that rule. Fixed: each step's program is resolved
+  with `shutil.which` on the step's own PATH (Rust folder first); a missing one is a plain
+  setup failure naming the apt line. The stand-in now enforces the rule and a new test drives
+  the real runner (RED reproduced the Mint error); 6/6 mutants caught.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T06b` — `ctstudio setup rszst [--dry-run] [--jobs N]`: Windows downloads the pinned
