@@ -47,7 +47,10 @@ RECORDINGS = REPO / "tests" / "fakes" / "recordings" / "rszst" / PIN.version
 DEFAULT_OUT = Path.home() / "ct-studio-rszst-probe"
 QUIET_WINE = {"WINEDEBUG": "-all", "WINEDLLOVERRIDES": "mscoree,mshtml="}  # no Mono/Gecko prompts
 SNIPPET = 400
-_STAMP = re.compile(r"\(Built [^)]*\)")
+# Mint run 1: the Linux stamp nests brackets, "(Built … Clang 19.1.1 (1ubuntu1~24.04.2))", so
+# the stamp runs to the last ")" on its line; and clap names the program "rszst.exe" on Windows.
+_STAMP = re.compile(r"\(Built [^\n]*\)")
+_PROGRAM = re.compile(r"\brszst\.exe\b")
 
 
 def main() -> int:
@@ -102,9 +105,6 @@ def _version(argv: list[str]) -> str | None:
 def wine_route(out: Path) -> dict[str, object]:
     if shutil.which("wine") is None:
         return {"skipped": "wine is not installed"}
-    started = time.monotonic()
-    exe = download_windows(out / "rszst-windows")
-    timings: dict[str, float] = {"download_s": round(time.monotonic() - started, 1)}
     prefix = out / "prefix64"
     started = time.monotonic()
     if not (prefix / "system.reg").is_file():
@@ -113,15 +113,17 @@ def wine_route(out: Path) -> dict[str, object]:
         _quiet(["wine", "wineboot", "-u"], env)
         server = shutil.which("wineserver") or "/usr/lib/wine/wineserver64"
         _quiet([server, "-w"], env)
-    timings["prefix_s"] = round(time.monotonic() - started, 1)
-    wrapper = out / "rszst-wine"
-    lines = [f"export {name}={shlex.quote(value)}" for name, value in QUIET_WINE.items()]
-    wrapper.write_text(
-        "#!/bin/sh\n" + "\n".join(lines) + f"\nexport WINEPREFIX={shlex.quote(str(prefix))}\n"
-        f'exec wine {shlex.quote(str(exe))} "$@"\n',
-        encoding="utf-8",
+    timings: dict[str, float] = {"prefix_s": round(time.monotonic() - started, 1)}
+    # Mint run 1: the unpacked rszst.exe is not a Linux program, so the download's banner check
+    # (and every case) must go through Wine: "wine-run <exe> args…".
+    wine_run = _script(out / "wine-run", prefix, 'exec wine "$@"')
+    started = time.monotonic()
+    exe = download_windows(
+        out / "rszst-windows",
+        banner=lambda unpacked: read_banner(wine_run, (str(unpacked), "--version")),
     )
-    wrapper.chmod(0o755)
+    timings["download_s"] = round(time.monotonic() - started, 1)
+    wrapper = _script(out / "rszst-wine", prefix, f'exec wine {shlex.quote(str(exe))} "$@"')
     started = time.monotonic()
     banner = read_banner(wrapper)
     timings["first_banner_s"] = round(time.monotonic() - started, 1)
@@ -132,6 +134,15 @@ def wine_route(out: Path) -> dict[str, object]:
         **timings,
         **result,
     }
+
+
+def _script(path: Path, prefix: Path, command: str) -> Path:
+    """A /bin/sh wrapper running ``command`` in the probe's quiet Wine prefix."""
+    lines = [f"export {name}={shlex.quote(value)}" for name, value in QUIET_WINE.items()]
+    lines.append(f"export WINEPREFIX={shlex.quote(str(prefix))}")
+    path.write_text("#!/bin/sh\n" + "\n".join([*lines, command]) + "\n", encoding="utf-8")
+    path.chmod(0o755)
+    return path
 
 
 def _quiet(argv: list[str], env: Mapping[str, str]) -> None:
@@ -212,8 +223,9 @@ def compare(got: Mapping[str, object], want: Mapping[str, object]) -> dict[str, 
 
 
 def _text(value: object) -> str:
-    """Stdout/stderr without what legitimately differs: build stamp, line ends, thread order."""
-    text = str(value).replace("\r\n", "\n")
+    """Stdout/stderr without what legitimately differs: build stamp, program name, line ends,
+    thread order."""
+    text = _PROGRAM.sub("rszst", str(value).replace("\r\n", "\n"))
     return canonical_stdout(_STAMP.sub("(Built <stamp>)", text))
 
 
