@@ -4,40 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T06c — Measure the Linux `rszst` routes on the Mint machine
+**Next task:** P2-T06d — Offer Wine + `rszst.exe` as a Linux setup route
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 3e0095e (P2-T06b; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** 9e56139 (P2-T06c; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T06c` — Measure the Linux `rszst` routes on the Mint machine. Plan (2026-10-30):
-  (1) recipe fix found before the run: noble's default Cargo 1.75 cannot read the pinned
-  lock file, so preflight now picks `/usr/lib/rust-1.85/bin` (or any 1.78+) and `clang-19`
-  and passes them to CMake (18/18 mutants caught); (2) human runs on Mint: `apt` packages,
-  `ctstudio setup rszst` (real build, ~1 h), `ctstudio doctor`, the opt-in build test
-  reusing that folder, and `spikes/p2t06c_rszst_probe.py`, which replays the 49 recorded
-  Windows cases with `rszst.exe` under Wine and with the built `rszst` (the replay matched
-  49/49 against real Windows `rszst.exe` here, 11.9 s); (3) from the results, fix the
-  recipe if needed and enable or reject the Wine route. Acceptance as in the phase file.
-  Mint run 1 (2026-10-30): step 1 crashed with `ValueError: cmd[0] must be an absolute
-  executable path` — build steps passed bare `git`/`cmake` to `process.run`, and the unit
-  tests' stand-in runner did not enforce that rule. Fixed: each step's program is resolved
-  with `shutil.which` on the step's own PATH (Rust folder first); a missing one is a plain
-  setup failure naming the apt line. The stand-in now enforces the rule and a new test drives
-  the real runner (RED reproduced the Mint error); 6/6 mutants caught.
-  Mint run 2: configure passed (clang 19.1.1, Rust 1.85.1 found); compile stopped at 23%:
-  cargo could not fetch RiiStudio's two git dependencies (`wbz-to-szs-rs`, `zip-extract`):
-  "invalid version 0 on git_proxy_options" — Ubuntu's cargo-1.83..1.89 libgit2 mismatch
-  (Launchpad bug 2139436; fixed in cargo-1.91). Fixed: configure/compile set
-  `CARGO_NET_GIT_FETCH_WITH_CLI=true` (git CLI fetch). A failed step now prints the log's
-  first error lines ("What went wrong:") instead of only the log path.
-  Mint run 3: the git-CLI fetch worked ("[new ref] 4b795212…") but cargo-1.85 still opens
-  the checkout with libgit2 and failed the same way, so that workaround was removed. The bug
-  is Won't Fix for 1.83–1.89 and fixed in cargo-1.91 (noble-updates, no libgit2 dependency):
-  the preflight now skips versioned Rust 1.83–1.90 (says so) and the apt line installs
-  rustc-1.91/cargo-1.91. 8/8 mutants caught.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T06c` — Linux `rszst` routes measured on Mint 22.3 (24 CPUs, wine-9.0). **Source
+  build works:** `ctstudio setup rszst` built RiiStudio 5.11.5 natively (clang 19.1.1, Rust
+  1.91), doctor reports `found 5.11.5 (built from source by CT Studio)`, the opt-in build
+  test passed, and the probe matched the Windows recordings on 46/49 cases; the 3 others
+  are the `native_only` absolute/non-ASCII path cases, which Linux handles correctly and
+  Windows does not. **Wine + `rszst.exe` measured equivalent:** 48/49 (only `\` vs `/` in
+  one error message), 8.9 s download + 8.6 s prefix, 12 s for all cases; it inherits the
+  Windows path bugs. Enabling it as a setup route is split to P2-T06d. Recipe fixes found by
+  the four Mint runs: absolute program paths for build steps, skip Ubuntu's broken cargo
+  1.83–1.90 (Launchpad 2139436) and install rustc/cargo-1.91, failed steps print the log's
+  error lines; probe fixes: Windows banner check through Wine, Linux stamp/program-name
+  normalising. Mutants 18/18, 6/6, 8/8, 8/8. CI green both jobs — commits 052b0b2,
+  bc4ea35, 81919f3, 9e56139
 - `P2-T06b` — `ctstudio setup rszst [--dry-run] [--jobs N]`: Windows downloads the pinned
   official RiiStudio 5.11.5 release (size + SHA-256 while streaming, unsafe archive names
   refused, banner checked); Linux builds the pinned S3a source as six logged, cancellable
@@ -462,6 +449,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-10-31 (P2-T06c): the Wine + `rszst.exe` route passed its measurement (48/49 vs the
+  Windows recordings) but offering it needs new code (a Linux `setup rszst --wine` choice,
+  a Wine launcher for the rszst adapter with path conversion), so it is split out as
+  P2-T06d. The native source build stays the Linux default route.
 - 2026-10-30 (P2-T06b, CI): the Windows CI job failed once on a test that put a Windows
   drive path into a Linux-style PATH; fixed in 3e0095e.
 - 2026-10-30 (P2-T06b): split into P2-T06b (setup routes, download, build runner, doctor)
@@ -712,14 +703,12 @@ The human also ran `uv sync`, `ctstudio --version` and the broader non-network s
 on Mint (Python 3.12.3 / Qt 6.11.2): **141 passed, 60 optional-tool skips, 1 network
 deselection**, including all seven GUI tests and the 200 MiB hash benchmark. Those
 numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow.
-- **P2-T06c Linux rszst run (2026-10-30), waiting on the human.** Instructions given in
-  chat: install the build packages, `uv run ctstudio setup rszst` (~1 h), `ctstudio doctor`,
-  the opt-in build test and `spikes/p2t06c_rszst_probe.py`; paste back the build tail,
-  doctor output, test result and `~/ct-studio-rszst-probe/summary.json`.
 - **P2-T06 doctor on Linux with real tools.** Windows real-tool output is measured
-  (`tests/integration/test_doctor_real.py`, 2 passed); Linux runs only fake trees in CI. To
-  close: on the Mint machine, `uv run ctstudio doctor` and the same integration test with a
-  bootstrapped `.tools/` (Wine, Wine editors and Flatpak rows included).
+  (`tests/integration/test_doctor_real.py`, 2 passed); Linux runs only fake trees in CI.
+  Partly closed in P2-T06c: `ctstudio doctor` on Mint found Wiimm 2.42a ×4 in
+  `/usr/local/bin`, the built rszst 5.11.5, Wine and winetricks, reported Flatpak Blender as
+  sandboxed, exit 0. Still open: `test_doctor_real.py` with a bootstrapped `.tools/` and the
+  Wine editor rows.
 - **P2-T05a–d Wiimm check/analyze/create/KMP/image/KCL/minimap/auto-add evidence is Windows-only.** The adapters' real
   SZS/stage-directory/empty/corrupt/missing integration tests ran against native Windows
   Wiimm 2.42a; Ubuntu CI exercises only the recorded parser and the prefix-only fake

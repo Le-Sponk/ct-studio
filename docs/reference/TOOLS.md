@@ -1124,7 +1124,8 @@ them:
    folder as six logged, cancellable steps (`build.log`), after a preflight of programs,
    development headers and 4 GB of disk that prints the `apt` command. About 1 hour.
    `"route": "build"`.
-4. **Wine + `rszst.exe`** — **not offered**: unmeasured (P2-T06c).
+4. **Wine + `rszst.exe`** — measured equivalent (P2-T06c, 48/49), **not offered yet**:
+   P2-T06d adds it as `setup rszst --wine`.
 5. **Degrade** — without rszst, doctor says models import through ABMatt (slower; no
    material preset capture or BRRES JSON round-trip).
 
@@ -1135,8 +1136,21 @@ PATH, standard folders, Flatpak (Blender), **managed**, `.tools/` (developer opt
 
 **[verified P2-T06b, Windows 11]** the real download route
 (`tests/integration/test_rszst_setup_real.py`, network-marked) passed into a `données é`
-folder in 6.7 s and doctor reported `found 5.11.5 route=download`. **[unverified]** the Linux
-build on Mint 22.3 — P2-T06c.
+folder in 6.7 s and doctor reported `found 5.11.5 route=download`.
+
+**[verified P2-T06c, Mint 22.3, 24 CPUs]** the Linux build route: `ctstudio setup rszst`
+built 5.11.5 natively (banner `RiiStudio CLI Alpha 5.11.5 (Built … Ubuntu Clang 19.1.1
+(1ubuntu1~24.04.2))` — note the nested brackets), doctor reported `found 5.11.5 (built from
+source by CT Studio)` and `test_linux_source_build_route` passed. Replaying the 49 recorded
+Windows cases (`spikes/p2t06c_rszst_probe.py`; the program name `rszst.exe`→`rszst` and the
+build stamp normalised): **native 46/49 equal**, all in 0.5 s; the 3 others are the
+`native_only` cases — the Linux build imports from an absolute path and from non-ASCII
+relative source/preset paths, where Windows `rszst.exe` fails with `FileNotExist`.
+**Wine + `rszst.exe` (wine-9.0, fresh win64 prefix, `WINEDEBUG=-all`, Mono/Gecko off):
+48/49 equal**; the only difference is `Error: File <work>/course.dae` vs `<work>\course.dae`
+in the absolute-path case, i.e. Wine reproduces the Windows path bugs. Download 8.9 s, prefix
+8.6 s, first banner 0.2 s, all cases 12 s. The unpacked `rszst.exe` cannot run directly on
+Linux, so its banner check must go through Wine.
 
 Linux toolchain (P2-T06c, checked against the Ubuntu 24.04 archive, 2026-10-30): noble's
 default `cargo` is 1.75, which cannot read the pinned `Cargo.lock` (lock format 4 needs Cargo

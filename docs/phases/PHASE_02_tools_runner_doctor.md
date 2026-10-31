@@ -277,7 +277,7 @@ Plan (2026-10-30): routes 1, 2, 3 and 5 built here; route 4 (Wine) and the real 
 are measured in P2-T06c on the Mint machine. `ctstudio setup rszst [--dry-run] [--jobs N]`;
 managed folder `<user data>/tools/riistudio-5.11.5/` counts only with `setup.json`.
 
-### [ ] P2-T06c — Measure the Linux `rszst` routes on the Mint machine
+### [x] P2-T06c — Measure the Linux `rszst` routes on the Mint machine (commit 9e56139)
 Split from P2-T06b (2026-10-30). Run the opt-in source-build integration test and a Wine +
 `rszst.exe` probe (version, `import-brres` on the self-made fixture, non-ASCII paths, exit
 codes) on Linux Mint 22.3. Fix the build recipe for the distro's compilers if needed; offer
@@ -288,6 +288,24 @@ Plan (2026-10-30): before the run, preflight learned to use the versioned Rust 1
 clang-19 packages (noble's default Cargo 1.75 cannot read the pinned lock file).
 `spikes/p2t06c_rszst_probe.py` replays the 49 recorded Windows cases under Wine and against
 the built `rszst`, comparing exit code, output and files.
+Result (2026-10-31, Mint 22.3): the source build passes (doctor `found 5.11.5`, build test
+passed, 46/49 cases equal to Windows; the 3 others are path cases Linux gets right). Recipe
+corrected during the run: absolute program paths, Rust 1.91 instead of Ubuntu's broken cargo
+1.83–1.90. Wine + `rszst.exe` matched 48/49 (one `\`/`/` difference), so it is **enabled
+with evidence** and its implementation is split to P2-T06d.
+
+### [ ] P2-T06d — Offer Wine + `rszst.exe` as a Linux setup route
+Split from P2-T06c (2026-10-31). Evidence: the P2-T06c probe on Mint 22.3 / wine-9.0 matched
+the Windows recordings on 48/49 cases (only a path separator in one error message), with a
+9 s download, a 9 s prefix and 12 s for all cases; it shares the Windows `rszst` bugs with
+absolute and non-ASCII paths, which the adapter already avoids. Add `ctstudio setup rszst
+--wine` on Linux (download the pinned Windows release, create a dedicated quiet win64 prefix,
+banner-check through Wine, `setup.json` route `wine`), a Wine launcher in discovery/doctor,
+and run adapter calls through Wine with `winepath` conversion. The source build stays the
+default; doctor offers Wine as the quick alternative.
+**Acceptance:** unit tests with fakes for the route, record and launcher; the Wine replay of
+the recorded cases runs as an opt-in Linux integration test; doctor `--json` reports
+`"route": "wine"`; measured once more on Mint.
 
 ### [ ] P2-T07 — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
