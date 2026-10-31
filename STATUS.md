@@ -4,24 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T06e — `ctstudio setup rszst --wine` and the Mint check
+**Next task:** P2-T07 — Tools page (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 8df8e5c (P2-T06d; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** a504f2c (P2-T06e; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T06e` — `ctstudio setup rszst --wine` and the Mint check. Plan (2026-11-01): `--wine`
-  on Linux runs `rszst_wine.install_wine` into `<user data>/tools/riistudio-5.11.5-wine/`
-  with the Wine discovery finds (dry run prints the plan and commands; no Wine = exit 1 with
-  the apt command; on Windows `--wine` is refused); the default Linux build text and
-  doctor's Linux "missing" fix name both routes; an opt-in (`CTSTUDIO_RSZST_WINE=1`,
-  network) Linux integration test installs the Wine route into a `données é` folder, checks
-  doctor `route: "wine"` and runs the adapter's import/JSON/presets calls through it.
-  Acceptance: CLI unit tests; the integration test and the real CLI pass on Mint. Files:
-  `cli/setup.py`, `rszst_setup.py`, `tests/unit/test_cli_setup.py`,
-  `tests/unit/test_rszst_routes.py`, `tests/integration/test_rszst_setup_real.py`, docs.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T06e` — `ctstudio setup rszst --wine` (Linux): explains the route and its 48/49
+  measurement, downloads the checked release into `riistudio-5.11.5-wine/` and runs it
+  through the Wine discovery finds; `--dry-run` prints the Wine commands; no Wine = exit 1
+  with `sudo apt install -y wine`; refused on Windows. The default Linux build text and
+  doctor's Linux "missing" fix name both routes. **[verified Mint 22.3, wine-9.0]** the
+  opt-in `test_linux_wine_route_and_the_adapter_through_it` passed in 17.7 s (setup into
+  `données é`, doctor `route: "wine"`, import + BRRES↔JSON + presets through Wine); the real
+  CLI (isolated with `XDG_DATA_HOME`) installed, re-ran without downloading, and doctor
+  showed `found 5.11.5 … (wine, installed by CT Studio)`. Mutants 12/12; gate green; CI
+  green both jobs — commit a504f2c
 - `P2-T06d` — Wine + `rszst.exe` route core (Linux). `rszst_wine.install_wine` makes CT
   Studio's own quiet win64 prefix (`WINEARCH=win64 wine wineboot -u`, `wineserver -w`;
   32-bit refused), downloads the checked 5.11.5 zip with the banner read through Wine and

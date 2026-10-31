@@ -308,13 +308,16 @@ command; mutants caught; gate green.
 **Done:** `core/tools/rszst_wine.py` + discovery/doctor/adapter changes; 21/21 mutants;
 gate green (commit 8df8e5c).
 
-### [ ] P2-T06e — `ctstudio setup rszst --wine` and the Mint check
+### [x] P2-T06e — `ctstudio setup rszst --wine` and the Mint check
 Split from P2-T06d (2026-10-31). The CLI choice on Linux (dry run explains both routes; the
 source build stays the default), doctor's Linux "missing" fix naming both, an opt-in Linux
 integration test running the real Wine route plus the adapter's import/JSON/presets calls
 through it, and one Mint run.
 **Acceptance:** CLI unit tests; the integration test passes on Mint; doctor `--json` shows
 `"route": "wine"` there.
+**Done:** Mint 22.3 / wine-9.0: the integration test passed (17.7 s; it asserts doctor
+`route == "wine"`), the real CLI installed and re-ran without downloading, and doctor showed
+the Wine copy. Mutants 12/12; CI green (commit a504f2c).
 
 ### [ ] P2-T07 — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
