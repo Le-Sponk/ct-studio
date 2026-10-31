@@ -10,6 +10,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T06e` — `ctstudio setup rszst --wine` and the Mint check. Plan (2026-11-01): `--wine`
+  on Linux runs `rszst_wine.install_wine` into `<user data>/tools/riistudio-5.11.5-wine/`
+  with the Wine discovery finds (dry run prints the plan and commands; no Wine = exit 1 with
+  the apt command; on Windows `--wine` is refused); the default Linux build text and
+  doctor's Linux "missing" fix name both routes; an opt-in (`CTSTUDIO_RSZST_WINE=1`,
+  network) Linux integration test installs the Wine route into a `données é` folder, checks
+  doctor `route: "wine"` and runs the adapter's import/JSON/presets calls through it.
+  Acceptance: CLI unit tests; the integration test and the real CLI pass on Mint. Files:
+  `cli/setup.py`, `rszst_setup.py`, `tests/unit/test_cli_setup.py`,
+  `tests/unit/test_rszst_routes.py`, `tests/integration/test_rszst_setup_real.py`, docs.
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T06d` — Wine + `rszst.exe` route core (Linux). `rszst_wine.install_wine` makes CT

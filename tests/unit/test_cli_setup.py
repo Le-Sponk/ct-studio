@@ -6,6 +6,7 @@ OS, the words printed before anything happens, Ctrl+C handling and the exit code
 
 from __future__ import annotations
 
+import shlex
 import sys
 import types
 from pathlib import Path
@@ -16,7 +17,7 @@ from ctstudio.__main__ import main
 from ctstudio.cli import setup as cli_setup
 from ctstudio.core.errors import Cancelled
 from ctstudio.core.tools.rszst_install import SetupFailed
-from ctstudio.core.tools.rszst_setup import PIN, Preflight, Toolchain
+from ctstudio.core.tools.rszst_setup import PIN, Preflight, Toolchain, wine_root
 
 pytestmark = pytest.mark.timeout(60)
 READY = Preflight((), (), 50 * 1024**3, Toolchain("clang", "clang++", None, None))
@@ -50,8 +51,15 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, object]:
         calls["build"] = (root, kwargs)
         return root / "build/source/cli/rszst"
 
+    def wine_install(root: Path, **kwargs: object) -> Path:
+        calls["wine_install"] = (root, kwargs)
+        return root / "rszst" / "rszst.exe"
+
+    calls["wine"] = Path("/usr/bin/wine")
     monkeypatch.setattr(cli_setup, "download_windows", download)
     monkeypatch.setattr(cli_setup, "build_linux", build)
+    monkeypatch.setattr(cli_setup, "install_wine", wine_install)
+    monkeypatch.setattr(cli_setup, "_wine", lambda: calls["wine"])
     return calls
 
 
@@ -83,6 +91,8 @@ def test_linux_builds_with_one_job_per_two_cores(
     out = capsys.readouterr().out
     assert "about 1 hour" in out and "Ctrl+C" in out and str(root / "build.log") in out
     assert PIN.source_commit in out
+    assert "Quicker: `ctstudio setup rszst --wine`" in out  # the other route is named
+    assert "wine_install" not in world
 
 
 def test_jobs_can_be_chosen(
@@ -224,4 +234,83 @@ def test_setup_help_names_the_tool(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit):
         main(["setup", "--help"])
     out = capsys.readouterr().out
-    assert "rszst" in out and "--dry-run" in out and "--jobs" in out
+    assert "rszst" in out and "--dry-run" in out and "--jobs" in out and "--wine" in out
+
+
+# --- --wine (P2-T06e) -----------------------------------------------------------------------------
+
+
+def test_wine_sets_up_the_windows_rszst_with_the_wine_found(
+    world: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _on(monkeypatch, "linux")
+    assert main(["setup", "rszst", "--wine"]) == 0
+    root, kwargs = world["wine_install"]  # type: ignore[misc]
+    assert root == wine_root(Path(world["data"]))  # type: ignore[arg-type]
+    assert kwargs == {  # type: ignore[comparison-overlap]
+        "wine": Path("/usr/bin/wine"),
+        "cancel": kwargs["cancel"],  # type: ignore[index]
+        "on_progress": cli_setup._progress,
+    }
+    assert "build" not in world and "download" not in world
+    out = capsys.readouterr().out
+    assert PIN.windows_zip_url in out and "44 MB" in out and "never bundled" in out
+    assert f"Wine: {Path('/usr/bin/wine')}" in out and str(root) in out
+    assert "48 of 49" in out and "native program" in out
+    assert f"Installed: {root / 'rszst' / 'rszst.exe'} (runs through Wine)" in out
+
+
+def test_a_wine_dry_run_shows_the_commands_and_changes_nothing(
+    world: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _on(monkeypatch, "linux")
+    assert main(["setup", "rszst", "--wine", "--dry-run"]) == 0
+    assert "wine_install" not in world and "preflight" not in world
+    out = capsys.readouterr().out
+    prefix = wine_root(Path(world["data"])) / "prefix"  # type: ignore[arg-type]
+    assert "Commands that will run:" in out and "Nothing was changed (dry run)." in out
+    assert f"WINEPREFIX={prefix}" in out and "WINEARCH=win64" in out
+    assert f"{shlex.join([str(Path('/usr/bin/wine')), 'wineboot', '-u'])}" in out
+    assert "wineserver -w" in out
+    exe = prefix.parent / "rszst" / "rszst.exe"
+    assert shlex.join([str(Path("/usr/bin/wine")), str(exe), "--version"]) in out
+
+
+@pytest.mark.parametrize("dry", [True, False], ids=["dry run", "real"])
+def test_wine_without_wine_says_how_to_install_it(
+    dry: bool,
+    world: dict[str, object],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    _on(monkeypatch, "linux")
+    world["wine"] = None
+    assert main(["setup", "rszst", "--wine", *(["--dry-run"] if dry else [])]) == 1
+    assert "wine_install" not in world
+    captured = capsys.readouterr()
+    assert "Wine is not installed" in captured.out + captured.err
+    assert "sudo apt install -y wine" in captured.out + captured.err
+
+
+def test_wine_is_refused_on_windows(
+    world: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _on(monkeypatch, "windows")
+    assert main(["setup", "rszst", "--wine"]) == 1
+    assert "download" not in world and "wine_install" not in world
+    assert "--wine is for Linux" in capsys.readouterr().err
+
+
+def test_the_wine_program_comes_from_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
+    from ctstudio.core.tools.discovery import ToolLocation
+
+    seen: list[str] = []
+
+    def found(spec: object) -> ToolLocation:
+        seen.append(spec.id)  # type: ignore[attr-defined]
+        return ToolLocation(Path("/opt/wine/bin/wine"), None, "path", "direct")
+
+    monkeypatch.setattr(cli_setup, "discover", found)
+    assert cli_setup._wine() == Path("/opt/wine/bin/wine") and seen == ["wine"]
+    monkeypatch.setattr(cli_setup, "discover", lambda _spec: None)
+    assert cli_setup._wine() is None

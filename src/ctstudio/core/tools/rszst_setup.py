@@ -390,6 +390,7 @@ def missing_fix(platform: str) -> str:
         )
     return (
         "RiiStudio has no Linux download. Run `ctstudio setup rszst` to build it from source "
-        f"({BUILD_ESTIMATE}, about {BUILD_DISK_BYTES // GB} GB of disk), or put an rszst you "
-        "built yourself on PATH."
+        f"({BUILD_ESTIMATE}, about {BUILD_DISK_BYTES // GB} GB of disk), or "
+        "`ctstudio setup rszst --wine` to run the Windows rszst.exe through Wine (about 1 "
+        "minute), or put an rszst you built yourself on PATH."
     )

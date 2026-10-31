@@ -265,6 +265,7 @@ def test_doctor_offers_the_route_for_this_os_when_missing(
     assert (check.status, check.route) == ("missing", None)
     assert check.fix is not None and "ctstudio setup rszst" in check.fix and words in check.fix
     assert check.note == WITHOUT_RSZST
+    assert ("ctstudio setup rszst --wine" in check.fix) == (platform == "linux")
 
 
 def test_other_tools_have_no_route(probed: None, tmp_path: Path) -> None:

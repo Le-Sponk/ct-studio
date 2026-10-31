@@ -1124,7 +1124,7 @@ them:
    folder as six logged, cancellable steps (`build.log`), after a preflight of programs,
    development headers and 4 GB of disk that prints the `apt` command. About 1 hour.
    `"route": "build"`.
-4. **Wine + `rszst.exe`** (Linux; P2-T06d core, `setup rszst --wine` lands in P2-T06e) —
+4. **Wine + `rszst.exe`** (Linux; `ctstudio setup rszst --wine`, P2-T06d/e; about 1 min) —
    measured equivalent (P2-T06c, 48/49). `rszst_wine.install_wine` makes CT Studio's own
    win64 prefix in `<user data>/tools/riistudio-5.11.5-wine/prefix` (`WINEARCH=win64 wine
    wineboot -u`, then `wineserver -w`; a 32-bit prefix is refused), downloads the same
@@ -1136,6 +1136,12 @@ them:
    an install-or-build fix when `wine` is gone. The rszst adapter runs such a copy as
    `wine rszst.exe …` in that prefix; staging under ASCII names covers the shared Windows
    path bugs.
+   `--wine --dry-run` prints the plan and the Wine commands; without Wine it exits 1 with
+   `sudo apt install -y wine`; on Windows `--wine` is refused. The plain Linux build text
+   and doctor's Linux "missing" fix name both routes. Opt-in real check:
+   `CTSTUDIO_RSZST_WINE=1 uv run pytest -m network tests/integration/test_rszst_setup_real.py`
+   (installs into a `données é` folder, checks doctor `route: "wine"`, and runs import,
+   BRRES↔JSON and presets through Wine).
 5. **Degrade** — without rszst, doctor says models import through ABMatt (slower; no
    material preset capture or BRRES JSON round-trip).
 
