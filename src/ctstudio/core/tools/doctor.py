@@ -27,7 +27,13 @@ from typing import Literal
 from ctstudio.core.tools.discovery import DiscoveryEnvironment, ToolLocation, discover
 from ctstudio.core.tools.editors import PREFIX_RECIPES
 from ctstudio.core.tools.registry import TOOL_BY_ID, TOOL_SPECS
-from ctstudio.core.tools.rszst_setup import WITHOUT_RSZST, managed_root, missing_fix, read_record
+from ctstudio.core.tools.rszst_setup import (
+    PIN,
+    WITHOUT_RSZST,
+    managed_root,
+    missing_fix,
+    read_record,
+)
 from ctstudio.core.tools.spec import ToolSpec
 from ctstudio.core.tools.versions import VersionCache, VersionResult, probe_versions
 
@@ -52,7 +58,7 @@ class ToolCheck:
     source: str | None = None
     fix: str | None = None  # what the user should do; None when nothing is needed
     note: str | None = None  # extra facts that need no action
-    route: str | None = None  # rszst only: "existing", "download" or "build" (P2-T06b)
+    route: str | None = None  # rszst only: "existing", "download", "build" or "wine"
 
 
 @dataclass(frozen=True)
@@ -182,10 +188,26 @@ def _with_route(check: ToolCheck, env: DiscoveryEnvironment) -> ToolCheck:
         return check
     if check.status == "missing":
         return replace(check, fix=missing_fix(env.platform), note=WITHOUT_RSZST)
+    if check.launcher == "wine":
+        return _wine_route(check)
     record = None
     if check.source == "managed" and env.data_dir is not None:
         record = read_record(managed_root(env.data_dir))
     return replace(check, route=record.route if record is not None else "existing")
+
+
+WINE_NOTE = "Runs the official Windows rszst.exe through Wine (CT Studio's prefix)."
+WINE_MISSING = (
+    "Install Wine (sudo apt install -y wine) to run the rszst.exe CT Studio set up, or "
+    "run `ctstudio setup rszst` to build rszst from source instead."
+)
+
+
+def _wine_route(check: ToolCheck) -> ToolCheck:
+    """The rszst.exe CT Studio set up for Wine (P2-T06d); it has no version probe."""
+    if check.status == "needs_wine":
+        return replace(check, route="wine", fix=WINE_MISSING, note=None)
+    return replace(check, route="wine", version=PIN.version, note=WINE_NOTE)
 
 
 def _discover_all(

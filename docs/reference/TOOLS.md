@@ -1124,8 +1124,18 @@ them:
    folder as six logged, cancellable steps (`build.log`), after a preflight of programs,
    development headers and 4 GB of disk that prints the `apt` command. About 1 hour.
    `"route": "build"`.
-4. **Wine + `rszst.exe`** — measured equivalent (P2-T06c, 48/49), **not offered yet**:
-   P2-T06d adds it as `setup rszst --wine`.
+4. **Wine + `rszst.exe`** (Linux; P2-T06d core, `setup rszst --wine` lands in P2-T06e) —
+   measured equivalent (P2-T06c, 48/49). `rszst_wine.install_wine` makes CT Studio's own
+   win64 prefix in `<user data>/tools/riistudio-5.11.5-wine/prefix` (`WINEARCH=win64 wine
+   wineboot -u`, then `wineserver -w`; a 32-bit prefix is refused), downloads the same
+   checked zip into `rszst/` with the banner read as `wine rszst.exe --version`, and writes
+   `setup.json` route `wine` last. Every Wine run uses `WINEPREFIX=<that prefix>`,
+   `WINEDEBUG=-all` and `WINEDLLOVERRIDES=mscoree,mshtml=` (no Mono/Gecko prompts).
+   Discovery returns it with launcher `wine` after the native managed folder (a native build
+   wins); doctor shows `"route": "wine"`, version 5.11.5 without a probe, or needs Wine with
+   an install-or-build fix when `wine` is gone. The rszst adapter runs such a copy as
+   `wine rszst.exe …` in that prefix; staging under ASCII names covers the shared Windows
+   path bugs.
 5. **Degrade** — without rszst, doctor says models import through ABMatt (slower; no
    material preset capture or BRRES JSON round-trip).
 

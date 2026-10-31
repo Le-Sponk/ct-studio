@@ -69,7 +69,7 @@ class SetupFailed(CTStudioError):
     """Getting rszst did not finish; nothing half-done is used."""
 
 
-def _open_url(url: str) -> IO[bytes]:
+def open_url(url: str) -> IO[bytes]:
     return urllib.request.urlopen(url, timeout=60)  # noqa: S310 - fixed https release URL
 
 
@@ -95,7 +95,7 @@ def _check_banner(exe: Path, banner: Callable[[Path], str]) -> None:
 def download_windows(
     root: Path,
     *,
-    opener: Opener = _open_url,
+    opener: Opener = open_url,
     banner: Callable[[Path], str] = read_banner,
     cancel: CancelToken | None = None,
     on_progress: Progress | None = None,

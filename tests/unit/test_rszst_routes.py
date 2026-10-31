@@ -22,6 +22,9 @@ from ctstudio.core.tools.rszst_setup import (
     SetupRecord,
     managed_executable,
     managed_root,
+    read_record,
+    wine_executable,
+    wine_root,
     write_record,
 )
 from ctstudio.core.tools.spec import ToolSpec
@@ -67,6 +70,55 @@ def test_a_completed_managed_copy_is_found(
     exe = _managed(tmp_path, platform, route)
     found = discover(RSZST, environment=_env(tmp_path, platform))
     assert found == ToolLocation(exe.resolve(), None, "managed", "direct")
+
+
+def _wine_copy(tmp_path: Path, *, record: bool = True) -> Path:
+    root = wine_root(tmp_path / "données")
+    exe = _exe(wine_executable(root))
+    if record:
+        write_record(root, SetupRecord("wine", "5.11.5", "rszst/rszst.exe"))
+    return exe
+
+
+def test_the_wine_copy_is_found_on_linux_and_runs_through_wine(tmp_path: Path) -> None:
+    exe = _wine_copy(tmp_path)
+    found = discover(RSZST, environment=_env(tmp_path, "linux"))
+    assert found == ToolLocation(exe.resolve(), "5.11.5", "managed", "wine")
+
+
+def test_an_unfinished_wine_copy_is_ignored(tmp_path: Path) -> None:
+    _wine_copy(tmp_path, record=False)
+    assert discover(RSZST, environment=_env(tmp_path, "linux")) is None
+
+
+def test_a_wine_copy_is_not_used_on_windows(tmp_path: Path) -> None:
+    _wine_copy(tmp_path)
+    assert discover(RSZST, environment=_env(tmp_path, "windows")) is None
+
+
+def test_the_native_build_wins_over_the_wine_copy(tmp_path: Path) -> None:
+    _wine_copy(tmp_path)
+    native = _managed(tmp_path, "linux", "build")
+    found = discover(RSZST, environment=_env(tmp_path, "linux"))
+    assert found is not None and (found.path, found.launcher) == (native.resolve(), "direct")
+
+
+def test_a_wine_record_in_the_native_folder_does_not_count(tmp_path: Path) -> None:
+    root = managed_root(tmp_path / "données")
+    _exe(managed_executable(root, "linux"))
+    write_record(root, SetupRecord("wine", "5.11.5", "build/source/cli/rszst"))
+    assert discover(RSZST, environment=_env(tmp_path, "linux")) is None
+
+
+def test_the_wine_folder_needs_a_wine_record_and_the_exe(tmp_path: Path) -> None:
+    exe = _wine_copy(tmp_path, record=False)
+    root = wine_root(tmp_path / "données")
+    write_record(root, SetupRecord("download", "5.11.5", "rszst/rszst.exe"))
+    assert discover(RSZST, environment=_env(tmp_path, "linux")) is None
+    write_record(root, SetupRecord("wine", "5.11.5", "rszst/rszst.exe"))
+    exe.unlink()
+    assert discover(RSZST, environment=_env(tmp_path, "linux")) is None
+    assert read_record(root) is None  # the record only counts while its file exists
 
 
 def test_an_unfinished_managed_copy_is_ignored(tmp_path: Path) -> None:
@@ -162,6 +214,39 @@ def test_doctor_reports_the_managed_route(
         "5.11.5",
     )
     assert doctor._check_json(check)["route"] == route
+
+
+def _wine_on_path(tmp_path: Path) -> DiscoveryEnvironment:
+    if os.name == "nt":
+        pytest.skip("a Linux-style PATH cannot hold a Windows drive path")
+    wine = _exe(tmp_path / "wine bin" / "wine")
+    return _env(tmp_path, "linux", str(wine.parent))
+
+
+def test_doctor_reports_the_wine_route_with_its_version(probed: None, tmp_path: Path) -> None:
+    exe = _wine_copy(tmp_path)
+    check = _rszst(tmp_path, _wine_on_path(tmp_path))
+    assert (check.status, check.route, check.version, check.launcher) == (
+        "found",
+        "wine",
+        "5.11.5",
+        "wine",
+    )
+    assert check.path == exe.resolve() and check.fix is None
+    assert check.note == "Runs the official Windows rszst.exe through Wine (CT Studio's prefix)."
+    assert doctor._check_json(check)["route"] == "wine"
+
+
+def test_doctor_says_the_wine_copy_needs_wine_when_wine_is_gone(
+    probed: None, tmp_path: Path
+) -> None:
+    _wine_copy(tmp_path)
+    check = _rszst(tmp_path, _env(tmp_path, "linux"))
+    assert (check.status, check.route) == ("needs_wine", "wine")
+    assert check.fix == (
+        "Install Wine (sudo apt install -y wine) to run the rszst.exe CT Studio set up, or "
+        "run `ctstudio setup rszst` to build rszst from source instead."
+    )
 
 
 def test_doctor_calls_an_own_install_existing(probed: None, tmp_path: Path) -> None:

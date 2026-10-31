@@ -227,3 +227,72 @@ def test_exit_minus_one_and_silent_no_output_are_failures(
         )
     assert caught.value.exit_code == exit_code
     assert not (tmp_path / "o.brres").exists()
+
+
+def test_a_wine_copy_runs_through_wine_in_its_own_prefix(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """P2-T06d: rszst set up for Wine is run as ``wine rszst.exe ...`` with its prefix."""
+    from ctstudio.core.tools import riistudio
+    from ctstudio.core.tools.discovery import ToolLocation
+    from ctstudio.core.tools.rszst_setup import wine_environment, wine_executable, wine_root
+
+    root = wine_root(tmp_path / "data")
+    exe, wine = wine_executable(root), tmp_path / "bin" / "wine"
+    found = {
+        "rszst": ToolLocation(exe, "5.11.5", "managed", "wine"),
+        "wine": ToolLocation(wine, None, "path", "direct"),
+    }
+    monkeypatch.setattr(riistudio, "discover", lambda spec, **_kw: found.get(spec.id))
+    calls: list[tuple[object, object]] = []
+
+    def fake_run(cmd: object, cwd: Path, *, env: object = None, **_: object) -> ToolRun:
+        calls.append((cmd, env))
+        (cwd / "out.brres").write_bytes(b"bres")
+        return ToolRun(0, "", "")
+
+    monkeypatch.setattr(riistudio, "run_collecting", fake_run)
+    riistudio.import_brres(_project(tmp_path), tmp_path / "o.brres", model_name="course")
+    [(cmd, env)] = calls
+    assert cmd == [wine, exe, "import-brres", "model.dae", "out.brres", "--model-name", "course"]
+    assert env == wine_environment(root)
+
+
+def test_a_wine_copy_without_wine_is_tool_not_found(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from ctstudio.core.errors import ToolNotFound
+    from ctstudio.core.tools import riistudio
+    from ctstudio.core.tools.discovery import ToolLocation
+
+    rszst = ToolLocation(tmp_path / "r" / "rszst" / "rszst.exe", "5.11.5", "managed", "wine")
+    monkeypatch.setattr(
+        riistudio, "discover", lambda spec, **_kw: rszst if spec.id == "rszst" else None
+    )
+    monkeypatch.setattr(riistudio, "run_collecting", lambda *_a, **_k: pytest.fail("ran"))
+    with pytest.raises(ToolNotFound) as caught:
+        riistudio.import_brres(_project(tmp_path), tmp_path / "o.brres", model_name="course")
+    assert "Wine" in str(caught.value) and "sudo apt install -y wine" in str(caught.value)
+
+
+def test_a_direct_rszst_still_runs_without_wine(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from ctstudio.core.tools import riistudio
+    from ctstudio.core.tools.discovery import ToolLocation
+
+    exe = tmp_path / "bin" / "rszst"
+    monkeypatch.setattr(
+        riistudio, "discover", lambda spec, **_kw: ToolLocation(exe, None, "path", "direct")
+    )
+    calls: list[tuple[object, object]] = []
+
+    def fake_run(cmd: object, cwd: Path, *, env: object = None, **_: object) -> ToolRun:
+        calls.append((cmd, env))
+        (cwd / "out.brres").write_bytes(b"bres")
+        return ToolRun(0, "", "")
+
+    monkeypatch.setattr(riistudio, "run_collecting", fake_run)
+    riistudio.import_brres(_project(tmp_path), tmp_path / "o.brres", model_name="course")
+    [(cmd, env)] = calls
+    assert isinstance(cmd, list) and cmd[0] == exe and env is None

@@ -169,14 +169,28 @@ def _flatpak_blender(env: DiscoveryEnvironment) -> ToolLocation | None:
 
 
 def _managed_location(spec: ToolSpec, env: DiscoveryEnvironment) -> ToolLocation | None:
-    """CT Studio's own rszst, only once its setup finished (``setup.json``)."""
+    """CT Studio's own rszst, only once its setup finished (``setup.json``).
+
+    The native copy (download on Windows, source build on Linux) comes first; on Linux the
+    Windows ``rszst.exe`` set up for Wine (P2-T06d) is next, run through Wine.
+    """
     if spec.id != "rszst" or env.data_dir is None or env.platform == "other":
         return None
     root = rszst_setup.managed_root(env.data_dir)
-    if rszst_setup.read_record(root) is None:
-        return None
+    record = rszst_setup.read_record(root)
     exe = rszst_setup.managed_executable(root, env.platform)
-    return _location(spec, exe, "managed", env.platform) if _executable(exe, env.platform) else None
+    if record is not None and record.route != "wine" and _executable(exe, env.platform):
+        return _location(spec, exe, "managed", env.platform)
+    return _wine_copy(env.data_dir) if env.platform == "linux" else None
+
+
+def _wine_copy(data_dir: Path) -> ToolLocation | None:
+    root = rszst_setup.wine_root(data_dir)
+    record = rszst_setup.read_record(root)  # it names an existing file inside ``root``
+    if record is None or record.route != "wine":
+        return None
+    exe = root / record.executable
+    return ToolLocation(exe.resolve(), rszst_setup.PIN.version, "managed", "wine")
 
 
 def _direct_location(spec: ToolSpec, env: DiscoveryEnvironment) -> ToolLocation | None:

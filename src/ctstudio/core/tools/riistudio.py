@@ -12,6 +12,8 @@ Measured on Windows (P2-T05e, docs/reference/TOOLS.md):
   DAE's folder or its ``textures/`` subfolder (the two places rszst looks).
 * clap errors exit -1 (0xFFFFFFFF on Windows, 255 on Linux): any nonzero exit fails, and
   so does exit 0 without the expected output file and magic.
+* On Linux, the Windows ``rszst.exe`` CT Studio set up for Wine (P2-T06d) runs as
+  ``wine rszst.exe ...`` in its own prefix; staging under ASCII names covers its path bugs.
 """
 
 from __future__ import annotations
@@ -20,12 +22,14 @@ import re
 import shutil
 from pathlib import Path, PurePosixPath
 
-from ctstudio.core.errors import CTStudioError
+from ctstudio.core.errors import CTStudioError, ToolNotFound
+from ctstudio.core.tools.discovery import discover
 from ctstudio.core.tools.process import CancelToken
+from ctstudio.core.tools.registry import TOOL_BY_ID
+from ctstudio.core.tools.rszst_setup import wine_environment
 from ctstudio.core.tools.staging import (
     collada_images,
     deliver,
-    executable_for,
     occupied,
     run_collecting,
     stage,
@@ -60,8 +64,8 @@ def _run(
     timeout: float,
     cancel: CancelToken | None,
 ) -> None:
-    exe = executable_for("rszst", executable, _HINT)
-    result = run_collecting([exe, *args], work, timeout=timeout, cancel=cancel)
+    command, env = _command(executable)
+    result = run_collecting([*command, *args], work, env=env, timeout=timeout, cancel=cancel)
     if result.exit_code != 0:
         raise RiiStudioError(
             source,
@@ -69,6 +73,25 @@ def _run(
             exit_code=result.exit_code,
             details=result.details,
         )
+
+
+def _command(configured: Path | None) -> tuple[list[str | Path], dict[str, str] | None]:
+    """How to start rszst: directly, or ``wine rszst.exe`` for CT Studio's Wine copy."""
+    if configured is not None:
+        return [configured.resolve()], None
+    location = discover(TOOL_BY_ID["rszst"], include_dev=True)
+    if location is None:
+        raise ToolNotFound("rszst", hint=_HINT)
+    if location.launcher != "wine":
+        return [location.path], None
+    wine = discover(TOOL_BY_ID["wine"])
+    if wine is None:
+        raise ToolNotFound(
+            "Wine",
+            hint="Install Wine (sudo apt install -y wine) to run rszst.exe, or run "
+            "`ctstudio setup rszst` to build rszst from source.",
+        )
+    return [wine.path, location.path], wine_environment(location.path.parents[1])
 
 
 def _output(source: Path, path: Path, magic: bytes) -> bytes:

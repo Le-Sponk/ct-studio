@@ -23,7 +23,7 @@ from typing import Literal, cast
 
 from ctstudio.core.fsutil import atomic_write_text
 
-Route = Literal["download", "build"]
+Route = Literal["download", "build", "wine"]
 FreeSpace = Callable[[Path], int]
 RECORD = "setup.json"
 RECORD_FORMAT = 1
@@ -119,6 +119,26 @@ def managed_executable(root: Path, platform: Literal["windows", "linux"]) -> Pat
     return root / ("rszst.exe" if platform == "windows" else "build/source/cli/rszst")
 
 
+# --- Linux: the official Windows rszst.exe through Wine (P2-T06d) ---------------------------------
+# Measured in P2-T06c (Mint 22.3, wine-9.0): 48/49 recorded Windows cases equal. Its own folder,
+# so a native build and a Wine copy never share a record; the prefix is CT Studio's, quiet
+# (no debug output, no Mono/Gecko install prompts) and win64 (rszst.exe is PE32+).
+QUIET_WINE = {"WINEDEBUG": "-all", "WINEDLLOVERRIDES": "mscoree,mshtml="}
+
+
+def wine_root(data_dir: Path) -> Path:
+    return data_dir / "tools" / f"riistudio-{PIN.version}-wine"
+
+
+def wine_executable(root: Path) -> Path:
+    return root / "rszst" / "rszst.exe"
+
+
+def wine_environment(root: Path) -> dict[str, str]:
+    """What a Wine run of the managed rszst.exe needs: its quiet prefix."""
+    return {**QUIET_WINE, "WINEPREFIX": str(root / "prefix")}
+
+
 def write_record(root: Path, record: SetupRecord) -> None:
     data = {"format": RECORD_FORMAT, **record.__dict__}
     atomic_write_text(root / RECORD, json.dumps(data, indent=1) + "\n")
@@ -136,7 +156,7 @@ def read_record(root: Path) -> SetupRecord | None:
     route, executable = fields.get("route"), fields.get("executable")
     if fields.get("format") != RECORD_FORMAT or fields.get("version") != PIN.version:
         return None
-    if route not in ("download", "build") or not isinstance(executable, str):
+    if route not in ("download", "build", "wine") or not isinstance(executable, str):
         return None
     record = SetupRecord(route, PIN.version, executable)
     return record if _inside(root, executable) else None
