@@ -30,14 +30,16 @@ def _wait_for(path: Path, seconds: float = 8.0) -> str:
 
 
 def test_a_launch_still_running_after_the_watch_returns_its_pid(tmp_path: Path) -> None:
-    code = 'time.sleep(1.2); pathlib.Path("opened.txt").write_text("yes", encoding="utf-8")'
+    # The editor outlives the watch by seconds, so a slow CI spawn (the Windows runner took
+    # over 0.7 s to start Python, twice, on bcba86f/daa8cb6) cannot blur the two apart.
+    code = 'time.sleep(4.0); pathlib.Path("opened.txt").write_text("yes", encoding="utf-8")'
     started = time.monotonic()
     pid = launch_detached(fake(code), cwd=tmp_path, watch=0.4)
     waited = time.monotonic() - started
     assert pid > 0
-    assert 0.4 <= waited < 1.1  # waited for the watch, not for the editor
+    assert 0.4 <= waited < 3.0  # waited for the watch, not for the editor
     assert not (tmp_path / "opened.txt").exists()
-    assert _wait_for(tmp_path / "opened.txt") == "yes"  # and it kept running afterwards
+    assert _wait_for(tmp_path / "opened.txt", 12.0) == "yes"  # and it kept running afterwards
 
 
 def test_an_early_failure_raises_with_its_output(tmp_path: Path) -> None:
