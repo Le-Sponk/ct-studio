@@ -319,9 +319,19 @@ through it, and one Mint run.
 `route == "wine"`), the real CLI installed and re-ran without downloading, and doctor showed
 the Wine copy. Mutants 12/12; CI green (commit a504f2c).
 
-### [ ] P2-T07 — Tools page (GUI)
+### [x] P2-T07a — User settings for tool paths, used by doctor (commit bcba86f)
+Split from P2-T07 (2026-11-01). `core/project/settings.py`: `settings.json` in the user config
+folder with a `tools` map (tool id → path); absent = defaults; a damaged file is a typed error
+with a hint and is never silently overwritten; unknown keys survive; saves are backed up.
+`diagnose(configured=…)` uses a set path first (`source: "setting"`); one that is not a
+program is reported `missing` with a fix to choose another or clear it. `ctstudio doctor`
+reads the settings.
+**Acceptance:** unit tests for load/save/backup/damage/unknown keys and for doctor with set
+paths; mutants caught; gate green.
+
+### [ ] P2-T07b — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
-"Open download page". Changes persist to user settings.
+"Open download page". Changes persist to user settings (P2-T07a).
 **Acceptance:** pytest-qt test with fakes: set path → re-check → status updates; screenshot artifact.
 
 ### [ ] P2-T08 — Integration CI

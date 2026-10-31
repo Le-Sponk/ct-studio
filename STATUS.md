@@ -4,7 +4,7 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T07 — Tools page (GUI)
+**Next task:** P2-T07b — Tools page (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** a504f2c (P2-T06e; Windows gate and Ubuntu/Windows CI)
 
@@ -12,6 +12,15 @@
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T07a` — User settings for tool paths. `core/project/settings.py`: `settings.json` in
+  the user config folder (format 1, `tools` id → path); no file = nothing set; a damaged,
+  unreadable or newer file is a `SettingsError` naming the file and is never overwritten;
+  unknown keys (and newer tool ids) survive; every save is backed up. `diagnose(configured=)`
+  puts set paths first (`source: "setting"`); one that is not a program is `missing` with
+  the path and a choose-or-clear fix (no silent fallback). `ctstudio doctor` reads the file
+  and warns on stderr if it is damaged. Mutants 21/21; `.tools` hidden pass; gate green;
+  Ubuntu CI green, Windows CI hit the `test_launch_watch` timing flake (see Tech debt) —
+  commit bcba86f
 - `P2-T06e` — `ctstudio setup rszst --wine` (Linux): explains the route and its 48/49
   measurement, downloads the checked release into `riistudio-5.11.5-wine/` and runs it
   through the Wine discovery finds; `--dry-run` prints the Wine commands; no Wine = exit 1
@@ -469,6 +478,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-01 (P2-T07): split. P2-T07a = user settings for tool paths + doctor honouring
+  them (core/CLI); P2-T07b = the Tools page itself (list, chips, Browse…, Re-check off the
+  UI thread, download page, pytest-qt + screenshot).
 - 2026-10-31 (P2-T06d): split. P2-T06d = the Wine route's core (setup, discovery, doctor,
   adapter); P2-T06e = `ctstudio setup rszst --wine`, doctor's Linux fix text, the opt-in
   real-Wine integration test and the Mint run.
@@ -924,6 +936,10 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
 _none_
 
 ## Tech debt (each item has a task ID or "Deep Clean #N")
+- Flaky timing test `tests/unit/test_launch_watch.py::test_a_launch_still_running_after_the_watch_returns_its_pid`
+  (P2-T05g): needs the watch to return within 1.1 s while a fake editor sleeps 1.2 s; the
+  Windows CI runner missed it once on bcba86f (5/5 local passes). Widen the margins in
+  Deep Clean #2 (or earlier if it recurs).
 _none_
 
 ## Human checkpoint results
