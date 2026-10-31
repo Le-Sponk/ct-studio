@@ -4,14 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T06d — Offer Wine + `rszst.exe` as a Linux setup route
+**Next task:** P2-T06e — `ctstudio setup rszst --wine` and the Mint check
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 9e56139 (P2-T06c; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** 8df8e5c (P2-T06d; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 <!-- `P0-T01` — short summary — commit abc1234 -->
+- `P2-T06d` — Wine + `rszst.exe` route core (Linux). `rszst_wine.install_wine` makes CT
+  Studio's own quiet win64 prefix (`WINEARCH=win64 wine wineboot -u`, `wineserver -w`;
+  32-bit refused), downloads the checked 5.11.5 zip with the banner read through Wine and
+  writes `setup.json` route `wine` last (re-running repairs, never redoes finished work).
+  Discovery finds it after the native managed folder (launcher `wine`); doctor reports
+  `route: "wine"`, version 5.11.5, or needs-Wine with an install-or-build fix; the rszst
+  adapter runs it as `wine rszst.exe …` with `WINEPREFIX`, `WINEDEBUG=-all` and Mono/Gecko
+  off, and says how to install Wine if it is gone. Unit tests with a recording Wine
+  stand-in (strict absolute argv); mutants 21/21; `.tools` hidden pass; gate green —
+  commit 8df8e5c
 - `P2-T06c` — Linux `rszst` routes measured on Mint 22.3 (24 CPUs, wine-9.0). **Source
   build works:** `ctstudio setup rszst` built RiiStudio 5.11.5 natively (clang 19.1.1, Rust
   1.91), doctor reports `found 5.11.5 (built from source by CT Studio)`, the opt-in build
@@ -449,6 +459,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-10-31 (P2-T06d): split. P2-T06d = the Wine route's core (setup, discovery, doctor,
+  adapter); P2-T06e = `ctstudio setup rszst --wine`, doctor's Linux fix text, the opt-in
+  real-Wine integration test and the Mint run.
 - 2026-10-31 (P2-T06c): the Wine + `rszst.exe` route passed its measurement (48/49 vs the
   Windows recordings) but offering it needs new code (a Linux `setup rszst --wine` choice,
   a Wine launcher for the rszst adapter with path conversion), so it is split out as

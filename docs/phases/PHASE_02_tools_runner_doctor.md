@@ -294,18 +294,27 @@ corrected during the run: absolute program paths, Rust 1.91 instead of Ubuntu's 
 1.83–1.90. Wine + `rszst.exe` matched 48/49 (one `\`/`/` difference), so it is **enabled
 with evidence** and its implementation is split to P2-T06d.
 
-### [ ] P2-T06d — Offer Wine + `rszst.exe` as a Linux setup route
-Split from P2-T06c (2026-10-31). Evidence: the P2-T06c probe on Mint 22.3 / wine-9.0 matched
-the Windows recordings on 48/49 cases (only a path separator in one error message), with a
-9 s download, a 9 s prefix and 12 s for all cases; it shares the Windows `rszst` bugs with
-absolute and non-ASCII paths, which the adapter already avoids. Add `ctstudio setup rszst
---wine` on Linux (download the pinned Windows release, create a dedicated quiet win64 prefix,
-banner-check through Wine, `setup.json` route `wine`), a Wine launcher in discovery/doctor,
-and run adapter calls through Wine with `winepath` conversion. The source build stays the
-default; doctor offers Wine as the quick alternative.
-**Acceptance:** unit tests with fakes for the route, record and launcher; the Wine replay of
-the recorded cases runs as an opt-in Linux integration test; doctor `--json` reports
-`"route": "wine"`; measured once more on Mint.
+### [x] P2-T06d — Wine + `rszst.exe` as a Linux rszst route (core)
+Split from P2-T06c (2026-10-31); split again into d/e the same day. Evidence: the P2-T06c
+probe on Mint 22.3 / wine-9.0 matched the Windows recordings on 48/49 cases (only a path
+separator in one error message), with a 9 s download, a 9 s prefix and 12 s for all cases;
+it shares the Windows `rszst` bugs with absolute and non-ASCII paths, which the adapter
+already avoids by staging under ASCII names. Core: an `install_wine` route into
+`<user data>/tools/riistudio-5.11.5-wine/` (dedicated quiet win64 prefix, pinned Windows
+release, banner checked through Wine, `setup.json` route `wine`), discovery with launcher
+`wine`, doctor `"route": "wine"`, and the rszst adapter running such a location through Wine.
+**Acceptance:** unit tests with fakes for the route, record, discovery, doctor and adapter
+command; mutants caught; gate green.
+**Done:** `core/tools/rszst_wine.py` + discovery/doctor/adapter changes; 21/21 mutants;
+gate green (commit 8df8e5c).
+
+### [ ] P2-T06e — `ctstudio setup rszst --wine` and the Mint check
+Split from P2-T06d (2026-10-31). The CLI choice on Linux (dry run explains both routes; the
+source build stays the default), doctor's Linux "missing" fix naming both, an opt-in Linux
+integration test running the real Wine route plus the adapter's import/JSON/presets calls
+through it, and one Mint run.
+**Acceptance:** CLI unit tests; the integration test passes on Mint; doctor `--json` shows
+`"route": "wine"` there.
 
 ### [ ] P2-T07 — Tools page (GUI)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
