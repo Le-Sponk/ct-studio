@@ -398,3 +398,72 @@ def test_a_real_probe_reads_the_version_and_caches_it(tmp_path: Path) -> None:
     assert (check.status, check.version, check.required) == ("found", "1.5", True)
     assert report.ok
     assert "1.5" in cache_file.read_text(encoding="utf-8")
+
+
+# --- paths set in CT Studio settings (P2-T07a) ---------------------------------------------------
+
+
+def test_a_set_path_wins_over_path_and_is_probed(
+    probes: list[dict[str, object]], tmp_path: Path
+) -> None:
+    on_path = tmp_path / "on path"
+    _exe(on_path / "wszst.exe")
+    chosen = _exe(tmp_path / "chosen é" / "wszst-2.42a.exe")
+    report = _run(tmp_path, _env(tmp_path, "windows", str(on_path)), configured={"wszst": chosen})
+    check = _check(report, "wszst")
+    assert (check.status, check.path, check.source, check.version) == (
+        "found",
+        chosen.resolve(),
+        "setting",
+        "9.9",
+    )
+    assert check.fix is None
+    assert "wszst" in probes[1]["ids"]  # type: ignore[operator]
+
+
+def test_a_set_path_that_is_not_a_program_is_missing_with_a_fix(
+    probes: list[dict[str, object]], tmp_path: Path
+) -> None:
+    on_path = tmp_path / "on path"
+    _exe(on_path / "wszst.exe")
+    gone = tmp_path / "moved away" / "wszst.exe"
+    report = _run(tmp_path, _env(tmp_path, "windows", str(on_path)), configured={"wszst": gone})
+    check = _check(report, "wszst")
+    assert (check.status, check.path, check.source) == ("missing", gone, "setting")
+    assert check.fix == (
+        f"The path set in CT Studio for Wiimms SZS Tool is not a program: {gone}. "
+        "Choose another, or clear it to search PATH and the usual folders again."
+    )
+    assert not report.ok  # the one the user chose is what would run, so no silent fallback
+
+
+def test_a_set_path_for_a_windows_editor_on_linux_runs_through_wine(
+    probes: list[dict[str, object]], tmp_path: Path
+) -> None:
+    _exe(tmp_path / "home" / "bin" / "wine")
+    exe = _exe(tmp_path / "Games" / "BrawlCrate.exe")
+    report = _run(tmp_path, _env(tmp_path, "linux"), configured={"brawlcrate": exe})
+    check = _check(report, "brawlcrate")
+    assert (check.status, check.launcher, check.source) == ("found", "wine", "setting")
+
+
+def test_a_set_path_for_a_tool_this_os_does_not_use_is_ignored(
+    probes: list[dict[str, object]], tmp_path: Path
+) -> None:
+    wine = _exe(tmp_path / "wine.exe")
+    report = _run(tmp_path, _env(tmp_path, "windows"), configured={"wine": wine})
+    assert _check(report, "wine").status == "not_needed"
+
+
+def test_a_set_rszst_is_the_existing_route(probes: list[dict[str, object]], tmp_path: Path) -> None:
+    exe = _exe(tmp_path / "Rii" / "rszst.exe")
+    check = _check(_run(tmp_path, _env(tmp_path, "windows"), configured={"rszst": exe}), "rszst")
+    assert (check.status, check.source, check.route) == ("found", "setting", "existing")
+
+
+def test_no_settings_means_discovery_alone(probes: list[dict[str, object]], tmp_path: Path) -> None:
+    folder = tmp_path / "bin"
+    _exe(folder / "wszst.exe")
+    for configured in (None, {}):
+        report = _run(tmp_path, _env(tmp_path, "windows", str(folder)), configured=configured)
+        assert _check(report, "wszst").source == "path"

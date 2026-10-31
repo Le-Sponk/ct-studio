@@ -8,7 +8,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
+from pathlib import Path
 
+from ctstudio.core.project import settings
+from ctstudio.core.project.settings import SettingsError
 from ctstudio.core.tools.doctor import Report, ToolCheck, diagnose
 
 _LABELS = {
@@ -45,8 +49,20 @@ def add_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) 
     )
 
 
+def _configured() -> dict[str, Path]:
+    """Paths set in CT Studio; a damaged settings file is reported, then left out."""
+    try:
+        return settings.load().configured()
+    except SettingsError as exc:
+        print(
+            f"Warning: {exc.user_message}\nPaths set in CT Studio are ignored for this check.",
+            file=sys.stderr,
+        )
+        return {}
+
+
 def run(args: argparse.Namespace) -> int:
-    report = diagnose(force=args.recheck)
+    report = diagnose(force=args.recheck, configured=_configured())
     if args.json:
         print(json.dumps(report.to_json(), indent=1, ensure_ascii=False))
     else:

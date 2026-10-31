@@ -1,7 +1,8 @@
 """``ctstudio doctor``: which external tools are usable here, and what to do about the rest.
 
-Discovery is the same the adapters use (configured settings are a P2-T07 concern, so none
-here; ``.tools/`` developer copies count, labelled ``source="dev"``). Versions come from the
+Discovery is the same the adapters use; a path the user set in CT Studio (P2-T07a,
+``configured``) comes first, and ``.tools/`` developer copies count, labelled
+``source="dev"``. Versions come from the
 P2-T02b prober and its cache; only directly launched tools are probed, so no GUI, Wine or
 Flatpak process is ever started for a version (ADR-023). Statuses:
 
@@ -19,11 +20,12 @@ Only ``REQUIRED`` tools decide ``Report.ok``: CT Studio cannot build a track wit
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Literal
 
+from ctstudio.core.errors import ToolNotFound
 from ctstudio.core.tools.discovery import DiscoveryEnvironment, ToolLocation, discover
 from ctstudio.core.tools.editors import PREFIX_RECIPES
 from ctstudio.core.tools.registry import TOOL_BY_ID, TOOL_SPECS
@@ -167,16 +169,26 @@ def diagnose(
     force: bool = False,
     specs: Sequence[ToolSpec] = TOOL_SPECS,
     required: frozenset[str] = REQUIRED,
+    configured: Mapping[str, Path] | None = None,
 ) -> Report:
-    """Check every tool; ``force`` re-runs cached version probes (the "Re-check" action)."""
+    """Check every tool; ``force`` re-runs cached version probes (the "Re-check" action).
+
+    ``configured`` holds the paths set in CT Studio (tool id → path); each wins over PATH and
+    the usual folders, and one that is not a program is reported, never silently replaced.
+    """
     env = environment if environment is not None else DiscoveryEnvironment.from_system()
-    found = _discover_all(specs, env, dev_root)
+    chosen = configured or {}
+    found, broken = _discover_all(specs, env, dev_root, chosen)
     direct = [(spec, where) for spec, where in found.values() if where.launcher == "direct"]
     probed = probe_versions(direct, cache=cache, force=force) if direct else []
     results = {result.tool_id: result for result in probed}
     wine = discover(TOOL_BY_ID["wine"], environment=env) if env.platform == "linux" else None
     checks = [
-        _with_route(_classify(spec, env.platform, found.get(spec.id), results, wine, required), env)
+        broken[spec.id]
+        if spec.id in broken
+        else _with_route(
+            _classify(spec, env.platform, found.get(spec.id), results, wine, required), env
+        )
         for spec in specs
     ]
     return Report(env.platform, tuple(checks))
@@ -211,16 +223,35 @@ def _wine_route(check: ToolCheck) -> ToolCheck:
 
 
 def _discover_all(
-    specs: Sequence[ToolSpec], env: DiscoveryEnvironment, dev_root: Path | None
-) -> dict[str, tuple[ToolSpec, ToolLocation]]:
+    specs: Sequence[ToolSpec],
+    env: DiscoveryEnvironment,
+    dev_root: Path | None,
+    configured: Mapping[str, Path],
+) -> tuple[dict[str, tuple[ToolSpec, ToolLocation]], dict[str, ToolCheck]]:
     found: dict[str, tuple[ToolSpec, ToolLocation]] = {}
+    broken: dict[str, ToolCheck] = {}
     for spec in specs:
         if not spec.exe_names.get(env.platform):
             continue
-        location = discover(spec, environment=env, include_dev=True, dev_root=dev_root)
+        chosen = configured.get(spec.id)
+        try:
+            location = discover(
+                spec, configured=chosen, environment=env, include_dev=True, dev_root=dev_root
+            )
+        except ToolNotFound:
+            broken[spec.id] = _unusable_setting(spec, chosen)
+            continue
         if location is not None:
             found[spec.id] = (spec, location)
-    return found
+    return found, broken
+
+
+def _unusable_setting(spec: ToolSpec, chosen: Path | None) -> ToolCheck:
+    fix = (
+        f"The path set in CT Studio for {spec.name} is not a program: {chosen}. "
+        "Choose another, or clear it to search PATH and the usual folders again."
+    )
+    return _base(spec, "missing", REQUIRED, path=chosen, source="setting", fix=fix)
 
 
 def _classify(

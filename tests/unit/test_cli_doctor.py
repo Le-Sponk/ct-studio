@@ -18,6 +18,7 @@ import pytest
 from ctstudio.__main__ import main
 from ctstudio.cli import doctor as cli_doctor
 from ctstudio.cli.doctor import render
+from ctstudio.core.project.settings import UserSettings, save
 from ctstudio.core.tools.doctor import Report, ToolCheck
 
 pytestmark = pytest.mark.timeout(60)
@@ -166,6 +167,16 @@ def no_gui(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setitem(sys.modules, "ctstudio.gui.app", fake)
 
 
+@pytest.fixture(autouse=True)
+def settings_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+    """The user's real settings file is never read: point the config folder at tmp_path."""
+    from ctstudio.core.project import settings
+
+    path = tmp_path / "config é" / "settings.json"
+    monkeypatch.setattr(settings, "default_path", lambda: path)
+    return path
+
+
 @pytest.fixture
 def diagnosed(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, object]]:
     calls: list[dict[str, object]] = []
@@ -183,14 +194,14 @@ def test_doctor_prints_the_table_and_exits_0(
 ) -> None:
     assert main(["doctor"]) == 0
     assert capsys.readouterr().out == SNAPSHOT
-    assert diagnosed == [{"force": False}]
+    assert diagnosed == [{"force": False, "configured": {}}]
 
 
 def test_recheck_forces_new_version_probes(
     diagnosed: list[dict[str, object]], capsys: pytest.CaptureFixture[str]
 ) -> None:
     assert main(["doctor", "--recheck"]) == 0
-    assert diagnosed == [{"force": True}]
+    assert diagnosed == [{"force": True, "configured": {}}]
     capsys.readouterr()
 
 
@@ -242,6 +253,30 @@ def test_optional_tool_problems_still_exit_0(
     monkeypatch.setattr(cli_doctor, "diagnose", lambda **_k: report)
     assert main(["doctor"]) == 0
     capsys.readouterr()
+
+
+def test_paths_set_in_settings_are_used(
+    diagnosed: list[dict[str, object]], settings_file: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    exe = settings_file.parent / "mine é" / "wszst.exe"
+    save(UserSettings().with_tool("wszst", exe), settings_file)
+    assert main(["doctor"]) == 0
+    assert diagnosed == [{"force": False, "configured": {"wszst": exe}}]
+    capsys.readouterr()
+
+
+def test_damaged_settings_warn_and_the_check_still_runs(
+    diagnosed: list[dict[str, object]], settings_file: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    settings_file.parent.mkdir(parents=True)
+    settings_file.write_text("{not json", encoding="utf-8")
+    assert main(["doctor"]) == 0
+    captured = capsys.readouterr()
+    assert captured.out == SNAPSHOT
+    assert captured.err.startswith(f"Warning: CT Studio's settings file {settings_file}")
+    assert captured.err.rstrip().endswith("Paths set in CT Studio are ignored for this check.")
+    assert diagnosed == [{"force": False, "configured": {}}]
+    assert settings_file.read_text(encoding="utf-8") == "{not json"
 
 
 def test_doctor_help_lists_its_options(capsys: pytest.CaptureFixture[str]) -> None:

@@ -1197,6 +1197,19 @@ Linux Wine editors carry the measured prefix recipe as a note. Only `wszst` is r
 `ctstudio doctor` exits 1 when it is not "found", otherwise 0; `--json` prints the same data
 (format 1). Unrecognised version output is "found" with a note, not a failure.
 
+**Paths set in CT Studio (P2-T07a).** `core/project/settings.py` keeps the user's machine
+settings in `settings.json` under `platformdirs.user_config_dir("ctstudio")` (format 1;
+`tools` maps a registry id to a path). No file = nothing set; loading never writes; a
+damaged, unreadable or newer-format file raises `SettingsError` (a `ProjectError` naming the
+file, "Next: fix or delete it") and is left untouched; keys this version does not know (and
+tool ids from a newer version) survive a save; every save goes through
+`fsutil.replace_with_backup`. `diagnose(configured=…)` passes each set path to discovery, so
+it wins over PATH and the usual folders (`source: "setting"`, probed like any direct tool;
+a set `.exe` editor on Linux runs through Wine); a set path that is not a program is
+`missing` with the path and "Choose another, or clear it…" — no silent fallback, because
+the chosen program is what the adapters would run. `ctstudio doctor` reads the file; a
+damaged one prints a warning on stderr and the check runs without the set paths.
+
 **[verified P2-T06, Windows 11, real `.tools/`]** `uv run ctstudio doctor --recheck` exit 0:
 Wiimm `wszst`/`wkclt`/`wkmpt`/`wimgt` 2.42a, `rszst` 5.11.5, Blender 5.2.2 (real probes);
 ABMatt, RiiStudio, Lorenzi and KMP Cloud found without a version (no verified version
