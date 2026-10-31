@@ -6,7 +6,7 @@
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
 **Next task:** P2-T07b — Tools page (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** a504f2c (P2-T06e; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** bc583ac (P2-T07a; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
@@ -19,8 +19,8 @@
   puts set paths first (`source: "setting"`); one that is not a program is `missing` with
   the path and a choose-or-clear fix (no silent fallback). `ctstudio doctor` reads the file
   and warns on stderr if it is damaged. Mutants 21/21; `.tools` hidden pass; gate green;
-  Ubuntu CI green, Windows CI hit the `test_launch_watch` timing flake (see Tech debt) —
-  commit bcba86f
+  Ubuntu CI green, Windows CI twice missed `test_launch_watch`'s 1.1 s margin (slow runner spawn); margins
+  widened (editor sleeps 4 s, watch must return < 3 s); CI green both jobs — commits bcba86f, bc583ac
 - `P2-T06e` — `ctstudio setup rszst --wine` (Linux): explains the route and its 48/49
   measurement, downloads the checked release into `riistudio-5.11.5-wine/` and runs it
   through the Wine discovery finds; `--dry-run` prints the Wine commands; no Wine = exit 1
@@ -936,10 +936,6 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
 _none_
 
 ## Tech debt (each item has a task ID or "Deep Clean #N")
-- Flaky timing test `tests/unit/test_launch_watch.py::test_a_launch_still_running_after_the_watch_returns_its_pid`
-  (P2-T05g): needs the watch to return within 1.1 s while a fake editor sleeps 1.2 s; the
-  Windows CI runner missed it once on bcba86f (5/5 local passes). Widen the margins in
-  Deep Clean #2 (or earlier if it recurs).
 _none_
 
 ## Human checkpoint results
