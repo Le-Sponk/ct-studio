@@ -367,6 +367,9 @@ ABMatt and Blender; Wiimm option indexes; ops for the four Wiimm tools (108 case
 Blender (21). Every case's exit code, file effects and inputs match Windows; text differs
 only in five listed ways (`tests/unit/test_linux_ops.py`). Linux `linux-cli.json` for rszst
 was unchanged.
+The fakes keep replaying the Windows runs on Linux (`fake_runtime.LINUX_REPLAYED` lists
+only rszst's CLI capture); CI on 1e4470c showed the Linux recordings would otherwise be
+replayed by fakes that model Windows text. P2-T08c moves each fake over.
 
 ### [ ] P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
 Use the P2-T08b recordings: replay `linux-ops.json` in the fakes on Linux, and lift the

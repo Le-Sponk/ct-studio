@@ -44,11 +44,17 @@ class Refused(Exception):
         self.outcome = outcome
 
 
+# Linux recordings a fake already replays. The P2-T08b Wiimm/Blender/ABMatt Linux
+# recordings stay out until P2-T08c moves each fake over (they are checked against the
+# Windows ones in tests/unit/test_linux_ops.py meanwhile).
+LINUX_REPLAYED = frozenset({("rszst", "cli")})
+
+
 def recordings(tool: str, version: str, kind: str) -> Any:
-    """``<os>-<kind>.json`` for this OS, falling back to the Windows recording."""
+    """``<os>-<kind>.json`` for this OS when listed in ``LINUX_REPLAYED``; else Windows."""
     folder = RECORDINGS / tool / version
-    mine = folder / f"{'windows' if os.name == 'nt' else 'linux'}-{kind}.json"
-    path = mine if mine.exists() else folder / f"windows-{kind}.json"
+    linux = os.name != "nt" and (tool, kind) in LINUX_REPLAYED
+    path = folder / f"{'linux' if linux else 'windows'}-{kind}.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
