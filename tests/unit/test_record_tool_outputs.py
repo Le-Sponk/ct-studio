@@ -172,6 +172,18 @@ def test_abmatt_scrubs_duration_and_frozen_process_id() -> None:
     assert record["stdout"] != clean["stdout"], "keep the original evidence intact"
 
 
+def test_abmatt_pid_is_hidden_in_the_linux_pyinstaller_wording_too() -> None:
+    # The Linux build's PyInstaller says: [5045] Failed to execute script '__main__' due to
+    # unhandled exception! (P2-T08e recording). Only the number goes; the wording stays.
+    linux = "[5045] Failed to execute script '__main__' due to unhandled exception!\n"
+    record = {"stdout": "", "stderr": f"x\n{linux}"}
+    clean = rto.normalize_abmatt(record)["stderr"]
+    assert clean == "x\n[<pid>] Failed to execute script '__main__' due to unhandled exception!\n"
+    assert (
+        rto.normalize_abmatt({"stdout": "", "stderr": "[12] other\n"})["stderr"] == "[12] other\n"
+    )
+
+
 def test_run_case_hides_the_tools_folder_as_well_as_the_work_folder(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

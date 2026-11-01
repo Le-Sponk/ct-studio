@@ -400,6 +400,10 @@ Integration 101 passed, 20 listed skips (was 65/56). The launcher sits in `bin/`
 ABMatt; `test_linux_ops.py` compares them with the Windows recordings.
 **Acceptance:** rszst/ABMatt Linux ops recorded and compared with Windows; every difference
 is listed with its reason.
+**Done (2026-11-01):** 49 rszst and 39 ABMatt cases recorded on Linux. Every file effect
+and input matches Windows. Exit codes differ only in how a failure is reported (rszst and
+`abmatt info`: 4294967295 vs 255; six ABMatt crashes: -1 vs 1); the adapters treat any
+non-zero exit as failure. Text differences are listed in `test_linux_ops.py`.
 
 ### [ ] P2-T08f — rszst adapter test on Linux; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the

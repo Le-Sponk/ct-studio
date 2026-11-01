@@ -87,14 +87,20 @@ is missing and nothing is protected.
   SZS/KMP/TEX0/BRRES, so fake and real outputs never mix.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
-- Linux recordings (P2-T08b) come from `record-linux.yml` (manual, and on pushes that change
-  it), never from a developer machine: it bootstraps the pinned tools on ubuntu-latest, runs
-  `record_tool_help.py` and `record_tool_outputs.py --only wiimms-szs-tools --only blender`
-  and uploads the `linux-*.json` files as an artifact. It never pushes; a person downloads,
-  reviews and commits them. Recorded text hides the run folder as `<work>` and the tools
-  folder as `<tools>`. `tests/unit/test_linux_ops.py` requires the same cases, exit codes,
-  file effects and inputs as the Windows recording; printed text may differ only in its
-  listed ways (slashes, build name, Blender build minute, getopt wording, auto-add folder).
+- Linux recordings (P2-T08b/e) come from `record-linux.yml` (manual, and on pushes that
+  change it), never from a developer machine: it bootstraps the pinned tools on ubuntu-latest,
+  sets rszst.exe up through Wine (`wine_rszst.py`, which also records it in
+  `installed.json`), runs `record_tool_help.py` and `record_tool_outputs.py` for Wiimm's
+  tools, Blender, rszst and ABMatt, and uploads the `linux-*.json` files as an artifact. It
+  never pushes; a person downloads, reviews and commits them. Recorded text hides the run
+  folder as `<work>`, the tools folder as `<tools>` and ABMatt's process id as `<pid>`.
+  `tests/unit/test_linux_ops.py` requires the same cases, file effects and inputs as the
+  Windows recording, and the same exit codes apart from two measured ways of reporting a
+  failure (`exit(-1)` is 4294967295 on Windows and 255 on Linux; a frozen-Python ABMatt
+  crash exits -1 on Windows and 1 on Linux). Printed text may differ only in its listed
+  ways (slashes, build name, Blender build minute, getopt wording, auto-add folder, ABMatt's
+  backslashes, traceback line numbers, PyInstaller wording and one helper name, and the
+  order of rszst's threaded progress bars).
   On Linux the fakes repeat the Linux help/version text and Wiimm option index
   (`fake_runtime.LINUX_REPLAYED`, P2-T08c); operation runs stay on the Windows recording.
 - `scripts/record_tool_outputs.py` (P2-T04b/e) runs per-tool case tables from

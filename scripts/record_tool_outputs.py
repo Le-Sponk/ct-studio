@@ -67,7 +67,7 @@ def normalize_abmatt(record: dict[str, object]) -> dict[str, object]:
         r"(?<=\.\.\. finished in )\d+(?:\.\d+)?(?= secs)", "<duration>", str(record["stdout"])
     )
     stderr = re.sub(
-        r"\[\d+\](?= Failed to execute script __main__)", "[<pid>]", str(record["stderr"])
+        r"\[\d+\](?= Failed to execute script '?__main__)", "[<pid>]", str(record["stderr"])
     )
     return {**record, "stdout": stdout, "stderr": stderr}
 
