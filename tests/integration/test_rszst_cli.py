@@ -23,6 +23,8 @@ import tool_paths as tp
 BINARY = tp.RSZST
 PLATFORM = "windows" if os.name == "nt" else "linux"
 EXIT_MINUS_ONE = tp.EXIT_MINUS_ONE
+# On Linux through Wine (P2-T08d) the Windows program names itself rszst.exe in its usage
+# lines but exits like the native build (255): the difference test_platforms_differ pins.
 pytestmark = [pytest.mark.integration, pytest.mark.timeout(30)]
 needs_rszst = pytest.mark.skipif(
     not BINARY.is_file(), reason="no rszst: S3a recipe (Linux) or --only riistudio (Windows)"
@@ -74,7 +76,10 @@ def test_cli_discovery_matches_recording(case: dict, tmp_path: Path) -> None:
     assert result.returncode == case["exit_code"] == EXIT_MINUS_ONE
     assert result.stderr == case["stderr"] == ""
     assert "RiiStudio CLI Alpha 5.11.5" in result.stdout
-    assert contract(result.stdout) == contract(case["stdout"])
+    expected = contract(case["stdout"])
+    if tp.through_wine(BINARY):
+        expected = expected.replace("Usage: rszst ", "Usage: rszst.exe ")
+    assert contract(result.stdout) == expected
 
 
 @needs_rszst

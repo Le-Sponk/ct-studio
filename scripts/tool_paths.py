@@ -54,6 +54,11 @@ def rszst_path(tools: Path, os_name: str) -> Path:
     return first_existing(native, tools / "riistudio-wine" / "bin" / "rszst")
 
 
+def through_wine(rszst: Path) -> bool:
+    """Is this the ``wine_rszst.py`` launcher for the Windows rszst.exe?"""
+    return rszst.parent.name == "bin" and rszst.parent.parent.name == "riistudio-wine"
+
+
 RSZST = rszst_path(TOOLS_DIR, os.name)
 
 

@@ -45,12 +45,6 @@ why = "Windows path handling; the Linux measurement is P2-T08e."
 
 [[skip]]
 os = ["linux"]
-test = "tests.integration.test_windows_paths::*"
-reason = "bootstrap --only riistudio"
-why = "Windows path handling with rszst; the Linux measurement is P2-T08e."
-
-[[skip]]
-os = ["linux"]
 test = "tests.integration.test_rszst_setup_real::test_windows_download_route"
 reason = "the official release is Windows-only"
 why = "Linux uses the Wine or source-build route, tested by the Wine test here."

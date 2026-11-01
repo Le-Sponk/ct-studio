@@ -144,3 +144,11 @@ def test_launcher_passes_arguments_and_exit_code_through(tmp_path: Path) -> None
     assert result.returncode == 7
     exe = root / "rszst" / "rszst.exe"
     assert result.stdout == f"{root / 'prefix'}|-all|{exe}|import-brres|a b.dae|out.brres|"
+
+
+def test_through_wine_names_only_the_wine_launcher(tmp_path: Path) -> None:
+    assert tp.through_wine(tmp_path / "riistudio-wine" / "bin" / "rszst")
+    assert not tp.through_wine(tmp_path / "riistudio-build-pinned" / "source" / "cli" / "rszst")
+    assert not tp.through_wine(tmp_path / "riistudio" / "rszst.exe")
+    assert not tp.through_wine(tmp_path / "other" / "bin" / "rszst")
+    assert tp.through_wine(wine_rszst.launcher_path(wine_rszst.ROOT))
