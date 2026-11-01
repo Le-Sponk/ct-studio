@@ -55,6 +55,8 @@ def test_nightly_integration_bootstraps_real_tools_and_explains_every_skip() -> 
         "scripts/ci_network.py",
         "scripts/tool_catalogue.py",
         "tests/integration/expected_skips.toml",
+        "scripts/wine_rszst.py",
+        "scripts/tool_paths.py",
     ):
         assert path in watched
     job = workflow["jobs"]["integration"]
@@ -72,6 +74,10 @@ def test_nightly_integration_bootstraps_real_tools_and_explains_every_skip() -> 
     assert _steps_running(steps, "python scripts/bootstrap_tools.py")
     windows = [s for s in steps if s.get("if") == "runner.os == 'Windows'"]
     assert any("bootstrap_tools.py --only riistudio" in s.get("run", "") for s in windows)
+    # P2-T08d: Linux runs the same pinned rszst.exe through Wine, before any test needs it.
+    [wine_rszst] = _steps_running(steps, "python scripts/wine_rszst.py")
+    assert wine_rszst["if"] == "runner.os == 'Linux'"
+    assert steps.index(wine_rszst) < steps.index(_steps_running(steps, "pytest")[0])
     assert _steps_running(steps, "python scripts/fixtures/make_fixtures.py")
     assert _steps_running(steps, "python spikes/s2_blender.py")
     tests = _steps_running(steps, "pytest")

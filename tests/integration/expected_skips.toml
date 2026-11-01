@@ -62,29 +62,3 @@ os = ["linux"]
 test = "tests.integration.test_riistudio_adapter_native::*"
 reason = "native rszst recordings are Windows-only so far"
 why = "Linux rszst recordings are P2-T08b."
-
-# --- Linux: tests that find rszst through scripts/tool_paths.py (Wine route is P2-T08b) ----
-
-[[skip]]
-os = ["linux"]
-test = "tests.integration.test_brres_backends::*"
-reason = "no rszst"
-why = "tool_paths.RSZST does not use the Wine route yet (P2-T08b)."
-
-[[skip]]
-os = ["linux"]
-test = "tests.integration.test_rszst_cli::*"
-reason = "no rszst"
-why = "tool_paths.RSZST does not use the Wine route yet (P2-T08b)."
-
-[[skip]]
-os = ["linux"]
-test = "tests.integration.test_material_preservation::*"
-reason = "rszst not built"
-why = "tool_paths.RSZST does not use the Wine route yet (P2-T08b)."
-
-[[skip]]
-os = ["linux"]
-test = "tests.integration.test_minimap_paths::*"
-reason = "rszst not built"
-why = "tool_paths.RSZST does not use the Wine route yet (P2-T08b)."

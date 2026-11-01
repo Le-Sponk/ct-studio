@@ -4,12 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08d — rszst through Wine in the tool scripts; Linux non-ASCII paths
+**Next task:** P2-T08d — rszst through Wine for the Linux real-tool tests (in progress)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 41ec138 (P2-T08c; Windows gate, Ubuntu/Windows CI; Integration on 6b8dfb1)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T08d` — rszst through Wine for the Linux real-tool tests. Plan (2026-11-01): (1) RED
+  unit tests; (2) `scripts/wine_rszst.py` sets the pinned rszst.exe up with CT Studio's own
+  Wine route (`install_wine`) in `.tools/riistudio-wine/` and writes a `rszst` launcher
+  there (`wine rszst.exe "$@"` in that prefix); `tool_paths.RSZST` uses it on Linux when no
+  native build exists; (3) Integration runs it on Linux; drop the four "no rszst / rszst not
+  built" Linux skip entries and fix or list what CI shows. Acceptance: test_brres_backends,
+  test_rszst_cli, test_material_preservation, test_minimap_paths run on Linux CI (passing,
+  or each remaining skip listed with a measured reason). Files: scripts/wine_rszst.py,
+  scripts/tool_paths.py, tests/unit/test_wine_rszst.py, integration.yml,
+  test_ci_workflows.py, expected_skips.toml, TESTING_STRATEGY, phase file.
 ## Done (newest first)
 - P2-T08c — Wiimm/ABMatt real-tool tests and fakes on Linux (2026-11-01). The four Wiimm
   and two ABMatt integration modules no longer require Windows; their two skip-list entries
@@ -508,6 +518,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-01: P2-T08d split. P2-T08d = rszst through Wine in `tool_paths` and the rszst-using
+  integration tests on Linux CI. P2-T08e = rszst/ABMatt Linux ops recordings, the native
+  rszst adapter test and the Linux non-ASCII path measurement.
 - 2026-11-01: P2-T08b split again. P2-T08b = Linux help/options/ops recordings for Wiimm
   and Blender from a CI recording job. P2-T08c = run the Windows-gated Wiimm/Blender
   integration tests and fakes on Linux using them. P2-T08d = `tool_paths.RSZST` through

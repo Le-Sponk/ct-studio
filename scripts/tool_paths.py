@@ -38,12 +38,23 @@ WIMGT = exe(WIIMMS_BIN / "wimgt")
 BLENDER = exe(TOOLS_DIR / "blender" / "blender")
 ABMATT_BIN = TOOLS_DIR / "abmatt" / "bin"
 ABMATT = exe(ABMATT_BIN / "abmatt")
-# Linux: built from source with the S3a recipe. Windows: the official release zip,
-# installed by `bootstrap_tools.py --only riistudio` (P0-T13).
-RSZST = first_existing(
-    exe(TOOLS_DIR / "riistudio-build-pinned" / "source" / "cli" / "rszst"),
-    exe(TOOLS_DIR / "riistudio" / "rszst"),
-)
+
+
+def rszst_path(tools: Path, os_name: str) -> Path:
+    """Where rszst is: a native build first (S3a recipe), then per OS.
+
+    Linux: the official rszst.exe through Wine, a ``rszst`` launcher written by
+    ``wine_rszst.py`` (P2-T08d). Windows: the release zip from
+    ``bootstrap_tools.py --only riistudio`` (P0-T13).
+    """
+    suffix = ".exe" if os_name == "nt" else ""
+    native = tools / "riistudio-build-pinned" / "source" / "cli" / f"rszst{suffix}"
+    if os_name == "nt":
+        return first_existing(native, tools / "riistudio" / "rszst.exe")
+    return first_existing(native, tools / "riistudio-wine" / "rszst")
+
+
+RSZST = rszst_path(TOOLS_DIR, os.name)
 
 
 def tools_env(*dirs: Path) -> dict[str, str]:

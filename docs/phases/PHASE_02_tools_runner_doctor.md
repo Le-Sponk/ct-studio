@@ -384,13 +384,21 @@ On Linux the fakes now repeat Linux help, version and Wiimm option-index recordi
 `tests/unit/test_linux_ops.py` proves equal to Linux apart from listed text. The option
 indexes are identical on both systems. Commits 6b8dfb1, 8ddc24d, 41ec138.
 
-### [ ] P2-T08d — rszst through Wine in the tool scripts; Linux non-ASCII paths
+### [ ] P2-T08d — rszst through Wine for the Linux real-tool tests (split 2026-11-01)
+`scripts/wine_rszst.py` sets the pinned rszst.exe up through CT Studio's own Wine route in
+`.tools/riistudio-wine/` with a `rszst` launcher; `tool_paths.RSZST` uses it on Linux when no
+native build exists; the Linux Integration job runs it.
+**Acceptance:** test_brres_backends, test_rszst_cli, test_material_preservation and
+test_minimap_paths run on Linux CI; any remaining skip is listed with a measured reason.
+
+### [ ] P2-T08e — rszst/ABMatt Linux recordings; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the
 Windows release ZIP checksum, retain bundled DLLs, record help/version/invalid-argument
 exit codes independently (Linux returns 255 for all three) and run S3b's synthetic
 course/skybox tests. See [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
-`tool_paths.RSZST` uses the Wine route on Linux, so rszst/ABMatt ops can be recorded there and
-the rszst real-tool tests run; measure non-ASCII paths on Linux.
-**Acceptance:** rszst integration tests run on Linux; rszst/ABMatt Linux ops recorded.
+Record rszst and ABMatt operations on Linux (rszst through Wine), run the native rszst
+adapter test there, and measure non-ASCII paths on Linux.
+**Acceptance:** rszst/ABMatt Linux ops recorded and compared with Windows; the adapter test
+runs on Linux; the non-ASCII path behaviour is recorded in TOOLS.md.
 
 ### [ ] P2-GATE — Phase review

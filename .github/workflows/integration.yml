@@ -12,6 +12,8 @@ on:
       - scripts/bootstrap_tools.py
       - scripts/tool_catalogue.py
       - tests/integration/expected_skips.toml
+      - scripts/wine_rszst.py
+      - scripts/tool_paths.py
 
 permissions:
   contents: read
@@ -70,6 +72,9 @@ jobs:
       - name: Bootstrap the RiiStudio release (Windows)
         if: runner.os == 'Windows'
         run: uv run python scripts/bootstrap_tools.py --only riistudio
+      - name: Set the RiiStudio release up through Wine (Linux)
+        if: runner.os == 'Linux'
+        run: uv run python scripts/wine_rszst.py
       - name: Generate fixtures
         run: uv run python scripts/fixtures/make_fixtures.py
       - name: Generate S2 Blender outputs
