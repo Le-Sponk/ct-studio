@@ -384,12 +384,16 @@ On Linux the fakes now repeat Linux help, version and Wiimm option-index recordi
 `tests/unit/test_linux_ops.py` proves equal to Linux apart from listed text. The option
 indexes are identical on both systems. Commits 6b8dfb1, 8ddc24d, 41ec138.
 
-### [ ] P2-T08d — rszst through Wine for the Linux real-tool tests (split 2026-11-01)
+### [x] P2-T08d — rszst through Wine for the Linux real-tool tests (split 2026-11-01)
 `scripts/wine_rszst.py` sets the pinned rszst.exe up through CT Studio's own Wine route in
 `.tools/riistudio-wine/` with a `rszst` launcher; `tool_paths.RSZST` uses it on Linux when no
 native build exists; the Linux Integration job runs it.
 **Acceptance:** test_brres_backends, test_rszst_cli, test_material_preservation and
 test_minimap_paths run on Linux CI; any remaining skip is listed with a measured reason.
+**Done (2026-11-01):** all four run and pass on Linux CI through Wine (43 tests); Linux
+Integration 101 passed, 20 listed skips (was 65/56). The launcher sits in `bin/` because
+`rszst/` is the release folder (first CI run). Through Wine the program names itself
+`rszst.exe` in its usage lines; exit codes are the native Linux ones (255).
 
 ### [ ] P2-T08e — rszst/ABMatt Linux recordings; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the

@@ -4,23 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08d — rszst through Wine for the Linux real-tool tests (in progress)
+**Next task:** P2-T08e — rszst/ABMatt Linux recordings; Linux non-ASCII paths
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 41ec138 (P2-T08c; Windows gate, Ubuntu/Windows CI; Integration on 6b8dfb1)
+**Last green commit:** 268da20 (P2-T08d; Windows gate, Ubuntu/Windows CI; Integration on be65b7e)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T08d` — rszst through Wine for the Linux real-tool tests. Plan (2026-11-01): (1) RED
-  unit tests; (2) `scripts/wine_rszst.py` sets the pinned rszst.exe up with CT Studio's own
-  Wine route (`install_wine`) in `.tools/riistudio-wine/` and writes a `rszst` launcher
-  there (`wine rszst.exe "$@"` in that prefix); `tool_paths.RSZST` uses it on Linux when no
-  native build exists; (3) Integration runs it on Linux; drop the four "no rszst / rszst not
-  built" Linux skip entries and fix or list what CI shows. Acceptance: test_brres_backends,
-  test_rszst_cli, test_material_preservation, test_minimap_paths run on Linux CI (passing,
-  or each remaining skip listed with a measured reason). Files: scripts/wine_rszst.py,
-  scripts/tool_paths.py, tests/unit/test_wine_rszst.py, integration.yml,
-  test_ci_workflows.py, expected_skips.toml, TESTING_STRATEGY, phase file.
 ## Done (newest first)
+- `P2-T08d` — rszst through Wine for the Linux real-tool tests (2026-11-01).
+  `scripts/wine_rszst.py` sets the pinned rszst.exe up through CT Studio's own Wine route in
+  `.tools/riistudio-wine/` with a `bin/rszst` launcher; `tool_paths.rszst_path` uses it on
+  Linux when no native build exists; the Linux Integration job runs it. test_brres_backends,
+  test_rszst_cli, test_material_preservation and test_minimap_paths now pass on Linux CI
+  (Linux Integration 101 passed / 20 listed skips, was 65/56). CI found: the launcher must
+  not be `rszst` (that is the release folder), and through Wine the usage lines say
+  `rszst.exe`. Windows `test_launch_watch` lower bound allows one clock tick (0.391 s read
+  for a 0.4 s wait). Mutants 21/21; gate green (1,159 tests); CI and Integration green.
 - P2-T08c — Wiimm/ABMatt real-tool tests and fakes on Linux (2026-11-01). The four Wiimm
   and two ABMatt integration modules no longer require Windows; their two skip-list entries
   are gone. Linux Integration on 6b8dfb1 ran all 28 of their tests green first time (65
