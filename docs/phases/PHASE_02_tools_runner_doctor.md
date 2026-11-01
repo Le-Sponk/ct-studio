@@ -329,7 +329,7 @@ reads the settings.
 **Acceptance:** unit tests for load/save/backup/damage/unknown keys and for doctor with set
 paths; mutants caught; gate green.
 
-### [x] P2-T07b — Tools page (GUI) (commit P2T07B_COMMIT)
+### [x] P2-T07b — Tools page (GUI) (commit 7a0abb6)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
 "Open download page". Changes persist to user settings (P2-T07a).
 **Acceptance:** pytest-qt test with fakes: set path → re-check → status updates; screenshot artifact.

@@ -6,7 +6,7 @@
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
 **Next task:** P2-T08 — Integration CI
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** bc583ac (P2-T07a; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** 7a0abb6 (P2-T07b; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
@@ -15,7 +15,7 @@
   details (path, how found, fix, note), Browse…/Clear (saved to settings, then re-checked),
   Re-check and Open download page; checks run in a worker behind a busy bar, newest result
   wins; damaged settings never overwritten. 25 GUI tests; 24 mutants (23 caught, the one
-  survivor removed as dead code); gate green (1074 passed) — commit P2T07B_COMMIT
+  survivor removed as dead code); gate green (1074 passed); CI green both jobs — commit 7a0abb6
 <!-- `P0-T01` — short summary — commit abc1234 -->
 - `P2-T07a` — User settings for tool paths. `core/project/settings.py`: `settings.json` in
   the user config folder (format 1, `tools` id → path); no file = nothing set; a damaged,
