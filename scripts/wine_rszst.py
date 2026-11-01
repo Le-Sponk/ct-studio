@@ -2,7 +2,7 @@
 
 Uses CT Studio's own Wine route (``ctstudio setup rszst --wine``, P2-T06d): a quiet win64
 prefix, the official release checked against its pinned SHA-256, and the banner read
-through Wine. It then writes ``.tools/riistudio-wine/rszst``, a shell launcher, so
+through Wine. It then writes ``.tools/riistudio-wine/bin/rszst``, a shell launcher, so
 ``scripts/tool_paths.py`` and every test that runs ``rszst ...`` work unchanged.
 
     uv run python scripts/wine_rszst.py
@@ -32,6 +32,11 @@ class Install(Protocol):
     def __call__(self, root: Path, *, wine: Path) -> Path: ...
 
 
+def launcher_path(root: Path) -> Path:
+    """``bin/rszst``: ``root/rszst/`` is the release folder holding rszst.exe."""
+    return root / "bin" / "rszst"
+
+
 def launcher_text(wine: Path, root: Path) -> str:
     """A POSIX ``rszst`` that runs ``wine rszst.exe "$@"`` in the managed prefix."""
     # wine_environment(root) with a POSIX prefix path: the launcher is a Linux script.
@@ -45,8 +50,8 @@ def launcher_text(wine: Path, root: Path) -> str:
 def setup(root: Path, *, wine: Path, install: Install = install_wine) -> Path:
     """Install (or repair) rszst.exe under ``root``, then write its launcher."""
     install(root, wine=wine)
-    root.mkdir(parents=True, exist_ok=True)
-    launcher = root / "rszst"
+    launcher = launcher_path(root)
+    launcher.parent.mkdir(parents=True, exist_ok=True)
     launcher.write_text(launcher_text(wine, root), encoding="utf-8", newline="\n")
     launcher.chmod(0o755)
     return launcher

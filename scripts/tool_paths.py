@@ -51,7 +51,7 @@ def rszst_path(tools: Path, os_name: str) -> Path:
     native = tools / "riistudio-build-pinned" / "source" / "cli" / f"rszst{suffix}"
     if os_name == "nt":
         return first_existing(native, tools / "riistudio" / "rszst.exe")
-    return first_existing(native, tools / "riistudio-wine" / "rszst")
+    return first_existing(native, tools / "riistudio-wine" / "bin" / "rszst")
 
 
 RSZST = rszst_path(TOOLS_DIR, os.name)

@@ -16,6 +16,19 @@ import tool_paths as tp  # type: ignore[reportMissingImports] - scripts path ins
 import wine_rszst  # type: ignore[reportMissingImports] - scripts path inserted above
 
 
+def _release(root: Path) -> Path:
+    """What install_wine leaves: the release folder with rszst.exe in it."""
+    exe = wine_rszst.wine_executable(root)
+    exe.parent.mkdir(parents=True)
+    exe.write_bytes(b"MZ")
+    return exe
+
+
+def test_release_folder_is_rszst_so_the_launcher_lives_in_bin(tmp_path: Path) -> None:
+    assert wine_rszst.wine_executable(tmp_path) == tmp_path / "rszst" / "rszst.exe"
+    assert wine_rszst.launcher_path(tmp_path) == tmp_path / "bin" / "rszst"
+
+
 def test_launcher_runs_the_exe_through_wine_in_its_quiet_prefix(tmp_path: Path) -> None:
     root = tmp_path / "tools dir" / "riistudio-wine"
     text = wine_rszst.launcher_text(Path("/usr/bin/wine stable"), root)
@@ -35,12 +48,13 @@ def test_setup_installs_then_writes_an_executable_launcher(tmp_path: Path) -> No
 
     def install(root: Path, *, wine: Path) -> Path:
         calls.append((root, wine))
-        return root / "rszst" / "rszst.exe"
+        return _release(root)
 
     root = tmp_path / "riistudio-wine"
     launcher = wine_rszst.setup(root, wine=Path("/usr/bin/wine"), install=install)
     assert calls == [(root, Path("/usr/bin/wine"))]
-    assert launcher == root / "rszst"
+    assert launcher == root / "bin" / "rszst"
+    assert (root / "rszst" / "rszst.exe").read_bytes() == b"MZ"
     expected = wine_rszst.launcher_text(Path("/usr/bin/wine"), root)
     assert launcher.read_bytes() == expected.encode("utf-8")
     if os.name != "nt":
@@ -53,7 +67,7 @@ def test_setup_writes_no_launcher_when_the_install_fails(tmp_path: Path) -> None
 
     with pytest.raises(RuntimeError):
         wine_rszst.setup(tmp_path / "w", wine=Path("/usr/bin/wine"), install=install)
-    assert not (tmp_path / "w" / "rszst").exists()
+    assert not (tmp_path / "w" / "bin").exists()
 
 
 def test_main_refuses_on_windows_and_without_wine(capsys: pytest.CaptureFixture[str]) -> None:
@@ -70,12 +84,12 @@ def test_main_sets_up_into_the_tools_folder(
 
     def setup(root: Path, *, wine: Path) -> Path:
         seen.append((root, wine))
-        return root / "rszst"
+        return root / "bin" / "rszst"
 
     monkeypatch.setattr(wine_rszst, "setup", setup)
     assert wine_rszst.main(platform="linux", which=lambda _name: "/usr/bin/wine") == 0
     assert seen == [(tp.TOOLS_DIR / "riistudio-wine", Path("/usr/bin/wine"))]
-    assert str(tp.TOOLS_DIR / "riistudio-wine" / "rszst") in capsys.readouterr().out
+    assert str(tp.TOOLS_DIR / "riistudio-wine" / "bin" / "rszst") in capsys.readouterr().out
 
 
 @pytest.mark.parametrize(
@@ -94,7 +108,7 @@ def test_rszst_prefers_a_native_build_then_wine_on_linux(
     suffix = ".exe" if os_name == "nt" else ""
     paths = {
         "native": tmp_path / "riistudio-build-pinned" / "source" / "cli" / f"rszst{suffix}",
-        "wine": tmp_path / "riistudio-wine" / "rszst",
+        "wine": tmp_path / "riistudio-wine" / "bin" / "rszst",
         "release": tmp_path / "riistudio" / f"rszst{suffix}",
     }
     for name in present:
@@ -117,7 +131,7 @@ def test_launcher_passes_arguments_and_exit_code_through(tmp_path: Path) -> None
     fake_wine.chmod(0o755)
 
     def install(root: Path, *, wine: Path) -> Path:
-        return root / "rszst" / "rszst.exe"
+        return _release(root)
 
     root = tmp_path / "riistudio wine"
     launcher = wine_rszst.setup(root, wine=fake_wine, install=install)

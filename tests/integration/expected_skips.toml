@@ -41,13 +41,13 @@ why = "Native Windows editor launch; Linux uses the Wine route."
 os = ["linux"]
 test = "tests.integration.test_windows_paths::*"
 reason = "native Windows contract"
-why = "Windows path handling; the Linux measurement is P2-T08b."
+why = "Windows path handling; the Linux measurement is P2-T08e."
 
 [[skip]]
 os = ["linux"]
 test = "tests.integration.test_windows_paths::*"
 reason = "bootstrap --only riistudio"
-why = "Windows path handling with rszst; the Linux measurement is P2-T08b."
+why = "Windows path handling with rszst; the Linux measurement is P2-T08e."
 
 [[skip]]
 os = ["linux"]
@@ -61,4 +61,4 @@ why = "Linux uses the Wine or source-build route, tested by the Wine test here."
 os = ["linux"]
 test = "tests.integration.test_riistudio_adapter_native::*"
 reason = "native rszst recordings are Windows-only so far"
-why = "Linux rszst recordings are P2-T08b."
+why = "Linux rszst recordings are P2-T08e."
