@@ -43,6 +43,28 @@ Status = Literal[
     "found", "missing", "too_old", "not_working", "needs_wine", "sandboxed", "not_needed"
 ]
 REQUIRED = frozenset({"wszst"})
+# Plain words shared by ``ctstudio doctor`` and the Tools page (P2-T07b).
+STATUS_LABELS: dict[str, str] = {
+    "found": "found",
+    "missing": "missing",
+    "too_old": "too old",
+    "not_working": "not working",
+    "needs_wine": "needs Wine",
+    "sandboxed": "sandboxed",
+    "not_needed": "not needed",
+}
+SOURCE_LABELS: dict[str, str] = {
+    "path": "from PATH",
+    "standard": "standard location",
+    "managed": "installed by CT Studio",
+    "setting": "your setting",
+    "dev": "developer copy in .tools",
+    "flatpak": "Flatpak",
+}
+ROUTE_LABELS: dict[str, str] = {
+    "download": "downloaded by CT Studio",
+    "build": "built from source by CT Studio",
+}
 JSON_FORMAT = 1
 _COMPONENT = re.compile(r"(\d+)([a-z]*)")
 
@@ -96,6 +118,11 @@ def _check_json(check: ToolCheck) -> dict[str, object]:
         "note": check.note,
         "route": check.route,
     }
+
+
+def found_how(check: ToolCheck) -> str:
+    """How the tool came to be here, in words ("from PATH", "built from source by …")."""
+    return ROUTE_LABELS.get(check.route or "") or SOURCE_LABELS.get(check.source or "", "unknown")
 
 
 def version_key(version: str) -> tuple[tuple[int, str], ...]:

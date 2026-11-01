@@ -1210,6 +1210,14 @@ a set `.exe` editor on Linux runs through Wine); a set path that is not a progra
 the chosen program is what the adapters would run. `ctstudio doctor` reads the file; a
 damaged one prints a warning on stderr and the check runs without the set paths.
 
+**Tools page (P2-T07b).** Settings → Tools… in the main window shows the same report as
+`ctstudio doctor`, in the same words, with a coloured status per tool (green ready or not
+needed; amber optional and not ready; red required and not ready). Browse… sets a tool's
+path in `settings.json` and checks again; Clear removes it; Re-check runs the version probes
+again; Open download page opens the official page from the registry. Checks run in a
+background thread, so the window never freezes. A damaged `settings.json` is shown in a
+banner and the page will not change it until it is fixed or deleted.
+
 **[verified P2-T06, Windows 11, real `.tools/`]** `uv run ctstudio doctor --recheck` exit 0:
 Wiimm `wszst`/`wkclt`/`wkmpt`/`wimgt` 2.42a, `rszst` 5.11.5, Blender 5.2.2 (real probes);
 ABMatt, RiiStudio, Lorenzi and KMP Cloud found without a version (no verified version

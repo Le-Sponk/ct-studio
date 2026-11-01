@@ -13,26 +13,8 @@ from pathlib import Path
 
 from ctstudio.core.project import settings
 from ctstudio.core.project.settings import SettingsError
-from ctstudio.core.tools.doctor import Report, ToolCheck, diagnose
+from ctstudio.core.tools.doctor import STATUS_LABELS, Report, ToolCheck, diagnose, found_how
 
-_LABELS = {
-    "found": "found",
-    "missing": "missing",
-    "too_old": "too old",
-    "not_working": "not working",
-    "needs_wine": "needs Wine",
-    "sandboxed": "sandboxed",
-    "not_needed": "not needed",
-}
-_SOURCES = {
-    "path": "from PATH",
-    "standard": "standard location",
-    "managed": "installed by CT Studio",
-    "setting": "your setting",
-    "dev": "developer copy in .tools",
-    "flatpak": "Flatpak",
-}
-_ROUTES = {"download": "downloaded by CT Studio", "build": "built from source by CT Studio"}
 _HEADERS = ("Tool", "Status", "Version", "Used for")
 
 
@@ -71,14 +53,13 @@ def run(args: argparse.Namespace) -> int:
 
 
 def _row(check: ToolCheck) -> tuple[str, str, str, str]:
-    return (check.name, _LABELS[check.status], check.version or "-", check.used_for)
+    return (check.name, STATUS_LABELS[check.status], check.version or "-", check.used_for)
 
 
 def _details(check: ToolCheck) -> list[str]:
     lines = []
     if check.path is not None:
-        where = _ROUTES.get(check.route or "") or _SOURCES.get(check.source or "", "unknown")
-        lines.append(f"    path: {check.path.as_posix()} ({check.launcher}, {where})")
+        lines.append(f"    path: {check.path.as_posix()} ({check.launcher}, {found_how(check)})")
     if check.fix:
         lines.append(f"    fix: {check.fix}")
     if check.note:

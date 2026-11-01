@@ -329,10 +329,17 @@ reads the settings.
 **Acceptance:** unit tests for load/save/backup/damage/unknown keys and for doctor with set
 paths; mutants caught; gate green.
 
-### [ ] P2-T07b — Tools page (GUI)
+### [x] P2-T07b — Tools page (GUI) (commit P2T07B_COMMIT)
 Settings → Tools: list with status chips, Browse…, Re-check (runs off the UI thread with a spinner),
 "Open download page". Changes persist to user settings (P2-T07a).
 **Acceptance:** pytest-qt test with fakes: set path → re-check → status updates; screenshot artifact.
+**Done:** `gui/views/tools_page.py` + `gui/services.py` (`ToolsService`). Chips: green ok
+(found / not needed), amber attention (optional, not ready), red blocking (required, not
+ready). Every check and save runs in a `QThreadPool` worker behind an activity bar; only the
+newest check is shown. Clear forgets a set path. A damaged settings file shows a banner and
+Browse/Clear stay off; a failed check shows a banner and keeps the last list. Doctor's plain
+words (`STATUS_LABELS`, `found_how`) moved to core so CLI and GUI say the same thing.
+Screenshots (git-ignored): `p2-t07b-tools-{light,dark,set-path,checking,damaged-settings}.png`.
 
 ### [ ] P2-T08 — Integration CI
 `integration.yml` (nightly + manual): Linux + Windows; downloads Wiimms tools + Blender (cached by
