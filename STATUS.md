@@ -4,12 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08b — Linux recordings and Linux real-tool rszst
+**Next task:** P2-T08b — Linux tool recordings from CI (in progress)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** f765eaa (P2-T08a; Windows gate, Ubuntu/Windows CI and Integration)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T08b` — Linux tool recordings from CI. Plan (2026-11-01): (1) RED workflow-contract
+  test; (2) `record-linux.yml` (manual + on its own push): bootstrap, fixtures, then
+  `record_tool_help.py` and `record_tool_outputs.py --only wiimms-szs-tools --only blender`,
+  uploading `tests/fakes/recordings/**/linux-*.json`; (3) download the artifact, review it
+  (synthetic fixtures only; no game data), commit; the help contract then checks the Linux
+  help too; (4) a contract test comparing Linux and Windows ops case by case, allowing only
+  documented differences. Acceptance: Linux help/options/ops committed and checked. Files:
+  `.github/workflows/record-linux.yml`, `tests/unit/test_ci_workflows.py`, recordings,
+  `tests/contract/test_linux_ops.py`, TESTING_STRATEGY, phase file.
 ## Done (newest first)
 - P2-T08a — Nightly `Integration` workflow with real tools: both OSes bootstrap Wiimms,
   Blender, ABMatt (Windows also the RiiStudio release), generate fixtures and S2 outputs,
@@ -491,6 +500,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-01: P2-T08b split again. P2-T08b = Linux help/options/ops recordings for Wiimm
+  and Blender from a CI recording job. P2-T08c = run the Windows-gated Wiimm/Blender
+  integration tests and fakes on Linux using them. P2-T08d = `tool_paths.RSZST` through
+  Wine on Linux (rszst + ABMatt ops recordings, rszst real-tool tests) and the Linux
+  non-ASCII path measurement.
 - 2026-11-01: P2-T08 split. P2-T08a = nightly integration workflow with tool bootstrap,
   fixtures and a strict expected-skips list. P2-T08b = Linux help/ops recordings from CI,
   Linux real-tool rszst tests (`tool_paths.RSZST` via the Wine route) and the Linux

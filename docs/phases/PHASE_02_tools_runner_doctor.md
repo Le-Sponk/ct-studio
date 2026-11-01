@@ -353,14 +353,27 @@ an unlisted skip, a failure, or a listed skip that stopped happening turns the r
 listed skips. Editor-window tests skip on CI (`CTSTUDIO_CI_NO_GPU=1`: no GPU desktop);
 `realdata` is excluded (user files never reach CI).
 
-### [ ] P2-T08b — Linux recordings and Linux real-tool rszst
+### [ ] P2-T08b — Linux tool recordings from CI (split 2026-11-01)
+`record-linux.yml` (manual, and on pushes that change it) bootstraps on ubuntu-latest and runs
+`record_tool_help.py` and `record_tool_outputs.py --only wiimms-szs-tools --only blender`; its
+artifact is reviewed and the `linux-*.json` recordings committed. A contract test compares
+Linux and Windows operation recordings case by case and allows only listed differences.
+**Acceptance:** Linux help/options/ops recordings committed; help contract and the Linux vs
+Windows comparison pass.
+
+### [ ] P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
+Use the P2-T08b recordings: replay `linux-ops.json` in the fakes on Linux, and lift the
+`os.name != "nt"` gates from the Wiimm/ABMatt integration tests where Linux behaves the same
+(each difference recorded). Shrinks `expected_skips.toml`.
+**Acceptance:** those tests run green on the Linux Integration job; the list shrinks.
+
+### [ ] P2-T08d — rszst through Wine in the tool scripts; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the
 Windows release ZIP checksum, retain bundled DLLs, record help/version/invalid-argument
 exit codes independently (Linux returns 255 for all three) and run S3b's synthetic
 course/skybox tests. See [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
-Plus: commit `linux-help.json` / `linux-ops.json` recorded on the Linux runner, let
-`tool_paths.RSZST` use the Wine route on Linux so the real-tool rszst tests run there, and
-measure non-ASCII paths on Linux.
-**Acceptance:** Linux recordings committed and replayed; rszst integration tests run on Linux.
+`tool_paths.RSZST` uses the Wine route on Linux, so rszst/ABMatt ops can be recorded there and
+the rszst real-tool tests run; measure non-ASCII paths on Linux.
+**Acceptance:** rszst integration tests run on Linux; rszst/ABMatt Linux ops recorded.
 
 ### [ ] P2-GATE — Phase review

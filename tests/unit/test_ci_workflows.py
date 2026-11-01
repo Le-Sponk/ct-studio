@@ -96,3 +96,24 @@ def test_the_expected_skip_list_parses_for_both_oses() -> None:
     listed = WORKFLOWS.parents[1] / "tests" / "integration" / "expected_skips.toml"
     for os_name in ("linux", "windows"):
         assert load_expected(listed, os_name)  # each OS has explained skips
+
+
+def test_linux_recording_job_records_and_uploads_only_linux_recordings() -> None:
+    workflow = _workflow("record-linux.yml")
+    assert "workflow_dispatch" in workflow["on"]
+    assert ".github/workflows/record-linux.yml" in workflow["on"]["push"]["paths"]
+    assert "schedule" not in workflow["on"]  # recording is deliberate, never nightly
+    assert workflow["permissions"] == {"contents": "read"}  # it never pushes
+    job = workflow["jobs"]["record"]
+    assert job["runs-on"] == "ubuntu-latest"
+    steps = job["steps"]
+    assert _steps_running(steps, "python scripts/bootstrap_tools.py")
+    assert _steps_running(steps, "python scripts/fixtures/make_fixtures.py")
+    assert _steps_running(steps, "python scripts/record_tool_help.py")
+    ops = _steps_running(steps, "python scripts/record_tool_outputs.py")
+    assert len(ops) == 1
+    assert "--only wiimms-szs-tools --only blender" in ops[0]["run"]
+    uploads = [s for s in steps if s.get("uses", "").startswith("actions/upload-artifact@")]
+    assert len(uploads) == 1
+    assert uploads[0]["with"]["path"] == "tests/fakes/recordings/**/linux-*.json"
+    assert uploads[0]["with"]["if-no-files-found"] == "error"
