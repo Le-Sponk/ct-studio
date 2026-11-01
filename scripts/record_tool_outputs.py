@@ -48,6 +48,8 @@ WIIMM_CASES = (
 
 FIXTURES = tp.REPO_ROOT / "tests" / "fixtures" / "generated"
 WORK = "<work>"
+# Linux Wiimm tools print their full argv[0] in errors (P2-T08b); hide the checkout.
+TOOLS_PLACEHOLDER = "<tools>"
 Resolve = Callable[[str], Path]
 Fixture = Callable[[str], bytes]  # "course.kcl", "textures/road.png" -> file contents
 DAE_TEXTURES = ("road.png", "grass.png", "fence.png", "water.png")  # copied beside course.dae
@@ -285,7 +287,11 @@ def run_case(
         tool, *args = case.argv
         command_env = {**(env or os.environ), "PATH": ""} if case.without_wimgt else env
         record = rth.capture(
-            resolve(tool), expand(args, work), cwd=work, roots={work: WORK}, env=command_env
+            resolve(tool),
+            expand(args, work),
+            cwd=work,
+            roots={work: WORK, tp.TOOLS_DIR: TOOLS_PLACEHOLDER},
+            env=command_env,
         )
         if tool == "abmatt":
             record = normalize_abmatt(record)

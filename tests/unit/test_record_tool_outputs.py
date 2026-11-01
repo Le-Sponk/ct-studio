@@ -170,3 +170,31 @@ def test_abmatt_scrubs_duration_and_frozen_process_id() -> None:
         == "Traceback (most recent call last):\n[<pid>] Failed to execute script __main__\n"
     )
     assert record["stdout"] != clean["stdout"], "keep the original evidence intact"
+
+
+def test_run_case_hides_the_tools_folder_as_well_as_the_work_folder(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # Linux Wiimm tools print their full argv[0] in errors; without this the CI
+    # runner's checkout folder ends up in committed recordings (P2-T08b).
+    seen: dict[Path, str] = {}
+
+    def fake_capture(
+        *_args: object, roots: dict[Path, str], **_kwargs: object
+    ) -> dict[str, object]:
+        seen.update(roots)
+        return {"argv": [], "exit_code": 0, "stdout": "", "stderr": ""}
+
+    monkeypatch.setattr(rto.rth, "capture", fake_capture)
+    case = next(case for case in rto.WIIMM_CASES if case.name == "img unknown flag")
+    rto.run_case(case, lambda tool: tmp_path / tool, tmp_path, lambda name: b"")
+    assert seen[rto.tp.TOOLS_DIR] == rto.TOOLS_PLACEHOLDER == "<tools>"
+    assert rto.WORK in seen.values()
+
+
+def test_tools_folder_is_hidden_inside_recorded_text(tmp_path: Path) -> None:
+    tools = tmp_path / "checkout" / ".tools"
+    text = f"{tools.as_posix()}/wiimms-szs-tools/bin/wimgt: unknown option -- bogus-flag"
+    assert rto.rth.clean(text, {tools: rto.TOOLS_PLACEHOLDER}) == (
+        "<tools>/wiimms-szs-tools/bin/wimgt: unknown option -- bogus-flag"
+    )
