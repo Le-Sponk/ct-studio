@@ -1,4 +1,4 @@
-"""Windows-native ABMatt 1.3.2 material edits and paste through P2-T05e3, in 日本 folders.
+"""Real ABMatt 1.3.2 material edits and paste through P2-T05e3, in 日本 folders.
 
 Every assertion reads the archive back through ABMatt itself (``-c info``), so these
 runs prove the anchored selectors, the no-op skip and texture-removal reporting on the
@@ -7,7 +7,6 @@ real tool, including a paste into a separate minimap archive.
 
 from __future__ import annotations
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -34,8 +33,8 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(300),
     pytest.mark.skipif(
-        os.name != "nt" or not tp.ABMATT.is_file() or not tp.WIMGT.is_file(),
-        reason="Requires native Windows ABMatt 1.3.2 and Wiimm 2.42a",
+        not tp.ABMATT.is_file() or not tp.WIMGT.is_file(),
+        reason="Requires ABMatt 1.3.2 and Wiimm 2.42a",
     ),
 ]
 

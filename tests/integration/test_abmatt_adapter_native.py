@@ -1,4 +1,4 @@
-"""Windows-native ABMatt 1.3.2 through the P2-T05e2 adapter, in folders named with 日本.
+"""Real ABMatt 1.3.2 through the P2-T05e2 adapter, in folders named with 日本.
 
 ABMatt crashes printing CJK paths after writing; these runs prove the staged conversion
 still delivers a checked archive, and that the minimap bones it makes are real (Wiimm's
@@ -7,7 +7,6 @@ still delivers a checked archive, and that the minimap bones it makes are real (
 
 from __future__ import annotations
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -26,8 +25,8 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(300),
     pytest.mark.skipif(
-        os.name != "nt" or not tp.ABMATT.is_file() or not tp.WIMGT.is_file(),
-        reason="Requires native Windows ABMatt 1.3.2 and Wiimm 2.42a",
+        not tp.ABMATT.is_file() or not tp.WIMGT.is_file(),
+        reason="Requires ABMatt 1.3.2 and Wiimm 2.42a",
     ),
 ]
 

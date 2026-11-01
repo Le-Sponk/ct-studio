@@ -1,8 +1,7 @@
-"""Windows-native Wiimm 2.42a check/analyze/create: fakes cannot prove real output."""
+"""Real Wiimm 2.42a check/analyze/create: fakes cannot prove real output."""
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 import sys
@@ -22,8 +21,8 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(120),
     pytest.mark.skipif(
-        os.name != "nt" or not tp.WSZST.is_file() or not (FIXTURES / "course.kcl").is_file(),
-        reason="Requires native Windows Wiimm 2.42a and generated fixtures",
+        not tp.WSZST.is_file() or not (FIXTURES / "course.kcl").is_file(),
+        reason="Requires Wiimm 2.42a and generated fixtures",
     ),
 ]
 

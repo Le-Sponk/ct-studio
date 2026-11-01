@@ -10,6 +10,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T08c` — Wiimm/ABMatt real-tool tests and fakes on Linux. Plan (2026-11-01): (1) drop
+  the `os.name != "nt"` gate from the four Wiimm and two ABMatt integration modules and
+  their `expected_skips.toml` entries; let the Linux Integration job show what differs;
+  fix or record each difference; (2) fakes replay this OS's help/version/ops recordings on
+  Linux (`LINUX_REPLAYED`) where the fake repeats recorded text, and their unit tests
+  compare against the same file. Acceptance: those modules pass on the Linux Integration
+  job; the skip list shrinks; unit CI green on both OSes. Files: tests/integration/
+  test_wiimm_*.py, test_abmatt_*.py, expected_skips.toml, tests/fakes/fake_runtime.py,
+  fake unit tests, TESTING_STRATEGY, phase file. Risk: ABMatt's Linux build (banner
+  1.3.1) may behave differently; if so, gate only the measured cases with a reason.
 ## Done (newest first)
 - P2-T08b — Linux tool recordings from CI (2026-11-01). `record-linux.yml` (manual, and on
   pushes that change it; never pushes) recorded help for wszst/wkclt/wkmpt/wimgt, ABMatt and

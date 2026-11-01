@@ -1,8 +1,7 @@
-"""Windows-native Wiimm 2.42a conversions: the fakes write markers, not real KMP/TEX0 data."""
+"""Real Wiimm 2.42a conversions: the fakes write markers, not real KMP/TEX0 data."""
 
 from __future__ import annotations
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -21,8 +20,8 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(120),
     pytest.mark.skipif(
-        os.name != "nt" or not tp.WIMGT.is_file() or not (FIXTURES / "course.kmp").is_file(),
-        reason="Requires native Windows Wiimm 2.42a and generated fixtures",
+        not tp.WIMGT.is_file() or not (FIXTURES / "course.kmp").is_file(),
+        reason="Requires Wiimm 2.42a and generated fixtures",
     ),
 ]
 

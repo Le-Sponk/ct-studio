@@ -1,4 +1,4 @@
-"""Windows-native Wiimm 2.42a KCL reports and minimap patching against the real tools.
+"""Real Wiimm 2.42a KCL reports and minimap patching against the real tools.
 
 The fakes replay these only for byte-identical recorded inputs; this checks the real
 tools still produce what was recorded, including the retained patched BRRES bytes.
@@ -6,7 +6,6 @@ tools still produce what was recorded, including the retained patched BRRES byte
 
 from __future__ import annotations
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -27,8 +26,8 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(120),
     pytest.mark.skipif(
-        os.name != "nt" or not tp.WSZST.is_file() or not (FIXTURES / "course.kcl").is_file(),
-        reason="Requires native Windows Wiimm 2.42a and generated fixtures",
+        not tp.WSZST.is_file() or not (FIXTURES / "course.kcl").is_file(),
+        reason="Requires Wiimm 2.42a and generated fixtures",
     ),
 ]
 

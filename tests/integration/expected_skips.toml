@@ -55,19 +55,7 @@ test = "tests.integration.test_rszst_setup_real::test_windows_download_route"
 reason = "the official release is Windows-only"
 why = "Linux uses the Wine or source-build route, tested by the Wine test here."
 
-# --- Linux: replayed against Windows recordings until P2-T08b records Linux ones ----------
-
-[[skip]]
-os = ["linux"]
-test = "tests.integration.test_wiimm_*"
-reason = "Requires native Windows Wiimm 2.42a"
-why = "Compared with Windows recordings; Linux recordings are P2-T08b."
-
-[[skip]]
-os = ["linux"]
-test = "tests.integration.test_abmatt_*"
-reason = "Requires native Windows ABMatt 1.3.2"
-why = "Compared with Windows recordings; Linux recordings are P2-T08b."
+# --- Linux: rszst recordings ----------------------------------------------------------
 
 [[skip]]
 os = ["linux"]

@@ -1,4 +1,4 @@
-"""Windows-native Wiimm 2.42a auto-add against the real tool, with synthetic inputs only.
+"""Real Wiimm 2.42a auto-add against the real tool, with synthetic inputs only.
 
 The library here is a synthetic BRRES under the itembox name, so Wiimm must call it
 invalid and the guard must refuse it. Proof with a real library lives in
@@ -7,7 +7,6 @@ invalid and the guard must refuse it. Proof with a real library lives in
 
 from __future__ import annotations
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -26,8 +25,8 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(120),
     pytest.mark.skipif(
-        os.name != "nt" or not tp.WSZST.is_file(),
-        reason="Requires native Windows Wiimm 2.42a",
+        not tp.WSZST.is_file(),
+        reason="Requires Wiimm 2.42a",
     ),
 ]
 
