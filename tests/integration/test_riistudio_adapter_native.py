@@ -1,4 +1,6 @@
-"""Windows-native rszst 5.11.5 through the P2-T05e adapter, in a folder named with é.
+"""The pinned rszst 5.11.5 through the P2-T05e adapter, in a folder named with é.
+
+Windows runs rszst.exe directly; Linux runs the same exe through Wine (P2-T08d/f).
 
 The real build cannot read non-ASCII argv; these runs prove the adapter's ASCII staging
 makes such a project folder work, and that refusals happen before the tool runs.
@@ -6,21 +8,23 @@ makes such a project folder work, and that refusals happen before the tool runs.
 
 from __future__ import annotations
 
-import os
 import shutil
+import sys
 from pathlib import Path
 
 import pytest
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(os.name != "nt", reason="native rszst recordings are Windows-only so far"),
     pytest.mark.timeout(300),
 ]
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import tool_paths as tp  # type: ignore[reportMissingImports] - scripts path inserted above
+
 INPUTS = ROOT / "tests" / "fakes" / "recordings" / "rszst" / "5.11.5" / "inputs"
-RSZST = ROOT / ".tools" / "riistudio" / "rszst.exe"
+RSZST = tp.RSZST
 
 
 @pytest.fixture
