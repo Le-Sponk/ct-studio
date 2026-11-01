@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shlex
 import subprocess
@@ -12,6 +13,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
+import tool_catalogue as tc  # type: ignore[reportMissingImports] - scripts path inserted above
 import tool_paths as tp  # type: ignore[reportMissingImports] - scripts path inserted above
 import wine_rszst  # type: ignore[reportMissingImports] - scripts path inserted above
 
@@ -51,7 +53,9 @@ def test_setup_installs_then_writes_an_executable_launcher(tmp_path: Path) -> No
         return _release(root)
 
     root = tmp_path / "riistudio-wine"
-    launcher = wine_rszst.setup(root, wine=Path("/usr/bin/wine"), install=install)
+    launcher = wine_rszst.setup(
+        root, wine=Path("/usr/bin/wine"), install=install, state=tmp_path / "installed.json"
+    )
     assert calls == [(root, Path("/usr/bin/wine"))]
     assert launcher == root / "bin" / "rszst"
     assert (root / "rszst" / "rszst.exe").read_bytes() == b"MZ"
@@ -66,7 +70,12 @@ def test_setup_writes_no_launcher_when_the_install_fails(tmp_path: Path) -> None
         raise RuntimeError("download failed")
 
     with pytest.raises(RuntimeError):
-        wine_rszst.setup(tmp_path / "w", wine=Path("/usr/bin/wine"), install=install)
+        wine_rszst.setup(
+            tmp_path / "w",
+            wine=Path("/usr/bin/wine"),
+            install=install,
+            state=tmp_path / "installed.json",
+        )
     assert not (tmp_path / "w" / "bin").exists()
 
 
@@ -82,8 +91,9 @@ def test_main_sets_up_into_the_tools_folder(
 ) -> None:
     seen: list[tuple[Path, Path]] = []
 
-    def setup(root: Path, *, wine: Path) -> Path:
+    def setup(root: Path, *, wine: Path, state: Path) -> Path:
         seen.append((root, wine))
+        assert state == tp.TOOLS_DIR / "installed.json"
         return root / "bin" / "rszst"
 
     monkeypatch.setattr(wine_rszst, "setup", setup)
@@ -134,7 +144,9 @@ def test_launcher_passes_arguments_and_exit_code_through(tmp_path: Path) -> None
         return _release(root)
 
     root = tmp_path / "riistudio wine"
-    launcher = wine_rszst.setup(root, wine=fake_wine, install=install)
+    launcher = wine_rszst.setup(
+        root, wine=fake_wine, install=install, state=tmp_path / "installed.json"
+    )
     result = subprocess.run(  # noqa: S603 - test launcher, argv only
         [str(launcher), "import-brres", "a b.dae", "out.brres"],
         capture_output=True,
@@ -161,6 +173,49 @@ def test_setup_marks_the_launcher_executable_on_every_system(
     modes: list[tuple[str, int]] = []
     monkeypatch.setattr(Path, "chmod", lambda self, mode: modes.append((self.name, mode)))
     wine_rszst.setup(
-        tmp_path / "w", wine=Path("/usr/bin/wine"), install=lambda root, *, wine: _release(root)
+        tmp_path / "w",
+        wine=Path("/usr/bin/wine"),
+        install=lambda root, *, wine: _release(root),
+        state=tmp_path / "installed.json",
     )
     assert modes == [("rszst", 0o755)]
+
+
+def test_setup_records_the_pinned_release_in_installed_json(tmp_path: Path) -> None:
+    """The recorders read the pin from installed.json (record_tool_help.pinned_version)."""
+    state = tmp_path / "installed.json"
+    state.write_text('{"abmatt": {"version": "1.3.2"}}\n', encoding="utf-8")
+    wine_rszst.setup(tmp_path / "w", wine=Path("/usr/bin/wine"), install=_release_ok, state=state)
+    saved = json.loads(state.read_text(encoding="utf-8"))
+    assert saved["abmatt"] == {"version": "1.3.2"}  # other tools untouched
+    assert saved["riistudio"] == {
+        "platform": "linux-x86_64-wine",
+        "sha256": wine_rszst.PIN.windows_zip_sha256,
+        "url": wine_rszst.PIN.windows_zip_url,
+        "verify": wine_rszst.PIN.banner,
+        "version": wine_rszst.PIN.version,
+    }
+    # record_tool_help.pinned_version compares it with the catalogue pin.
+    assert saved["riistudio"]["version"] == tc.ALL_TOOLS["riistudio"].version
+
+
+def test_setup_creates_installed_json_when_missing(tmp_path: Path) -> None:
+    state = tmp_path / "tools" / "installed.json"
+    wine_rszst.setup(tmp_path / "w", wine=Path("/usr/bin/wine"), install=_release_ok, state=state)
+    assert list(json.loads(state.read_text(encoding="utf-8"))) == ["riistudio"]
+
+
+def test_failed_setup_leaves_installed_json_alone(tmp_path: Path) -> None:
+    state = tmp_path / "installed.json"
+    state.write_text("{}\n", encoding="utf-8")
+
+    def install(root: Path, *, wine: Path) -> Path:
+        raise RuntimeError("download failed")
+
+    with pytest.raises(RuntimeError):
+        wine_rszst.setup(tmp_path / "w", wine=Path("/usr/bin/wine"), install=install, state=state)
+    assert state.read_text(encoding="utf-8") == "{}\n"
+
+
+def _release_ok(root: Path, *, wine: Path) -> Path:
+    return _release(root)

@@ -13,6 +13,7 @@ Needs Wine (``sudo apt install -y wine``) and the network. Nothing goes into the
 
 from __future__ import annotations
 
+import json
 import shlex
 import shutil
 import sys
@@ -22,10 +23,11 @@ from typing import Protocol
 
 import tool_paths as tp
 
-from ctstudio.core.tools.rszst_setup import wine_environment, wine_executable
+from ctstudio.core.tools.rszst_setup import PIN, wine_environment, wine_executable
 from ctstudio.core.tools.rszst_wine import INSTALL_WINE, install_wine
 
 ROOT = tp.TOOLS_DIR / "riistudio-wine"
+STATE = tp.TOOLS_DIR / "installed.json"  # what bootstrap_tools.py writes
 
 
 class Install(Protocol):
@@ -47,14 +49,33 @@ def launcher_text(wine: Path, root: Path) -> str:
     return "\n".join(["#!/bin/sh", *exports, command]) + "\n"
 
 
-def setup(root: Path, *, wine: Path, install: Install = install_wine) -> Path:
-    """Install (or repair) rszst.exe under ``root``, then write its launcher."""
+def setup(root: Path, *, wine: Path, state: Path, install: Install = install_wine) -> Path:
+    """Install (or repair) rszst.exe under ``root``, write its launcher, then record it.
+
+    ``state`` is ``installed.json``: the recorders read the riistudio pin from it, as they
+    do after ``bootstrap_tools.py --only riistudio`` on Windows.
+    """
     install(root, wine=wine)
     launcher = launcher_path(root)
     launcher.parent.mkdir(parents=True, exist_ok=True)
     launcher.write_text(launcher_text(wine, root), encoding="utf-8", newline="\n")
     launcher.chmod(0o755)
+    record_installed(state)
     return launcher
+
+
+def record_installed(state: Path) -> None:
+    """Add the pinned release (run through Wine) to ``installed.json``, keeping the rest."""
+    saved = json.loads(state.read_text(encoding="utf-8")) if state.is_file() else {}
+    saved["riistudio"] = {
+        "platform": "linux-x86_64-wine",
+        "sha256": PIN.windows_zip_sha256,
+        "url": PIN.windows_zip_url,
+        "verify": PIN.banner,
+        "version": PIN.version,
+    }
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text(json.dumps(saved, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def main(*, platform: str = sys.platform, which: Callable[[str], str | None] = shutil.which) -> int:
@@ -66,7 +87,7 @@ def main(*, platform: str = sys.platform, which: Callable[[str], str | None] = s
     if wine is None:
         print(f"Wine is not installed. Install it with:\n  {INSTALL_WINE}")
         return 1
-    launcher = setup(ROOT, wine=Path(wine))
+    launcher = setup(ROOT, wine=Path(wine), state=STATE)
     print(f"rszst through Wine: {launcher}")
     return 0
 
