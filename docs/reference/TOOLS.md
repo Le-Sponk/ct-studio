@@ -231,7 +231,7 @@ matters use `EXIT_MINUS_ONE`, never a literal.
   `AttributeError: 'Brres' object has no attribute 'srt0'`, exit 1. Stage the source
   under the intended stem first.
 
-### Non-ASCII paths on native Windows (P0-T13, verified; Linux unmeasured)
+### Non-ASCII paths on native Windows (P0-T13, verified; Linux in the next section)
 Probe: directories named `latin é` and `cjk 日本`, active console code page 850.
 `tests/integration/test_windows_paths.py` pins the rows marked *test*.
 
@@ -249,6 +249,22 @@ Probe: directories named `latin é` and `cjk 日本`, active console code page 8
 Consequence for P2-T05: the `rszst` adapter must use the cwd + bare-name form whenever a path
 is not pure ASCII (simplest: always), and CT Studio should warn before "Open in RiiStudio" on
 a non-ASCII path, because the failure is invisible.
+
+### Non-ASCII paths on Linux (P2-T08f, verified)
+Probe: the same `latin é` and `cjk 日本` folders on GitHub's ubuntu-latest (UTF-8 locale,
+Wine from apt, the pinned tools). `tests/integration/test_linux_paths.py` pins every row and
+runs in the nightly Integration job.
+
+| Tool | Non-ASCII path | Evidence |
+|---|---|---|
+| `rszst.exe` 5.11.5 through Wine | **same bug as Windows**: an absolute non-ASCII path fails with `FileNotExist`, exit 255, nothing written | *test* |
+| `rszst.exe` through Wine, workaround | **works**: cwd = the file's folder, bare names in argv; the adapter's ASCII staging (`test_riistudio_adapter_native`, folder `piste é`) passes too | *test* |
+| ABMatt 1.3.2 (Linux build) | **works for both**: exit 0, the BRRES written, the UTF-8 path printed, no traceback (Windows crashes printing a CJK path) | *test* |
+| `wszst` 2.42a (Linux build) | **works for both**: `create --dest` writes a Yaz0 archive and `list` reads it, the folder name printed intact | *test* |
+
+Consequence: on Linux the Wine route needs the same ASCII staging as Windows (already
+always on); a native source-built rszst does not have the bug (P2-T06c). ABMatt and the
+Wiimm tools need no workaround on Linux.
 
 ## ABMatt (ANoob's BRRES Material Tool)
 - Repo: https://github.com/Robert-N7/abmatt · Licence: GPL-3.0 **[doc]** · Latest: **v1.3.2 (2022-06-06)** **[doc]**

@@ -4,21 +4,20 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08f — rszst adapter test on Linux; Linux non-ASCII paths (in progress)
+**Next task:** P2-GATE — Phase review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 762ec7d (P2-T08e; Windows gate, Ubuntu/Windows CI; Integration on 675cbfc)
+**Last green commit:** c4a596f (P2-T08f; Windows gate, Ubuntu/Windows CI and Integration)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T08f` — rszst adapter test and non-ASCII paths on Linux. Plan (2026-11-01): (1)
-  `test_riistudio_adapter_native` uses `tool_paths.RSZST`, so it runs on Linux through Wine;
-  (2) new `tests/integration/test_linux_paths.py`, the Linux twin of `test_windows_paths`
-  (same `latin é` / `cjk 日本` folders, rszst through Wine, ABMatt, wszst), first written
-  from the hypothesis "Wine keeps the Windows argv bug; native Linux tools are fine", then
-  corrected to what Linux CI measures; (3) drop the two Linux skip entries; (4) TOOLS.md
-  Linux section. Acceptance: both run on Linux CI; TOOLS.md records the measured Linux
-  behaviour. Files: the two tests, expected_skips.toml, TOOLS.md, phase file.
 ## Done (newest first)
+- `P2-T08f` — rszst adapter test and non-ASCII paths on Linux (2026-11-01).
+  `test_riistudio_adapter_native` uses `tool_paths.RSZST` and runs on Linux through Wine;
+  new `test_linux_paths.py` (8 tests, `latin é` / `cjk 日本`): rszst.exe through Wine keeps
+  the Windows non-ASCII argv bug (exit 255, `FileNotExist`) and the cwd + bare-name
+  workaround; Linux ABMatt and wszst handle both folders cleanly. All passed on Linux CI
+  as first written; TOOLS.md "Non-ASCII paths on Linux". Linux Integration 112 passed /
+  17 listed skips. Gate green (1,191 tests); CI and Integration green — commit c4a596f.
 - `P2-T08e` — rszst/ABMatt Linux recordings (2026-11-01). `record-linux.yml` installs
   Wine, runs `wine_rszst.py` (which now records the pinned release in `installed.json`, the
   recorders' pin source; first dispatch failed without it) and records rszst and ABMatt too.

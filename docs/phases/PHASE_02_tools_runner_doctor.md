@@ -405,7 +405,7 @@ and input matches Windows. Exit codes differ only in how a failure is reported (
 `abmatt info`: 4294967295 vs 255; six ABMatt crashes: -1 vs 1); the adapters treat any
 non-zero exit as failure. Text differences are listed in `test_linux_ops.py`.
 
-### [ ] P2-T08f — rszst adapter test on Linux; Linux non-ASCII paths
+### [x] P2-T08f — rszst adapter test on Linux; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the
 Windows release ZIP checksum, retain bundled DLLs, record help/version/invalid-argument
 exit codes independently (Linux returns 255 for all three) and run S3b's synthetic
@@ -413,5 +413,12 @@ course/skybox tests. See [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-o
 Run the rszst adapter test on Linux (through Wine) and measure non-ASCII paths on Linux.
 **Acceptance:** the adapter test runs on Linux; the non-ASCII path behaviour is recorded in
 TOOLS.md.
+**Done (2026-11-01):** `test_riistudio_adapter_native` now uses `tool_paths.RSZST` and runs
+on Linux through Wine (3 passed). New `test_linux_paths.py` (8 tests) passed on Linux CI as
+first written: Wine keeps the Windows non-ASCII argv bug and its workaround; Linux ABMatt
+and wszst handle both folders. TOOLS.md "Non-ASCII paths on Linux". Linux Integration: 112
+passed, 17 listed skips. The S3a note was already covered: the Windows ZIP checksum is pinned (P0-T13), help/version
+exit codes are recorded per OS (`windows-cli.json`, `linux-cli.json`) and the S3b synthetic
+tests (`test_brres_backends`) run on both systems (P2-T08d).
 
 ### [ ] P2-GATE — Phase review

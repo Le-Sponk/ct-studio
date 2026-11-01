@@ -1,4 +1,4 @@
-"""Non-ASCII path contracts on native Windows (P0-T13); Linux is unmeasured (STATUS gaps).
+"""Non-ASCII path contracts on native Windows (P0-T13); Linux is test_linux_paths (P2-T08f).
 
 rszst and RiiStudio read argv through the ANSI code page, so an absolute path with any
 non-ASCII character (Latin-1 included, on a cp850/cp1252 system) is mangled before the
@@ -26,7 +26,9 @@ DAE = REPO / "spikes" / "out" / "s2" / "course_builtin.dae"
 pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(120),
-    pytest.mark.skipif(os.name != "nt", reason="native Windows contract; Linux is unmeasured"),
+    pytest.mark.skipif(
+        os.name != "nt", reason="native Windows contract; Linux is test_linux_paths"
+    ),
     pytest.mark.skipif(not DAE.is_file(), reason="S2 outputs missing; run spikes/s2_blender.py"),
 ]
 needs_rszst = pytest.mark.skipif(not tp.RSZST.is_file(), reason="bootstrap --only riistudio")
