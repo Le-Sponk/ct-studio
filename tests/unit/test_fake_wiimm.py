@@ -37,6 +37,27 @@ CASES = {case.name: case for case in rto.WIIMM_CASES}
 HELP_OS = "windows" if os.name == "nt" else "linux"  # fakes replay this OS's help (P2-T08c)
 
 
+def with_this_os_help(record: dict[str, object]) -> dict[str, object]:
+    """A recorded run of a help/version command, with this OS's recorded reply.
+
+    The fakes repeat this OS's help recording (P2-T08c), while operation runs are the
+    Windows recording; on Linux, ``version`` names the x86_64 build instead of cygwin64.
+    """
+    path = rth.RECORDINGS / str(record["tool"]) / VERSION / f"{HELP_OS}-help.json"
+    for reply in json.loads(path.read_text(encoding="utf-8")):
+        if reply["argv"] == record["argv"]:
+            return {**record, **{key: reply[key] for key in ("exit_code", "stdout", "stderr")}}
+    return record
+
+
+def test_version_runs_are_compared_with_this_os_help_recording() -> None:
+    [run] = [r for r in rto.load("wszst", VERSION) if r["case"] == "wszst version"]
+    build = "cygwin64" if os.name == "nt" else "x86_64"
+    assert f"r8989 {build} - Dirk Clemens" in str(with_this_os_help(run)["stdout"])
+    [other] = [r for r in rto.load("wszst", VERSION) if r["case"] == "autoadd status"]
+    assert with_this_os_help(other) == other
+
+
 def recorded_cases() -> list[object]:
     return [
         pytest.param(record, id=str(record["case"]))
@@ -68,7 +89,7 @@ def test_fake_matches_the_recorded_real_run(
     kept = rth.RECORDINGS / str(record["tool"]) / VERSION / "inputs"
     case = CASES[str(record["case"])]
     fake = rto.run_case(case, fake_tools_path.resolve, root, stand_ins(record, kept))
-    assert_like_recording(fake, record)
+    assert_like_recording(fake, with_this_os_help(record))
 
 
 @pytest.mark.parametrize(("tool", "record"), help_records())
