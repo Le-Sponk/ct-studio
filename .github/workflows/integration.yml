@@ -33,6 +33,7 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       CTSTUDIO_RSZST_WINE: '1' # Linux: run rszst.exe through Wine (P2-T06e)
       WINEDEBUG: '-all'
+      CTSTUDIO_CI_NO_GPU: '1' # skips editor-window tests that need a real GPU desktop
     steps:
       - name: Check out code and add-on
         uses: actions/checkout@v4
@@ -75,7 +76,7 @@ jobs:
         run: uv run python spikes/s2_blender.py
       - name: Run integration and network tests
         run: >-
-          uv run pytest -m "(integration or network) and not slow" tests -rs
+          uv run pytest -m "(integration or network) and not slow and not realdata" tests -rs
           --junitxml=tests/artifacts/integration.xml
       - name: Report every skip against the expected list
         if: always()

@@ -86,8 +86,11 @@ def test_probe_preserves_existing_recording(tmp_path: Path) -> None:
         "--output",
         str(destination),
     ]
+    # The child prints a traceback naming the non-ASCII path; with a pipe Windows Python
+    # would write it in the ANSI code page (cp1252 on CI) and the utf-8 decode would fail.
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
     first = subprocess.run(  # noqa: S603 - local probe, argv only.
-        argv, capture_output=True, text=True, encoding="utf-8", timeout=20, check=False
+        argv, capture_output=True, text=True, encoding="utf-8", timeout=20, check=False, env=env
     )
     assert first.returncode == 0, first.stderr
     original = destination.read_bytes()
@@ -95,7 +98,7 @@ def test_probe_preserves_existing_recording(tmp_path: Path) -> None:
     assert [r["argv"] for r in records] == [r["argv"] for r in CASES]
     assert all(r["exit_code"] == EXIT_MINUS_ONE for r in records)
     second = subprocess.run(  # noqa: S603 - repeat must refuse overwrite.
-        argv, capture_output=True, text=True, encoding="utf-8", timeout=20, check=False
+        argv, capture_output=True, text=True, encoding="utf-8", timeout=20, check=False, env=env
     )
     assert second.returncode != 0
     assert "FileExistsError" in second.stderr

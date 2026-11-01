@@ -54,6 +54,12 @@ pytestmark = [
     pytest.mark.integration,
     pytest.mark.timeout(120),
     pytest.mark.skipif(os.name != "nt", reason="native Windows contract; Wine is P2-T05g2"),
+    # CI runners have no GPU desktop: Blender only shows "Unsupported Graphics Card" and
+    # RiiStudio exits before a window appears. The nightly workflow sets this (P2-T08a).
+    pytest.mark.skipif(
+        os.environ.get("CTSTUDIO_CI_NO_GPU") == "1",
+        reason="CI runner has no GPU desktop; editor windows are checked on a real desktop",
+    ),
 ]
 
 

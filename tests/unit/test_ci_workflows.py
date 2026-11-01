@@ -76,7 +76,7 @@ def test_nightly_integration_bootstraps_real_tools_and_explains_every_skip() -> 
     assert _steps_running(steps, "python spikes/s2_blender.py")
     tests = _steps_running(steps, "pytest")
     assert len(tests) == 1
-    assert '-m "(integration or network) and not slow"' in tests[0]["run"]
+    assert '-m "(integration or network) and not slow and not realdata"' in tests[0]["run"]
     assert "--junitxml=tests/artifacts/integration.xml" in tests[0]["run"]
     reporters = _steps_running(steps, "scripts/ci_network.py")
     assert len(reporters) == 1 and reporters[0].get("if") == "always()"
