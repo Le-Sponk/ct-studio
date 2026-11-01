@@ -4,12 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08e — rszst/ABMatt Linux recordings; Linux non-ASCII paths
+**Next task:** P2-T08e — rszst/ABMatt Linux recordings (in progress)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 268da20 (P2-T08d; Windows gate, Ubuntu/Windows CI; Integration on be65b7e)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T08e` — rszst/ABMatt Linux recordings. Plan (2026-11-01): (1) RED workflow test:
+  `record-linux.yml` installs Wine, runs `scripts/wine_rszst.py` before recording and records
+  `--only riistudio --only abmatt` too; (2) push, dispatch, download and review the artifact
+  (no runner paths, synthetic inputs only); (3) add rszst/ABMatt to `test_linux_ops.py`
+  with every new text difference listed and explained; fakes keep the Windows recordings.
+  Acceptance: rszst/ABMatt Linux ops recorded and compared with Windows; any case that
+  differs in exit code or files is explained (or the comparison is marked per case with the
+  reason). Files: record-linux.yml, test_ci_workflows.py, recordings/{rszst,abmatt}/linux-ops.json,
+  test_linux_ops.py, TESTING_STRATEGY, phase file.
 ## Done (newest first)
 - `P2-T08d` — rszst through Wine for the Linux real-tool tests (2026-11-01).
   `scripts/wine_rszst.py` sets the pinned rszst.exe up through CT Studio's own Wine route in
@@ -517,6 +526,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-01: P2-T08e split. P2-T08e = rszst/ABMatt Linux operation recordings and their
+  comparison with Windows. P2-T08f = the rszst adapter test on Linux (through Wine) and the
+  Linux non-ASCII path measurement written into TOOLS.md.
 - 2026-11-01: P2-T08d split. P2-T08d = rszst through Wine in `tool_paths` and the rszst-using
   integration tests on Linux CI. P2-T08e = rszst/ABMatt Linux ops recordings, the native
   rszst adapter test and the Linux non-ASCII path measurement.

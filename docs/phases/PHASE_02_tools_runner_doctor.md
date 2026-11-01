@@ -395,14 +395,19 @@ Integration 101 passed, 20 listed skips (was 65/56). The launcher sits in `bin/`
 `rszst/` is the release folder (first CI run). Through Wine the program names itself
 `rszst.exe` in its usage lines; exit codes are the native Linux ones (255).
 
-### [ ] P2-T08e — rszst/ABMatt Linux recordings; Linux non-ASCII paths
+### [ ] P2-T08e — rszst/ABMatt Linux recordings (split 2026-11-01)
+`record-linux.yml` also records rszst (the pinned rszst.exe through Wine, P2-T08d) and
+ABMatt; `test_linux_ops.py` compares them with the Windows recordings.
+**Acceptance:** rszst/ABMatt Linux ops recorded and compared with Windows; every difference
+is listed with its reason.
+
+### [ ] P2-T08f — rszst adapter test on Linux; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the
 Windows release ZIP checksum, retain bundled DLLs, record help/version/invalid-argument
 exit codes independently (Linux returns 255 for all three) and run S3b's synthetic
 course/skybox tests. See [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
-Record rszst and ABMatt operations on Linux (rszst through Wine), run the native rszst
-adapter test there, and measure non-ASCII paths on Linux.
-**Acceptance:** rszst/ABMatt Linux ops recorded and compared with Windows; the adapter test
-runs on Linux; the non-ASCII path behaviour is recorded in TOOLS.md.
+Run the rszst adapter test on Linux (through Wine) and measure non-ASCII paths on Linux.
+**Acceptance:** the adapter test runs on Linux; the non-ASCII path behaviour is recorded in
+TOOLS.md.
 
 ### [ ] P2-GATE — Phase review

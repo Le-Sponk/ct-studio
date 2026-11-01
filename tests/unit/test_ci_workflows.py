@@ -118,7 +118,13 @@ def test_linux_recording_job_records_and_uploads_only_linux_recordings() -> None
     assert _steps_running(steps, "python scripts/record_tool_help.py")
     ops = _steps_running(steps, "python scripts/record_tool_outputs.py")
     assert len(ops) == 1
-    assert "--only wiimms-szs-tools --only blender" in ops[0]["run"]
+    for toolset in ("wiimms-szs-tools", "blender", "riistudio", "abmatt"):
+        assert f"--only {toolset}" in ops[0]["run"]
+    # P2-T08e: rszst (and ABMatt, which runs it) through Wine, set up before recording.
+    installs = [s["run"] for s in steps if "apt-get install" in s.get("run", "")]
+    assert any(" wine" in run and "--add-architecture i386" in run for run in installs)
+    [wine_rszst] = _steps_running(steps, "python scripts/wine_rszst.py")
+    assert steps.index(wine_rszst) < steps.index(ops[0])
     uploads = [s for s in steps if s.get("uses", "").startswith("actions/upload-artifact@")]
     assert len(uploads) == 1
     assert uploads[0]["with"]["path"] == "tests/fakes/recordings/**/linux-*.json"

@@ -12,8 +12,8 @@ permissions:
 
 # P2-T08b: record the pinned Linux tools' help, option index and operation outputs on the
 # synthetic fixtures. Never pushes: a person downloads the artifact, reviews it and commits
-# the linux-*.json files (TESTING_STRATEGY section 2). rszst and ABMatt ops need rszst
-# through Wine in scripts/tool_paths.py first (P2-T08d).
+# the linux-*.json files (TESTING_STRATEGY section 2). rszst (and ABMatt, which runs it)
+# is the pinned rszst.exe through Wine, set up by scripts/wine_rszst.py (P2-T08d/e).
 jobs:
   record:
     name: Record (ubuntu-latest)
@@ -27,12 +27,14 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - name: Install Blender runtime libraries
+      - name: Install Blender runtime libraries and Wine
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libegl1 libgl1 libopengl0 libfontconfig1 libxi6 libxxf86vm1 libxfixes3 \
-            libxrender1 libsm6 libxkbcommon0 libx11-6
+            libxrender1 libsm6 libxkbcommon0 libx11-6 wine wine64
+          wine --version
       - name: Install uv with lockfile cache
         uses: astral-sh/setup-uv@v7
         with:
@@ -50,12 +52,16 @@ jobs:
           key: tools-${{ runner.os }}-${{ hashFiles('scripts/tool_catalogue.py') }}
       - name: Bootstrap Wiimms, Blender and ABMatt
         run: uv run python scripts/bootstrap_tools.py
+      - name: Set the RiiStudio release up through Wine
+        run: uv run python scripts/wine_rszst.py
       - name: Generate fixtures
         run: uv run python scripts/fixtures/make_fixtures.py
       - name: Record help and option indexes
         run: uv run python scripts/record_tool_help.py
       - name: Record operations
-        run: uv run python scripts/record_tool_outputs.py --only wiimms-szs-tools --only blender
+        run: >-
+          uv run python scripts/record_tool_outputs.py --only wiimms-szs-tools --only blender
+          --only riistudio --only abmatt
       - name: Show what changed
         if: always()
         run: git status --short tests/fakes/recordings
