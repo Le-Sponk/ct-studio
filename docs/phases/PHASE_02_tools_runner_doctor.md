@@ -371,11 +371,18 @@ The fakes keep replaying the Windows runs on Linux (`fake_runtime.LINUX_REPLAYED
 only rszst's CLI capture); CI on 1e4470c showed the Linux recordings would otherwise be
 replayed by fakes that model Windows text. P2-T08c moves each fake over.
 
-### [ ] P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
+### [x] P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
 Use the P2-T08b recordings: replay `linux-ops.json` in the fakes on Linux, and lift the
 `os.name != "nt"` gates from the Wiimm/ABMatt integration tests where Linux behaves the same
 (each difference recorded). Shrinks `expected_skips.toml`.
 **Acceptance:** those tests run green on the Linux Integration job; the list shrinks.
+**Done (2026-11-01):** the four Wiimm and two ABMatt integration modules no longer require
+Windows; with their two skip-list entries removed, the Linux Integration job on 6b8dfb1 ran
+all 28 of their tests green first time (Linux 65 passed / 56 expected skips, was 37 / 84).
+On Linux the fakes now repeat Linux help, version and Wiimm option-index recordings
+(`fake_runtime.LINUX_REPLAYED`); operation runs stay on the Windows recording, which
+`tests/unit/test_linux_ops.py` proves equal to Linux apart from listed text. The option
+indexes are identical on both systems.
 
 ### [ ] P2-T08d — rszst through Wine in the tool scripts; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the

@@ -9,6 +9,7 @@ code, stderr and file effects exactly, and stdout exactly or as a prefix (see ``
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -33,6 +34,7 @@ pytestmark = pytest.mark.timeout(60)
 
 VERSION = tc.ALL_TOOLS["wiimms-szs-tools"].version
 CASES = {case.name: case for case in rto.WIIMM_CASES}
+HELP_OS = "windows" if os.name == "nt" else "linux"  # fakes replay this OS's help (P2-T08c)
 
 
 def recorded_cases() -> list[object]:
@@ -46,7 +48,7 @@ def recorded_cases() -> list[object]:
 def help_records() -> list[object]:
     params: list[object] = []
     for tool in rto.WIIMM:
-        path = rth.RECORDINGS / tool / VERSION / "windows-help.json"
+        path = rth.RECORDINGS / tool / VERSION / f"{HELP_OS}-help.json"
         for record in json.loads(path.read_text(encoding="utf-8")):
             params.append(pytest.param(tool, record, id=f"{tool} {' '.join(record['argv'])}"))
     return params

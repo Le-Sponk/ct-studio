@@ -27,6 +27,7 @@ VERSION = "5.2.2"
 FOLDER = rth.RECORDINGS / "blender" / VERSION
 CASES = {case.name: case for case in rto.TOOLSETS["blender"][1]}
 pytestmark = pytest.mark.timeout(60)
+HELP_OS = "windows" if os.name == "nt" else "linux"  # fakes replay this OS's help (P2-T08c)
 
 
 def rows() -> list[dict[str, object]]:
@@ -73,7 +74,7 @@ def test_fake_matches_real_windows_operation(
 def test_help_and_version_match_recorded_pinned_build(
     argv: list[str], fake_tools_path, tmp_path: Path
 ) -> None:
-    recordings = json.loads((FOLDER / "windows-help.json").read_text(encoding="utf-8"))
+    recordings = json.loads((FOLDER / f"{HELP_OS}-help.json").read_text(encoding="utf-8"))
     expected = next(row for row in recordings if row["argv"] == argv)
     actual = rth.capture(fake_tools_path.resolve("blender"), argv, cwd=tmp_path, roots={})
     assert (actual["exit_code"], actual["stdout"], actual["stderr"]) == (

@@ -95,6 +95,8 @@ is missing and nothing is protected.
   folder as `<tools>`. `tests/unit/test_linux_ops.py` requires the same cases, exit codes,
   file effects and inputs as the Windows recording; printed text may differ only in its
   listed ways (slashes, build name, Blender build minute, getopt wording, auto-add folder).
+  On Linux the fakes repeat the Linux help/version text and Wiimm option index
+  (`fake_runtime.LINUX_REPLAYED`, P2-T08c); operation runs stay on the Windows recording.
 - `scripts/record_tool_outputs.py` (P2-T04b/e) runs per-tool case tables from
   `scripts/ops_cases.py` and `scripts/wiimm_adapter_cases.py` on the generated or retained
   fixtures. `<os>-ops.json` keeps output, exit code, file effects (created/changed and

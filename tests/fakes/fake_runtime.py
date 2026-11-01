@@ -44,10 +44,18 @@ class Refused(Exception):
         self.outcome = outcome
 
 
-# Linux recordings a fake already replays. The P2-T08b Wiimm/Blender/ABMatt Linux
-# recordings stay out until P2-T08c moves each fake over (they are checked against the
-# Windows ones in tests/unit/test_linux_ops.py meanwhile).
-LINUX_REPLAYED = frozenset({("rszst", "cli")})
+# Linux recordings the fakes replay on Linux (P2-T08c): text a fake repeats verbatim
+# (help, version, rszst's CLI) and Wiimm's option index. Operation runs stay on the
+# Windows recording, which tests/unit/test_linux_ops.py proves equal to the Linux run
+# apart from listed text differences.
+_WIIMM = ("wszst", "wkclt", "wkmpt", "wimgt")
+LINUX_REPLAYED = frozenset(
+    {
+        ("rszst", "cli"),
+        *((tool, "help") for tool in (*_WIIMM, "abmatt", "blender")),
+        *((tool, "options") for tool in _WIIMM),
+    }
+)
 
 
 def recordings(tool: str, version: str, kind: str) -> Any:

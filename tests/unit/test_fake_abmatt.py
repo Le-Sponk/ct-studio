@@ -34,6 +34,7 @@ VERSION = tc.ALL_TOOLS["abmatt"].version
 FOLDER = rth.RECORDINGS / "abmatt" / VERSION
 CASES = {case.name: case for case in rto.TOOLSETS["abmatt"][1]}
 OS_NAME = "windows" if os.name == "nt" else "linux"
+HELP_OS = "windows" if os.name == "nt" else "linux"  # fakes replay this OS's help (P2-T08c)
 
 
 def records() -> list[dict[str, object]]:
@@ -65,7 +66,7 @@ def test_fake_matches_recorded_run(row: dict[str, object], fake_tools_path, tmp_
 
 
 def test_help_matches_pinned_recording(fake_tools_path, tmp_path: Path) -> None:
-    [row] = json.loads((FOLDER / "windows-help.json").read_text(encoding="utf-8"))
+    [row] = json.loads((FOLDER / f"{HELP_OS}-help.json").read_text(encoding="utf-8"))
     actual = rth.capture(fake_tools_path.resolve("abmatt"), row["argv"], cwd=tmp_path, roots={})
     assert (actual["exit_code"], actual["stdout"], actual["stderr"]) == (
         row["exit_code"],
