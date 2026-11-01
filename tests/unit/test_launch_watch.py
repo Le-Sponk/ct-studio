@@ -29,6 +29,9 @@ def _wait_for(path: Path, seconds: float = 8.0) -> str:
     raise AssertionError(f"{path.name} never appeared")
 
 
+CLOCK_TICK = 0.02  # Windows timer resolution (15.6 ms) plus margin
+
+
 def test_a_launch_still_running_after_the_watch_returns_its_pid(tmp_path: Path) -> None:
     # The editor outlives the watch by seconds, so a slow CI spawn (the Windows runner took
     # over 0.7 s to start Python, twice, on bcba86f/daa8cb6) cannot blur the two apart.
@@ -37,7 +40,9 @@ def test_a_launch_still_running_after_the_watch_returns_its_pid(tmp_path: Path) 
     pid = launch_detached(fake(code), cwd=tmp_path, watch=0.4)
     waited = time.monotonic() - started
     assert pid > 0
-    assert 0.4 <= waited < 3.0  # waited for the watch, not for the editor
+    # Windows' monotonic clock ticks about every 15.6 ms, so a full 0.4 s wait can read
+    # as 0.391 s (Windows CI on be65b7e); allow one tick and a little more below.
+    assert 0.4 - CLOCK_TICK <= waited < 3.0  # waited for the watch, not for the editor
     assert not (tmp_path / "opened.txt").exists()
     assert _wait_for(tmp_path / "opened.txt", 12.0) == "yes"  # and it kept running afterwards
 
