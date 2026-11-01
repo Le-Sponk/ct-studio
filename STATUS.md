@@ -4,22 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08b — Linux tool recordings from CI (in progress)
+**Next task:** P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** f765eaa (P2-T08a; Windows gate, Ubuntu/Windows CI and Integration)
+**Last green commit:** fdd153f (P2-T08b; Windows gate, Ubuntu/Windows CI and Integration)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T08b` — Linux tool recordings from CI. Plan (2026-11-01): (1) RED workflow-contract
-  test; (2) `record-linux.yml` (manual + on its own push): bootstrap, fixtures, then
-  `record_tool_help.py` and `record_tool_outputs.py --only wiimms-szs-tools --only blender`,
-  uploading `tests/fakes/recordings/**/linux-*.json`; (3) download the artifact, review it
-  (synthetic fixtures only; no game data), commit; the help contract then checks the Linux
-  help too; (4) a contract test comparing Linux and Windows ops case by case, allowing only
-  documented differences. Acceptance: Linux help/options/ops committed and checked. Files:
-  `.github/workflows/record-linux.yml`, `tests/unit/test_ci_workflows.py`, recordings,
-  `tests/contract/test_linux_ops.py`, TESTING_STRATEGY, phase file.
 ## Done (newest first)
+- P2-T08b — Linux tool recordings from CI (2026-11-01). `record-linux.yml` (manual, and on
+  pushes that change it; never pushes) recorded help for wszst/wkclt/wkmpt/wimgt, ABMatt and
+  Blender, Wiimm option indexes, and ops for the four Wiimm tools (108 cases) and Blender (21)
+  on ubuntu-latest. The first artifact leaked the runner's checkout folder (Linux Wiimm
+  prints argv[0]; auto-add path), so the recorder now hides `.tools` as `<tools>`.
+  `tests/unit/test_linux_ops.py`: same cases, exit codes, file effects and inputs as Windows;
+  text differs only in five listed ways. Fakes keep replaying Windows runs on Linux
+  (`fake_runtime.LINUX_REPLAYED`), as CI on 1e4470c showed they must until P2-T08c.
+  Mutants 25/25. Commits b09f3b3, 9bfe396, 1e4470c (Linux CI red), fdd153f.
 - P2-T08a — Nightly `Integration` workflow with real tools: both OSes bootstrap Wiimms,
   Blender, ABMatt (Windows also the RiiStudio release), generate fixtures and S2 outputs,
   Linux installs Wine 9.0 and runs the Wine rszst route; `ci_network.py --expected
