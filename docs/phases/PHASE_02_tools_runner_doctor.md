@@ -382,7 +382,7 @@ all 28 of their tests green first time (Linux 65 passed / 56 expected skips, was
 On Linux the fakes now repeat Linux help, version and Wiimm option-index recordings
 (`fake_runtime.LINUX_REPLAYED`); operation runs stay on the Windows recording, which
 `tests/unit/test_linux_ops.py` proves equal to Linux apart from listed text. The option
-indexes are identical on both systems.
+indexes are identical on both systems. Commits 6b8dfb1, 8ddc24d, 41ec138.
 
 ### [ ] P2-T08d — rszst through Wine in the tool scripts; Linux non-ASCII paths
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the

@@ -4,23 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
+**Next task:** P2-T08d — rszst through Wine in the tool scripts; Linux non-ASCII paths
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** fdd153f (P2-T08b; Windows gate, Ubuntu/Windows CI and Integration)
+**Last green commit:** 41ec138 (P2-T08c; Windows gate, Ubuntu/Windows CI; Integration on 6b8dfb1)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T08c` — Wiimm/ABMatt real-tool tests and fakes on Linux. Plan (2026-11-01): (1) drop
-  the `os.name != "nt"` gate from the four Wiimm and two ABMatt integration modules and
-  their `expected_skips.toml` entries; let the Linux Integration job show what differs;
-  fix or record each difference; (2) fakes replay this OS's help/version/ops recordings on
-  Linux (`LINUX_REPLAYED`) where the fake repeats recorded text, and their unit tests
-  compare against the same file. Acceptance: those modules pass on the Linux Integration
-  job; the skip list shrinks; unit CI green on both OSes. Files: tests/integration/
-  test_wiimm_*.py, test_abmatt_*.py, expected_skips.toml, tests/fakes/fake_runtime.py,
-  fake unit tests, TESTING_STRATEGY, phase file. Risk: ABMatt's Linux build (banner
-  1.3.1) may behave differently; if so, gate only the measured cases with a reason.
 ## Done (newest first)
+- P2-T08c — Wiimm/ABMatt real-tool tests and fakes on Linux (2026-11-01). The four Wiimm
+  and two ABMatt integration modules no longer require Windows; their two skip-list entries
+  are gone. Linux Integration on 6b8dfb1 ran all 28 of their tests green first time (65
+  passed / 56 expected skips, was 37 / 84). On Linux the fakes repeat Linux help, version
+  and Wiimm option-index recordings (`fake_runtime.LINUX_REPLAYED`); operation runs stay on
+  the Windows recording. CI on 8ddc24d (Linux red) showed the Wiimm `version` runs must be
+  compared with this OS's help reply; fixed. Mutants 10/10. Commits 6b8dfb1, 8ddc24d,
+  41ec138.
 - P2-T08b — Linux tool recordings from CI (2026-11-01). `record-linux.yml` (manual, and on
   pushes that change it; never pushes) recorded help for wszst/wkclt/wkmpt/wimgt, ABMatt and
   Blender, Wiimm option indexes, and ops for the four Wiimm tools (108 cases) and Blender (21)
