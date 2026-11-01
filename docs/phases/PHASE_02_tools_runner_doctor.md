@@ -341,7 +341,7 @@ Browse/Clear stay off; a failed check shows a banner and keeps the last list. Do
 words (`STATUS_LABELS`, `found_how`) moved to core so CLI and GUI say the same thing.
 Screenshots (git-ignored): `p2-t07b-tools-{light,dark,set-path,checking,damaged-settings}.png`.
 
-### [ ] P2-T08a — Integration CI (split from P2-T08, 2026-11-01)
+### [x] P2-T08a — Integration CI (split from P2-T08, 2026-11-01) (commits 635f82e, f765eaa)
 `integration.yml` (nightly + manual, and on pushes that change it): Linux + Windows; downloads
 Wiimms tools, Blender and ABMatt (and the RiiStudio release on Windows) with
 `scripts/bootstrap_tools.py`, cached by the catalogue's hash; generates fixtures; runs
@@ -349,6 +349,9 @@ Wiimms tools, Blender and ABMatt (and the RiiStudio release on Windows) with
 Every skip must be listed for its OS in `tests/integration/expected_skips.toml` with a reason;
 an unlisted skip, a failure, or a listed skip that stopped happening turns the run red.
 **Acceptance:** green on both OSes with every skip explained.
+**Done:** run on f765eaa green: Linux 37 passed / 84 listed skips, Windows 109 passed / 12
+listed skips. Editor-window tests skip on CI (`CTSTUDIO_CI_NO_GPU=1`: no GPU desktop);
+`realdata` is excluded (user files never reach CI).
 
 ### [ ] P2-T08b — Linux recordings and Linux real-tool rszst
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the

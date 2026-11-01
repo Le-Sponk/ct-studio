@@ -4,27 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08a — Integration CI (in progress)
+**Next task:** P2-T08b — Linux recordings and Linux real-tool rszst
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 7a0abb6 (P2-T07b; Windows gate and Ubuntu/Windows CI)
+**Last green commit:** f765eaa (P2-T08a; Windows gate, Ubuntu/Windows CI and Integration)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T08a` — Integration CI (bootstrap + real-tool suite). Plan (2026-11-01): (1) RED
-  tests for the reporter and the workflow contract; (2) `scripts/ci_network.py` gains
-  `--expected <toml>`: a skip passes only if listed for this OS with its reason, an
-  unlisted skip or a listed skip that no longer happens fails (the list cannot rot);
-  (3) `tests/integration/expected_skips.toml` (Windows measured locally, Linux from the
-  first CI run); (4) `integration.yml`: Linux/Windows, cached `.tools/_downloads` keyed by
-  the catalogue, `bootstrap_tools.py` (+ riistudio on Windows), fixtures + S2 outputs,
-  Wine on Linux with `CTSTUDIO_RSZST_WINE=1`, `pytest -m "(integration or network) and not
-  slow"`, reporter, JUnit upload; also runs on pushes that change the workflow, reporter or
-  list. Acceptance: green on both OSes with every skip explained. Risks: Linux Blender
-  libraries; download size/time; Linux skip set unknown until the first run. Files:
-  `.github/workflows/integration.yml`, `scripts/ci_network.py`,
-  `tests/integration/expected_skips.toml`, `tests/unit/test_ci_{network,workflows}.py`,
-  TESTING_STRATEGY §6, DECISIONS ADR-022, phase file.
 ## Done (newest first)
+- P2-T08a — Nightly `Integration` workflow with real tools: both OSes bootstrap Wiimms,
+  Blender, ABMatt (Windows also the RiiStudio release), generate fixtures and S2 outputs,
+  Linux installs Wine 9.0 and runs the Wine rszst route; `ci_network.py --expected
+  tests/integration/expected_skips.toml --os` turns any unexplained skip, failure, empty
+  run or stale list entry red. First run found 3 real failures on Windows (probe stderr in
+  cp1252, no GPU for editor windows) and 84 unlisted Linux skips; fixed/listed. Second run
+  green: Linux 37 passed / 84 expected skips, Windows 109 passed / 12 expected skips.
+  Reporter mutants 19/19 caught; gate green (1093 passed) — commits 635f82e, f765eaa
 - P2-T07b — Tools page (GUI): Settings → Tools… lists every tool with a coloured status,
   details (path, how found, fix, note), Browse…/Clear (saved to settings, then re-checked),
   Re-check and Open download page; checks run in a worker behind a busy bar, newest result
@@ -877,13 +871,10 @@ _none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-2
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
 TOOLS.md); non-ASCII plan approved — rszst adapter always uses cwd + bare names, and "Open in
 RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). -->
-- **Scheduled nightly `Integration preconditions` is red by design until P2-T08.** Every
-  daily run since 2026-10-12 fails on both OSes because its one selected `network` test
-  skips (`wine not installed`; the runner has no RiiStudio/Wine bootstrap yet). ADR-022
-  makes a skip-only run fail rather than show an empty green. P2-T08 adds tool bootstrap.
-  The ordinary push `CI` workflow is separate and green. Both workflows also warn that
-  `actions/checkout@v4` / `upload-artifact@v4` target deprecated Node 20 and that
-  `ubuntu-latest` moves to Ubuntu 26; neither has failed a job yet.
+- **Nightly `Integration` is green (P2-T08a, run on f765eaa).** On Linux 84 tests still skip
+  for listed reasons, mostly Windows-only recordings and rszst through `tool_paths`; P2-T08b
+  shrinks that list. Both workflows warn that `actions/*@v4` target deprecated Node 20 and
+  that `ubuntu-latest` moves to Ubuntu 26; neither has failed a job yet.
 - **Optional Mint GUI pixel spot-check — deferred by the human:** CI verified Linux
   font families and screenshot generation, but its pixels were not inspected.
   When convenient, `git pull && uv sync && uv run ctstudio --offscreen-smoke
