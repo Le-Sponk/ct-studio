@@ -1,38 +1,54 @@
-name: Integration preconditions
+name: Integration
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '17 3 * * *' # UTC; avoid the start-of-hour queue.
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/integration.yml
+      - scripts/ci_network.py
+      - scripts/bootstrap_tools.py
+      - scripts/tool_catalogue.py
+      - tests/integration/expected_skips.toml
 
 permissions:
   contents: read
 
-# P2-T08 will add tool bootstrap and the full synthetic integration/e2e suite.
-# The network-marked RiiStudio test is selected now; missing prerequisites are
-# reported as a failing, reasoned signal rather than an empty green job.
+# P2-T08a: real tools from scripts/bootstrap_tools.py, generated fixtures, then every
+# integration and network test that is not marked slow. A skip is green only when
+# tests/integration/expected_skips.toml lists it for this OS with its reason; an
+# unlisted skip, a failure, or a listed skip that stopped happening is red (ADR-022).
 jobs:
-  network:
-    name: Network preconditions (${{ matrix.os }})
+  integration:
+    name: Integration (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     env:
       QT_QPA_PLATFORM: offscreen
+      CTSTUDIO_RSZST_WINE: '1' # Linux: run rszst.exe through Wine (P2-T06e)
+      WINEDEBUG: '-all'
     steps:
       - name: Check out code and add-on
         uses: actions/checkout@v4
         with:
           submodules: true
           persist-credentials: false
-      - name: Install Linux Qt runtime and fonts
+      - name: Install Linux Qt, Blender and Wine runtime
         if: runner.os == 'Linux'
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1 libopengl0 libfontconfig1 libxcb-cursor0 libxkbcommon-x11-0 fonts-dejavu-core
+          sudo apt-get install -y --no-install-recommends \
+            libegl1 libgl1 libopengl0 libfontconfig1 libxcb-cursor0 libxkbcommon-x11-0 \
+            fonts-dejavu-core libxi6 libxxf86vm1 libxfixes3 libxrender1 libsm6 \
+            libxkbcommon0 libx11-6 wine wine64
+          wine --version
       - name: Install uv with lockfile cache
         uses: astral-sh/setup-uv@v7
         with:
@@ -43,15 +59,34 @@ jobs:
         run: uv python install 3.12
       - name: Sync locked dependencies
         run: uv sync --locked
-      - name: Run network-marked tests
-        run: uv run pytest -m network tests -rs --junitxml=tests/artifacts/network.xml
-      - name: Report every skip reason in job summary
+      - name: Restore tool downloads
+        uses: actions/cache@v4
+        with:
+          path: .tools/_downloads
+          key: tools-${{ runner.os }}-${{ hashFiles('scripts/tool_catalogue.py') }}
+      - name: Bootstrap Wiimms, Blender and ABMatt
+        run: uv run python scripts/bootstrap_tools.py
+      - name: Bootstrap the RiiStudio release (Windows)
+        if: runner.os == 'Windows'
+        run: uv run python scripts/bootstrap_tools.py --only riistudio
+      - name: Generate fixtures
+        run: uv run python scripts/fixtures/make_fixtures.py
+      - name: Generate S2 Blender outputs
+        run: uv run python spikes/s2_blender.py
+      - name: Run integration and network tests
+        run: >-
+          uv run pytest -m "(integration or network) and not slow" tests -rs
+          --junitxml=tests/artifacts/integration.xml
+      - name: Report every skip against the expected list
         if: always()
-        run: uv run python scripts/ci_network.py tests/artifacts/network.xml
-      - name: Upload network JUnit report
+        run: >-
+          uv run python scripts/ci_network.py tests/artifacts/integration.xml
+          --expected tests/integration/expected_skips.toml
+          --os ${{ runner.os == 'Windows' && 'windows' || 'linux' }}
+      - name: Upload integration JUnit report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: network-${{ matrix.os }}
-          path: tests/artifacts/network.xml
+          name: integration-${{ matrix.os }}
+          path: tests/artifacts/integration.xml
           if-no-files-found: warn

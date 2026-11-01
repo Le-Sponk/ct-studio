@@ -1,0 +1,24 @@
+# Skips the nightly Integration workflow allows (P2-T08a, scripts/ci_network.py --expected).
+#
+# Each entry: os (["linux"], ["windows"] or both), test (fnmatch over
+# "module.path::test_name[params]"; a collection skip is just the module), reason (text
+# the skip reason must contain) and why (shown in the job summary). A skip not listed
+# here, or listed but no longer happening, turns the run red. "[[]" matches a literal "[".
+
+[[skip]]
+os = ["linux", "windows"]
+test = "tests.integration.test_preview_stack"
+reason = "moderngl not installed"
+why = "The GL preview stack is an optional Phase 9 dependency, not installed yet."
+
+[[skip]]
+os = ["windows"]
+test = "tests.integration.test_rszst_setup_real::test_linux_wine_route_and_the_adapter_through_it"
+reason = "the Wine route is for Linux"
+why = "Windows runs the official rszst.exe directly."
+
+[[skip]]
+os = ["windows"]
+test = "tests.integration.test_wine_editors::*"
+reason = "needs Linux desktop, Wine, wmctrl"
+why = "Editors through Wine are a Linux route."

@@ -4,12 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08 — Integration CI
+**Next task:** P2-T08a — Integration CI (in progress)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** 7a0abb6 (P2-T07b; Windows gate and Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-T08a` — Integration CI (bootstrap + real-tool suite). Plan (2026-11-01): (1) RED
+  tests for the reporter and the workflow contract; (2) `scripts/ci_network.py` gains
+  `--expected <toml>`: a skip passes only if listed for this OS with its reason, an
+  unlisted skip or a listed skip that no longer happens fails (the list cannot rot);
+  (3) `tests/integration/expected_skips.toml` (Windows measured locally, Linux from the
+  first CI run); (4) `integration.yml`: Linux/Windows, cached `.tools/_downloads` keyed by
+  the catalogue, `bootstrap_tools.py` (+ riistudio on Windows), fixtures + S2 outputs,
+  Wine on Linux with `CTSTUDIO_RSZST_WINE=1`, `pytest -m "(integration or network) and not
+  slow"`, reporter, JUnit upload; also runs on pushes that change the workflow, reporter or
+  list. Acceptance: green on both OSes with every skip explained. Risks: Linux Blender
+  libraries; download size/time; Linux skip set unknown until the first run. Files:
+  `.github/workflows/integration.yml`, `scripts/ci_network.py`,
+  `tests/integration/expected_skips.toml`, `tests/unit/test_ci_{network,workflows}.py`,
+  TESTING_STRATEGY §6, DECISIONS ADR-022, phase file.
 ## Done (newest first)
 - P2-T07b — Tools page (GUI): Settings → Tools… lists every tool with a coloured status,
   details (path, how found, fix, note), Browse…/Clear (saved to settings, then re-checked),
@@ -483,6 +497,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-01: P2-T08 split. P2-T08a = nightly integration workflow with tool bootstrap,
+  fixtures and a strict expected-skips list. P2-T08b = Linux help/ops recordings from CI,
+  Linux real-tool rszst tests (`tool_paths.RSZST` via the Wine route) and the Linux
+  non-ASCII path measurement.
 - 2026-11-01 (P2-T07): split. P2-T07a = user settings for tool paths + doctor honouring
   them (core/CLI); P2-T07b = the Tools page itself (list, chips, Browse…, Re-check off the
   UI thread, download page, pytest-qt + screenshot).

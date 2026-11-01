@@ -361,6 +361,11 @@ P1-T07's CI scaffold; P2-T08 adds the real bootstrap and integration/e2e jobs.
 **Consequences:** The scheduled network job may remain red with a precise missing
 precondition until P2-T08. The main `ci.yml` quality matrix is independent and must
 be green on Ubuntu and Windows. Revisit when P2-T08 installs real prerequisites.
+**Update (P2-T08a, 2026-11-01):** the nightly run now installs the real tools, so the
+rule becomes "no *unexplained* skip": `tests/integration/expected_skips.toml` lists each
+allowed skip per OS with its reason and why; anything else that skips, or a listed skip
+that no longer happens, fails the run. Without `--expected` the reporter keeps the
+original strict rule.
 
 ## ADR-023 — Split discovery around the process runner
 **Status:** Accepted (P2-T02a)

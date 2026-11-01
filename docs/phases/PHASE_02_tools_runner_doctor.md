@@ -341,14 +341,23 @@ Browse/Clear stay off; a failed check shows a banner and keeps the last list. Do
 words (`STATUS_LABELS`, `found_how`) moved to core so CLI and GUI say the same thing.
 Screenshots (git-ignored): `p2-t07b-tools-{light,dark,set-path,checking,damaged-settings}.png`.
 
-### [ ] P2-T08 — Integration CI
-`integration.yml` (nightly + manual): Linux + Windows; downloads Wiimms tools + Blender (cached by
-version key) using `scripts/bootstrap_tools.py`; runs `-m integration`. Windows also evaluates the
-rszst prebuilt if S3 required it.
+### [ ] P2-T08a — Integration CI (split from P2-T08, 2026-11-01)
+`integration.yml` (nightly + manual, and on pushes that change it): Linux + Windows; downloads
+Wiimms tools, Blender and ABMatt (and the RiiStudio release on Windows) with
+`scripts/bootstrap_tools.py`, cached by the catalogue's hash; generates fixtures; runs
+`-m "(integration or network) and not slow"`. Linux installs Wine and runs the Wine rszst route.
+Every skip must be listed for its OS in `tests/integration/expected_skips.toml` with a reason;
+an unlisted skip, a failure, or a listed skip that stopped happening turns the run red.
+**Acceptance:** green on both OSes with every skip explained.
+
+### [ ] P2-T08b — Linux recordings and Linux real-tool rszst
 **From S3a:** Linux Alpha 5.11.5 builds, but Windows behaviour is unverified. Pin the
 Windows release ZIP checksum, retain bundled DLLs, record help/version/invalid-argument
 exit codes independently (Linux returns 255 for all three) and run S3b's synthetic
 course/skybox tests. See [SPIKES.md S3](../dev/SPIKES.md#s3-brres-backend-bake-off-p0-t06a--p0-t06b).
-**Acceptance:** green on both OSes (or blocked item if repo not on GitHub yet).
+Plus: commit `linux-help.json` / `linux-ops.json` recorded on the Linux runner, let
+`tool_paths.RSZST` use the Wine route on Linux so the real-tool rszst tests run there, and
+measure non-ASCII paths on Linux.
+**Acceptance:** Linux recordings committed and replayed; rszst integration tests run on Linux.
 
 ### [ ] P2-GATE — Phase review

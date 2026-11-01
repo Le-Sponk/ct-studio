@@ -41,20 +41,58 @@ def test_local_gate_runs_on_both_oses_and_uploads_evidence() -> None:
     assert "coverage.xml" in uploads[0]["with"]["path"]
 
 
-def test_nightly_network_reporter_never_treats_a_skip_as_green() -> None:
+def _steps_running(steps: list[dict], text: str) -> list[dict]:
+    return [step for step in steps if text in step.get("run", "")]
+
+
+def test_nightly_integration_bootstraps_real_tools_and_explains_every_skip() -> None:
     workflow = _workflow("integration.yml")
-    assert "workflow_dispatch" in workflow["on"]
-    assert workflow["on"]["schedule"][0]["cron"]
-    job = workflow["jobs"]["network"]
+    triggers = workflow["on"]
+    assert "workflow_dispatch" in triggers and triggers["schedule"][0]["cron"]
+    watched = triggers["push"]["paths"]
+    for path in (
+        ".github/workflows/integration.yml",
+        "scripts/ci_network.py",
+        "scripts/tool_catalogue.py",
+        "tests/integration/expected_skips.toml",
+    ):
+        assert path in watched
+    job = workflow["jobs"]["integration"]
     assert job["strategy"]["matrix"]["os"] == ["ubuntu-latest", "windows-latest"]
+    assert job["strategy"]["fail-fast"] is False
     assert job["env"]["QT_QPA_PLATFORM"] == "offscreen"
+    assert job["env"]["CTSTUDIO_RSZST_WINE"] == "1"
     steps = job["steps"]
-    assert any(
-        step.get("if") == "runner.os == 'Linux'" and "libegl1" in step.get("run", "")
-        for step in steps
-    )
-    tests = [step for step in steps if "pytest" in step.get("run", "")]
-    assert len(tests) == 1 and "-m network" in tests[0]["run"]
-    assert "--junitxml=" in tests[0]["run"]
-    reporters = [step for step in steps if "scripts/ci_network.py" in step.get("run", "")]
+    caches = [s for s in steps if s.get("uses", "").startswith("actions/cache@")]
+    assert len(caches) == 1
+    assert caches[0]["with"]["path"] == ".tools/_downloads"
+    assert "hashFiles('scripts/tool_catalogue.py')" in caches[0]["with"]["key"]
+    linux = [s for s in steps if s.get("if") == "runner.os == 'Linux'"]
+    assert any("wine" in s.get("run", "") and "libegl1" in s.get("run", "") for s in linux)
+    assert _steps_running(steps, "python scripts/bootstrap_tools.py")
+    windows = [s for s in steps if s.get("if") == "runner.os == 'Windows'"]
+    assert any("bootstrap_tools.py --only riistudio" in s.get("run", "") for s in windows)
+    assert _steps_running(steps, "python scripts/fixtures/make_fixtures.py")
+    assert _steps_running(steps, "python spikes/s2_blender.py")
+    tests = _steps_running(steps, "pytest")
+    assert len(tests) == 1
+    assert '-m "(integration or network) and not slow"' in tests[0]["run"]
+    assert "--junitxml=tests/artifacts/integration.xml" in tests[0]["run"]
+    reporters = _steps_running(steps, "scripts/ci_network.py")
     assert len(reporters) == 1 and reporters[0].get("if") == "always()"
+    assert "--expected tests/integration/expected_skips.toml" in reporters[0]["run"]
+    assert "--os ${{ runner.os == 'Windows' && 'windows' || 'linux' }}" in reporters[0]["run"]
+    uploads = [s for s in steps if s.get("uses", "").startswith("actions/upload-artifact@")]
+    assert uploads and uploads[0].get("if") == "always()"
+    assert "tests/artifacts/integration.xml" in uploads[0]["with"]["path"]
+
+
+def test_the_expected_skip_list_parses_for_both_oses() -> None:
+    import sys
+
+    sys.path.insert(0, str(WORKFLOWS.parents[1] / "scripts"))
+    from ci_network import load_expected
+
+    listed = WORKFLOWS.parents[1] / "tests" / "integration" / "expected_skips.toml"
+    for os_name in ("linux", "windows"):
+        assert load_expected(listed, os_name)  # each OS has explained skips
