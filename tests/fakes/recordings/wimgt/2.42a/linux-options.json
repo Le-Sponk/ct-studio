@@ -1,0 +1,732 @@
+{
+ "commands": {
+  "VERSION": {
+   "aliases": [
+    "V"
+   ],
+   "options": {
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--sections": {
+     "short": null,
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "HELP": {
+   "aliases": [
+    "H"
+   ],
+   "options": {
+    "--width": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-width": {
+     "short": null,
+     "arg": "required"
+    }
+   }
+  },
+  "CONFIG": {
+   "aliases": [],
+   "options": {
+    "--config": {
+     "short": null,
+     "arg": "required"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "ARGTEST": {
+   "aliases": [],
+   "options": {}
+  },
+  "EXPAND": {
+   "aliases": [],
+   "options": {}
+  },
+  "TEST": {
+   "aliases": [],
+   "options": {}
+  },
+  "COLORS": {
+   "aliases": [],
+   "options": {
+    "--colors": {
+     "short": null,
+     "arg": "optional"
+    },
+    "--no-colors": {
+     "short": null,
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    }
+   }
+  },
+  "ERROR": {
+   "aliases": [
+    "ERR"
+   ],
+   "options": {
+    "--sections": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--brief": {
+     "short": "-B",
+     "arg": "none"
+    }
+   }
+  },
+  "FILETYPE": {
+   "aliases": [
+    "FT"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    }
+   }
+  },
+  "FILEATTRIB": {
+   "aliases": [
+    "FA"
+   ],
+   "options": {
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "LIST": {
+   "aliases": [
+    "LS"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "LIST-L": {
+   "aliases": [
+    "LL"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "LIST-LL": {
+   "aliases": [
+    "LLL"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--long": {
+     "short": "-l",
+     "arg": "none"
+    },
+    "--no-header": {
+     "short": "-H",
+     "arg": "none"
+    }
+   }
+  },
+  "DECODE": {
+   "aliases": [
+    "DEC"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--n-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--mipmap-size": {
+     "short": null,
+     "arg": "required"
+    },
+    "--pre-convert": {
+     "short": null,
+     "arg": "none"
+    },
+    "--patch": {
+     "short": "-P",
+     "arg": "required"
+    },
+    "--mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--fast-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--cmpr-default": {
+     "short": null,
+     "arg": "required"
+    },
+    "--transform": {
+     "short": "-x",
+     "arg": "required"
+    },
+    "--strip": {
+     "short": null,
+     "arg": "none"
+    }
+   }
+  },
+  "ENCODE": {
+   "aliases": [
+    "ENC"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--all": {
+     "short": "-a",
+     "arg": "none"
+    },
+    "--n-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--mipmap-size": {
+     "short": null,
+     "arg": "required"
+    },
+    "--pre-convert": {
+     "short": null,
+     "arg": "none"
+    },
+    "--patch": {
+     "short": "-P",
+     "arg": "required"
+    },
+    "--mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--fast-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--cmpr-default": {
+     "short": null,
+     "arg": "required"
+    },
+    "--transform": {
+     "short": "-x",
+     "arg": "required"
+    },
+    "--strip": {
+     "short": null,
+     "arg": "none"
+    }
+   }
+  },
+  "CONVERT": {
+   "aliases": [
+    "CV"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--all": {
+     "short": "-a",
+     "arg": "none"
+    },
+    "--n-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--mipmap-size": {
+     "short": null,
+     "arg": "required"
+    },
+    "--pre-convert": {
+     "short": null,
+     "arg": "none"
+    },
+    "--patch": {
+     "short": "-P",
+     "arg": "required"
+    },
+    "--mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--fast-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--cmpr-default": {
+     "short": null,
+     "arg": "required"
+    },
+    "--transform": {
+     "short": "-x",
+     "arg": "required"
+    },
+    "--strip": {
+     "short": null,
+     "arg": "none"
+    }
+   }
+  },
+  "COPY": {
+   "aliases": [
+    "CP"
+   ],
+   "options": {
+    "--no-wildcards": {
+     "short": null,
+     "arg": "none"
+    },
+    "--in-order": {
+     "short": null,
+     "arg": "none"
+    },
+    "--ignore": {
+     "short": "-i",
+     "arg": "none"
+    },
+    "--dest": {
+     "short": "-d",
+     "arg": "required"
+    },
+    "--DEST": {
+     "short": "-D",
+     "arg": "required"
+    },
+    "--esc": {
+     "short": "-E",
+     "arg": "required"
+    },
+    "--overwrite": {
+     "short": "-o",
+     "arg": "none"
+    },
+    "--number": {
+     "short": null,
+     "arg": "none"
+    },
+    "--remove-dest": {
+     "short": "-r",
+     "arg": "none"
+    },
+    "--update": {
+     "short": "-u",
+     "arg": "none"
+    },
+    "--preserve": {
+     "short": "-p",
+     "arg": "none"
+    },
+    "--all": {
+     "short": "-a",
+     "arg": "none"
+    },
+    "--n-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--max-mipmaps": {
+     "short": null,
+     "arg": "required"
+    },
+    "--mipmap-size": {
+     "short": null,
+     "arg": "required"
+    },
+    "--pre-convert": {
+     "short": null,
+     "arg": "none"
+    },
+    "--patch": {
+     "short": "-P",
+     "arg": "required"
+    },
+    "--mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--no-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--fast-mipmaps": {
+     "short": null,
+     "arg": "none"
+    },
+    "--cmpr-default": {
+     "short": null,
+     "arg": "required"
+    },
+    "--transform": {
+     "short": "-x",
+     "arg": "required"
+    },
+    "--strip": {
+     "short": null,
+     "arg": "none"
+    }
+   }
+  }
+ },
+ "global": {
+  "--version": {
+   "short": "-V",
+   "arg": "none"
+  },
+  "--help": {
+   "short": "-h",
+   "arg": "none"
+  },
+  "--xhelp": {
+   "short": null,
+   "arg": "none"
+  },
+  "--config": {
+   "short": null,
+   "arg": "required"
+  },
+  "--allow-all": {
+   "short": null,
+   "arg": "none"
+  },
+  "--compatible": {
+   "short": null,
+   "arg": "required"
+  },
+  "--width": {
+   "short": null,
+   "arg": "required"
+  },
+  "--max-width": {
+   "short": null,
+   "arg": "required"
+  },
+  "--no-pager": {
+   "short": null,
+   "arg": "none"
+  },
+  "--zero": {
+   "short": "-z",
+   "arg": "none"
+  },
+  "--quiet": {
+   "short": "-q",
+   "arg": "none"
+  },
+  "--verbose": {
+   "short": "-v",
+   "arg": "none"
+  },
+  "--logging": {
+   "short": "-L",
+   "arg": "none"
+  },
+  "--extended-errors": {
+   "short": "-Y",
+   "arg": "none"
+  },
+  "--timing": {
+   "short": null,
+   "arg": "none"
+  },
+  "--warn": {
+   "short": "-W",
+   "arg": "required"
+  },
+  "--de": {
+   "short": null,
+   "arg": "none"
+  },
+  "--colors": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--no-colors": {
+   "short": null,
+   "arg": "none"
+  },
+  "--ct-code": {
+   "short": null,
+   "arg": "none"
+  },
+  "--le-code": {
+   "short": null,
+   "arg": "optional"
+  },
+  "--le-04x": {
+   "short": null,
+   "arg": "none"
+  },
+  "--chdir": {
+   "short": null,
+   "arg": "required"
+  },
+  "--const": {
+   "short": "-c",
+   "arg": "required"
+  },
+  "--max-file-size": {
+   "short": "-M",
+   "arg": "required"
+  },
+  "--test": {
+   "short": "-t",
+   "arg": "none"
+  },
+  "--force": {
+   "short": null,
+   "arg": "none"
+  },
+  "--repair-magics": {
+   "short": null,
+   "arg": "optional"
+  }
+ }
+}

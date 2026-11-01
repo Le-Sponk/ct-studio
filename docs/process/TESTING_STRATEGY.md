@@ -87,6 +87,14 @@ is missing and nothing is protected.
   SZS/KMP/TEX0/BRRES, so fake and real outputs never mix.
 - `tests/fakes/recordings/<tool>/<version>/` store captured real outputs (`--help`, `version`,
   `check` on good/bad inputs). Parsers are unit-tested against recordings.
+- Linux recordings (P2-T08b) come from `record-linux.yml` (manual, and on pushes that change
+  it), never from a developer machine: it bootstraps the pinned tools on ubuntu-latest, runs
+  `record_tool_help.py` and `record_tool_outputs.py --only wiimms-szs-tools --only blender`
+  and uploads the `linux-*.json` files as an artifact. It never pushes; a person downloads,
+  reviews and commits them. Recorded text hides the run folder as `<work>` and the tools
+  folder as `<tools>`. `tests/unit/test_linux_ops.py` requires the same cases, exit codes,
+  file effects and inputs as the Windows recording; printed text may differ only in its
+  listed ways (slashes, build name, Blender build minute, getopt wording, auto-add folder).
 - `scripts/record_tool_outputs.py` (P2-T04b/e) runs per-tool case tables from
   `scripts/ops_cases.py` and `scripts/wiimm_adapter_cases.py` on the generated or retained
   fixtures. `<os>-ops.json` keeps output, exit code, file effects (created/changed and

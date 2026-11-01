@@ -353,13 +353,20 @@ an unlisted skip, a failure, or a listed skip that stopped happening turns the r
 listed skips. Editor-window tests skip on CI (`CTSTUDIO_CI_NO_GPU=1`: no GPU desktop);
 `realdata` is excluded (user files never reach CI).
 
-### [ ] P2-T08b — Linux tool recordings from CI (split 2026-11-01)
+### [x] P2-T08b — Linux tool recordings from CI (split 2026-11-01)
 `record-linux.yml` (manual, and on pushes that change it) bootstraps on ubuntu-latest and runs
 `record_tool_help.py` and `record_tool_outputs.py --only wiimms-szs-tools --only blender`; its
 artifact is reviewed and the `linux-*.json` recordings committed. A contract test compares
 Linux and Windows operation recordings case by case and allows only listed differences.
 **Acceptance:** Linux help/options/ops recordings committed; help contract and the Linux vs
 Windows comparison pass.
+**Done (2026-11-01):** the first artifact (run on b09f3b3) leaked the runner's checkout
+folder through Linux Wiimm argv[0] in error text and the auto-add path; the recorder now hides
+`.tools` as `<tools>` (re-recorded on 9bfe396). Committed: help for wszst/wkclt/wkmpt/wimgt,
+ABMatt and Blender; Wiimm option indexes; ops for the four Wiimm tools (108 cases) and
+Blender (21). Every case's exit code, file effects and inputs match Windows; text differs
+only in five listed ways (`tests/unit/test_linux_ops.py`). Linux `linux-cli.json` for rszst
+was unchanged.
 
 ### [ ] P2-T08c — Windows-gated Wiimm/Blender tests and fakes on Linux
 Use the P2-T08b recordings: replay `linux-ops.json` in the fakes on Linux, and lift the

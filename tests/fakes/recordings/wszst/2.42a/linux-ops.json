@@ -1,0 +1,1251 @@
+[
+ {
+  "case": "wszst version",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "version"
+  ],
+  "exit_code": 0,
+  "stdout": "wszst: Wiimms SZS Tool v2.42a r8989 x86_64 - Dirk Clemens - 2024-03-26\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "create",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create default dest",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:./stage.szs\n",
+  "stderr": "",
+  "files": {
+   "stage.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create uncompressed",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "u.szs",
+   "--no-compress"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> U8:u.szs\n",
+  "stderr": "",
+  "files": {
+   "u.szs": {
+    "effect": "created",
+    "magic": "55aa382d"
+   }
+  }
+ },
+ {
+  "case": "create fast",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--fast",
+   "--overwrite"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create keeps existing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "!! wszst: ERROR #64 [FILE ALREADY EXISTS]\n!!        File already exists: t.szs\n",
+  "files": {}
+ },
+ {
+  "case": "create -o replaces",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "-o"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "changed",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create compr template",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--overwrite",
+   "--compr=9"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:t.szs\n",
+  "stderr": "",
+  "files": {
+   "t.szs": {
+    "effect": "changed",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create no folder",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "sub/t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:sub/t.szs\n",
+  "stderr": "!! wszst: ERROR #82 [CAN'T CREATE FILE]\n!!        Can't create file: sub/t.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "create -D makes folder",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "-D",
+   "sub/t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:sub/t.szs\n",
+  "stderr": "",
+  "files": {
+   "sub/t.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create missing source",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "create",
+   "nodir",
+   "--dest",
+   "t.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "CREATE nodir/ -> DIR:t.szs\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't open directory: nodir/\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "create unknown long flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--bogus-flag"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "<tools>/wiimms-szs-tools/bin/wszst: unrecognized option '--bogus-flag'\n-> Type 'wszst -h' or 'wszst help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create unknown short flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "-Z"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "<tools>/wiimms-szs-tools/bin/wszst: invalid option -- 'Z'\n-> Type 'wszst -h' or 'wszst help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create foreign flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--brief"
+  ],
+  "exit_code": 108,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #108 [SEMANTIC ERROR]\n!!        Command 'CREATE' doesn't allow the option --brief (-B).\n-> Type 'wszst help CREATE' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create foreign long-only flag",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "t.szs",
+   "--touch"
+  ],
+  "exit_code": 108,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #108 [SEMANTIC ERROR]\n!!        Command 'CREATE' doesn't allow the option --touch.\n-> Type 'wszst help CREATE' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "create absolute paths",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "create",
+   "<work>/stage",
+   "--dest",
+   "<work>/a.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE <work>/stage/ -> YAZ0.U8:<work>/a.szs\n",
+  "stderr": "",
+  "files": {
+   "a.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "unknown command",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "frobnicate"
+  ],
+  "exit_code": 110,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #110 [SYNTAX ERROR]\n!!        Unknown command: frobnicate\n-> Type 'wszst -h' or 'wszst help' (pipe it to a pager like 'less') for more help.\n\n",
+  "files": {}
+ },
+ {
+  "case": "list",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "list",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n> 0 directories + 2 files of YAZ0.U8:t.szs \n\ncourse.kcl\ncourse.kmp\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "list long",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "list",
+   "--long",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n> 0 directories + 2 files of YAZ0.U8:t.szs \n\nsize/dec  magic file or directory\n──────────────────────────────────\n   16250  ...D  course.kcl\n     552  RKMD  course.kmp\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "list missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "list",
+   "missing.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "check",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "check",
+   "t.szs"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:t.szs\n* CHECK KCL:t.szs/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:t.szs/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n* CHECK YAZ0.U8:t.szs\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings, 2 hints and 1 info for YAZ0.U8:t.szs\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check brief",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "check",
+   "--brief",
+   "t.szs"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:t.szs\n* CHECK KCL:t.szs/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:t.szs/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n* CHECK YAZ0.U8:t.szs\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings and 1 info for YAZ0.U8:t.szs\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check brief after file",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "check",
+   "t.szs",
+   "--brief"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:t.szs\n* CHECK KCL:t.szs/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:t.szs/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n* CHECK YAZ0.U8:t.szs\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings and 1 info for YAZ0.U8:t.szs\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "check",
+   "missing.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "\nCHECK ?:\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "check junk",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "check",
+   "junk.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCHECK ?:junk.szs\n",
+  "stderr": "!! wszst: ERROR #39 [INVALID FILE FORMAT]\n!!        CHECK doesn't support file format '?': junk.szs\n",
+  "files": {}
+ },
+ {
+  "case": "minimap auto",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of YAZ0:t.szs\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check directory",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "check",
+   "stage"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK U8:stage\n* CHECK KCL:stage/course.kcl\n    * INFO: Signature: WiimmSZS v2.42\n* CHECK KMP:stage/course.kmp\n  > All indices are zero based!\n  > Section CAME, header\n    + WARNING: Invalid link to not existing opening camera #0 (max=#-1).\n    + WARNING: Invalid link to not existing selection camera #0 (max=#-1).\n  > Section CAME\n    - HINT: Missing a camera with type 0.\n  > Section ITPH, Item route group #0 of 1\n    - HINT: Self linked item route.\n* CHECK U8:stage\n    + WARNING: Missing file:    ./course_model.brres (or '_d' variant)\n    + WARNING: Missing file:    ./map_model.brres\n    + WARNING: Missing file:    ./vrcorn_model.brres\n => 5 warnings, 2 hints and 1 info for U8:stage\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check empty directory",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {},
+  "argv": [
+   "check",
+   "empty"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK U8:empty\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "check empty archive",
+  "tool": "wszst",
+  "compare": "findings",
+  "inputs": {},
+  "argv": [
+   "check",
+   "empty.szs"
+  ],
+  "exit_code": 2,
+  "stdout": "\nCHECK YAZ0.U8:empty.szs\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json",
+  "tool": "wszst",
+  "compare": "unmodelled",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "analyze",
+   "--json",
+   "t.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"t.szs\",\"file_type\":\"YAZ0.U8\",\"analyze\":\"track\",\"size\":16928,\"db64\":\"6A-5YeIBFE0itbKlkd_M_9XvDdwAAEIg\",\"sha1\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_norm\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_kcl\":\"41777b84bcea7bbc0f0134dfb44fc8ce1aea36e1\",\"sha1_kmp\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_kmp_norm\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"-4.2,-6.1,-6.2\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_y_pos\":\"2=ok 200.00 200.00 0.00 200.00\",\"used_z_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"0 1 1 1\",\"missed_subfiles\":\"2b\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"miss=2b,warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json uncompressed",
+  "tool": "wszst",
+  "compare": "unmodelled",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "analyze",
+   "--json",
+   "u.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"u.szs\",\"file_type\":\"U8\",\"analyze\":\"track\",\"size\":16928,\"db64\":\"6A-5YeIBFE0itbKlkd_M_9XvDdwAAEIg\",\"sha1\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_norm\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_kcl\":\"41777b84bcea7bbc0f0134dfb44fc8ce1aea36e1\",\"sha1_kmp\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_kmp_norm\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"-4.2,-6.1,-6.2\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_y_pos\":\"2=ok 200.00 200.00 0.00 200.00\",\"used_z_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"0 1 1 1\",\"missed_subfiles\":\"2b\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"miss=2b,warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json empty archive",
+  "tool": "wszst",
+  "compare": "unmodelled",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "empty.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"empty.szs\",\"file_type\":\"YAZ0.U8\",\"analyze\":\"track\",\"size\":64,\"db64\":\"sb9wY5xOhgsGOMXDXUnNlLlWnJYAAABA\",\"sha1\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_norm\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_kcl\":\"\",\"sha1_kmp\":\"\",\"sha1_kmp_norm\":\"\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":-1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"%\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_y_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_z_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"\",\"missed_subfiles\":\"\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json directory",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "course.kmp": {
+    "size": 552,
+    "head": "524b4d4400000228000f004c0000000000000000000000240000007c00000094",
+    "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d"
+   }
+  },
+  "argv": [
+   "analyze",
+   "--json",
+   "stage"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"stage\",\"file_type\":\"U8\",\"analyze\":\"track\",\"size\":16928,\"db64\":\"6A-5YeIBFE0itbKlkd_M_9XvDdwAAEIg\",\"sha1\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_norm\":\"e80fb961e201144d22b5b2a591dfccffd5ef0ddc\",\"sha1_kcl\":\"41777b84bcea7bbc0f0134dfb44fc8ce1aea36e1\",\"sha1_kmp\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_kmp_norm\":\"13fcfdd72e8f686bdab4e1380b360f829344fb08\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"-4.2,-6.1,-6.2\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_y_pos\":\"2=ok 200.00 200.00 0.00 200.00\",\"used_z_pos\":\"2=ok -12000.00 12000.00 24000.00 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"0 1 1 1\",\"missed_subfiles\":\"2b\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"miss=2b,warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json empty directory",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "empty"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"empty\",\"file_type\":\"U8\",\"analyze\":\"track\",\"size\":64,\"db64\":\"sb9wY5xOhgsGOMXDXUnNlLlWnJYAAABA\",\"sha1\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_norm\":\"b1bf70639c4e860b0638c5c35d49cd94b9569c96\",\"sha1_kcl\":\"\",\"sha1_kmp\":\"\",\"sha1_kmp_norm\":\"\",\"sha1_course\":\"\",\"sha1_vrcorn\":\"\",\"sha1_minimap\":\"\",\"sha1_kcl_slot\":0,\"sha1_kmp_slot\":0,\"sha1_kmp_norm_slot\":0,\"sha1_minimap_slot\":0,\"valid_track\":0,\"is_arena\":\"0 no\",\"n_ckpt0\":-1,\"lap_count\":3,\"speed_factor\":1.000,\"slot_info\":\"%\",\"slot_attributes\":\"\",\"race_slot\":\"0 -\",\"arena_slot\":\"0 -\",\"edit_slot\":\"0 -\",\"music_index\":\"0 -\",\"itempos_factors\":\"1.000 1.000 1.000\",\"used_x_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_y_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_z_pos\":\"1=na 340282346638528859811704183484516925440.00 -340282346638528859811704183484516925440.00 inf 0.00\",\"used_pos_suggest\":\"\",\"ktpt2\":\"ok 0.00 0.00\",\"gobj\":\"\",\"missed_subfiles\":\"\",\"modified_subfiles\":\"\",\"special_files\":\"0=\",\"original_files\":\"0=\",\"modified_files\":\"0=\",\"special_attrib\":\"0=\",\"special_kmp\":\"0=\",\"lex_sections\":\"0=\",\"lex_features\":\"0=\",\"warn\":\"4=no-minimap\",\"have_common\":0,\"ct_id\":\"0 0 0\",\"ct_attributes\":\"warn=no-minimap\",\"name_attributes\":\"\",\"valid\":1,\"warning\":\"\",\"duration_usec\":\"<usec>\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json junk",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "junk.szs"
+  ],
+  "exit_code": 0,
+  "stdout": "\n{\"file\":\"junk.szs\",\"file_type\":\"?\",\"analyze\":\"\",\"valid\":0,\"warning\":\"File format not supported.\"}\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "analyze json missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "analyze",
+   "--json",
+   "missing.szs"
+  ],
+  "exit_code": 78,
+  "stdout": "\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.szs\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "minimap auto brres",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "map_model.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of BRRES:map_model.brres\n\n               ______________left-down_______________    _______________right-up_______________\n-----------------------------------------------------------------------------------------------\nIdx+Id+Flags:         1         1     0x11c                     2         2     0x11c\nScale:              1.0       1.0       1.0                   1.0       1.0       1.0\nRotation            0.0       0.0       0.0                   0.0       0.0       0.0\nTranslation:    -6000.0       0.0    6100.0                6100.0       0.0   -6000.0\n Recommend.:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n-----------------------------------------------------------------------------------------------\nIdx+Id+Flags:         1         1     0x31f                     2         2     0x31f\nScale:              1.0       1.0       1.0                   1.0       1.0       1.0\nRotation            0.0       0.0       0.0                   0.0       0.0       0.0\nTranslation:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n-----------------------------------------------------------------------------------------------\nPATCH MINIMAP BRRES:map_model.brres\n",
+  "stderr": "",
+  "files": {
+   "map_model.brres": {
+    "effect": "changed",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "minimap auto brres patched",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model_patched.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "0063166ad84e3a7b977ab14d2cbebe0916e2a11ca6dc787fece4579336ed7c7e"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "map_model_patched.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of BRRES:map_model_patched.brres\n\n               ______________left-down_______________    _______________right-up_______________\n-----------------------------------------------------------------------------------------------\nIdx+Id+Flags:         1         1     0x31f                     2         2     0x31f\nScale:              1.0       1.0       1.0                   1.0       1.0       1.0\nRotation            0.0       0.0       0.0                   0.0       0.0       0.0\nTranslation:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n Recommend.:     -102.0       0.0     202.0                 202.0       0.0    -102.0\n-----------------------------------------------------------------------------------------------\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "minimap auto no bones",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "no_bones_model.brres": {
+    "size": 3328,
+    "head": "62726573feff000000000d0000100002726f6f74000000580000002800000001",
+    "sha256": "a7af7a86c1aa8501e08621dfc8eda425561100e2445f5cac431df31f275571da"
+   }
+  },
+  "argv": [
+   "minimap",
+   "--auto",
+   "no_bones_model.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of BRRES:no_bones_model.brres\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "minimap auto junk",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "minimap",
+   "--auto",
+   "junk.brres"
+  ],
+  "exit_code": 0,
+  "stdout": "\nMinimap data of ?:junk.brres\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "minimap auto missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "minimap",
+   "--auto",
+   "missing.brres"
+  ],
+  "exit_code": 78,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: missing.brres\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "autoadd status",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: <tools>/wiimms-szs-tools/share/szs/auto-add\n       SEARCH PATH[0]: <tools>/wiimms-szs-tools/share/szs/auto-add\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd status dest",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "--dest",
+   "lib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: lib\n       SEARCH PATH[0]: lib\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd verify synthetic",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "--dest",
+   "lib",
+   "-vv"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: lib\n       SEARCH PATH[0]: lib\n\nLIST OF FILES IN lib\n  BRRES itembox.brres\n   0:  6c f7 3f 15  1a 17 17 bd  99 77 78 25  bd 4d 49 92  96 ac 29 ee  :l.?......wx%.MI...).:\n   0:  6e 36 9b 84  5e d6 f6 e3  99 5f 87 ad  15 c2 90 32  6b 2a a9 c5  :n6..^...._.....2k*..:\n  => 1 of 496 files found.\n\nLIST OF MISSED FILES IN lib\n  BRRES BGteresaSFC.brres\n  BRRES BeltCrossing.brres\n  BRRES BeltCurveA.brres\n  BRRES BeltEasy.brres\n  BRRES Block.brres\n  BRRES CarA1.brres\n  BRRES CarA2.brres\n  BRRES CarA3.brres\n  BRRES CarB.brres\n  BRRES Crane.brres\n  KCL   Crane.kcl\n  BRRES Crescent64.brres\n  BRRES DKrockGC.brres\n  BRRES DKship64.brres\n  BRRES DKtreeA64.brres\n  BRRES DKtreeB64.brres\n  BRRES DKturibashiGC.brres\n  BRRES DemoCol.brres\n  KCL   DemoCol.kcl\n  BRRES DemoJugemu.brres\n  BRRES DonkyCannonGC.brres\n  BRRES DonkyCannon_wii.brres\n  BRRES EarthRing.brres\n  BRRES Epropeller.brres\n  BRRES FireSnake.brres\n  BRRES FlagA1.brres\n  BRRES FlagA2.brres\n  BRRES FlagA3.brres\n  BRRES FlagA5.brres\n  BRRES FlagB1.brres\n  BRRES FlagB2.brres\n  BRRES FlagB3.brres\n  BRRES FlagB4.brres\n  BRRES FlamePole.brres\n  KCL   FlamePole.kcl\n  BRRES FlamePole_v.brres\n  BRRES HeyhoBallGBA.brres\n  BRRES HeyhoShipGBA.brres\n  BRRES HeyhoTreeGBA.brres\n  BRRES InsekiA.brres\n  BRRES InsekiB.brres\n  BRRES K_bomb_car.brres\n  BRRES K_bomb_car1.brres\n  BRRES K_car_body.brres\n  BRRES K_chairlift00.brres\n  BRRES K_sticklift00.brres\n  BRRES K_truck.brres\n  BRRES KmoonZ.brres\n  BRRES KoopaFigure64.brres\n  BRRES Ksticketc.brres\n  BRRES M_obj_jump.brres\n  KCL   M_obj_jump.kcl\n  BRRES M_obj_jump2.brres\n  KCL   M_obj_jump2.kcl\n  BRRES M_obj_s_jump.brres\n  KCL   M_obj_s_jump.kcl\n  BRRES M_obj_s_jump2.brres\n  KCL   M_obj_s_jump2.kcl\n  BRRES MarioGo64.brres\n  BRRES MashBalloonGC.brres\n  BRRES Mdush.brres\n  KCL   Mdush.kcl\n  BRRES MiiKanban.brres\n  BRRES MiiObj01.brres\n  BRRES MiiObj02.brres\n  BRRES MiiObj03.brres\n  BRRES MiiObjD01.brres\n  BRRES MiiObjD02.brres\n  BRRES MiiObjD03.brres\n  BRRES MiiSighKino.brres\n  BRRES MiiSignNoko.brres\n  BRRES MiiSignWario.brres\n  BRRES MiiSphinxY2.brres\n  BRRES MiiStatueBD1.brres\n  BRRES MiiStatueBL1.brres\n  BRRES MiiStatueD1.brres\n  BRRES MiiStatueD2.brres\n  BRRES MiiStatueL1.brres\n  BRRES MiiStatueL2.brres\n  BRRES MiiStatueL3.brres\n  BRRES MiiStatueM1.brres\n  BRRES MiiStatueM2.brres\n  BRRES MiiStatueP1.brres\n  BRRES PalmTree.brres\n  BRRES PeachHunsuiGC.brres\n  BRRES Piston.brres\n  BRRES Press.brres\n  BRRES Psea.brres\n  BRRES RM_ring1.brres\n  KCL   RM_ring1.kcl\n  KCL   RM_ring1b.kcl\n  KCL   RM_ring2.kcl\n  KCL   RM_ring2b.kcl\n  KCL   RM_ring2c.kcl\n  KCL   RM_ring3.kcl\n  KCL   RM_ring3b.kcl\n  KCL   RM_ring3c.kcl\n  BRRES RhMiiKanban.brres\n  BRRES SentakuDS.brres\n  BRRES ShMiiObj01.brres\n  BRRES ShMiiObj02.brres\n  BRRES ShMiiObj03.brres\n  BRRES SpaceSun.brres\n  BRRES Spot64.brres\n  BRRES StarRing.brres\n  BRRES TownBridgeDS.brres\n  KCL   TownBridgeDS.kcl\n  KCL   TownBridgeDS2.kcl\n  KCL   TownBridgeDS3.kcl\n  BRRES TownTreeDS.brres\n  BRRES TruckWagon.brres\n  BRRES Twanwan.brres\n  BRRES TwistedWay.brres\n  BRRES UtsuboDokan.brres\n  BRRES VolcanoBall1.brres\n  KCL   VolcanoPiece0.kcl\n  KCL   VolcanoPiece0b.kcl\n  KCL   VolcanoPiece0c.kcl\n  BRRES VolcanoPiece1.brres\n  KCL   VolcanoPiece1.kcl\n  KCL   VolcanoPiece11.kcl\n  KCL   VolcanoPiece11b.kcl\n  KCL   VolcanoPiece11c.kcl\n  KCL   VolcanoPiece13.kcl\n  KCL   VolcanoPiece13b.kcl\n  KCL   VolcanoPiece13c.kcl\n  KCL   VolcanoPiece14.kcl\n  KCL   VolcanoPiece14b.kcl\n  KCL   VolcanoPiece14c.kcl\n  KCL   VolcanoPiece16.kcl\n  KCL   VolcanoPiece16b.kcl\n  KCL   VolcanoPiece16c.kcl\n  KCL   VolcanoPiece18.kcl\n  KCL   VolcanoPiece18b.kcl\n  KCL   VolcanoPiece18c.kcl\n  KCL   VolcanoPiece1b.kcl\n  KCL   VolcanoPiece1c.kcl\n  KCL   VolcanoPiece2.kcl\n  KCL   VolcanoPiece2b.kcl\n  KCL   VolcanoPiece2c.kcl\n  KCL   VolcanoPiece3.kcl\n  KCL   VolcanoPiece3b.kcl\n  KCL   VolcanoPiece3c.kcl\n  KCL   VolcanoPiece4.kcl\n  KCL   VolcanoPiece4b.kcl\n  KCL   VolcanoPiece4c.kcl\n  KCL   VolcanoPiece5.kcl\n  KCL   VolcanoPiece5b.kcl\n  KCL   VolcanoPiece5c.kcl\n  KCL   VolcanoPiece7.kcl\n  KCL   VolcanoPiece7b.kcl\n  KCL   VolcanoPiece7c.kcl\n  KCL   VolcanoPiece8.kcl\n  KCL   VolcanoPiece8b.kcl\n  KCL   VolcanoPiece8c.kcl\n  KCL   VolcanoPiece9.kcl\n  KCL   VolcanoPiece9b.kcl\n  KCL   VolcanoPiece9c.kcl\n  BRRES VolcanoRock1.brres\n  KCL   VolcanoRock1.kcl\n  KCL   VolcanoRock2.kcl\n  BRRES WLarrowGC.brres\n  BRRES WLdokanGC.brres\n  KCL   WLdokanGC.kcl\n  BRRES WLfirebarGC.brres\n  BRRES WLscreenGC.brres\n  BRRES WLwallGC.brres\n  KCL   WLwallGC.kcl\n  BRRES ami.brres\n  BRRES aurora.brres\n  BRRES b_teresa.brres\n  BRRES basabasa.brres\n  BRRES bblock1.brres\n  KCL   bblock1.kcl\n  KCL   bblock1b.kcl\n  KCL   bblock2.kcl\n  KCL   bblock2b.kcl\n  KCL   bblock3.kcl\n  KCL   bblock3b.kcl\n  KCL   bblock4.kcl\n  KCL   bblock4b.kcl\n  KCL   bblock5.kcl\n  KCL   bblock5b.kcl\n  KCL   bblock6.kcl\n  KCL   bblock6b.kcl\n  KCL   bblock7.kcl\n  KCL   bblock7b.kcl\n  KCL   bblock8.kcl\n  KCL   bblock8b.kcl\n  KCL   bblock9.kcl\n  KCL   bblock9b.kcl\n  BRRES begoman_spike.brres\n  BRRES bird.brres\n  BRRES boble.brres\n  BRASD brasd/DonkyCannonGC/DonkyCannonGC.brasd\n  BRASD brasd/DonkyCannon_wii/DonkyCannon_wii.brasd\n  BRASD brasd/cow/eat.brasd\n  BRASD brasd/cow/eat_ed.brasd\n  BRASD brasd/cow/run.brasd\n  BRASD brasd/cow/surprise.brasd\n  BRASD brasd/cow/walk.brasd\n  BRASD brasd/crab/wait.brasd\n  BRASD brasd/crab/walk_l.brasd\n  BRASD brasd/crab/walk_r.brasd\n  BRASD brasd/hanachan/head_wait2.brasd\n  BRASD brasd/hanachan/walk.brasd\n  BRASD brasd/koopaFigure/vomit.brasd\n  BRASD brasd/koopaFigure/wait.brasd\n  BRASD brasd/kuribo/walk_l.brasd\n  BRASD brasd/kuribo/walk_r.brasd\n  BRASD brasd/pakkun_f/attack.brasd\n  BRASD brasd/pakkun_f/wait.brasd\n  BRASD brasd/penguin_m/walk.brasd\n  BRASD brasd/penguin_s/dive.brasd\n  BRASD brasd/penguin_s/stand_up.brasd\n  BRASD brasd/penguin_s/walk.brasd\n  BRASD brasd/poihana/throw.brasd\n  BRASD brasd/poihana/walk.brasd\n  BRASD brasd/puchi_pakkun/puchi_pakkun.brasd\n  BRASD brasd/sanbo/revive.brasd\n  BRASD brasd/tree_cannon/tree_cannon.brasd\n  BRRES bulldozer_left.brres\n  KCL   bulldozer_left.kcl\n  BRRES bulldozer_right.brres\n  KCL   bulldozer_right.kcl\n  BRRES casino_roulette.brres\n  KCL   casino_roulette.kcl\n  BRRES castleballoon1.brres\n  BRRES castleflower1.brres\n  BRRES castletree1.brres\n  BRRES castletree2.brres\n  BRRES choropu.brres\n  BRRES coin.brres\n  ?     course.0\n  BRRES cow.brres\n  BRRES crab.brres\n  BRRES cruiser.brres\n  BRRES dc_pillar.brres\n  KCL   dc_pillar.kcl\n  KCL   dc_pillar_base.kcl\n  BRRES dc_sandcone.brres\n  KCL   dc_sandcone.kcl\n  BRRES dk_miiobj00.brres\n  BRRES dkmonitor.brres\n  BRRES dokan_sfc.brres\n  BRRES donkytree1GC.brres\n  BRRES donkytree2GC.brres\n  BRRES dossun.brres\n  BREFF effect/Alarm/rk_alarm.breff\n  BREFT effect/Alarm/rk_alarm.breft\n  BREFF effect/Block/rk_block.breff\n  BREFT effect/Block/rk_block.breft\n  BREFF effect/DKfalls/rk_64DKfalls.breff\n  BREFT effect/DKfalls/rk_64DKfalls.breft\n  BREFF effect/DKrockGC/rk_DKrockGC.breff\n  BREFT effect/DKrockGC/rk_DKrockGC.breft\n  BREFF effect/DKship64/rk_DKship64.breff\n  BREFT effect/DKship64/rk_DKship64.breft\n  BREFF effect/DemoEf/rk_demo.breff\n  BREFT effect/DemoEf/rk_demo.breft\n  BREFF effect/DemoJugemu/rk_DemoJugemu.breff\n  BREFT effect/DemoJugemu/rk_DemoJugemu.breft\n  BREFF effect/DonkyCannonGC/rk_dkCannon.breff\n  BREFT effect/DonkyCannonGC/rk_dkCannon.breft\n  BREFF effect/DonkyCannon_wii/rk_dkCannon.breff\n  BREFT effect/DonkyCannon_wii/rk_dkCannon.breft\n  BREFF effect/EnvFire/rk_EnvFire.breff\n  BREFT effect/EnvFire/rk_EnvFire.breft\n  BREFF effect/EnvKareha/rk_EnvKareha.breff\n  BREFT effect/EnvKareha/rk_EnvKareha.breft\n  BREFF effect/EnvKarehaUp/rk_EnvKarehaUp.breff\n  BREFT effect/EnvKarehaUp/rk_EnvKarehaUp.breft\n  BREFF effect/EnvSnow/rk_EnvSnow.breff\n  BREFT effect/EnvSnow/rk_EnvSnow.breft\n  BREFF effect/Epropeller/rk_epropeller.breff\n  BREFT effect/Epropeller/rk_epropeller.breft\n  BREFF effect/FallBsA/rk_fallbasin.breff\n  BREFT effect/FallBsA/rk_fallbasin.breft\n  BREFF effect/FallBsB/rk_fallbasin.breff\n  BREFT effect/FallBsB/rk_fallbasin.breft\n  BREFF effect/Fall_MH/rk_ridgeFall.breff\n  BREFT effect/Fall_MH/rk_ridgeFall.breft\n  BREFF effect/Fall_Y/rk_yoshiFalls.breff\n  BREFT effect/Fall_Y/rk_yoshiFalls.breft\n  BREFF effect/FireSnake/rk_fireSnake.breff\n  BREFT effect/FireSnake/rk_fireSnake.breft\n  BREFF effect/FlamePole/rk_flamePole.breff\n  BREFT effect/FlamePole/rk_flamePole.breft\n  BREFF effect/FlamePole_v/rk_flamePole.breff\n  BREFT effect/FlamePole_v/rk_flamePole.breft\n  BREFF effect/FlamePole_v_big/rk_flamePoleL.breff\n  BREFT effect/FlamePole_v_big/rk_flamePoleL.breft\n  BREFF effect/Flash_B/rk_flashBCross.breff\n  BREFT effect/Flash_B/rk_flashBCross.breft\n  BREFF effect/Flash_L/rk_flashBeginner.breff\n  BREFT effect/Flash_L/rk_flashBeginner.breft\n  BREFF effect/Flash_M/rk_flash64mario.breff\n  BREFT effect/Flash_M/rk_flash64mario.breft\n  BREFF effect/Flash_S/rk_flashSkate.breff\n  BREFT effect/Flash_S/rk_flashSkate.breft\n  BREFF effect/Flash_W/rk_flashWaluigi.breff\n  BREFT effect/Flash_W/rk_flashWaluigi.breft\n  BREFF effect/Hanabi/rk_stHanabi.breff\n  BREFT effect/Hanabi/rk_stHanabi.breft\n  BREFF effect/HeyhoBallGBA/rk_HeyhoBallGBA.breff\n  BREFT effect/HeyhoBallGBA/rk_HeyhoBallGBA.breft\n  BREFF effect/K_bomb_car/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car/rk_K_bomb_car.breft\n  BREFF effect/K_bomb_car1/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car1/rk_K_bomb_car.breft\n  BREFF effect/Kamifubuki/rk_kamifubuki.breff\n  BREFT effect/Kamifubuki/rk_kamifubuki.breft\n  BREFF effect/KoopaFigure64/rk_koopaFire.breff\n  BREFT effect/KoopaFigure64/rk_koopaFire.breft\n  BREFF effect/PeachHunsuiGC/rk_hunsui.breff\n  BREFT effect/PeachHunsuiGC/rk_hunsui.breft\n  BREFF effect/Press/rk_press.breff\n  BREFT effect/Press/rk_press.breft\n  BREFF effect/StarRing/rk_StarRing.breff\n  BREFT effect/StarRing/rk_StarRing.breft\n  BREFF effect/Steam/rk_steam.breff\n  BREFT effect/Steam/rk_steam.breft\n  BREFF effect/TruckWagon/rk_truck.breff\n  BREFT effect/TruckWagon/rk_truck.breft\n  BREFF effect/VolcanoBall1/rk_volc.breff\n  BREFT effect/VolcanoBall1/rk_volc.breft\n  BREFF effect/begoman_spike/rk_begoman_spike.breff\n  BREFT effect/begoman_spike/rk_begoman_spike.breft\n  BREFF effect/boble/rk_boble.breff\n  BREFT effect/boble/rk_boble.breft\n  BREFF effect/choropu/rk_choropuMoko.breff\n  BREFT effect/choropu/rk_choropuMoko.breft\n  BREFF effect/coin/rk_coin.breff\n  BREFT effect/coin/rk_coin.breft\n  BREFF effect/crab/rk_crab.breff\n  BREFT effect/crab/rk_crab.breft\n  BREFF effect/cruiser/rk_cruiser.breff\n  BREFT effect/cruiser/rk_cruiser.breft\n  BREFF effect/dc_pillar/rk_dc_pillar.breff\n  BREFT effect/dc_pillar/rk_dc_pillar.breft\n  BREFF effect/dc_sandcone/rk_dc_sandcone.breff\n  BREFT effect/dc_sandcone/rk_dc_sandcone.breft\n  BREFF effect/dossun/rk_dossun.breff\n  BREFT effect/dossun/rk_dossun.breft\n  BREFF effect/entry/rk_entry.breff\n  BREFT effect/entry/rk_entry.breft\n  BREFF effect/hanachan/rk_hana.breff\n  BREFT effect/hanachan/rk_hana.breft\n  BREFF effect/honeBall/rk_honeBall.breff\n  BREFT effect/honeBall/rk_honeBall.breft\n  BREFF effect/karehayama/rk_karehayama.breff\n  BREFT effect/karehayama/rk_karehayama.breft\n  BREFF effect/koopaBall/rk_koopaBall.breff\n  BREFT effect/koopaBall/rk_koopaBall.breft\n  BREFF effect/leaf_effect/rk_leaf_effect.breff\n  BREFT effect/leaf_effect/rk_leaf_effect.breft\n  BREFF effect/penguin_l/rk_penguin_l.breff\n  BREFT effect/penguin_l/rk_penguin_l.breft\n  BREFF effect/penguin_m/rk_penguin_m.breff\n  BREFT effect/penguin_m/rk_penguin_m.breft\n  BREFF effect/penguin_s/rk_penguin_s.breff\n  BREFT effect/penguin_s/rk_penguin_s.breft\n  BREFF effect/pocha/rk_pocha.breff\n  BREFT effect/pocha/rk_pocha.breft\n  BREFF effect/pochaMori/rk_pochaLeaf.breff\n  BREFT effect/pochaMori/rk_pochaLeaf.breft\n  BREFF effect/pochaYogan/rk_pochaYogan.breff\n  BREFT effect/pochaYogan/rk_pochaYogan.breft\n  BREFF effect/poihana/rk_poihana.breff\n  BREFT effect/poihana/rk_poihana.breft\n  BREFF effect/quicksand/rk_qsandDossun.breff\n  BREFT effect/quicksand/rk_qsandDossun.breft\n  BREFF effect/sanbo/rk_sanbo.breff\n  BREFT effect/sanbo/rk_sanbo.breft\n  BREFF effect/starGate/rk_starGate.breff\n  BREFT effect/starGate/rk_starGate.breft\n  BREFF effect/taimatsu/rk_taimatsu.breff\n  BREFT effect/taimatsu/rk_taimatsu.breft\n  BREFF effect/tree_cannon/rk_dkCannon.breff\n  BREFT effect/tree_cannon/rk_dkCannon.breft\n  BREFF effect/truckChimSmk/rk_truckChimSmk.breff\n  BREFT effect/truckChimSmk/rk_truckChimSmk.breft\n  BREFF effect/truckChimSmkW/rk_truckChimSmkW.breff\n  BREFT effect/truckChimSmkW/rk_truckChimSmkW.breft\n  BREFF effect/venice_hasi/rk_venice.breff\n  BREFT effect/venice_hasi/rk_venice.breft\n  BREFF effect/volsmk/rk_volsmk.breff\n  BREFT effect/volsmk/rk_volsmk.breft\n  BREFF effect/wanwan/rk_wanwan.breff\n  BREFT effect/wanwan/rk_wanwan.breft\n  BREFF effect/woodbox/rk_woodbox.breff\n  BREFT effect/woodbox/rk_woodbox.breft\n  BRRES escalator.brres\n  KCL   escalator.kcl\n  BRRES fks_screen_wii.brres\n  BRRES gardentreeDS.brres\n  BRRES group_enemy_a.brres\n  BRRES group_enemy_a_demo.brres\n  BRRES group_enemy_b.brres\n  BRRES group_enemy_c.brres\n  BRRES group_enemy_e.brres\n  BRRES group_enemy_f.brres\n  BRRES group_monte_a.brres\n  BRRES group_monte_a_demo.brres\n  BRRES hanachan.brres\n  BRRES heyho.brres\n  BRRES heyho2.brres\n  BRRES honeBall.brres\n  BRRES ice.brres\n  BRRES karehayama.brres\n  BRRES kinoko.brres\n  BRRES kinokoT1.brres\n  KCL   kinoko_d_g.kcl\n  KCL   kinoko_d_r.kcl\n  KCL   kinoko_g.kcl\n  KCL   kinoko_r.kcl\n  BRRES koopaBall.brres\n  BRRES koopaFigure.brres\n  BRRES koopaFirebar.brres\n  BRRES kuribo.brres\n  BRRES light_house.brres\n  BRRES mare_a.brres\n  BRRES mare_b.brres\n  BRRES mariotreeGC.brres\n  BRRES mii_balloon.brres\n  BRRES miiposter.brres\n  BRRES monte_a.brres\n  BRRES moray.brres\n  BRRES obakeblockSFC.brres\n  BRRES oilSFC.brres\n  BRRES pakkun_dokan.brres\n  BRRES pakkun_f.brres\n  BRRES parasol.brres\n  BRRES peachtreeGC.brres\n  BRRES penguin_l.brres\n  BRRES penguin_m.brres\n  BRRES penguin_s.brres\n  BRRES pocha.brres\n  BRRES pochaYogan.brres\n  BRRES poihana.brres\n  ?     posteffect/posteffect.blobj\n  ?     posteffect/posteffect.bltex\n  ?     posteffect/posteffect.bti\n  ?     posteffect/posteffect2.bblm\n  ?     posteffect/posteffect2.blight\n  ?     posteffect/posteffect2.blmap\n  ?     posteffect/posteffect2.blobj\n  ?     posteffect/posteffect3.bblm\n  BRRES puchi_pakkun.brres\n  BRRES pukupuku.brres\n  BRRES pylon01.brres\n  BRRES quicksand.brres\n  BRRES r_parasol.brres\n  BRRES ridgemii00.brres\n  KCL   ring_mission_b.kcl\n  BRRES sanbo.brres\n  BRRES seagull.brres\n  BRRES skyship.brres\n  BRRES spot.brres\n  BRRES starGate.brres\n  KCL   starGate.kcl\n  BRRES sun.brres\n  BRRES sunDS.brres\n  BRRES tree_cannon.brres\n  BRRES truckChimSmk.brres\n  BRRES truckChimSmkW.brres\n  BRRES venice_hasi.brres\n  KCL   venice_hasi.kcl\n  KCL   venice_hasi_b.kcl\n  KCL   venice_hasi_wall.kcl\n  BRRES venice_nami.brres\n  BRRES venice_saku.brres\n  KCL   venice_saku.kcl\n  BRRES wanwan.brres\n  BRRES windmill.brres\n  BRRES woodbox.brres\n  => 476 of 496 files missed.\n\nLIST OF INVALID FILES IN lib\n  BRRES itembox.brres\n  => 1 of 496 files invalid.\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd verify empty",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "--dest",
+   "empty",
+   "-vv"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: empty\n       SEARCH PATH[0]: empty\n\nLIST OF FILES IN empty\n\nLIST OF MISSED FILES IN empty\n  BRRES BGteresaSFC.brres\n  BRRES BeltCrossing.brres\n  BRRES BeltCurveA.brres\n  BRRES BeltEasy.brres\n  BRRES Block.brres\n  BRRES CarA1.brres\n  BRRES CarA2.brres\n  BRRES CarA3.brres\n  BRRES CarB.brres\n  BRRES Crane.brres\n  KCL   Crane.kcl\n  BRRES Crescent64.brres\n  BRRES DKrockGC.brres\n  BRRES DKship64.brres\n  BRRES DKtreeA64.brres\n  BRRES DKtreeB64.brres\n  BRRES DKturibashiGC.brres\n  BRRES DemoCol.brres\n  KCL   DemoCol.kcl\n  BRRES DemoJugemu.brres\n  BRRES DonkyCannonGC.brres\n  BRRES DonkyCannon_wii.brres\n  BRRES EarthRing.brres\n  BRRES Epropeller.brres\n  BRRES FireSnake.brres\n  BRRES FlagA1.brres\n  BRRES FlagA2.brres\n  BRRES FlagA3.brres\n  BRRES FlagA5.brres\n  BRRES FlagB1.brres\n  BRRES FlagB2.brres\n  BRRES FlagB3.brres\n  BRRES FlagB4.brres\n  BRRES FlamePole.brres\n  KCL   FlamePole.kcl\n  BRRES FlamePole_v.brres\n  BRRES HeyhoBallGBA.brres\n  BRRES HeyhoShipGBA.brres\n  BRRES HeyhoTreeGBA.brres\n  BRRES InsekiA.brres\n  BRRES InsekiB.brres\n  BRRES K_bomb_car.brres\n  BRRES K_bomb_car1.brres\n  BRRES K_car_body.brres\n  BRRES K_chairlift00.brres\n  BRRES K_sticklift00.brres\n  BRRES K_truck.brres\n  BRRES KmoonZ.brres\n  BRRES KoopaFigure64.brres\n  BRRES Ksticketc.brres\n  BRRES M_obj_jump.brres\n  KCL   M_obj_jump.kcl\n  BRRES M_obj_jump2.brres\n  KCL   M_obj_jump2.kcl\n  BRRES M_obj_s_jump.brres\n  KCL   M_obj_s_jump.kcl\n  BRRES M_obj_s_jump2.brres\n  KCL   M_obj_s_jump2.kcl\n  BRRES MarioGo64.brres\n  BRRES MashBalloonGC.brres\n  BRRES Mdush.brres\n  KCL   Mdush.kcl\n  BRRES MiiKanban.brres\n  BRRES MiiObj01.brres\n  BRRES MiiObj02.brres\n  BRRES MiiObj03.brres\n  BRRES MiiObjD01.brres\n  BRRES MiiObjD02.brres\n  BRRES MiiObjD03.brres\n  BRRES MiiSighKino.brres\n  BRRES MiiSignNoko.brres\n  BRRES MiiSignWario.brres\n  BRRES MiiSphinxY2.brres\n  BRRES MiiStatueBD1.brres\n  BRRES MiiStatueBL1.brres\n  BRRES MiiStatueD1.brres\n  BRRES MiiStatueD2.brres\n  BRRES MiiStatueL1.brres\n  BRRES MiiStatueL2.brres\n  BRRES MiiStatueL3.brres\n  BRRES MiiStatueM1.brres\n  BRRES MiiStatueM2.brres\n  BRRES MiiStatueP1.brres\n  BRRES PalmTree.brres\n  BRRES PeachHunsuiGC.brres\n  BRRES Piston.brres\n  BRRES Press.brres\n  BRRES Psea.brres\n  BRRES RM_ring1.brres\n  KCL   RM_ring1.kcl\n  KCL   RM_ring1b.kcl\n  KCL   RM_ring2.kcl\n  KCL   RM_ring2b.kcl\n  KCL   RM_ring2c.kcl\n  KCL   RM_ring3.kcl\n  KCL   RM_ring3b.kcl\n  KCL   RM_ring3c.kcl\n  BRRES RhMiiKanban.brres\n  BRRES SentakuDS.brres\n  BRRES ShMiiObj01.brres\n  BRRES ShMiiObj02.brres\n  BRRES ShMiiObj03.brres\n  BRRES SpaceSun.brres\n  BRRES Spot64.brres\n  BRRES StarRing.brres\n  BRRES TownBridgeDS.brres\n  KCL   TownBridgeDS.kcl\n  KCL   TownBridgeDS2.kcl\n  KCL   TownBridgeDS3.kcl\n  BRRES TownTreeDS.brres\n  BRRES TruckWagon.brres\n  BRRES Twanwan.brres\n  BRRES TwistedWay.brres\n  BRRES UtsuboDokan.brres\n  BRRES VolcanoBall1.brres\n  KCL   VolcanoPiece0.kcl\n  KCL   VolcanoPiece0b.kcl\n  KCL   VolcanoPiece0c.kcl\n  BRRES VolcanoPiece1.brres\n  KCL   VolcanoPiece1.kcl\n  KCL   VolcanoPiece11.kcl\n  KCL   VolcanoPiece11b.kcl\n  KCL   VolcanoPiece11c.kcl\n  KCL   VolcanoPiece13.kcl\n  KCL   VolcanoPiece13b.kcl\n  KCL   VolcanoPiece13c.kcl\n  KCL   VolcanoPiece14.kcl\n  KCL   VolcanoPiece14b.kcl\n  KCL   VolcanoPiece14c.kcl\n  KCL   VolcanoPiece16.kcl\n  KCL   VolcanoPiece16b.kcl\n  KCL   VolcanoPiece16c.kcl\n  KCL   VolcanoPiece18.kcl\n  KCL   VolcanoPiece18b.kcl\n  KCL   VolcanoPiece18c.kcl\n  KCL   VolcanoPiece1b.kcl\n  KCL   VolcanoPiece1c.kcl\n  KCL   VolcanoPiece2.kcl\n  KCL   VolcanoPiece2b.kcl\n  KCL   VolcanoPiece2c.kcl\n  KCL   VolcanoPiece3.kcl\n  KCL   VolcanoPiece3b.kcl\n  KCL   VolcanoPiece3c.kcl\n  KCL   VolcanoPiece4.kcl\n  KCL   VolcanoPiece4b.kcl\n  KCL   VolcanoPiece4c.kcl\n  KCL   VolcanoPiece5.kcl\n  KCL   VolcanoPiece5b.kcl\n  KCL   VolcanoPiece5c.kcl\n  KCL   VolcanoPiece7.kcl\n  KCL   VolcanoPiece7b.kcl\n  KCL   VolcanoPiece7c.kcl\n  KCL   VolcanoPiece8.kcl\n  KCL   VolcanoPiece8b.kcl\n  KCL   VolcanoPiece8c.kcl\n  KCL   VolcanoPiece9.kcl\n  KCL   VolcanoPiece9b.kcl\n  KCL   VolcanoPiece9c.kcl\n  BRRES VolcanoRock1.brres\n  KCL   VolcanoRock1.kcl\n  KCL   VolcanoRock2.kcl\n  BRRES WLarrowGC.brres\n  BRRES WLdokanGC.brres\n  KCL   WLdokanGC.kcl\n  BRRES WLfirebarGC.brres\n  BRRES WLscreenGC.brres\n  BRRES WLwallGC.brres\n  KCL   WLwallGC.kcl\n  BRRES ami.brres\n  BRRES aurora.brres\n  BRRES b_teresa.brres\n  BRRES basabasa.brres\n  BRRES bblock1.brres\n  KCL   bblock1.kcl\n  KCL   bblock1b.kcl\n  KCL   bblock2.kcl\n  KCL   bblock2b.kcl\n  KCL   bblock3.kcl\n  KCL   bblock3b.kcl\n  KCL   bblock4.kcl\n  KCL   bblock4b.kcl\n  KCL   bblock5.kcl\n  KCL   bblock5b.kcl\n  KCL   bblock6.kcl\n  KCL   bblock6b.kcl\n  KCL   bblock7.kcl\n  KCL   bblock7b.kcl\n  KCL   bblock8.kcl\n  KCL   bblock8b.kcl\n  KCL   bblock9.kcl\n  KCL   bblock9b.kcl\n  BRRES begoman_spike.brres\n  BRRES bird.brres\n  BRRES boble.brres\n  BRASD brasd/DonkyCannonGC/DonkyCannonGC.brasd\n  BRASD brasd/DonkyCannon_wii/DonkyCannon_wii.brasd\n  BRASD brasd/cow/eat.brasd\n  BRASD brasd/cow/eat_ed.brasd\n  BRASD brasd/cow/run.brasd\n  BRASD brasd/cow/surprise.brasd\n  BRASD brasd/cow/walk.brasd\n  BRASD brasd/crab/wait.brasd\n  BRASD brasd/crab/walk_l.brasd\n  BRASD brasd/crab/walk_r.brasd\n  BRASD brasd/hanachan/head_wait2.brasd\n  BRASD brasd/hanachan/walk.brasd\n  BRASD brasd/koopaFigure/vomit.brasd\n  BRASD brasd/koopaFigure/wait.brasd\n  BRASD brasd/kuribo/walk_l.brasd\n  BRASD brasd/kuribo/walk_r.brasd\n  BRASD brasd/pakkun_f/attack.brasd\n  BRASD brasd/pakkun_f/wait.brasd\n  BRASD brasd/penguin_m/walk.brasd\n  BRASD brasd/penguin_s/dive.brasd\n  BRASD brasd/penguin_s/stand_up.brasd\n  BRASD brasd/penguin_s/walk.brasd\n  BRASD brasd/poihana/throw.brasd\n  BRASD brasd/poihana/walk.brasd\n  BRASD brasd/puchi_pakkun/puchi_pakkun.brasd\n  BRASD brasd/sanbo/revive.brasd\n  BRASD brasd/tree_cannon/tree_cannon.brasd\n  BRRES bulldozer_left.brres\n  KCL   bulldozer_left.kcl\n  BRRES bulldozer_right.brres\n  KCL   bulldozer_right.kcl\n  BRRES casino_roulette.brres\n  KCL   casino_roulette.kcl\n  BRRES castleballoon1.brres\n  BRRES castleflower1.brres\n  BRRES castletree1.brres\n  BRRES castletree2.brres\n  BRRES choropu.brres\n  BRRES coin.brres\n  ?     course.0\n  BRRES cow.brres\n  BRRES crab.brres\n  BRRES cruiser.brres\n  BRRES dc_pillar.brres\n  KCL   dc_pillar.kcl\n  KCL   dc_pillar_base.kcl\n  BRRES dc_sandcone.brres\n  KCL   dc_sandcone.kcl\n  BRRES dk_miiobj00.brres\n  BRRES dkmonitor.brres\n  BRRES dokan_sfc.brres\n  BRRES donkytree1GC.brres\n  BRRES donkytree2GC.brres\n  BRRES dossun.brres\n  BREFF effect/Alarm/rk_alarm.breff\n  BREFT effect/Alarm/rk_alarm.breft\n  BREFF effect/Block/rk_block.breff\n  BREFT effect/Block/rk_block.breft\n  BREFF effect/DKfalls/rk_64DKfalls.breff\n  BREFT effect/DKfalls/rk_64DKfalls.breft\n  BREFF effect/DKrockGC/rk_DKrockGC.breff\n  BREFT effect/DKrockGC/rk_DKrockGC.breft\n  BREFF effect/DKship64/rk_DKship64.breff\n  BREFT effect/DKship64/rk_DKship64.breft\n  BREFF effect/DemoEf/rk_demo.breff\n  BREFT effect/DemoEf/rk_demo.breft\n  BREFF effect/DemoJugemu/rk_DemoJugemu.breff\n  BREFT effect/DemoJugemu/rk_DemoJugemu.breft\n  BREFF effect/DonkyCannonGC/rk_dkCannon.breff\n  BREFT effect/DonkyCannonGC/rk_dkCannon.breft\n  BREFF effect/DonkyCannon_wii/rk_dkCannon.breff\n  BREFT effect/DonkyCannon_wii/rk_dkCannon.breft\n  BREFF effect/EnvFire/rk_EnvFire.breff\n  BREFT effect/EnvFire/rk_EnvFire.breft\n  BREFF effect/EnvKareha/rk_EnvKareha.breff\n  BREFT effect/EnvKareha/rk_EnvKareha.breft\n  BREFF effect/EnvKarehaUp/rk_EnvKarehaUp.breff\n  BREFT effect/EnvKarehaUp/rk_EnvKarehaUp.breft\n  BREFF effect/EnvSnow/rk_EnvSnow.breff\n  BREFT effect/EnvSnow/rk_EnvSnow.breft\n  BREFF effect/Epropeller/rk_epropeller.breff\n  BREFT effect/Epropeller/rk_epropeller.breft\n  BREFF effect/FallBsA/rk_fallbasin.breff\n  BREFT effect/FallBsA/rk_fallbasin.breft\n  BREFF effect/FallBsB/rk_fallbasin.breff\n  BREFT effect/FallBsB/rk_fallbasin.breft\n  BREFF effect/Fall_MH/rk_ridgeFall.breff\n  BREFT effect/Fall_MH/rk_ridgeFall.breft\n  BREFF effect/Fall_Y/rk_yoshiFalls.breff\n  BREFT effect/Fall_Y/rk_yoshiFalls.breft\n  BREFF effect/FireSnake/rk_fireSnake.breff\n  BREFT effect/FireSnake/rk_fireSnake.breft\n  BREFF effect/FlamePole/rk_flamePole.breff\n  BREFT effect/FlamePole/rk_flamePole.breft\n  BREFF effect/FlamePole_v/rk_flamePole.breff\n  BREFT effect/FlamePole_v/rk_flamePole.breft\n  BREFF effect/FlamePole_v_big/rk_flamePoleL.breff\n  BREFT effect/FlamePole_v_big/rk_flamePoleL.breft\n  BREFF effect/Flash_B/rk_flashBCross.breff\n  BREFT effect/Flash_B/rk_flashBCross.breft\n  BREFF effect/Flash_L/rk_flashBeginner.breff\n  BREFT effect/Flash_L/rk_flashBeginner.breft\n  BREFF effect/Flash_M/rk_flash64mario.breff\n  BREFT effect/Flash_M/rk_flash64mario.breft\n  BREFF effect/Flash_S/rk_flashSkate.breff\n  BREFT effect/Flash_S/rk_flashSkate.breft\n  BREFF effect/Flash_W/rk_flashWaluigi.breff\n  BREFT effect/Flash_W/rk_flashWaluigi.breft\n  BREFF effect/Hanabi/rk_stHanabi.breff\n  BREFT effect/Hanabi/rk_stHanabi.breft\n  BREFF effect/HeyhoBallGBA/rk_HeyhoBallGBA.breff\n  BREFT effect/HeyhoBallGBA/rk_HeyhoBallGBA.breft\n  BREFF effect/K_bomb_car/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car/rk_K_bomb_car.breft\n  BREFF effect/K_bomb_car1/rk_K_bomb_car.breff\n  BREFT effect/K_bomb_car1/rk_K_bomb_car.breft\n  BREFF effect/Kamifubuki/rk_kamifubuki.breff\n  BREFT effect/Kamifubuki/rk_kamifubuki.breft\n  BREFF effect/KoopaFigure64/rk_koopaFire.breff\n  BREFT effect/KoopaFigure64/rk_koopaFire.breft\n  BREFF effect/PeachHunsuiGC/rk_hunsui.breff\n  BREFT effect/PeachHunsuiGC/rk_hunsui.breft\n  BREFF effect/Press/rk_press.breff\n  BREFT effect/Press/rk_press.breft\n  BREFF effect/StarRing/rk_StarRing.breff\n  BREFT effect/StarRing/rk_StarRing.breft\n  BREFF effect/Steam/rk_steam.breff\n  BREFT effect/Steam/rk_steam.breft\n  BREFF effect/TruckWagon/rk_truck.breff\n  BREFT effect/TruckWagon/rk_truck.breft\n  BREFF effect/VolcanoBall1/rk_volc.breff\n  BREFT effect/VolcanoBall1/rk_volc.breft\n  BREFF effect/begoman_spike/rk_begoman_spike.breff\n  BREFT effect/begoman_spike/rk_begoman_spike.breft\n  BREFF effect/boble/rk_boble.breff\n  BREFT effect/boble/rk_boble.breft\n  BREFF effect/choropu/rk_choropuMoko.breff\n  BREFT effect/choropu/rk_choropuMoko.breft\n  BREFF effect/coin/rk_coin.breff\n  BREFT effect/coin/rk_coin.breft\n  BREFF effect/crab/rk_crab.breff\n  BREFT effect/crab/rk_crab.breft\n  BREFF effect/cruiser/rk_cruiser.breff\n  BREFT effect/cruiser/rk_cruiser.breft\n  BREFF effect/dc_pillar/rk_dc_pillar.breff\n  BREFT effect/dc_pillar/rk_dc_pillar.breft\n  BREFF effect/dc_sandcone/rk_dc_sandcone.breff\n  BREFT effect/dc_sandcone/rk_dc_sandcone.breft\n  BREFF effect/dossun/rk_dossun.breff\n  BREFT effect/dossun/rk_dossun.breft\n  BREFF effect/entry/rk_entry.breff\n  BREFT effect/entry/rk_entry.breft\n  BREFF effect/hanachan/rk_hana.breff\n  BREFT effect/hanachan/rk_hana.breft\n  BREFF effect/honeBall/rk_honeBall.breff\n  BREFT effect/honeBall/rk_honeBall.breft\n  BREFF effect/karehayama/rk_karehayama.breff\n  BREFT effect/karehayama/rk_karehayama.breft\n  BREFF effect/koopaBall/rk_koopaBall.breff\n  BREFT effect/koopaBall/rk_koopaBall.breft\n  BREFF effect/leaf_effect/rk_leaf_effect.breff\n  BREFT effect/leaf_effect/rk_leaf_effect.breft\n  BREFF effect/penguin_l/rk_penguin_l.breff\n  BREFT effect/penguin_l/rk_penguin_l.breft\n  BREFF effect/penguin_m/rk_penguin_m.breff\n  BREFT effect/penguin_m/rk_penguin_m.breft\n  BREFF effect/penguin_s/rk_penguin_s.breff\n  BREFT effect/penguin_s/rk_penguin_s.breft\n  BREFF effect/pocha/rk_pocha.breff\n  BREFT effect/pocha/rk_pocha.breft\n  BREFF effect/pochaMori/rk_pochaLeaf.breff\n  BREFT effect/pochaMori/rk_pochaLeaf.breft\n  BREFF effect/pochaYogan/rk_pochaYogan.breff\n  BREFT effect/pochaYogan/rk_pochaYogan.breft\n  BREFF effect/poihana/rk_poihana.breff\n  BREFT effect/poihana/rk_poihana.breft\n  BREFF effect/quicksand/rk_qsandDossun.breff\n  BREFT effect/quicksand/rk_qsandDossun.breft\n  BREFF effect/sanbo/rk_sanbo.breff\n  BREFT effect/sanbo/rk_sanbo.breft\n  BREFF effect/starGate/rk_starGate.breff\n  BREFT effect/starGate/rk_starGate.breft\n  BREFF effect/taimatsu/rk_taimatsu.breff\n  BREFT effect/taimatsu/rk_taimatsu.breft\n  BREFF effect/tree_cannon/rk_dkCannon.breff\n  BREFT effect/tree_cannon/rk_dkCannon.breft\n  BREFF effect/truckChimSmk/rk_truckChimSmk.breff\n  BREFT effect/truckChimSmk/rk_truckChimSmk.breft\n  BREFF effect/truckChimSmkW/rk_truckChimSmkW.breff\n  BREFT effect/truckChimSmkW/rk_truckChimSmkW.breft\n  BREFF effect/venice_hasi/rk_venice.breff\n  BREFT effect/venice_hasi/rk_venice.breft\n  BREFF effect/volsmk/rk_volsmk.breff\n  BREFT effect/volsmk/rk_volsmk.breft\n  BREFF effect/wanwan/rk_wanwan.breff\n  BREFT effect/wanwan/rk_wanwan.breft\n  BREFF effect/woodbox/rk_woodbox.breff\n  BREFT effect/woodbox/rk_woodbox.breft\n  BRRES escalator.brres\n  KCL   escalator.kcl\n  BRRES fks_screen_wii.brres\n  BRRES gardentreeDS.brres\n  BRRES group_enemy_a.brres\n  BRRES group_enemy_a_demo.brres\n  BRRES group_enemy_b.brres\n  BRRES group_enemy_c.brres\n  BRRES group_enemy_e.brres\n  BRRES group_enemy_f.brres\n  BRRES group_monte_a.brres\n  BRRES group_monte_a_demo.brres\n  BRRES hanachan.brres\n  BRRES heyho.brres\n  BRRES heyho2.brres\n  BRRES honeBall.brres\n  BRRES ice.brres\n  BRRES itembox.brres\n  BRRES karehayama.brres\n  BRRES kinoko.brres\n  BRRES kinokoT1.brres\n  KCL   kinoko_d_g.kcl\n  KCL   kinoko_d_r.kcl\n  KCL   kinoko_g.kcl\n  KCL   kinoko_r.kcl\n  BRRES koopaBall.brres\n  BRRES koopaFigure.brres\n  BRRES koopaFirebar.brres\n  BRRES kuribo.brres\n  BRRES light_house.brres\n  BRRES mare_a.brres\n  BRRES mare_b.brres\n  BRRES mariotreeGC.brres\n  BRRES mii_balloon.brres\n  BRRES miiposter.brres\n  BRRES monte_a.brres\n  BRRES moray.brres\n  BRRES obakeblockSFC.brres\n  BRRES oilSFC.brres\n  BRRES pakkun_dokan.brres\n  BRRES pakkun_f.brres\n  BRRES parasol.brres\n  BRRES peachtreeGC.brres\n  BRRES penguin_l.brres\n  BRRES penguin_m.brres\n  BRRES penguin_s.brres\n  BRRES pocha.brres\n  BRRES pochaYogan.brres\n  BRRES poihana.brres\n  ?     posteffect/posteffect.blobj\n  ?     posteffect/posteffect.bltex\n  ?     posteffect/posteffect.bti\n  ?     posteffect/posteffect2.bblm\n  ?     posteffect/posteffect2.blight\n  ?     posteffect/posteffect2.blmap\n  ?     posteffect/posteffect2.blobj\n  ?     posteffect/posteffect3.bblm\n  BRRES puchi_pakkun.brres\n  BRRES pukupuku.brres\n  BRRES pylon01.brres\n  BRRES quicksand.brres\n  BRRES r_parasol.brres\n  BRRES ridgemii00.brres\n  KCL   ring_mission_b.kcl\n  BRRES sanbo.brres\n  BRRES seagull.brres\n  BRRES skyship.brres\n  BRRES spot.brres\n  BRRES starGate.brres\n  KCL   starGate.kcl\n  BRRES sun.brres\n  BRRES sunDS.brres\n  BRRES tree_cannon.brres\n  BRRES truckChimSmk.brres\n  BRRES truckChimSmkW.brres\n  BRRES venice_hasi.brres\n  KCL   venice_hasi.kcl\n  KCL   venice_hasi_b.kcl\n  KCL   venice_hasi_wall.kcl\n  BRRES venice_nami.brres\n  BRRES venice_saku.brres\n  KCL   venice_saku.kcl\n  BRRES wanwan.brres\n  BRRES windmill.brres\n  BRRES woodbox.brres\n  => 477 of 496 files missed.\n\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd verify missing",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "--dest",
+   "nolib",
+   "-vv"
+  ],
+  "exit_code": 84,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #84 [CAN'T CREATE DIRECTORY]\n!!        Directory does not exist: nolib\nwszst: Command 'AUTOADD' returns with status #84 [CAN'T CREATE DIRECTORY]\n",
+  "files": {}
+ },
+ {
+  "case": "autoadd build",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "Course",
+   "--DEST",
+   "newlib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\nANALYZE YAZ0.U8:Course/beginner_course.szs\n  ADD    3776, BRRES:newlib/itembox.brres\n",
+  "stderr": "",
+  "files": {
+   "newlib/itembox.brres": {
+    "effect": "created",
+    "magic": "62726573"
+   }
+  }
+ },
+ {
+  "case": "autoadd build again",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "Course",
+   "--dest",
+   "newlib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\nANALYZE YAZ0.U8:Course/beginner_course.szs\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd build empty source",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "empty",
+   "--DEST",
+   "newlib"
+  ],
+  "exit_code": 0,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\n",
+  "stderr": "",
+  "files": {}
+ },
+ {
+  "case": "autoadd build missing source",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {},
+  "argv": [
+   "autoadd",
+   "NoSuch",
+   "--DEST",
+   "newlib"
+  ],
+  "exit_code": 78,
+  "stdout": "\nCURRENT AUTO-ADD PATH: newlib\nANALYZE ?:\n",
+  "stderr": "!! wszst: ERROR #78 [CAN'T OPEN FILE]\n!!        Can't find file: NoSuch\n!!        -> No such file or directory [2]\n",
+  "files": {}
+ },
+ {
+  "case": "autoadd build missing dest",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "autoadd",
+   "Course",
+   "--dest",
+   "nolib/x"
+  ],
+  "exit_code": 84,
+  "stdout": "",
+  "stderr": "!! wszst: ERROR #84 [CAN'T CREATE DIRECTORY]\n!!        Directory does not exist: nolib/x\n",
+  "files": {}
+ },
+ {
+  "case": "create auto-add",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   },
+   "map_model.brres": {
+    "size": 3776,
+    "head": "62726573feff000000000ec000100002726f6f74000000580000002800000001",
+    "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "a.szs",
+   "--auto-add",
+   "--autoadd-path",
+   "lib"
+  ],
+  "exit_code": 0,
+  "stdout": "  >> auto-add [3776] lib/itembox.brres\nCREATE stage/ -> YAZ0.U8:a.szs\n",
+  "stderr": "",
+  "files": {
+   "a.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ },
+ {
+  "case": "create auto-add empty library",
+  "tool": "wszst",
+  "compare": "exact",
+  "inputs": {
+   "course.kcl": {
+    "size": 16250,
+    "head": "00000044000006c800002050000032a043960000c6bea000c5898000c6bea000",
+    "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1"
+   },
+   "objects.kmp": {
+    "size": 616,
+    "head": "524b4d4400000268000f004c0000000000000000000000240000007c00000094",
+    "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229"
+   }
+  },
+  "argv": [
+   "create",
+   "stage",
+   "--dest",
+   "a.szs",
+   "--auto-add",
+   "--autoadd-path",
+   "empty"
+  ],
+  "exit_code": 0,
+  "stdout": "CREATE stage/ -> YAZ0.U8:a.szs\n",
+  "stderr": "",
+  "files": {
+   "a.szs": {
+    "effect": "created",
+    "magic": "59617a30"
+   }
+  }
+ }
+]
