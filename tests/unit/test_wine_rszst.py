@@ -151,4 +151,16 @@ def test_through_wine_names_only_the_wine_launcher(tmp_path: Path) -> None:
     assert not tp.through_wine(tmp_path / "riistudio-build-pinned" / "source" / "cli" / "rszst")
     assert not tp.through_wine(tmp_path / "riistudio" / "rszst.exe")
     assert not tp.through_wine(tmp_path / "other" / "bin" / "rszst")
+    assert not tp.through_wine(wine_rszst.wine_executable(tmp_path / "riistudio-wine"))
     assert tp.through_wine(wine_rszst.launcher_path(wine_rszst.ROOT))
+
+
+def test_setup_marks_the_launcher_executable_on_every_system(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    modes: list[tuple[str, int]] = []
+    monkeypatch.setattr(Path, "chmod", lambda self, mode: modes.append((self.name, mode)))
+    wine_rszst.setup(
+        tmp_path / "w", wine=Path("/usr/bin/wine"), install=lambda root, *, wine: _release(root)
+    )
+    assert modes == [("rszst", 0o755)]

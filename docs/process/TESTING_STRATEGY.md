@@ -192,6 +192,10 @@ or commit them.
   `scripts/bootstrap_tools.py` (downloads cached by the catalogue's hash; Windows also the
   RiiStudio release), generate fixtures and S2 outputs, install Wine on Linux
   (`CTSTUDIO_RSZST_WINE=1` runs the Wine rszst route), then run
+  `scripts/wine_rszst.py` on Linux (P2-T08d): it sets the same pinned rszst.exe up through
+  CT Studio's own Wine route in `.tools/riistudio-wine/` with a `bin/rszst` launcher, which
+  `scripts/tool_paths.py` uses when no native build exists, so the rszst tests run on Linux
+  (only its self-named usage lines differ, `tool_paths.through_wine`). Then run
   `-m "(integration or network) and not slow"`. `scripts/ci_network.py --expected
   tests/integration/expected_skips.toml --os <os>` reads the JUnit XML: a skip is green only
   when the list names it for that OS with its reason (and says why); an unlisted skip, any
