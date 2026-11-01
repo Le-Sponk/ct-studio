@@ -395,7 +395,7 @@ Integration 101 passed, 20 listed skips (was 65/56). The launcher sits in `bin/`
 `rszst/` is the release folder (first CI run). Through Wine the program names itself
 `rszst.exe` in its usage lines; exit codes are the native Linux ones (255).
 
-### [ ] P2-T08e — rszst/ABMatt Linux recordings (split 2026-11-01)
+### [x] P2-T08e — rszst/ABMatt Linux recordings (split 2026-11-01)
 `record-linux.yml` also records rszst (the pinned rszst.exe through Wine, P2-T08d) and
 ABMatt; `test_linux_ops.py` compares them with the Windows recordings.
 **Acceptance:** rszst/ABMatt Linux ops recorded and compared with Windows; every difference

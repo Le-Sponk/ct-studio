@@ -4,22 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-T08e — rszst/ABMatt Linux recordings (in progress)
+**Next task:** P2-T08f — rszst adapter test on Linux; Linux non-ASCII paths
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 268da20 (P2-T08d; Windows gate, Ubuntu/Windows CI; Integration on be65b7e)
+**Last green commit:** 762ec7d (P2-T08e; Windows gate, Ubuntu/Windows CI; Integration on 675cbfc)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-T08e` — rszst/ABMatt Linux recordings. Plan (2026-11-01): (1) RED workflow test:
-  `record-linux.yml` installs Wine, runs `scripts/wine_rszst.py` before recording and records
-  `--only riistudio --only abmatt` too; (2) push, dispatch, download and review the artifact
-  (no runner paths, synthetic inputs only); (3) add rszst/ABMatt to `test_linux_ops.py`
-  with every new text difference listed and explained; fakes keep the Windows recordings.
-  Acceptance: rszst/ABMatt Linux ops recorded and compared with Windows; any case that
-  differs in exit code or files is explained (or the comparison is marked per case with the
-  reason). Files: record-linux.yml, test_ci_workflows.py, recordings/{rszst,abmatt}/linux-ops.json,
-  test_linux_ops.py, TESTING_STRATEGY, phase file.
 ## Done (newest first)
+- `P2-T08e` — rszst/ABMatt Linux recordings (2026-11-01). `record-linux.yml` installs
+  Wine, runs `wine_rszst.py` (which now records the pinned release in `installed.json`, the
+  recorders' pin source; first dispatch failed without it) and records rszst and ABMatt too.
+  49 rszst + 39 ABMatt cases: every file effect and input matches Windows; exit codes differ
+  only in how a failure is reported (4294967295 vs 255; ABMatt crash -1 vs 1), which
+  `test_linux_ops.same_exit` pins; text differences listed (ABMatt backslashes, traceback
+  lines, PyInstaller wording, one helper name, rszst threaded progress order). ABMatt's
+  Linux PID wording is now scrubbed. Fakes still replay Windows ops. Mutants 23/23; gate
+  green (1,191 tests); CI green — commits 0b2a50e, 675cbfc, 762ec7d.
 - `P2-T08d` — rszst through Wine for the Linux real-tool tests (2026-11-01).
   `scripts/wine_rszst.py` sets the pinned rszst.exe up through CT Studio's own Wine route in
   `.tools/riistudio-wine/` with a `bin/rszst` launcher; `tool_paths.rszst_path` uses it on
