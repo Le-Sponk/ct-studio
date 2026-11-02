@@ -56,10 +56,12 @@ compressed, so the `BLENDER` header is often not at the start; recognised by the
 the end instead. Also recognises the four post-effect files that have a magic. Checked on
 every file of the user's own original tracks (realdata test, local only).
 
-### [ ] P3-T06 — Slot catalogue
+### [x] P3-T06 — Slot catalogue
 `core/project/slots.json` generated from recorded `wszst tracks` output (script in `scripts/`), not
 typed by hand: internal file name, display name, cup, race/arena. Loader + lookup helpers.
 **Acceptance:** 32 race tracks + 10 arenas; test asserts counts and that `beginner_course` exists.
+**Done 2026-11-02 (`a845a14`):** the source is `wstrt tracks/arenas --long`, not `wszst tracks`
+(which prints file names only); cup names are the one typed list, checked against Tockdom.
 
 ### [ ] P3-T07 — CLI: `new`, `status`, `open`
 `ctstudio new <dir> --name --blend --slot`, `ctstudio status [dir] [--json]` (table with status
