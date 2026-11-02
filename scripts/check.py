@@ -1,7 +1,8 @@
 """The quality gate: `uv run python scripts/check.py [--all] [--fast]`.
 
 Runs, in order: ruff format --check, ruff check, pyright, lint-imports, the fast pytest
-selection (with coverage), xenon on `src/ctstudio/core`, vulture. Stops at the first failure
+selection (with coverage), xenon on `src/ctstudio/core`, vulture, the 400-line file budget
+(`scripts/file_budget.py`). Stops at the first failure
 unless `--all`. `--fast` skips pyright and coverage. Prints one line per step with its
 duration; a failing step's captured output is printed after its line.
 
@@ -100,6 +101,12 @@ def build_steps(root: Path, *, fast: bool) -> list[Step]:
                 VULTURE_MIN_CONFIDENCE,
             ),
             120,
+        ),
+        Step(
+            "file length",
+            # The gate's own copy checks the tree at ``root`` (like the other tools).
+            (sys.executable, str(Path(__file__).resolve().with_name("file_budget.py")), str(root)),
+            60,
         ),
     ]
 

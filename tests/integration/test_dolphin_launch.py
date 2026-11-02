@@ -1,16 +1,15 @@
 """S8 contract tests: getting a built SZS into a running game (P0-T11).
 
-Pins the behaviour P11's "Build & launch" depends on, measured in P0-T11.
-Findings: docs/dev/SPIKES.md S8, spikes/s8_dolphin_launch.py, the launch table in
-docs/reference/TOOLS.md.
+Pins what P11's "Build & launch" depends on, measured in P0-T11 (docs/dev/SPIKES.md S8,
+spikes/s8_dolphin_launch.py, the launch table in docs/reference/TOOLS.md).
 
 These tests boot a real Dolphin against a **synthetic** disc-shaped directory
 (a `sys/boot.bin` header, a stub `sys/main.dol`, a fake slot SZS). No Mario Kart
 Wii data is present or needed: everything asserted here is Dolphin's own
-path-selection, descriptor parsing and exit-code behaviour. Whether a patched
-file actually reaches the running game is an HC3 item on the user's machine.
+path-selection, descriptor parsing and exit codes. Whether a patched file
+reaches the running game is an HC3 item on the user's machine.
 
-Marked `slow` because each boot costs a second or two and several run per test.
+Marked `slow`: each boot costs a second or two and several run per test.
 """
 
 from __future__ import annotations

@@ -57,6 +57,13 @@ def test_nightly_integration_bootstraps_real_tools_and_explains_every_skip() -> 
         "tests/integration/expected_skips.toml",
         "scripts/wine_rszst.py",
         "scripts/tool_paths.py",
+        # P2-GATE Should fix 2: code the real-tool tests exercise, so a change runs them.
+        "src/ctstudio/core/tools/**",
+        "src/ctstudio/core/errors.py",
+        "src/ctstudio/cli/**",
+        "tests/integration/**",
+        "tests/fakes/**",
+        "scripts/fixtures/**",
     ):
         assert path in watched
     job = workflow["jobs"]["integration"]

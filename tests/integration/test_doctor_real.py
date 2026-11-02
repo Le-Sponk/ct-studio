@@ -38,8 +38,9 @@ def test_real_tools_are_found_with_their_pinned_versions(tmp_path: Path) -> None
     checks = {check.tool_id: check for check in report.tools}
     for tool, version in PINNED.items():
         assert (checks[tool].status, checks[tool].version) == ("found", version), checks[tool]
-    if (TOOLS / "riistudio" / f"rszst{EXE}").is_file():
-        assert checks["rszst"].version == "5.11.5"
+    rszst_copies = (TOOLS / "riistudio" / f"rszst{EXE}", TOOLS / "riistudio-wine" / "bin" / "rszst")
+    if any(copy.is_file() for copy in rszst_copies):  # Linux CI: the Wine copy (P2-GATE)
+        assert checks["rszst"].version == "5.11.5", checks["rszst"]
     if (TOOLS / "blender" / f"blender{EXE}").is_file():
         assert checks["blender"].status == "found" and checks["blender"].version
     assert report.ok

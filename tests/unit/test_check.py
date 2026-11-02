@@ -30,7 +30,8 @@ def _sandbox(tmp_path: Path) -> Path:
     root.mkdir()
     shutil.copytree(ROOT / "src", root / "src", ignore=shutil.ignore_patterns("__pycache__"))
     (root / "scripts").mkdir()
-    shutil.copy2(ROOT / "scripts" / "check.py", root / "scripts" / "check.py")
+    for script in ("check.py", "file_budget.py"):
+        shutil.copy2(ROOT / "scripts" / script, root / "scripts" / script)
     for name in ("pyproject.toml", ".importlinter", "vulture_whitelist.py"):
         shutil.copy2(ROOT / name, root / name)
     (root / "tests").mkdir()
@@ -78,6 +79,7 @@ def test_steps_match_the_gate_and_fast_only_skips_typecheck_and_coverage() -> No
         "pytest",
         "xenon (core)",
         "vulture",
+        "file length",
     ]
     assert [s.name for s in fast] == [s.name for s in normal]
     assert fast[2].skip_reason == "--fast"
@@ -225,4 +227,5 @@ def test_network_and_integration_tests_are_deselected(tmp_path: Path) -> None:
     assert "1 passed, 2 deselected" in proc.stdout
     assert "SKIP  pyright" in proc.stdout
     assert "PASS  xenon (core)" in proc.stdout
+    assert "PASS  file length" in proc.stdout
     assert "check.py: OK" in proc.stdout

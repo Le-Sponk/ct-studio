@@ -155,6 +155,8 @@ def test_linux_gui_editor_requires_wine_launcher(tmp_path: Path) -> None:
         ("linux", "wkclt", "wiimms-szs-tools/bin/wkclt"),
         ("windows", "rszst", "riistudio/rszst.exe"),
         ("linux", "rszst", "riistudio-build-pinned/source/cli/rszst"),
+        # The CI launcher for the official rszst.exe through Wine (scripts/wine_rszst.py).
+        ("linux", "rszst", "riistudio-wine/bin/rszst"),
         ("windows", "kmp_cloud", "s7-kmp-cloud/KMP Cloud.exe"),
         # The bootstrapped RiiStudio release folder holds the GUI next to rszst (P2-T06).
         ("windows", "riistudio", "riistudio/RiiStudio.exe"),
@@ -176,6 +178,37 @@ def test_developer_tools_are_opt_in(
     assert location.launcher == (
         "wine" if platform == "linux" and tool in {"brawlcrate", "riistudio"} else "direct"
     )
+
+
+def test_the_default_developer_folder_exists_only_in_a_source_checkout(tmp_path: Path) -> None:
+    """P2-GATE Should fix 1: an installed CT Studio never looks in a ``.tools`` folder."""
+    from ctstudio.core.tools.discovery import default_dev_root
+
+    checkout = tmp_path / "ct-studio é"
+    (checkout / "pyproject.toml").parent.mkdir(parents=True)
+    (checkout / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
+    module = checkout / "src" / "ctstudio" / "core" / "tools" / "discovery.py"
+    assert default_dev_root(module) == checkout / ".tools"
+    installed = tmp_path / "Python312" / "Lib" / "site-packages"
+    (installed / "pyproject.toml").parent.mkdir(parents=True)
+    (installed / "pyproject.toml").write_text("[project]\n", encoding="utf-8")  # a stray one
+    assert default_dev_root(installed / "ctstudio" / "core" / "tools" / "discovery.py") is None
+    no_project = tmp_path / "copied" / "src" / "ctstudio" / "core" / "tools" / "discovery.py"
+    assert default_dev_root(no_project) is None
+
+
+def test_an_installed_ct_studio_ignores_developer_tools(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from ctstudio.core.tools import discovery
+
+    env = environment(tmp_path, "linux")
+    executable(tmp_path / ".tools" / "blender" / "blender")
+    monkeypatch.setattr(discovery, "default_dev_root", lambda _module=None: None)
+    assert discover(TOOL_BY_ID["blender"], environment=env, include_dev=True) is None
+    monkeypatch.setattr(discovery, "default_dev_root", lambda _module=None: tmp_path / ".tools")
+    location = discover(TOOL_BY_ID["blender"], environment=env, include_dev=True)
+    assert location is not None and location.source == "dev"
 
 
 def test_standard_precedes_developer_tools(tmp_path: Path) -> None:

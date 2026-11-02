@@ -114,7 +114,12 @@ def _find_in_directories(
 _DEV_PATHS: dict[str, dict[str, tuple[str, ...]]] = {
     "rszst": {
         "windows": ("riistudio/rszst.exe",),
-        "linux": ("riistudio-build-pinned/source/cli/rszst", "riistudio/rszst"),
+        # Native build first; then the Wine launcher CI writes (scripts/wine_rszst.py).
+        "linux": (
+            "riistudio-build-pinned/source/cli/rszst",
+            "riistudio/rszst",
+            "riistudio-wine/bin/rszst",
+        ),
     },
     "abmatt": {"windows": ("abmatt/bin/abmatt.exe",), "linux": ("abmatt/bin/abmatt",)},
     "blender": {"windows": ("blender/blender.exe",), "linux": ("blender/blender",)},
@@ -202,10 +207,22 @@ def _direct_location(spec: ToolSpec, env: DiscoveryEnvironment) -> ToolLocation 
     return _find_in_directories(spec, env, _standard_directories(spec, env), "standard")
 
 
+def default_dev_root(module: Path | None = None) -> Path | None:
+    """``.tools/`` of a source checkout (``<checkout>/src/ctstudio/...`` beside its
+    ``pyproject.toml``); None for an installed CT Studio, which never uses developer tools."""
+    here = (module if module is not None else Path(__file__)).resolve()
+    checkout = here.parents[4]
+    if here.parents[3].name != "src" or not (checkout / "pyproject.toml").is_file():
+        return None
+    return checkout / ".tools"
+
+
 def _dev_location(
     spec: ToolSpec, env: DiscoveryEnvironment, dev_root: Path | None
 ) -> ToolLocation | None:
-    root = dev_root if dev_root is not None else Path(__file__).resolve().parents[4] / ".tools"
+    root = dev_root if dev_root is not None else default_dev_root()
+    if root is None:
+        return None
     for candidate in _dev_paths(spec, env, root):
         if _executable(candidate, env.platform):
             return _location(spec, candidate, "dev", env.platform)

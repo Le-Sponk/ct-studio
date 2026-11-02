@@ -14,6 +14,13 @@ on:
       - tests/integration/expected_skips.toml
       - scripts/wine_rszst.py
       - scripts/tool_paths.py
+      # What the real-tool tests exercise (P2-GATE): a change runs them, not only the nightly.
+      - src/ctstudio/core/tools/**
+      - src/ctstudio/core/errors.py
+      - src/ctstudio/cli/**
+      - tests/integration/**
+      - tests/fakes/**
+      - scripts/fixtures/**
 
 permissions:
   contents: read

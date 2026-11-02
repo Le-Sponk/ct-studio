@@ -17,7 +17,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import shutil
 import struct
 import sys
@@ -31,6 +30,7 @@ from abmatt_adapter_cases import ABMATT_ADAPTER_CASES, ABMATT_ADAPTER_COMMANDS
 from blender_adapter_cases import BLENDER_ADAPTER_CASES
 from ops_cases import ABMATT_CASES, BLENDER_CASES, RSZST_CASES, WIIMM, Case
 from ops_cases import WIIMM_CASES as BASE_WIIMM_CASES
+from record_normalize import normalize_abmatt, normalize_blender, normalize_wszst
 from rszst_adapter_cases import RSZST_ADAPTER_CASES
 from wiimm_adapter_cases import (
     ANALYZE_CASES,
@@ -59,31 +59,6 @@ ABMATT_CMDS = {
     "copy.txt": "copy material for road in source.brres\npaste material for road in dest.brres\n",
     **ABMATT_ADAPTER_COMMANDS,
 }
-
-
-def normalize_abmatt(record: dict[str, object]) -> dict[str, object]:
-    """Scrub ABMatt's process-specific seconds and PyInstaller PID, not diagnostics."""
-    stdout = re.sub(
-        r"(?<=\.\.\. finished in )\d+(?:\.\d+)?(?= secs)", "<duration>", str(record["stdout"])
-    )
-    stderr = re.sub(
-        r"\[\d+\](?= Failed to execute script '?__main__)", "[<pid>]", str(record["stderr"])
-    )
-    return {**record, "stdout": stdout, "stderr": stderr}
-
-
-def normalize_wszst(record: dict[str, object]) -> dict[str, object]:
-    """Scrub only ``analyze --json``'s per-run ``duration_usec`` value."""
-    stdout = re.sub(r'(?<="duration_usec":)\d+(?=})', '"<usec>"', str(record["stdout"]))
-    return {**record, "stdout": stdout}
-
-
-def normalize_blender(record: dict[str, object]) -> dict[str, object]:
-    """Only scrub Blender's variable report-time prefix, not its build time."""
-    stdout = re.sub(
-        r"(?m)^\d\d:\d\d\.\d{3}(?=  (?:reports|blend)\s+\|)", "<elapsed>", str(record["stdout"])
-    )
-    return {**record, "stdout": stdout}
 
 
 # What to record, by bootstrap tool name: its executables and its case table.
