@@ -63,9 +63,11 @@ typed by hand: internal file name, display name, cup, race/arena. Loader + looku
 **Done 2026-11-02 (`a845a14`):** the source is `wstrt tracks/arenas --long`, not `wszst tracks`
 (which prints file names only); cup names are the one typed list, checked against Tockdom.
 
-### [ ] P3-T07 — CLI: `new`, `status`, `open`
+### [x] P3-T07 — CLI: `new`, `status`, `open`
 `ctstudio new <dir> --name --blend --slot`, `ctstudio status [dir] [--json]` (table with status
 icons + reasons), `ctstudio open <file> [--with tool]` (uses editors adapter).
 **Acceptance:** CLI tests via `subprocess` against fakes; JSON schema documented in `docs/dev/CLI.md`.
+**Done 2026-11-03 (`a80c502`, `3073e09`):** also `--force` and `--wine-prefix`; `status` exits 1
+when a part is in `error`; tool finding without version probes is `core/tools/availability.py`.
 
 ### [ ] P3-GATE — Phase review
