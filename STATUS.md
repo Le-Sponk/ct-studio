@@ -10,6 +10,21 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P3-T06` — Slot catalogue. Plan (2026-11-02):
+  - Source: `wszst tracks` prints only internal file names ("use BMG files to print real
+    names"), so names, cups and abbreviations come from `wstrt tracks --long` /
+    `wstrt arenas --long` (same Wiimm 2.42a bundle; built-in English names, no game data).
+    Recorded once into `tests/fakes/recordings/wstrt/2.42a/windows-catalogue.json`.
+  - `scripts/make_slot_catalogue.py`: `--record` re-runs wstrt; default parses the recording
+    and writes `src/ctstudio/core/project/slots.json`; `--check` fails if the file differs.
+  - `core/project/slots.py`: loads the packaged JSON (validated), `Slot` (file, name, abbr,
+    kind race/arena, cup, position), `CATALOGUE`, `SLOTS`, `DEFAULT_SLOT`, `slot()` with a
+    did-you-mean error, `race_tracks()`, `arenas()`, `cups()`.
+  - Acceptance: 32 race tracks + 10 arenas; `beginner_course` exists; the JSON equals the
+    script's output for the recording (so it is generated, not hand-typed); slot order and
+    manifest validation unchanged; the JSON ships in the wheel.
+  - Files: slots.py, slots.json, scripts/make_slot_catalogue.py, recording,
+    tests/unit/test_slot_catalogue.py, TOOLS.md (wstrt rows), ARCHITECTURE if needed.
 ## Done (newest first)
 - `P3-T04` — Status evaluation (2026-11-02). `core/components/state.py` (`.ctstudio/state.json`:
   per made part a settings key + size/mtime/digest of its outputs and inputs; missing or

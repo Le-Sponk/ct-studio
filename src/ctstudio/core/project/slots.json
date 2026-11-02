@@ -1,0 +1,383 @@
+{
+  "source": "wstrt 2.42a tracks/arenas --long (scripts/make_slot_catalogue.py)",
+  "slots": [
+    {
+      "file": "beginner_course",
+      "name": "Luigi Circuit",
+      "abbr": "LC",
+      "kind": "race",
+      "cup": "Mushroom Cup",
+      "cup_number": 1,
+      "position": 1
+    },
+    {
+      "file": "farm_course",
+      "name": "Moo Moo Meadows",
+      "abbr": "MMM",
+      "kind": "race",
+      "cup": "Mushroom Cup",
+      "cup_number": 1,
+      "position": 2
+    },
+    {
+      "file": "kinoko_course",
+      "name": "Mushroom Gorge",
+      "abbr": "MG",
+      "kind": "race",
+      "cup": "Mushroom Cup",
+      "cup_number": 1,
+      "position": 3
+    },
+    {
+      "file": "factory_course",
+      "name": "Toad's Factory",
+      "abbr": "TF",
+      "kind": "race",
+      "cup": "Mushroom Cup",
+      "cup_number": 1,
+      "position": 4
+    },
+    {
+      "file": "castle_course",
+      "name": "Mario Circuit",
+      "abbr": "MC",
+      "kind": "race",
+      "cup": "Flower Cup",
+      "cup_number": 2,
+      "position": 1
+    },
+    {
+      "file": "shopping_course",
+      "name": "Coconut Mall",
+      "abbr": "CM",
+      "kind": "race",
+      "cup": "Flower Cup",
+      "cup_number": 2,
+      "position": 2
+    },
+    {
+      "file": "boardcross_course",
+      "name": "DK Summit",
+      "abbr": "DKS",
+      "kind": "race",
+      "cup": "Flower Cup",
+      "cup_number": 2,
+      "position": 3
+    },
+    {
+      "file": "truck_course",
+      "name": "Wario's Gold Mine",
+      "abbr": "WGM",
+      "kind": "race",
+      "cup": "Flower Cup",
+      "cup_number": 2,
+      "position": 4
+    },
+    {
+      "file": "senior_course",
+      "name": "Daisy Circuit",
+      "abbr": "DC",
+      "kind": "race",
+      "cup": "Star Cup",
+      "cup_number": 3,
+      "position": 1
+    },
+    {
+      "file": "water_course",
+      "name": "Koopa Cape",
+      "abbr": "KC",
+      "kind": "race",
+      "cup": "Star Cup",
+      "cup_number": 3,
+      "position": 2
+    },
+    {
+      "file": "treehouse_course",
+      "name": "Maple Treeway",
+      "abbr": "MT",
+      "kind": "race",
+      "cup": "Star Cup",
+      "cup_number": 3,
+      "position": 3
+    },
+    {
+      "file": "volcano_course",
+      "name": "Grumble Volcano",
+      "abbr": "GV",
+      "kind": "race",
+      "cup": "Star Cup",
+      "cup_number": 3,
+      "position": 4
+    },
+    {
+      "file": "desert_course",
+      "name": "Dry Dry Ruins",
+      "abbr": "DDR",
+      "kind": "race",
+      "cup": "Special Cup",
+      "cup_number": 4,
+      "position": 1
+    },
+    {
+      "file": "ridgehighway_course",
+      "name": "Moonview Highway",
+      "abbr": "MH",
+      "kind": "race",
+      "cup": "Special Cup",
+      "cup_number": 4,
+      "position": 2
+    },
+    {
+      "file": "koopa_course",
+      "name": "Bowser's Castle",
+      "abbr": "BC",
+      "kind": "race",
+      "cup": "Special Cup",
+      "cup_number": 4,
+      "position": 3
+    },
+    {
+      "file": "rainbow_course",
+      "name": "Rainbow Road",
+      "abbr": "RR",
+      "kind": "race",
+      "cup": "Special Cup",
+      "cup_number": 4,
+      "position": 4
+    },
+    {
+      "file": "old_peach_gc",
+      "name": "GCN Peach Beach",
+      "abbr": "gPB",
+      "kind": "race",
+      "cup": "Shell Cup",
+      "cup_number": 5,
+      "position": 1
+    },
+    {
+      "file": "old_falls_ds",
+      "name": "DS Yoshi Falls",
+      "abbr": "dYF",
+      "kind": "race",
+      "cup": "Shell Cup",
+      "cup_number": 5,
+      "position": 2
+    },
+    {
+      "file": "old_obake_sfc",
+      "name": "SNES Ghost Valley 2",
+      "abbr": "sGV2",
+      "kind": "race",
+      "cup": "Shell Cup",
+      "cup_number": 5,
+      "position": 3
+    },
+    {
+      "file": "old_mario_64",
+      "name": "N64 Mario Raceway",
+      "abbr": "nMR",
+      "kind": "race",
+      "cup": "Shell Cup",
+      "cup_number": 5,
+      "position": 4
+    },
+    {
+      "file": "old_sherbet_64",
+      "name": "N64 Sherbet Land",
+      "abbr": "nSL",
+      "kind": "race",
+      "cup": "Banana Cup",
+      "cup_number": 6,
+      "position": 1
+    },
+    {
+      "file": "old_heyho_gba",
+      "name": "GBA Shy Guy Beach",
+      "abbr": "gSGB",
+      "kind": "race",
+      "cup": "Banana Cup",
+      "cup_number": 6,
+      "position": 2
+    },
+    {
+      "file": "old_town_ds",
+      "name": "DS Delfino Square",
+      "abbr": "dDS",
+      "kind": "race",
+      "cup": "Banana Cup",
+      "cup_number": 6,
+      "position": 3
+    },
+    {
+      "file": "old_waluigi_gc",
+      "name": "GCN Waluigi Stadium",
+      "abbr": "gWS",
+      "kind": "race",
+      "cup": "Banana Cup",
+      "cup_number": 6,
+      "position": 4
+    },
+    {
+      "file": "old_desert_ds",
+      "name": "DS Desert Hills",
+      "abbr": "dDH",
+      "kind": "race",
+      "cup": "Leaf Cup",
+      "cup_number": 7,
+      "position": 1
+    },
+    {
+      "file": "old_koopa_gba",
+      "name": "GBA Bowser Castle 3",
+      "abbr": "gBC3",
+      "kind": "race",
+      "cup": "Leaf Cup",
+      "cup_number": 7,
+      "position": 2
+    },
+    {
+      "file": "old_donkey_64",
+      "name": "N64 DK's Jungle Parkway",
+      "abbr": "nDKJP",
+      "kind": "race",
+      "cup": "Leaf Cup",
+      "cup_number": 7,
+      "position": 3
+    },
+    {
+      "file": "old_mario_gc",
+      "name": "GCN Mario Circuit",
+      "abbr": "gMC",
+      "kind": "race",
+      "cup": "Leaf Cup",
+      "cup_number": 7,
+      "position": 4
+    },
+    {
+      "file": "old_mario_sfc",
+      "name": "SNES Mario Circuit 3",
+      "abbr": "sMC3",
+      "kind": "race",
+      "cup": "Lightning Cup",
+      "cup_number": 8,
+      "position": 1
+    },
+    {
+      "file": "old_garden_ds",
+      "name": "DS Peach Gardens",
+      "abbr": "dPG",
+      "kind": "race",
+      "cup": "Lightning Cup",
+      "cup_number": 8,
+      "position": 2
+    },
+    {
+      "file": "old_donkey_gc",
+      "name": "GCN DK Mountain",
+      "abbr": "gDKM",
+      "kind": "race",
+      "cup": "Lightning Cup",
+      "cup_number": 8,
+      "position": 3
+    },
+    {
+      "file": "old_koopa_64",
+      "name": "N64 Bowser's Castle",
+      "abbr": "nBC",
+      "kind": "race",
+      "cup": "Lightning Cup",
+      "cup_number": 8,
+      "position": 4
+    },
+    {
+      "file": "block_battle",
+      "name": "Block Plaza",
+      "abbr": "aBP",
+      "kind": "arena",
+      "cup": "Wii Arenas",
+      "cup_number": 1,
+      "position": 1
+    },
+    {
+      "file": "venice_battle",
+      "name": "Delfino Pier",
+      "abbr": "aDP",
+      "kind": "arena",
+      "cup": "Wii Arenas",
+      "cup_number": 1,
+      "position": 2
+    },
+    {
+      "file": "skate_battle",
+      "name": "Funky Stadium",
+      "abbr": "aFS",
+      "kind": "arena",
+      "cup": "Wii Arenas",
+      "cup_number": 1,
+      "position": 3
+    },
+    {
+      "file": "casino_battle",
+      "name": "Chain Chomp Wheel",
+      "abbr": "aCCW",
+      "kind": "arena",
+      "cup": "Wii Arenas",
+      "cup_number": 1,
+      "position": 4
+    },
+    {
+      "file": "sand_battle",
+      "name": "Thwomp Desert",
+      "abbr": "aTD",
+      "kind": "arena",
+      "cup": "Wii Arenas",
+      "cup_number": 1,
+      "position": 5
+    },
+    {
+      "file": "old_battle4_sfc",
+      "name": "SNES Battle Course 4",
+      "abbr": "asBC4",
+      "kind": "arena",
+      "cup": "Retro Arenas",
+      "cup_number": 2,
+      "position": 1
+    },
+    {
+      "file": "old_battle3_gba",
+      "name": "GBA Battle Course 3",
+      "abbr": "agBC3",
+      "kind": "arena",
+      "cup": "Retro Arenas",
+      "cup_number": 2,
+      "position": 2
+    },
+    {
+      "file": "old_matenro_64",
+      "name": "N64 Skyscraper",
+      "abbr": "anSS",
+      "kind": "arena",
+      "cup": "Retro Arenas",
+      "cup_number": 2,
+      "position": 3
+    },
+    {
+      "file": "old_CookieLand_gc",
+      "name": "GCN Cookie Land",
+      "abbr": "agCL",
+      "kind": "arena",
+      "cup": "Retro Arenas",
+      "cup_number": 2,
+      "position": 4
+    },
+    {
+      "file": "old_House_ds",
+      "name": "DS Twilight House",
+      "abbr": "adTH",
+      "kind": "arena",
+      "cup": "Retro Arenas",
+      "cup_number": 2,
+      "position": 5
+    }
+  ]
+}

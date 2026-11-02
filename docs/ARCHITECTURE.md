@@ -211,8 +211,9 @@ user settings file under `platformdirs.user_config_dir("ctstudio")`, never in th
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`
-steps; only v1), `slots.py` (the 42 `wszst tracks` names; `slot` and `template_track` must be
-one). Differences from the sketch: every component may also have `file` (the user's file in
+steps; only v1), `slots.py` (the 42 original tracks and arenas from the generated `slots.json`: file name,
+Wiimm's English name and abbreviation, race/arena, cup and position; `find()` accepts any of
+the three names; `slot` and `template_track` must be one of the file names). Differences from the sketch: every component may also have `file` (the user's file in
 `manual` mode); an optional value is left out of the file, never written as `""`; texture and
 material override tables hold only what is overridden; `[components.kmp]` `mode` is `manual`
 only and `[components.posteffect]` `mode` is `template | manual`. Keys this version does not

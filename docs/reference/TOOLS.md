@@ -17,7 +17,8 @@ Upgrade them to **[verified vX, run]** during Phase 0/2.
   - `SLOTS` — which slots will run a track
   - `MINIMAP` — print/patch minimap data; `--auto` computes translations from vertex min/max
   - `LIST`/`LL` — list archive contents · `EXTRACT`/`X` · `AUTOADD` — manage auto-add library
-  - `TRACKS` — list the 32 track + 10 arena internal names (source for the slot catalogue)
+  - `TRACKS` — list the 32 track + 10 arena internal names only ("use BMG files to print real
+    names"); the slot catalogue uses `wstrt TRACKS/ARENAS --long` instead (section below)
   - `ANALYZE` — machine-readable analysis of track files
 - Options **[doc]**: `-d/--dest path` (with `%`-escapes), `-D/--DEST` (creates dirs), `-o/--overwrite`,
   `-r/--remove-dest`, `-C/--compr level` (0–9, `FAST`=1, `BEST`=9 default, `ULTRA`=10), `--fast`,
@@ -1244,3 +1245,30 @@ discovered in the bootstrapped `.tools/riistudio/` folder next to `rszst`. On Li
 Integration workflow (P2-T08a) bootstraps the real tools and runs `test_doctor_real.py`;
 since P2-GATE doctor also finds CI's Wine copy of the official `rszst.exe`
 (`.tools/riistudio-wine/bin/rszst`, `scripts/wine_rszst.py`) and checks its 5.11.5 version.
+
+## Slot catalogue source: `wstrt tracks/arenas --long` (P3-T06, verified 2026-11-02 on 2.42a)
+
+`wszst tracks` prints only internal file names. `wstrt` (same Wiimm bundle, "StaticR Tool")
+prints the standard order with Wiimm's built-in English names, so CT Studio never reads the
+game's own message files:
+
+```text
+$ wstrt tracks --long
+      new  std  file name            sound standard      fast sound  track track
+ idx slot slot  of track             slot  sound file name   f.name  abbr. name
+  8.  1.1  1.1  beginner_course      0x7d  n_Circuit32_n         _f  LC    Luigi Circuit
+ ...
+ 29.  7.3  7.3  old_donkey_64        0xa1  r_64_Jungle32_n       _f  nDKJP N64 DK's Jungle Parkway
+$ wstrt arenas --long
+  1.  1.1  1.1  block_battle       0xb7  n_block_n       _F  aBP   Block Plaza
+```
+
+- `std slot` is `cup.position` (8 cups x 4 tracks; 2 arena groups x 5). With no input file,
+  `new slot` equals `std slot`.
+- Long abbreviations fill their column, leaving one space before the name (`nDKJP N64 ...`).
+- `--de` switches to German names; the default is English.
+- Neither table names the cups. The cup names in `scripts/make_slot_catalogue.py` were checked
+  against https://wiki.tockdom.com/wiki/MKW (Track Listing / Arena Listing).
+- Recording: `tests/fakes/recordings/wstrt/2.42a/windows-catalogue.json`. Regenerate with
+  `uv run python scripts/make_slot_catalogue.py --record`; `--check` fails when
+  `src/ctstudio/core/project/slots.json` is out of date.
