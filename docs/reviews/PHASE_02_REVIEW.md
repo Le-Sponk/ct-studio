@@ -47,4 +47,35 @@ the implementer triaged and fixed the findings.
 - Two pre-existing scripts at complexity C (`bootstrap_tools.unpack`, `check.run_step`). — see Fixes.
 
 ## Fixes
-_Filled in as each item is resolved, with the commit._
+- **Must fix 1** (bb8ef79): `process._popen` maps any other `OSError` to `ToolNotFound`
+  ("… is not a program this system can run."); doctor reports `not working` with a fix;
+  a failed check on the Tools page re-reads the saved paths, so Clear stays usable.
+  Reproduced and re-verified on the real CLI; mutants 9/9; Windows and Linux CI green.
+- **Should fix 1** (43547f4): `discovery.default_dev_root()` gives `.tools/` only for a source
+  checkout (`pyproject.toml` beside `src/`); an installed CT Studio never searches it.
+- **Should fix 2** (43547f4): Integration also runs on pushes touching `core/tools`,
+  `core/errors.py`, `cli`, `tests/integration`, `tests/fakes`, `scripts/fixtures`; it ran on
+  43547f4 (Linux 112 passed / 17 listed skips; `test_doctor_real` included).
+- **Should fix 3** (43547f4): new `scripts/file_budget.py` is the gate's last step ("file
+  length"); `test_doctor.py` split (helpers + `test_doctor_settings.py`), recording scrubbers
+  moved to `scripts/record_normalize.py`, `test_dolphin_launch.py` trimmed to 400.
+- **Should fix 4**: the Status cell reads "missing (required)" / "missing (optional)" (and
+  likewise for not working / too old); colour now only adds to the words.
+- **Should fix 5**: `_unusable_setting` uses the caller's `required` (bb8ef79); `_base` takes
+  typed fields (`TypedDict` + `Unpack`), so its `type: ignore` is gone.
+- **Should fix 6**: `tests/fakes/recordings/inputs_provenance.json` lists all 31 retained
+  inputs with SHA-256 and origin (19 generated, 7 hand-written, 2 rebuilt, 3 tool output);
+  a unit test fails on any unlisted or changed file and compares generated ones with
+  `make_fixtures.py` output; `tests/integration/test_retained_inputs.py` rebuilds
+  `map_model.brres` and `map_model_patched.brres` byte-for-byte with real ABMatt and wszst.
+  The other three (`no_bones_model.brres`, `variant.kcl`, `objects.kmp`) have their exact
+  origin recorded; their bytes depend on a temporary file name, so they are pinned, not rebuilt.
+- **Should fix 7**: ARCHITECTURE.md discovery order and TOOLS.md's stale Linux sentence fixed.
+- **Consider, Linux doctor**: discovery finds `.tools/riistudio-wine/bin/rszst`;
+  `test_doctor_real` checks its 5.11.5 version when present (43547f4).
+- **Consider, Wine prefix**: `riistudio.wine_root_of` checks the layout instead of a blind
+  `parents[1]`.
+- **Consider, logged**: TD-005 (Tools page close during a check, P5-T01), TD-006 (Action SHA
+  pins, P13-T07), TD-007 (bigger screenshots, P5-T09), TD-008 (two C-grade scripts, Deep Clean #1).
+- Mutation check of the Should fixes: 11/11 after one added test (a `pyproject.toml` without
+  a `src` layout).

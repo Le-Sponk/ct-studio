@@ -225,7 +225,9 @@ wrote, a timestamped backup is made — no exceptions.
   (`launch_detached(watch=)`) because Wine reports a wrong prefix or missing .NET by exiting
   at once. Sandboxed installs (Flatpak/Snap) handled per lessons from the
   Blender add-on (desktop launches don't inherit shell PATH; sandboxed apps can't see host paths).
-- Discovery order: explicit user setting → PATH → standard install locations → `.tools/` (dev).
+- Discovery order: explicit user setting → PATH → standard install locations → Flatpak
+  (Blender only) → managed copies (`ctstudio setup`, e.g. rszst) → `.tools/` (developer
+  fallback, only in a source checkout: `pyproject.toml` beside `src/`; P2-GATE).
   Results cached with invalidation; "Re-check" always available.
   P2-T02a implements the filesystem-only half in `core/tools/discovery.py`: executable-file
   validation and launch metadata on both OS branches, Wiimm/Blender standard locations,

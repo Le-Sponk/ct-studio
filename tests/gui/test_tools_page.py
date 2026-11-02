@@ -33,6 +33,7 @@ from tools_fakes import (
     tools_table,
 )
 
+from ctstudio.core.tools.doctor import Status
 from ctstudio.core.tools.registry import TOOL_BY_ID
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(30)]
@@ -51,7 +52,7 @@ def test_the_first_check_lists_every_tool_off_the_ui_thread(
 ) -> None:
     page = make_page(qtbot, doctor, settings_file, opened, chosen)
     assert rows(page) == [
-        ("Wiimms SZS Tool", "missing", "-"),
+        ("Wiimms SZS Tool", "missing (required)", "-"),
         ("Blender", "found", "4.5.3"),
         ("Wine", "not needed", "-"),
     ]
@@ -75,6 +76,28 @@ def test_status_chips_say_how_urgent_each_row_is(
     assert chips == ["blocking", "ok", "ok"]  # a required tool missing blocks building
     assert item(page, 0, 1).foreground().color() != item(page, 1, 1).foreground().color()
     assert "required" in item(page, 0, 1).toolTip()
+
+
+@pytest.mark.parametrize(
+    "status,required,text",
+    [
+        ("missing", True, "missing (required)"),
+        ("missing", False, "missing (optional)"),
+        ("not_working", True, "not working (required)"),
+        ("too_old", False, "too old (optional)"),
+        ("found", True, "found"),  # nothing to act on: no tag
+        ("not_needed", False, "not needed"),
+    ],
+)
+def test_status_text_says_required_or_optional_not_only_colour(
+    status: Status, required: bool, text: str
+) -> None:
+    """P2-GATE Should fix 4 (checklist 5): urgency is in the words, colour only adds to it."""
+    from ctstudio.core.tools.doctor import ToolCheck
+    from ctstudio.gui.views.tools_page import status_text
+
+    check = ToolCheck("wszst", "Wiimms SZS Tool", status, required, "SZS assembly")
+    assert status_text(check) == text
 
 
 def test_selecting_a_row_shows_its_path_how_it_was_found_and_the_fix(
@@ -141,7 +164,7 @@ def test_clear_forgets_the_path_and_checks_again(
         button(page, "clearButton").click()
     assert saved(settings_file) == {}
     assert doctor.calls[-1] == {"force": False, "configured": {}}
-    assert rows(page)[0][1] == "missing"
+    assert rows(page)[0][1] == "missing (required)"
     assert not button(page, "clearButton").isEnabled()  # nothing set for this tool now
 
 

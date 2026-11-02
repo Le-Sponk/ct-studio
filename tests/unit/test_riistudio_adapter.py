@@ -258,6 +258,18 @@ def test_a_wine_copy_runs_through_wine_in_its_own_prefix(
     assert env == wine_environment(root)
 
 
+def test_the_wine_root_is_found_from_its_executable_or_refused(tmp_path: Path) -> None:
+    """P2-GATE Consider: no blind ``parents[1]``; another layout is a clear error."""
+    from ctstudio.core.errors import ToolNotFound
+    from ctstudio.core.tools.riistudio import wine_root_of
+    from ctstudio.core.tools.rszst_setup import wine_executable, wine_root
+
+    root = wine_root(tmp_path / "data é")
+    assert wine_root_of(wine_executable(root)) == root
+    with pytest.raises(ToolNotFound):
+        wine_root_of(tmp_path / "elsewhere" / "rszst.exe")
+
+
 def test_a_wine_copy_without_wine_is_tool_not_found(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

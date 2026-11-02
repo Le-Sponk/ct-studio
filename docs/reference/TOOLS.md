@@ -1163,7 +1163,8 @@ them:
 
 A managed copy counts only once `setup.json` (written last) names an executable inside the
 folder, so an interrupted download or build is never discovered. Discovery order: setting,
-PATH, standard folders, Flatpak (Blender), **managed**, `.tools/` (developer opt-in).
+PATH, standard folders, Flatpak (Blender), **managed**, `.tools/` (developer opt-in; only
+in a source checkout with `pyproject.toml` beside `src/`, never in an installed CT Studio).
 `--dry-run` prints the plan and the exact commands without changing anything.
 
 **[verified P2-T06b, Windows 11]** the real download route
@@ -1239,5 +1240,7 @@ Wiimm `wszst`/`wkclt`/`wkmpt`/`wimgt` 2.42a, `rszst` 5.11.5, Blender 5.2.2 (real
 ABMatt, RiiStudio, Lorenzi and KMP Cloud found without a version (no verified version
 command); BrawlCrate (installed on the Desktop, not a searched location), Dolphin and
 DolphinTool missing; Wine and winetricks "not needed". The RiiStudio GUI is now also
-discovered in the bootstrapped `.tools/riistudio/` folder next to `rszst`. Linux real-tool
-output is not yet measured (CI runs fakes only).
+discovered in the bootstrapped `.tools/riistudio/` folder next to `rszst`. On Linux the
+Integration workflow (P2-T08a) bootstraps the real tools and runs `test_doctor_real.py`;
+since P2-GATE doctor also finds CI's Wine copy of the official `rszst.exe`
+(`.tools/riistudio-wine/bin/rszst`, `scripts/wine_rszst.py`) and checks its 5.11.5 version.

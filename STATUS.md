@@ -1004,6 +1004,21 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   marker for "read the source at a pinned tag" — which is how several of the strongest claims were
   established. Define `[run S<n>]`, `[source <file>@<tag>]`, `[doc]` and apply them uniformly so
   the next phase review can grep instead of read.
+- **TD-005 · P5-T01 · closing the Tools page can wait for a running check.** Its
+  `QThreadPool(self)` is waited for when the page is deleted, so closing the dialog during a
+  forced Re-check can block for up to the probe timeout (10 s). P5-T01 (GUI services and
+  threading) should give version probes a `CancelToken` and cancel/clear on close. Found in
+  the P2-GATE review (Consider).
+- **TD-006 · P13-T07 · GitHub Actions pinned by tag; Node 20 deprecation warnings.** `ci.yml`,
+  `integration.yml`, `record-linux.yml` use `actions/checkout@v4`, `cache@v4`,
+  `upload-artifact@v4`, `astral-sh/setup-uv@v7`. Pin each by commit SHA and move to the Node 24
+  releases in the security review. Permissions are already least-privilege. (P2-GATE.)
+- **TD-007 · P5-T09 · Tools page screenshots are small.** Only 900×520 with a 3-tool stub;
+  add 1280×720 with the full registry and one at 150 % scaling in the GUI screenshot review
+  (REVIEW_CHECKLIST 5). (P2-GATE.)
+- **TD-008 · Deep Clean #1 · two gate scripts at complexity C.** `scripts/bootstrap_tools.py`
+  `unpack` and `scripts/check.py` `run_step` are C(12); xenon only gates `core`. Split them in
+  the next Deep Clean. (P2-GATE; pre-existing.)
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

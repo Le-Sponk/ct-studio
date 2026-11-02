@@ -1,0 +1,160 @@
+{
+ "_note": "Every input retained beside a recording: its SHA-256 and where it came from. All synthetic; nothing from a game disc (P2-GATE Should fix 6). tests/unit/test_inputs_provenance.py keeps this complete.",
+ "inputs": {
+  "abmatt/1.3.2/inputs/course.dae": {
+   "sha256": "822d4d0f10b8b9ab9e4558628dc291331722eab1933e0a3d820f4f7eeb6c9977",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.dae"
+  },
+  "abmatt/1.3.2/inputs/fence.png": {
+   "sha256": "fadcb50389809410682aff1b96bfd506929c921ed7aa4d5bf1a885ac7c02c4d8",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/fence.png"
+  },
+  "abmatt/1.3.2/inputs/grass.png": {
+   "sha256": "69d74a009845a9de3c9e7961641686bf59ada4712c8a432074512780f3ac611d",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/grass.png"
+  },
+  "abmatt/1.3.2/inputs/map.obj": {
+   "sha256": "274937c2f92b70c49ab2b4d6aa4010f28cb4c8d70cc51129af6c2cf89885c1d6",
+   "origin": "authored",
+   "how": "One synthetic triangle in a 'road' group, written by hand for P2-T04d (ABMatt OBJ conversion)."
+  },
+  "abmatt/1.3.2/inputs/road.png": {
+   "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/road.png"
+  },
+  "abmatt/1.3.2/inputs/water.png": {
+   "sha256": "c956bf6fbab8983b2410239defebeda1f906e602a1002e4b8b71a77665785ec7",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/water.png"
+  },
+  "blender/5.2.2/inputs/boom.py": {
+   "sha256": "13ef2add1379057a2ac8756ddca27bfc4ba09adefe2fd8f1dde0ebb5d60e9166",
+   "origin": "authored",
+   "how": "Blender test script written for P2-T04e; raises on purpose."
+  },
+  "blender/5.2.2/inputs/bpy.py": {
+   "sha256": "28ae0e6f3f8701e532446041089f301f611c75e8c54c5b9cf962fa526b163630",
+   "origin": "authored",
+   "how": "Blender test script written for P2-T04e."
+  },
+  "blender/5.2.2/inputs/good.blend": {
+   "sha256": "d15880708e772f12821541d3ef8241904124160aef921d9797e2b8731cd2ea0e",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/fixture_track_good.blend"
+  },
+  "blender/5.2.2/inputs/ok.py": {
+   "sha256": "29e7243e03f56f949fe588c3cd79cadcba4fc4da186824c18ee2734cb3cf2da7",
+   "origin": "authored",
+   "how": "Blender test script written for P2-T04e."
+  },
+  "blender/5.2.2/inputs/quit3.py": {
+   "sha256": "32dcae0713b2738c521084f04181b8b813ead6fb2a51fd254ae1400137f3281b",
+   "origin": "authored",
+   "how": "Blender test script written for P2-T04e; exits 3."
+  },
+  "blender/5.2.2/inputs/script é.py": {
+   "sha256": "79b0591dfc41dab53069d51b01eecd07393a2d60e147ce2b3d61c830fec8b1af",
+   "origin": "authored",
+   "how": "Blender test script written for P2-T04e; non-ASCII name."
+  },
+  "blender/5.2.2/inputs/write.py": {
+   "sha256": "9e83351afd0eddb89b988d3b32eef96687eca66666519563aadcba20d95c6db0",
+   "origin": "authored",
+   "how": "Blender test script written for P2-T04e; writes a file."
+  },
+  "rszst/5.11.5/inputs/course.dae": {
+   "sha256": "822d4d0f10b8b9ab9e4558628dc291331722eab1933e0a3d820f4f7eeb6c9977",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.dae"
+  },
+  "rszst/5.11.5/inputs/fence.png": {
+   "sha256": "fadcb50389809410682aff1b96bfd506929c921ed7aa4d5bf1a885ac7c02c4d8",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/fence.png"
+  },
+  "rszst/5.11.5/inputs/grass.png": {
+   "sha256": "69d74a009845a9de3c9e7961641686bf59ada4712c8a432074512780f3ac611d",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/grass.png"
+  },
+  "rszst/5.11.5/inputs/road.png": {
+   "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/road.png"
+  },
+  "rszst/5.11.5/inputs/water.png": {
+   "sha256": "c956bf6fbab8983b2410239defebeda1f906e602a1002e4b8b71a77665785ec7",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/water.png"
+  },
+  "wimgt/2.42a/inputs/textures/bad_npot.png": {
+   "sha256": "363a166263ad0b55a04d6f794f6778b84f83a7ef83a8c49f75c0a3c774e2e361",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/bad_npot.png"
+  },
+  "wimgt/2.42a/inputs/textures/road.png": {
+   "sha256": "bcff91513ee32f328392455335d8b63dc2e3b952c9a40992a96ef658525e7771",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/textures/road.png"
+  },
+  "wkclt/2.42a/inputs/course.kcl": {
+   "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.kcl"
+  },
+  "wkclt/2.42a/inputs/course.kmp": {
+   "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.kmp"
+  },
+  "wkclt/2.42a/inputs/variant.kcl": {
+   "sha256": "41299c5fbaa8272581f82767d9b08611f4bcb2fca1c36aa739d0b17dee012571",
+   "origin": "tool-output",
+   "how": "wkclt 2.42a encode of the fixture OBJ with group suffixes `_F0120`/`_F212c` (variant bits set); P2-T05c2, commit 835eb15. Not rebuilt."
+  },
+  "wkmpt/2.42a/inputs/course.kcl": {
+   "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.kcl"
+  },
+  "wkmpt/2.42a/inputs/course.kmp": {
+   "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.kmp"
+  },
+  "wszst/2.42a/inputs/course.kcl": {
+   "sha256": "de776265fe2d0e098abb9e79a9209a73e5f27882bb8de66c302fd5199fc062c1",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.kcl"
+  },
+  "wszst/2.42a/inputs/course.kmp": {
+   "sha256": "762b6e9199518659febdaaa2be6fdf75ae6a85744b23f9e2a138b6c8cac8a70d",
+   "origin": "generated",
+   "how": "scripts/fixtures/make_fixtures.py → tests/fixtures/generated/course.kmp"
+  },
+  "wszst/2.42a/inputs/map_model.brres": {
+   "sha256": "b0b88880a277b2442740d41606199a3a8043b84bc776a99e2ec63efbff7fdf00",
+   "origin": "rebuilt",
+   "how": "abmatt 1.3.2: `abmatt convert map.obj to map_model.brres -o` (map.obj above). Rebuilt byte-for-byte by tests/integration/test_retained_inputs.py."
+  },
+  "wszst/2.42a/inputs/map_model_patched.brres": {
+   "sha256": "0063166ad84e3a7b977ab14d2cbebe0916e2a11ca6dc787fece4579336ed7c7e",
+   "origin": "rebuilt",
+   "how": "wszst 2.42a: `wszst minimap --auto` on a copy of map_model.brres (patched in place). Rebuilt byte-for-byte by tests/integration/test_retained_inputs.py."
+  },
+  "wszst/2.42a/inputs/no_bones_model.brres": {
+   "sha256": "a7af7a86c1aa8501e08621dfc8eda425561100e2445f5cac431df31f275571da",
+   "origin": "tool-output",
+   "how": "abmatt 1.3.2 conversion of map.obj under a name without `map`, so ABMatt adds no minimap bones (model name `plain`); P2-T05c2, commit 835eb15. Model name and offsets depend on the exact output name; not rebuilt."
+  },
+  "wszst/2.42a/inputs/objects.kmp": {
+   "sha256": "cd112c245b2be6e65254724e19c239e9dedae3fcd7cd923b665110f90c3b9229",
+   "origin": "tool-output",
+   "how": "wkmpt 2.42a encode of synthetic KMP text holding one itembox object (0x65); P2-T05d, commit 8bbbc47. Not rebuilt."
+  }
+ }
+}

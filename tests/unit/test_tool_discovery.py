@@ -195,6 +195,11 @@ def test_the_default_developer_folder_exists_only_in_a_source_checkout(tmp_path:
     assert default_dev_root(installed / "ctstudio" / "core" / "tools" / "discovery.py") is None
     no_project = tmp_path / "copied" / "src" / "ctstudio" / "core" / "tools" / "discovery.py"
     assert default_dev_root(no_project) is None
+    # A pyproject.toml four folders up but no ``src`` layout (e.g. an unpacked app folder).
+    flat = tmp_path / "app"
+    (flat / "pyproject.toml").parent.mkdir(parents=True)
+    (flat / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
+    assert default_dev_root(flat / "lib" / "ctstudio" / "core" / "tools" / "discovery.py") is None
 
 
 def test_an_installed_ct_studio_ignores_developer_tools(

@@ -26,7 +26,7 @@ from ctstudio.core.errors import CTStudioError, ToolNotFound
 from ctstudio.core.tools.discovery import discover
 from ctstudio.core.tools.process import CancelToken
 from ctstudio.core.tools.registry import TOOL_BY_ID
-from ctstudio.core.tools.rszst_setup import wine_environment
+from ctstudio.core.tools.rszst_setup import wine_environment, wine_executable
 from ctstudio.core.tools.staging import (
     collada_images,
     deliver,
@@ -91,7 +91,16 @@ def _command(configured: Path | None) -> tuple[list[str | Path], dict[str, str] 
             hint="Install Wine (sudo apt install -y wine) to run rszst.exe, or run "
             "`ctstudio setup rszst` to build rszst from source.",
         )
-    return [wine.path, location.path], wine_environment(location.path.parents[1])
+    return [wine.path, location.path], wine_environment(wine_root_of(location.path))
+
+
+def wine_root_of(exe: Path) -> Path:
+    """The Wine copy's folder for its ``rszst.exe`` (the inverse of ``wine_executable``);
+    any other layout has no known prefix, so it is refused rather than guessed."""
+    root = exe.parents[1] if len(exe.parents) > 1 else exe.parent
+    if wine_executable(root) != exe:
+        raise ToolNotFound("rszst.exe", hint="Run `ctstudio setup rszst --wine` again.")
+    return root
 
 
 def _output(source: Path, path: Path, magic: bytes) -> bytes:

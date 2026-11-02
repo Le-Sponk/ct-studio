@@ -23,7 +23,7 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypedDict, Unpack
 
 from ctstudio.core.errors import ToolNotFound
 from ctstudio.core.tools.discovery import DiscoveryEnvironment, ToolLocation, discover
@@ -138,11 +138,30 @@ def _platforms_using(spec: ToolSpec) -> str:
     return " and ".join(name.capitalize() for name, exes in spec.exe_names.items() if exes)
 
 
-def _base(spec: ToolSpec, status: Status, required: frozenset[str], **fields: object) -> ToolCheck:
-    return ToolCheck(spec.id, spec.name, status, spec.id in required, spec.used_for, **fields)  # type: ignore[arg-type]
+class _Where(TypedDict, total=False):
+    """Where a tool is (``_located``); kept apart so a call can add the other fields."""
+
+    path: Path | None
+    launcher: str | None
+    source: str | None
 
 
-def _located(spec: ToolSpec, location: ToolLocation) -> dict[str, object]:
+class _Fields(_Where, total=False):
+    """The optional ``ToolCheck`` fields, typed, so ``_base`` needs no type: ignore."""
+
+    version: str | None
+    fix: str | None
+    note: str | None
+    route: str | None
+
+
+def _base(
+    spec: ToolSpec, status: Status, required: frozenset[str], **fields: Unpack[_Fields]
+) -> ToolCheck:
+    return ToolCheck(spec.id, spec.name, status, spec.id in required, spec.used_for, **fields)
+
+
+def _located(spec: ToolSpec, location: ToolLocation) -> _Where:
     return {"path": location.path, "launcher": location.launcher, "source": location.source}
 
 

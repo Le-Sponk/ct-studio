@@ -65,6 +65,15 @@ def chip(check: ToolCheck) -> str:
     return "blocking" if check.required else "attention"
 
 
+def status_text(check: ToolCheck) -> str:
+    """The Status cell: for a tool that is not ready, say whether CT Studio needs it, so the
+    urgency never rests on colour alone (REVIEW_CHECKLIST 5)."""
+    label = STATUS_LABELS[check.status]
+    if chip(check) == "ok":
+        return label
+    return f"{label} ({'required' if check.required else 'optional'})"
+
+
 def details(check: ToolCheck) -> str:
     lines = [f"{check.name}: {STATUS_LABELS[check.status]}"]
     if check.path is not None:
@@ -253,7 +262,7 @@ class ToolsPage(QWidget):
     def _fill(self, row: int, check: ToolCheck) -> None:
         name = QTableWidgetItem(check.name)
         name.setData(Qt.ItemDataRole.UserRole, check.tool_id)
-        status = QTableWidgetItem(STATUS_LABELS[check.status])
+        status = QTableWidgetItem(status_text(check))
         level = chip(check)
         status.setData(Qt.ItemDataRole.UserRole, level)
         status.setForeground(QBrush(QColor(_CHIP_COLOURS[level])))
