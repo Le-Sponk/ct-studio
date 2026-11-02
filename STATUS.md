@@ -6,21 +6,24 @@
 **Current phase:** 3 — Project model & component status (P2 gate passed)
 **Next task:** P3-T04 — Status evaluation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** d3748e8 (P3-T03; Windows gate, Ubuntu/Windows CI)
+**Last green commit:** 72a00d3 (P3-T05; Windows gate, Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P3-T05` — File-type sniffing (taken before P3-T04, see Plan changes). Plan (2026-11-02):
-  `core/formats/magic.py`: `identify(path) -> FileKind | None` from the first 64 KiB (+ last
-  4 bytes). Kinds: yaz0 (SZS), u8, brres, kmp, kcl (header-offset/mask/shift sanity), png,
-  dae (XML root `COLLADA`), obj (text statements), blend (`BLENDER`, gzip, or Blender 3+'s
-  seekable zstd: frame magic `28 B5 2F FD` + footer `B1 EA 92 8F`; no zstd module on
-  3.12/3.13), and the four post-effect files with a magic (PBLM/PDOF/LGHT/LMAP; `.bfg` has
-  none). Size fields must equal the file size, so cut-off files are not recognised.
-  Acceptance: synthetic-header tests incl. near misses; committed real-tool fixtures (Wiimm
-  KCL/KMP, Blender DAE/.blend, ABMatt BRRES, OBJ, PNG); integration: wszst-built SZS/U8;
-  realdata (local only): files of the user's own tracks. Mutants all caught; gate + CI.
 ## Done (newest first)
+- `P3-T05` — File-type sniffing (2026-11-02; taken before P3-T04, see Plan changes).
+  `core/formats/magic.py`: `identify(path)` / `identify_bytes` read the first and last 64 KiB
+  and recognise SZS (Yaz0), U8, BRRES, KMP, KCL, BBLM/BDOF/BLIGHT/BLMAP, PNG, DAE, OBJ and
+  .blend (plain, gzip, or Blender 3+'s Zstandard form by its seek-table footer; Python
+  3.12/3.13 has no zstd). Size fields must match, so cut-off files are not recognised.
+  Found on real files: one original KMP (`old_mario_gc_narita`) has a shorter 0x0C header;
+  accepted. `.bfg` has no magic (not recognised). Layouts in MKW_DOMAIN §11. Tests: 85 unit
+  (synthetic near misses + committed real-tool files), 3 integration (wszst-built SZS/U8, both
+  CI OSes), 1 realdata (every file of the user's 99 original track files, local only; nothing
+  committed). Mutants 38/39; the survivor (keep trying other checks after a known magic
+  fails) changes no result on any test or real file, and the code documents the rule.
+  CI's first Check failed: `test_magic_files.py` read the git-ignored generated fixtures;
+  now reads the committed recording inputs (72a00d3). `check.py --all` 1,445 passed; CI green.
 - `P3-T03` — Component registry (2026-11-02). `core/components/registry.py`: 8 parts
   (course model, collision, minimap, skybox, course data, post-effects, objects, track info)
   with a one-sentence plain description (a test bans file-format and tool jargon), an

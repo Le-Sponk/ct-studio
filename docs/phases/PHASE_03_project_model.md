@@ -42,12 +42,16 @@ file exists & has the right magic bytes.
 **Acceptance:** table-driven tests covering every status for every component; benchmark with 20
 components' worth of files ≤ 300 ms cold, ≤ 30 ms warm.
 
-### [ ] P3-T05 — File-type sniffing
+### [x] P3-T05 — File-type sniffing
 *Order:* done before P3-T04, whose `Manual` status uses it (STATUS Plan changes, 2026-11-02).
 `core/formats/magic.py`: identify Yaz0, U8, BRRES, KMP, KCL (heuristic: header offsets sanity), PNG,
 DAE (XML root), OBJ (text heuristic), .blend (`BLENDER` header). Used by manual-file assignment and
 status.
 **Acceptance:** tests with synthetic headers; fixtures from tools where available (integration).
+**Done (cf23760, 72a00d3):** `core/formats/magic.py`. Blender 3+ saves `.blend` Zstandard-
+compressed, so the `BLENDER` header is often not at the start; recognised by the seek table at
+the end instead. Also recognises the four post-effect files that have a magic. Checked on
+every file of the user's own original tracks (realdata test, local only).
 
 ### [ ] P3-T06 — Slot catalogue
 `core/project/slots.json` generated from recorded `wszst tracks` output (script in `scripts/`), not
