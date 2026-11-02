@@ -26,7 +26,8 @@ from pathlib import Path
 from queue import Empty, Queue
 from typing import IO, Literal, TextIO
 
-from ctstudio.core.errors import Cancelled, ProjectError, ToolFailed, ToolNotFound, ToolTimedOut
+from ctstudio.core.errors import Cancelled, ProjectError, ToolFailed, ToolTimedOut
+from ctstudio.core.tools.process_errors import start_error
 from ctstudio.core.tools.process_tree import ProcessTree
 
 Stream = Literal["stdout", "stderr"]
@@ -118,8 +119,10 @@ def run(
 
     ``env`` adds to (never replaces) the inherited environment. ``on_line`` runs on the
     calling thread; if it raises, the tool is stopped and the exception propagates.
-    Raises ``ToolNotFound``, ``ToolTimedOut``, ``Cancelled``, and with ``check`` a non-zero
-    exit raises ``ToolFailed`` carrying the stderr tail (stdout's when stderr is empty).
+    Raises ``ToolNotFound`` (also for a file that is not a program), ``ToolFailedToStart``
+    (the OS refused for another reason), ``ToolTimedOut``, ``Cancelled``, and with ``check``
+    a non-zero exit raises ``ToolFailed`` carrying the stderr tail (stdout's when stderr is
+    empty).
     """
     argv = _argv(cmd)
     _require_folder(cwd)
@@ -264,15 +267,8 @@ def _popen(
             bufsize=0,
             start_new_session=True,
         )
-    except FileNotFoundError as exc:
-        raise ToolNotFound(Path(argv[0]).name) from exc
-    except PermissionError as exc:
-        hint = "Check that the file is a program you are allowed to run, or choose another."
-        raise ToolNotFound(Path(argv[0]).name, hint=hint) from exc
-    except OSError as exc:  # WinError 193/216, ENOEXEC: a file, but not one this OS can run
-        problem = "is not a program this system can run"
-        hint = "Choose another file, or reinstall the tool."
-        raise ToolNotFound(Path(argv[0]).name, hint=hint, problem=problem) from exc
+    except OSError as exc:
+        raise start_error(Path(argv[0]).name, exc) from exc
 
 
 def _start(

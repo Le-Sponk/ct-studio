@@ -188,6 +188,49 @@ def test_a_file_that_is_not_a_program_is_tool_not_found_with_a_fix(tmp_path: Pat
     assert isinstance(raised.value.__cause__, OSError)  # the OS error stays as evidence
 
 
+@pytest.mark.parametrize(
+    "error",
+    [
+        OSError(24, "Too many open files"),  # EMFILE: not the file's fault
+        OSError(12, "Cannot allocate memory"),  # ENOMEM
+        OSError(22, "The requested operation requires elevation", None, 740),  # needs admin
+    ],
+)
+def test_other_start_failures_say_what_happened_not_that_the_file_is_wrong(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: OSError
+) -> None:
+    """P2-GATE verification: only "not a program" errors get that wording."""
+    from ctstudio.core.errors import ToolFailedToStart
+    from ctstudio.core.tools import process
+
+    def refuse(*_args: object, **_kwargs: object) -> None:
+        raise error
+
+    monkeypatch.setattr(process.subprocess, "Popen", refuse)
+    with pytest.raises(ToolFailedToStart) as raised:
+        run([tmp_path / "tool.exe"], cwd=tmp_path, timeout=5)
+    assert raised.value.user_message == f"tool.exe could not be started ({error.strerror})."
+    assert "not a program" not in str(raised.value)
+    assert raised.value.__cause__ is error
+
+
+def test_permission_denied_asks_for_a_program_the_user_may_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from ctstudio.core.tools import process
+
+    def refuse(*_args: object, **_kwargs: object) -> None:
+        raise PermissionError(13, "Permission denied")
+
+    monkeypatch.setattr(process.subprocess, "Popen", refuse)
+    with pytest.raises(ToolNotFound) as raised:
+        run([tmp_path / "locked.exe"], cwd=tmp_path, timeout=5)
+    assert raised.value.user_message == "locked.exe was not found."
+    assert raised.value.hint == (
+        "Check that the file is a program you are allowed to run, or choose another."
+    )
+
+
 def test_a_file_that_is_not_a_program_cannot_be_launched_detached(tmp_path: Path) -> None:
     from ctstudio.core.tools.process import launch_detached
 

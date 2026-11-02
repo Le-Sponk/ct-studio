@@ -36,6 +36,18 @@ class ToolNotFound(CTStudioError):
         )
 
 
+class ToolFailedToStart(CTStudioError):
+    """The OS could not start a tool for a reason that is not the file itself (too many
+    open files, out of memory, needs administrator rights, ...); the OS reason is shown."""
+
+    def __init__(self, tool: str, reason: str) -> None:
+        self.tool = tool
+        super().__init__(
+            f"{tool} could not be started ({reason}).",
+            hint="Close other programs or restart CT Studio, then try again.",
+        )
+
+
 class ToolFailed(CTStudioError):
     """A tool returned a non-zero status; raw output stays out of UI copy."""
 

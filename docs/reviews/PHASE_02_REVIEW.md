@@ -79,3 +79,16 @@ the implementer triaged and fixed the findings.
   pins, P13-T07), TD-007 (bigger screenshots, P5-T09), TD-008 (two C-grade scripts, Deep Clean #1).
 - Mutation check of the Should fixes: 11/11 after one added test (a `pyproject.toml` without
   a `src` layout).
+
+## Verification of the Must fix (fresh-context, 2026-11-02, HEAD 5d9bb08)
+Verified: yes. The real CLI with a scratch settings file pointing Blender at a text `.exe`
+exits 0 with `not working` and a readable note; a throwaway pytest-qt test with the real
+`diagnose` showed Clear enabled and the setting removed; 70 tests passed; 3 mutations of the
+fix were caught. New findings:
+- **Should** (fixed): the broad `except OSError` called EMFILE, ENOMEM and WinError 740 (needs
+  admin) "not a program". Now `core/tools/process_errors.py` says so only for ENOEXEC and
+  WinError 193/216/191; anything else is `ToolFailedToStart` with the OS reason and a retry
+  hint; doctor reports it as `not working`. Mutants 6/6 (after a test for the existing
+  permission-denied branch).
+- **Consider** ×3 (command line too long reads as "not found"; a GUI test with the real
+  doctor; set-path wording of the fix line): logged as TD-009.

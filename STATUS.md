@@ -21,7 +21,11 @@
   provenance list for all 31 retained inputs (2 rebuilt byte-for-byte on both OSes), docs.
   Consider items fixed or logged as TD-005–TD-008. Mutants 9/9 and 11/11. `check.py --all`
   1,215 passed; Integration on 02c858b: Linux 114 passed / 17 listed skips, Windows 111 / 20.
-  No human checkpoint at Phase 2 (HC1 follows Phase 5). Gate tag `phase-02-done`.
+  An independent check of the Must fix confirmed it (CLI and GUI, real doctor) and found
+  one Should fix, now fixed: only real "not a program" errors say so; others (too many open
+  files, needs admin) give the OS reason (`ToolFailedToStart`, `process_errors.py`). Its
+  three Consider items are TD-009. No human checkpoint at Phase 2 (HC1 follows Phase 5).
+  Gate tag `phase-02-done`.
 - `P2-T08f` — rszst adapter test and non-ASCII paths on Linux (2026-11-01).
   `test_riistudio_adapter_native` uses `tool_paths.RSZST` and runs on Linux through Wine;
   new `test_linux_paths.py` (8 tests, `latin é` / `cjk 日本`): rszst.exe through Wine keeps
@@ -1023,6 +1027,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
 - **TD-008 · Deep Clean #1 · two gate scripts at complexity C.** `scripts/bootstrap_tools.py`
   `unpack` and `scripts/check.py` `run_step` are C(12); xenon only gates `core`. Split them in
   the next Deep Clean. (P2-GATE; pre-existing.)
+
+- **TD-009 · P5-T01 · start-failure edges from the P2-GATE verification.** (a) A command line
+  too long for Windows (error 206) arrives as `FileNotFoundError` and reads "… was not found";
+  check for 206/E2BIG first. (b) The Tools page test for a non-program set path uses a fake
+  doctor; add one that runs the real `diagnose` limited to Blender with a scratch cache.
+  (c) doctor's `not_working` fix for a *set* path could say "choose another file or Clear".
 
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->

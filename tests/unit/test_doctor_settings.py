@@ -125,3 +125,29 @@ def test_a_broken_setting_uses_the_callers_required_set(
     check = _check(report, "brawlcrate")
     assert (check.status, check.required) == ("missing", True)
     assert not report.ok
+
+
+def test_a_tool_the_os_refuses_for_another_reason_is_not_working_with_that_reason(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """P2-GATE verification: e.g. needs administrator rights; doctor still finishes."""
+    from ctstudio.core.tools import process
+
+    def refuse(*_args: object, **_kwargs: object) -> None:
+        raise OSError(22, "The requested operation requires elevation", None, 740)
+
+    name = "blender.exe" if sys.platform == "win32" else "blender"
+    chosen = _exe(tmp_path / "chosen" / name)
+    monkeypatch.setattr(process.subprocess, "Popen", refuse)
+    report = diagnose(
+        environment=_env(tmp_path, "windows" if sys.platform == "win32" else "linux"),
+        dev_root=tmp_path / "no-dev-tools",
+        cache=VersionCache(tmp_path / "cache.json"),
+        specs=(TOOL_BY_ID["blender"],),
+        configured={"blender": chosen},
+    )
+    [check] = report.tools
+    assert check.status == "not_working"
+    assert (
+        check.note == f"{name} could not be started (The requested operation requires elevation)."
+    )
