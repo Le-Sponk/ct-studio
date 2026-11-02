@@ -10,6 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+import pytest
+
 from ctstudio.core.tools.availability import available_tools
 from ctstudio.core.tools.discovery import DiscoveryEnvironment
 from ctstudio.core.tools.registry import TOOL_BY_ID
@@ -25,13 +27,24 @@ def executable(path: Path) -> Path:
 def environment(
     tmp_path: Path, platform: Literal["windows", "linux"], path: Path | None = None
 ) -> DiscoveryEnvironment:
+    """A Linux PATH is split at ":", so a Windows test folder (``D:\\...``) would be cut at
+    its drive letter: Linux PATH entries are given relative to ``tmp_path`` (the tests
+    ``chdir`` there, as in test_tool_discovery.py)."""
+    entry = (
+        "" if path is None else str(path if platform == "windows" else path.relative_to(tmp_path))
+    )
     return DiscoveryEnvironment(
         platform=platform,
         root=tmp_path / "system",
         home=tmp_path / "home",
-        variables={"PATH": str(path or ""), "ProgramFiles": str(tmp_path / "Program Files")},
+        variables={"PATH": entry, "ProgramFiles": str(tmp_path / "Program Files")},
         sandbox=None,
     )
+
+
+@pytest.fixture(autouse=True)
+def in_tmp_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
 
 def test_tools_on_path_are_available_and_nothing_else(tmp_path: Path) -> None:
