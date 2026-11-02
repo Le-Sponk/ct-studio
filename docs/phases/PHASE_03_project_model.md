@@ -33,7 +33,7 @@ wiki link (mkwiiki.org), modes, stage outputs, required (bool), which tools each
 (one sentence, 30–120 characters, no file-format/tool names). Also added the skybox `template`
 mode that the manifest lacked (PROJECT_BRIEF §5).
 
-### [ ] P3-T04 — Status evaluation
+### [x] P3-T04 — Status evaluation
 `core/components/status.py`: `evaluate(project, tools) -> dict[component_id, ComponentStatus]` with
 reasons (`["course_model.brres missing", "Blender export older than .blend"]`).
 Uses `.ctstudio/state.json` (last generated output hash + input fingerprints) and the stat fast path.
@@ -41,6 +41,9 @@ Uses `.ctstudio/state.json` (last generated output hash + input fingerprints) an
 file exists & has the right magic bytes.
 **Acceptance:** table-driven tests covering every status for every component; benchmark with 20
 components' worth of files ≤ 300 ms cold, ≤ 30 ms warm.
+**Done (334c69a):** `core/components/state.py` + `status.py`. Also Warning (objects with
+auto-add off or no Wiimm; track info with no author) and Error when a part needs making but a
+tool or the `.blend` is missing. Benchmark ~70 ms cold / ~11 ms warm (BENCHMARKS.md).
 
 ### [x] P3-T05 — File-type sniffing
 *Order:* done before P3-T04, whose `Manual` status uses it (STATUS Plan changes, 2026-11-02).
