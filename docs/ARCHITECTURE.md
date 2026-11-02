@@ -170,6 +170,17 @@ post_build = ""
 Machine-specific settings (tool paths, game files folder, recent projects, theme) live in the
 user settings file under `platformdirs.user_config_dir("ctstudio")`, never in the project.
 
+**As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
+`dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
+write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`
+steps; only v1), `slots.py` (the 42 `wszst tracks` names; `slot` and `template_track` must be
+one). Differences from the sketch: every component may also have `file` (the user's file in
+`manual` mode); an optional value is left out of the file, never written as `""`; texture and
+material override tables hold only what is overridden; `[components.kmp]` `mode` is `manual`
+only and `[components.posteffect]` `mode` is `template | manual`. Keys this version does not
+know stay in each table's `extra`, are written back, and are logged once each. Comments are
+lost on save (tomli-w); `docs/user/PROJECT_FILE.md` says so.
+
 ## 7. Build graph
 ```
 .blend ──► [blender_export] ──► DAE+PNG ──► [course_model] ──┐

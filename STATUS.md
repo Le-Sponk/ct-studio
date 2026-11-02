@@ -10,6 +10,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P3-T01` — Manifest model & TOML I/O. Plan (2026-11-02):
+  frozen dataclasses for ARCHITECTURE §6 (`core/project/manifest.py`); `load(path)` /
+  `save(manifest, path)` (`manifest_io.py`, atomic write via `fsutil`); a key reader that
+  names the full key path and the allowed values in every `ManifestError`; keys CT Studio
+  does not know are kept per table (`extra`) and written back, with one logged warning per
+  key; `schema_version` + `migrations.py` (`(from_version, fn)` list, only v1 today; a dummy
+  v0 in tests; newer file → clear error). Slots = the 42 internal track/arena names from
+  `wszst tracks`. User doc `docs/user/PROJECT_FILE.md` says comments are not kept on save.
+  Acceptance: round-trip (incl. unknown keys), invalid-value, migration (dummy v0) tests;
+  mutants all caught; gate + CI green.
 ## Done (newest first)
 - `P2-GATE` — Phase 2 review passed (2026-11-02). Fresh-context reviewer
   (`docs/reviews/PHASE_02_REVIEW.md`, brief `PHASE_02_BRIEF.md`) re-ran the gate (1,191),
