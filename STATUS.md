@@ -1033,7 +1033,6 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   check for 206/E2BIG first. (b) The Tools page test for a non-program set path uses a fake
   doctor; add one that runs the real `diagnose` limited to Blender with a scratch cache.
   (c) doctor's `not_working` fix for a *set* path could say "choose another file or Clear".
-
 - **TD-010 · P5-T01 · `test_launch_watch` still flaky on Windows under full-suite load.**
   On 2026-11-02 (`check.py --fast`, docs-only change on 54b5937) the detached child of
   `test_a_launch_still_running_after_the_watch_returns_its_pid` never wrote `opened.txt`
