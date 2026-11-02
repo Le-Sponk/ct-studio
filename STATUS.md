@@ -4,22 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 3 — Project model & component status (P2 gate passed)
-**Next task:** P3-T03 — Component registry
+**Next task:** P3-T04 — Status evaluation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** e78ca9f (P3-T02; Windows gate, Ubuntu/Windows CI)
+**Last green commit:** d3748e8 (P3-T03; Windows gate, Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P3-T03` — Component registry. Plan (2026-11-02): `core/components/registry.py`, one frozen
-  `ComponentSpec` per part (course_model, kcl, minimap, skybox, kmp, posteffect, objects,
-  track_info): id, display name, one plain sentence, mkwiiki.org link (each checked to exist
-  on 2026-11-02), modes (the manifest's own tuples, so they cannot drift), default mode,
-  stage outputs (`posteffect/` is a folder), required, tool ids per mode. Skybox gains a
-  `template` mode + `template_track` in the manifest (PROJECT_BRIEF §5 / P8-T05 have it;
-  P3-T01 missed it). Acceptance: ids unique, outputs never collide or nest, tools exist in
-  the tool registry, modes/defaults match the manifest, descriptions one plain sentence
-  without file-format jargon; mutants all caught; gate + CI green.
 ## Done (newest first)
+- `P3-T03` — Component registry (2026-11-02). `core/components/registry.py`: 8 parts
+  (course model, collision, minimap, skybox, course data, post-effects, objects, track info)
+  with a one-sentence plain description (a test bans file-format and tool jargon), an
+  mkwiiki.org page each opened on 2026-11-02 (no "Skybox" page exists; the skybox links to
+  the tutorial's file overview), modes taken from the manifest, stage outputs (no clashes or
+  nesting), required (all but objects) and tools per mode (all in the tool registry).
+  P3-T01 gap fixed: the skybox's `template` mode + `template_track`. 44 new tests; mutants
+  18/18 (P3-T01 probe re-run: 23/23). `check.py --all` 1,363 passed; CI green — d3748e8.
 - `P3-T02` — Project layout, create/open, lock (2026-11-02). `core/project/project.py`
   (`Project.create/open/save/close`, §5 folders, default manifest, `.gitignore`; non-empty
   folder refused unless `force`, an existing `ctstudio.toml` always) and `lock.py`

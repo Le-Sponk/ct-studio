@@ -25,10 +25,13 @@ unless `--force`.
 so racing openers cannot both claim a stale lock, a 30 s grace for damaged locks, and `save`
 refused when read-only. The `--force` flag itself is P3-T07's CLI (`force=True` here).
 
-### [ ] P3-T03 — Component registry
+### [x] P3-T03 — Component registry
 One declarative definition per component: id, display name, one-sentence plain-language description,
 wiki link (mkwiiki.org), modes, stage outputs, required (bool), which tools each mode needs.
 **Acceptance:** registry test (ids unique, outputs don't collide); descriptions reviewed for clarity.
+**Done (d3748e8):** `core/components/registry.py`. "Reviewed for clarity" is enforced by a test
+(one sentence, 30–120 characters, no file-format/tool names). Also added the skybox `template`
+mode that the manifest lacked (PROJECT_BRIEF §5).
 
 ### [ ] P3-T04 — Status evaluation
 `core/components/status.py`: `evaluate(project, tools) -> dict[component_id, ComponentStatus]` with
