@@ -84,6 +84,17 @@ def _load(tmp_path: Path, text: str) -> ManifestError:
             ' or "old_mario_gc"; found "nowhere"',
         ),
         (
+            HEAD + '[components.skybox]\nmode = "copy"\n',
+            "components.skybox.mode",
+            'expected one of "auto", "template", "manual"; found "copy"',
+        ),
+        (
+            HEAD + '[components.skybox]\ntemplate_track = "space"\n',
+            "components.skybox.template_track",
+            'expected the file name of an original track or arena, such as "beginner_course"'
+            ' or "old_mario_gc"; found "space"',
+        ),
+        (
             HEAD + '[components.kmp]\neditor = "notepad"\n',
             "components.kmp.editor",
             'expected one of "lorenzi", "kmp_cloud"; found "notepad"',

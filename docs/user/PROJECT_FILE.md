@@ -44,7 +44,7 @@ default, so a missing setting means "use the default".
 | `[build]` `auto_add` | Let Wiimms SZS Tools add missing object files. | `true`, `false` |
 | `[build]` `extra_wszst_args` | Extra options passed to Wiimms SZS Tools. | a list, such as `["--a", "--b"]` |
 | `[blender.collections]` `course`, `kcl`, `skybox`, `minimap` | Which Blender collection holds each part. | collection names (`Course`, `KCL`, `Skybox`, empty minimap = make it from the KCL) |
-| `[components.<part>]` `mode` | Whether CT Studio makes the part or you supply it. | `auto` or `manual`; KMP: `manual` only; post effects: `template` or `manual` |
+| `[components.<part>]` `mode` | Whether CT Studio makes the part, copies it from an original track (`template`), or you supply it. | `auto` or `manual`; skybox: `auto`, `template` or `manual`; KMP: `manual` only; post effects: `template` or `manual` |
 | `[components.<part>]` `file` | Your own file, when the mode is `manual`. | a path, such as `files/course.kmp` |
 | `[components.course_model]` `backend` | Which tool turns the model into a BRRES. | `default`, `rszst`, `abmatt` |
 | `[components.course_model.textures."<name>.png"]` `format`, `mipmaps` | Your choice for one texture, instead of CT Studio's. | `CMPR`, `RGB5A3`, `RGBA32`, `RGB565`, `IA8`, `IA4`, `I8`, `I4`, `C4`, `C8`, `C14X2`; mipmaps `0` to `10` |
@@ -52,6 +52,7 @@ default, so a missing setting means "use the default".
 | `[components.minimap]` `source` | Where the minimap shape comes from. | `kcl`, `blender`, `file` |
 | `[components.kmp]` `editor` | Which KMP editor CT Studio opens. | `lorenzi`, `kmp_cloud` |
 | `[components.posteffect]` `template_track` | The original track whose lighting and effects to copy. | an original track or arena file name |
+| `[components.skybox]` `template_track` | The original track whose sky to copy, in `template` mode. | an original track or arena file name |
 | `[hooks]` `post_stage`, `post_build` | Your own scripts, run at those points. | a path, or empty for none |
 
 ## When CT Studio cannot read the file

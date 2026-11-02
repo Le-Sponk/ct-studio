@@ -143,6 +143,14 @@ def test_only_a_name_is_needed_and_everything_else_has_a_default(tmp_path: Path)
     assert m.components.posteffect.mode == "template"
 
 
+def test_a_skybox_can_be_copied_from_an_original_track(tmp_path: Path) -> None:
+    text = 'schema_version = 1\n[project]\nname = "X"\n[components.skybox]\nmode = "template"\n'
+    m = load(_write(tmp_path, text + 'template_track = "old_mario_gc"\n'))
+    assert m.components.skybox.mode == "template"
+    assert m.components.skybox.template_track == "old_mario_gc"
+    assert load(_write(tmp_path, text)).components.skybox.template_track == "beginner_course"
+
+
 def test_save_then_load_gives_the_same_manifest(tmp_path: Path) -> None:
     m = load(_write(tmp_path, SKETCH))
     out = tmp_path / "out" / FILE_NAME

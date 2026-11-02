@@ -10,6 +10,15 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P3-T03` — Component registry. Plan (2026-11-02): `core/components/registry.py`, one frozen
+  `ComponentSpec` per part (course_model, kcl, minimap, skybox, kmp, posteffect, objects,
+  track_info): id, display name, one plain sentence, mkwiiki.org link (each checked to exist
+  on 2026-11-02), modes (the manifest's own tuples, so they cannot drift), default mode,
+  stage outputs (`posteffect/` is a folder), required, tool ids per mode. Skybox gains a
+  `template` mode + `template_track` in the manifest (PROJECT_BRIEF §5 / P8-T05 have it;
+  P3-T01 missed it). Acceptance: ids unique, outputs never collide or nest, tools exist in
+  the tool registry, modes/defaults match the manifest, descriptions one plain sentence
+  without file-format jargon; mutants all caught; gate + CI green.
 ## Done (newest first)
 - `P3-T02` — Project layout, create/open, lock (2026-11-02). `core/project/project.py`
   (`Project.create/open/save/close`, §5 folders, default manifest, `.gitignore`; non-empty

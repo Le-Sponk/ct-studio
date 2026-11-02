@@ -73,6 +73,13 @@ docs/
   produce a new snapshot and are written atomically. Unknown TOML keys are preserved.
 - **Component** — a track part (course_model, kcl, minimap, skybox, kmp, posteffect, objects,
   track_info). Declares modes (`auto`/`manual`/`template`), inputs, stage outputs, help text, wiki link.
+  *As built (P3-T03):* `core/components/registry.py` — `COMPONENTS` (dashboard order) and
+  `COMPONENT_BY_ID`; each `ComponentSpec` has id, name, one plain sentence, an mkwiiki.org
+  page (opened 2026-11-02), modes (the manifest's tuples; first = default), stage outputs
+  (`posteffect/` is a folder; objects and track info have none), `required` (all but
+  objects), tool ids per mode, and its `ctstudio.toml` table (`objects`: none, `track_info`:
+  `[project]`). The skybox has a `template` mode (copy an original track's) with
+  `template_track`, as PROJECT_BRIEF §5 and P8-T05 describe.
 - **ComponentStatus** — `Missing | Stale | Ready | Warning | Error | Manual | EditedExternally`
   plus reasons. Computed from manifest + filesystem fingerprints + `.ctstudio/state.json`.
 - **Node** — a build step with declared inputs (files, params, tool versions), outputs, and an

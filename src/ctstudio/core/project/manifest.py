@@ -21,6 +21,7 @@ type Compression = Literal["best", "fast", "none"]
 type GeneratedMode = Literal["auto", "manual"]
 type KmpMode = Literal["manual"]
 type PosteffectMode = Literal["template", "manual"]
+type SkyboxMode = Literal["auto", "template", "manual"]
 type Backend = Literal["default", "rszst", "abmatt"]
 type MinimapSource = Literal["kcl", "blender", "file"]
 type KmpEditor = Literal["lorenzi", "kmp_cloud"]
@@ -34,6 +35,7 @@ COMPRESSIONS: tuple[Compression, ...] = ("best", "fast", "none")
 GENERATED_MODES: tuple[GeneratedMode, ...] = ("auto", "manual")
 KMP_MODES: tuple[KmpMode, ...] = ("manual",)
 POSTEFFECT_MODES: tuple[PosteffectMode, ...] = ("template", "manual")
+SKYBOX_MODES: tuple[SkyboxMode, ...] = ("auto", "template", "manual")
 BACKENDS: tuple[Backend, ...] = ("default", "rszst", "abmatt")
 MINIMAP_SOURCES: tuple[MinimapSource, ...] = ("kcl", "blender", "file")
 KMP_EDITORS: tuple[KmpEditor, ...] = ("lorenzi", "kmp_cloud")
@@ -141,8 +143,9 @@ class Kmp:
 
 @dataclass(frozen=True)
 class Skybox:
-    mode: GeneratedMode = "auto"
+    mode: SkyboxMode = "auto"
     file: str | None = None
+    template_track: str = DEFAULT_SLOT  # used in "template" mode
     extra: Mapping[str, object] = field(default_factory=_extra)
 
 

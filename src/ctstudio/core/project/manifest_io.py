@@ -214,7 +214,12 @@ def _kmp(t: Table) -> m.Kmp:
 
 
 def _skybox(t: Table) -> m.Skybox:
-    return m.Skybox(t.choice("mode", m.GENERATED_MODES, "auto"), t.optional_text("file"), t.rest())
+    return m.Skybox(
+        mode=t.choice("mode", m.SKYBOX_MODES, "auto"),
+        file=t.optional_text("file"),
+        template_track=t.member("template_track", SLOTS, DEFAULT_SLOT, _SLOT),
+        extra=t.rest(),
+    )
 
 
 def _posteffect(t: Table) -> m.Posteffect:
