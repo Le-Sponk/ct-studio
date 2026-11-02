@@ -169,6 +169,32 @@ def test_missing_relative_and_misplaced_commands_are_typed(tmp_path: Path) -> No
         run(fake("pass"), cwd=tmp_path / "absent", timeout=5)
 
 
+def _not_a_program(tmp_path: Path) -> Path:
+    """A file the OS refuses to start: a text file named .exe on Windows (WinError 193/216),
+    an executable text file without a shebang on Linux (ENOEXEC)."""
+    path = tmp_path / ("notes é.exe" if sys.platform == "win32" else "notes é")
+    path.write_text("just some text, not a program\n", encoding="utf-8")
+    path.chmod(0o755)
+    return path
+
+
+def test_a_file_that_is_not_a_program_is_tool_not_found_with_a_fix(tmp_path: Path) -> None:
+    path = _not_a_program(tmp_path)
+    with pytest.raises(ToolNotFound) as raised:
+        run([path, "--version"], cwd=tmp_path, timeout=5)
+    assert raised.value.tool == path.name
+    assert raised.value.user_message == f"{path.name} is not a program this system can run."
+    assert raised.value.hint == "Choose another file, or reinstall the tool."
+    assert isinstance(raised.value.__cause__, OSError)  # the OS error stays as evidence
+
+
+def test_a_file_that_is_not_a_program_cannot_be_launched_detached(tmp_path: Path) -> None:
+    from ctstudio.core.tools.process import launch_detached
+
+    with pytest.raises(ToolNotFound):
+        launch_detached([_not_a_program(tmp_path)], cwd=tmp_path)
+
+
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows console windows only")
 def test_windows_cli_tools_get_no_console_window(tmp_path: Path) -> None:
     # The test runner may itself have a windowless console, which a child would inherit and

@@ -10,6 +10,13 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P2-GATE` — Phase 2 review (2026-11-02). Fresh-context review in
+  `docs/reviews/PHASE_02_REVIEW.md` (brief: `PHASE_02_BRIEF.md`): 1 Must fix, 7 Should fix,
+  6 Consider. Plan: fix Must fix 1 (a set path the OS cannot run crashed `ctstudio doctor`
+  and left the Tools page's Clear off) test-first and commit it alone; then fix the Should
+  fixes in small commits, decide each Consider; Integration green on both OSes; tag
+  `phase-02-done`. Acceptance: every finding fixed or logged with a task ID; gate green.
+  Progress: Must fix 1 done (mutants 9/9).
 ## Done (newest first)
 - `P2-T08f` — rszst adapter test and non-ASCII paths on Linux (2026-11-01).
   `test_riistudio_adapter_native` uses `tool_paths.RSZST` and runs on Linux through Wine;

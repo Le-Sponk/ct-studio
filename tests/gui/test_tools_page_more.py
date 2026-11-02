@@ -77,6 +77,39 @@ def test_a_failed_check_is_shown_and_the_page_recovers(
     assert not banner.isVisible()
 
 
+def test_a_check_that_fails_after_a_new_path_still_lets_the_user_clear_it(
+    qtbot: QtBot,
+    doctor: FakeDoctor,
+    settings_file: Path,
+    opened: list[str],
+    chosen: list[Path | None],
+) -> None:
+    """P2-GATE Must fix 1: a saved path that breaks the check must stay undoable on the page."""
+    page = make_page(qtbot, doctor, settings_file, opened, chosen)
+    select(page, "wszst")
+    assert not button(page, "clearButton").isEnabled()
+    doctor.error = CTStudioError("The tool check stopped.", hint="Try Re-check again.")
+    chosen.append(Path("C:/Users/me/notes é.txt"))
+    with qtbot.waitSignal(page.checked, timeout=WAIT):
+        button(page, "browseButton").click()
+    assert "The tool check stopped." in label(page, "settingsProblem").text()
+    assert button(page, "clearButton").isEnabled()  # the path was saved, so it can be cleared
+    doctor.error = None
+    with qtbot.waitSignal(page.checked, timeout=WAIT):
+        button(page, "clearButton").click()
+    assert doctor.calls[-1]["configured"] == {}
+    assert not button(page, "clearButton").isEnabled()
+
+
+def test_the_service_reports_saved_paths_or_none_for_a_damaged_file(settings_file: Path) -> None:
+    service = ToolsService(settings_path=settings_file, diagnose=FakeDoctor())
+    assert service.configured() == {}
+    service.save_path("wszst", Path("C:/Tools é/wszst.exe"))
+    assert service.configured() == {"wszst": Path("C:/Tools é/wszst.exe")}
+    settings_file.write_text("{not json", encoding="utf-8")
+    assert service.configured() is None
+
+
 def test_an_unexpected_error_is_shown_too(
     qtbot: QtBot,
     doctor: FakeDoctor,

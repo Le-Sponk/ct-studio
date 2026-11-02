@@ -11,7 +11,8 @@ settings file is shown in a banner and Browse/Clear stay off, so it is never ove
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from PySide6.QtCore import QObject, Qt, QThreadPool, QUrl, Signal
@@ -209,15 +210,17 @@ class ToolsPage(QWidget):
         self._latest += 1
         generation, relay = self._latest, self._relay
 
+        service = self.service
+
         def job() -> None:
-            payload: ToolsResult | Exception
+            payload: ToolsResult | _Failed
             try:
                 payload = work()
             except CTStudioError as exc:
-                payload = exc
+                payload = _Failed(exc, service.configured())
             except Exception as exc:  # any failure must reach the page, not die here
                 _LOG.exception("The tool check failed")
-                payload = exc
+                payload = _Failed(exc, service.configured())
             relay.done.emit(generation, payload)
 
         self._update()
@@ -229,8 +232,11 @@ class ToolsPage(QWidget):
         self._shown = generation
         if isinstance(payload, ToolsResult):
             self._show(payload)
-        else:
-            self._problem(_failure_text(payload))
+        elif isinstance(payload, _Failed):
+            if self._result is not None and payload.configured is not None:
+                # A path may have been saved before the check failed: keep Clear truthful.
+                self._result = replace(self._result, configured=payload.configured)
+            self._problem(_failure_text(payload.error))
         self._update()
         self.checked.emit()
 
@@ -291,6 +297,14 @@ class ToolsPage(QWidget):
         self._download.setEnabled(tool_id is not None)
         self._recheck.setEnabled(not self.busy)
         self._busy.setVisible(self.busy)
+
+
+@dataclass(frozen=True)
+class _Failed:
+    """A check that raised, with the paths saved in settings at that moment."""
+
+    error: Exception
+    configured: Mapping[str, Path] | None
 
 
 def _failure_text(error: object) -> str:

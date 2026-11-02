@@ -269,6 +269,10 @@ def _popen(
     except PermissionError as exc:
         hint = "Check that the file is a program you are allowed to run, or choose another."
         raise ToolNotFound(Path(argv[0]).name, hint=hint) from exc
+    except OSError as exc:  # WinError 193/216, ENOEXEC: a file, but not one this OS can run
+        problem = "is not a program this system can run"
+        hint = "Choose another file, or reinstall the tool."
+        raise ToolNotFound(Path(argv[0]).name, hint=hint, problem=problem) from exc
 
 
 def _start(

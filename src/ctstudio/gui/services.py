@@ -44,6 +44,13 @@ class ToolsService:
         report = self._diagnose(force=force, configured=configured)
         return ToolsResult(report, configured, problem)
 
+    def configured(self) -> Mapping[str, Path] | None:
+        """The paths set in settings now, or None when the settings file cannot be used."""
+        try:
+            return settings.load(self._settings_path).configured()
+        except SettingsError:
+            return None
+
     def save_path(self, tool_id: str, path: Path | None) -> None:
         """Set (or, with None, clear) the path of one tool; the old file is backed up."""
         current = settings.load(self._settings_path)

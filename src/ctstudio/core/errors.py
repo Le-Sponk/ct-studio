@@ -26,10 +26,12 @@ class CTStudioError(Exception):
 class ToolNotFound(CTStudioError):
     """An external executable is not installed or configured."""
 
-    def __init__(self, tool: str, hint: str | None = None) -> None:
+    def __init__(
+        self, tool: str, hint: str | None = None, *, problem: str = "was not found"
+    ) -> None:
         self.tool = tool
         super().__init__(
-            f"{tool} was not found.",
+            f"{tool} {problem}.",
             hint=hint or "Install the tool and configure its executable path in CT Studio.",
         )
 

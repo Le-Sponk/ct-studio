@@ -205,7 +205,7 @@ def diagnose(
     """
     env = environment if environment is not None else DiscoveryEnvironment.from_system()
     chosen = configured or {}
-    found, broken = _discover_all(specs, env, dev_root, chosen)
+    found, broken = _discover_all(specs, env, dev_root, chosen, required)
     direct = [(spec, where) for spec, where in found.values() if where.launcher == "direct"]
     probed = probe_versions(direct, cache=cache, force=force) if direct else []
     results = {result.tool_id: result for result in probed}
@@ -254,6 +254,7 @@ def _discover_all(
     env: DiscoveryEnvironment,
     dev_root: Path | None,
     configured: Mapping[str, Path],
+    required: frozenset[str],
 ) -> tuple[dict[str, tuple[ToolSpec, ToolLocation]], dict[str, ToolCheck]]:
     found: dict[str, tuple[ToolSpec, ToolLocation]] = {}
     broken: dict[str, ToolCheck] = {}
@@ -266,19 +267,19 @@ def _discover_all(
                 spec, configured=chosen, environment=env, include_dev=True, dev_root=dev_root
             )
         except ToolNotFound:
-            broken[spec.id] = _unusable_setting(spec, chosen)
+            broken[spec.id] = _unusable_setting(spec, chosen, required)
             continue
         if location is not None:
             found[spec.id] = (spec, location)
     return found, broken
 
 
-def _unusable_setting(spec: ToolSpec, chosen: Path | None) -> ToolCheck:
+def _unusable_setting(spec: ToolSpec, chosen: Path | None, required: frozenset[str]) -> ToolCheck:
     fix = (
         f"The path set in CT Studio for {spec.name} is not a program: {chosen}. "
         "Choose another, or clear it to search PATH and the usual folders again."
     )
-    return _base(spec, "missing", REQUIRED, path=chosen, source="setting", fix=fix)
+    return _base(spec, "missing", required, path=chosen, source="setting", fix=fix)
 
 
 def _classify(

@@ -11,77 +11,20 @@ from pathlib import Path
 from typing import Literal
 
 import pytest
+from doctor_helpers import _check, _env, _exe, _run, _versions, stub_probes
 from version_fakes import fake_executable, spec_running
 
-from ctstudio.core.tools import doctor
-from ctstudio.core.tools.discovery import DiscoveryEnvironment, ToolLocation
-from ctstudio.core.tools.doctor import REQUIRED, ToolCheck, diagnose, version_key
+from ctstudio.core.tools.discovery import ToolLocation
+from ctstudio.core.tools.doctor import REQUIRED, diagnose, version_key
 from ctstudio.core.tools.registry import TOOL_BY_ID, TOOL_SPECS
-from ctstudio.core.tools.spec import ToolSpec
 from ctstudio.core.tools.versions import VersionCache, VersionResult
 
 pytestmark = pytest.mark.timeout(60)
 
 
-def _exe(path: Path) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("fake binary", encoding="utf-8")
-    path.chmod(0o755)
-    return path
-
-
-def _env(
-    tmp_path: Path, platform: Literal["windows", "linux"], path: str = ""
-) -> DiscoveryEnvironment:
-    return DiscoveryEnvironment(
-        platform=platform,
-        root=tmp_path / "system",
-        home=tmp_path / "home",
-        variables={"PATH": path, "ProgramFiles": str(tmp_path / "Program Files")},
-        sandbox=None,
-    )
-
-
 @pytest.fixture
 def probes(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, object]]:
-    """Answer every probe with version 9.9 (or what ``versions`` maps a tool id to)."""
-    calls: list[dict[str, object]] = []
-    versions: dict[str, VersionResult | str] = {}
-
-    def fake_probe(
-        items: list[tuple[ToolSpec, ToolLocation]], **kwargs: object
-    ) -> list[VersionResult]:
-        calls.append({"ids": [spec.id for spec, _ in items], **kwargs})
-        out = []
-        for spec, location in items:
-            answer = versions.get(spec.id, "9.9")
-            if isinstance(answer, VersionResult):
-                out.append(replace(answer, location=location))
-            else:
-                out.append(VersionResult(spec.id, replace(location, version=answer), "probed"))
-        return out
-
-    monkeypatch.setattr(doctor, "probe_versions", fake_probe)
-    calls.append({"versions": versions})
-    return calls
-
-
-def _versions(probes: list[dict[str, object]]) -> dict[str, VersionResult | str]:
-    return probes[0]["versions"]  # type: ignore[return-value]
-
-
-def _check(report: doctor.Report, tool_id: str) -> ToolCheck:
-    [check] = [c for c in report.tools if c.tool_id == tool_id]
-    return check
-
-
-def _run(tmp_path: Path, env: DiscoveryEnvironment, **kwargs: object) -> doctor.Report:
-    return diagnose(
-        environment=env,
-        dev_root=tmp_path / "no-dev-tools",
-        cache=VersionCache(tmp_path / "cache.json"),
-        **kwargs,  # type: ignore[arg-type]
-    )
+    return stub_probes(monkeypatch)
 
 
 # --- every tool is listed once, in registry order ----------------------------------------------
@@ -398,72 +341,3 @@ def test_a_real_probe_reads_the_version_and_caches_it(tmp_path: Path) -> None:
     assert (check.status, check.version, check.required) == ("found", "1.5", True)
     assert report.ok
     assert "1.5" in cache_file.read_text(encoding="utf-8")
-
-
-# --- paths set in CT Studio settings (P2-T07a) ---------------------------------------------------
-
-
-def test_a_set_path_wins_over_path_and_is_probed(
-    probes: list[dict[str, object]], tmp_path: Path
-) -> None:
-    on_path = tmp_path / "on path"
-    _exe(on_path / "wszst.exe")
-    chosen = _exe(tmp_path / "chosen é" / "wszst-2.42a.exe")
-    report = _run(tmp_path, _env(tmp_path, "windows", str(on_path)), configured={"wszst": chosen})
-    check = _check(report, "wszst")
-    assert (check.status, check.path, check.source, check.version) == (
-        "found",
-        chosen.resolve(),
-        "setting",
-        "9.9",
-    )
-    assert check.fix is None
-    assert "wszst" in probes[1]["ids"]  # type: ignore[operator]
-
-
-def test_a_set_path_that_is_not_a_program_is_missing_with_a_fix(
-    probes: list[dict[str, object]], tmp_path: Path
-) -> None:
-    on_path = tmp_path / "on path"
-    _exe(on_path / "wszst.exe")
-    gone = tmp_path / "moved away" / "wszst.exe"
-    report = _run(tmp_path, _env(tmp_path, "windows", str(on_path)), configured={"wszst": gone})
-    check = _check(report, "wszst")
-    assert (check.status, check.path, check.source) == ("missing", gone, "setting")
-    assert check.fix == (
-        f"The path set in CT Studio for Wiimms SZS Tool is not a program: {gone}. "
-        "Choose another, or clear it to search PATH and the usual folders again."
-    )
-    assert not report.ok  # the one the user chose is what would run, so no silent fallback
-
-
-def test_a_set_path_for_a_windows_editor_on_linux_runs_through_wine(
-    probes: list[dict[str, object]], tmp_path: Path
-) -> None:
-    _exe(tmp_path / "home" / "bin" / "wine")
-    exe = _exe(tmp_path / "Games" / "BrawlCrate.exe")
-    report = _run(tmp_path, _env(tmp_path, "linux"), configured={"brawlcrate": exe})
-    check = _check(report, "brawlcrate")
-    assert (check.status, check.launcher, check.source) == ("found", "wine", "setting")
-
-
-def test_a_set_path_for_a_tool_this_os_does_not_use_is_ignored(
-    probes: list[dict[str, object]], tmp_path: Path
-) -> None:
-    wine = _exe(tmp_path / "wine.exe")
-    report = _run(tmp_path, _env(tmp_path, "windows"), configured={"wine": wine})
-    assert _check(report, "wine").status == "not_needed"
-
-
-def test_a_set_rszst_is_the_existing_route(probes: list[dict[str, object]], tmp_path: Path) -> None:
-    exe = _exe(tmp_path / "Rii" / "rszst.exe")
-    check = _check(_run(tmp_path, _env(tmp_path, "windows"), configured={"rszst": exe}), "rszst")
-    assert (check.status, check.source, check.route) == ("found", "setting", "existing")
-
-
-def test_no_settings_means_discovery_alone(probes: list[dict[str, object]], tmp_path: Path) -> None:
-    folder = tmp_path / "bin"
-    _exe(folder / "wszst.exe")
-    for configured in (None, {}):
-        report = _run(tmp_path, _env(tmp_path, "windows", str(folder)), configured=configured)
-        assert _check(report, "wszst").source == "path"
