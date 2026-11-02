@@ -4,28 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T01 — Node & graph
+**Next task:** P4-T02 — Cache
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `431c03f` (P3-GATE fixes; Check, Windows + Ubuntu)
+**Last green commit:** `70ac493` (P4-T01; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T01` — Node & graph. Plan (2026-11-03):
-  - `core/build/node.py`: frozen `Node(id, inputs, outputs, params, tools, resources,
-    impl_version, run)`, checked on creation (id form, outputs inside the project, known tool
-    ids, JSON params frozen, impl_version >= 1); `BuildContext`, `NodeResult(issues)`.
-    Deviation: an input is a plain path (a folder means every file in it), no `Input` class.
-  - `core/build/graph.py`: `BuildGraph(nodes)` links steps through files (an input equal to,
-    inside, or containing another step's output waits for it), refuses duplicate ids and
-    clashing outputs, orders steps (dependencies first, otherwise as given), reports a cycle
-    as `a → b → a`; `needs(id)`; `subgraph(targets)` = targets + everything they need, with
-    did-you-mean for unknown ids. `from_manifest(manifest, root, parts, finish)` asks the
-    factory for each made part's mode (dashboard order) and says plainly when a part cannot
-    be made that way yet.
-  - Acceptance: unit tests for ordering, cycles, subgraph selection (+ the checks above);
-    mutants; docs (ARCHITECTURE §7).
-
 ## Done (newest first)
+- 2026-11-03 `P4-T01` Node & graph (`core/build/node.py`, `core/build/graph.py`). A `Node`
+  is checked on creation (id form, absolute paths, at least one output, plain-JSON params
+  copied read-only, known tools, `impl_version` >= 1). `BuildGraph` links steps through files
+  (an input equal to, inside or holding another step's output waits for it), keeps a step
+  given twice once, refuses clashing ids or outputs, keeps the given order where it can,
+  names a cycle step by step and gives `subgraph(ids)` for "rebuild just this" with
+  did-you-mean. `from_manifest` asks a `make_part(spec, mode)` factory for each part's steps.
+  Deviation (phase file): inputs are plain paths, no `Input` class. Found while committing:
+  the root `build/` ignore rule hid `src/ctstudio/core/build/`; `.gitignore` exception plus a
+  test that no package file is ignored. Gate `--all` 1,735 passed; mutants 39/39; commit
+  70ac493, CI green (Check + Integration, Windows + Ubuntu).
 - `P3-GATE` — Phase 3 review passed (2026-11-03). Fresh-context reviewer
   (`docs/reviews/PHASE_03_REVIEW.md`, brief `PHASE_03_BRIEF.md`) re-ran the gate (1,670),
   the new real-tool exit test (`tests/integration/test_cli_status_real.py`, a46b515: `new` +
@@ -631,6 +627,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-T01 design deviation. Build inputs are plain paths (a folder means every file
+  in it), not the phase file's `Input` class; steps are linked by matching outputs to inputs,
+  and `from_manifest` takes a `make_part(spec, mode)` factory so P4-T04 to P4-T06 each add
+  their own steps without changing the graph.
 - 2026-11-02: P3-T05 (file-type sniffing) done before P3-T04 (status evaluation): P3-T04's
   `Manual` status needs "the file has the right magic bytes", which is what P3-T05 builds.
 - 2026-11-01: P2-T08e split. P2-T08e = rszst/ABMatt Linux operation recordings and their

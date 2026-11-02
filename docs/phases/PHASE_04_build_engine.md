@@ -5,7 +5,7 @@ incrementally. This is milestone M1's engine.
 **Exit:** integration test builds the fixture in manual mode, `wszst check` result stored, second
 build skips every node in < 1 s.
 
-### [ ] P4-T01 — Node & graph
+### [x] P4-T01 — Node & graph
 `core/build/node.py`: `Node(id, inputs: tuple[Input, ...], outputs: tuple[Path, ...],
 params: Mapping, tools: tuple[str, ...], resources: frozenset[str], impl_version: int,
 run: Callable[[BuildContext], NodeResult])`. `graph.py`: build from manifest + component registry,
