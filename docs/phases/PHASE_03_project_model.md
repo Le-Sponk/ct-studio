@@ -70,4 +70,9 @@ icons + reasons), `ctstudio open <file> [--with tool]` (uses editors adapter).
 **Done 2026-11-03 (`a80c502`, `3073e09`):** also `--force` and `--wine-prefix`; `status` exits 1
 when a part is in `error`; tool finding without version probes is `core/tools/availability.py`.
 
-### [ ] P3-GATE — Phase review
+### [x] P3-GATE — Phase review
+Passed 2026-11-03 with a fresh-context review (`docs/reviews/PHASE_03_REVIEW.md`): 1 Must fix
+and 5 Should fixes fixed (431c03f), Consider items fixed, dismissed or logged as TD-011. Exit
+criteria re-checked: `ctstudio new` + `status --json` on a fixture project with the real tools
+(`tests/integration/test_cli_status_real.py`), evaluation 72 ms cold against the 300 ms limit.
+An independent check of the Must fix passed. Tag `phase-03-done`.

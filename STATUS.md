@@ -3,15 +3,23 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 3 — Project model & component status (P2 gate passed)
-**Next task:** P3-GATE — Phase 3 review
+**Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
+**Next task:** P4-T01 — Node & graph
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `3073e09` (P3-T07; Check, Windows + Ubuntu)
+**Last green commit:** `431c03f` (P3-GATE fixes; Check, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 
 ## Done (newest first)
+- `P3-GATE` — Phase 3 review passed (2026-11-03). Fresh-context reviewer
+  (`docs/reviews/PHASE_03_REVIEW.md`, brief `PHASE_03_BRIEF.md`) re-ran the gate (1,670),
+  the new real-tool exit test (`tests/integration/test_cli_status_real.py`, a46b515: `new` +
+  `status --json` on a fixture project), the benchmark (cold 72 ms / warm 10 ms against
+  300 / 30 ms), the CLI by hand, 7/7 scratch mutations and a copyright check (no disc data).
+  1 Must fix (redirected `status` output crashed on a non-ASCII name on Windows) and 5
+  Should fixes fixed in 431c03f; Consider items fixed, dismissed with reasons, or logged as
+  TD-011. A separate check of the Must fix passed (the new test fails without the fix).
 - 2026-11-03 `P3-T07` CLI `new`, `status`, `open` (`cli/new.py`, `cli/status.py`,
   `cli/open_file.py`; `cli.COMMANDS` dispatch, still no Qt). `new` takes any slot spelling with
   did-you-mean (exit 2) and never overwrites a project; `status` reads without the lock, finds

@@ -64,4 +64,7 @@ the implementer triaged and fixed the findings.
 
 ## After the fixes
 - `scripts/check.py --all`: green, 1,675 passed / 6 skipped.
-- Must-fix verified by a separate short delegated review before the tag (see STATUS).
+- Must-fix verified by a separate delegated check of 431c03f: redirected `status` (table and
+  `--json`) and a non-ASCII error message work with `PYTHONIOENCODING`/`PYTHONUTF8` unset
+  (cp1252 stdout); `--version`, `doctor --json` and `--help` unaffected; the new test fails
+  when `_utf8_output()` is removed. CI on 431c03f green on both OSes. Verdict: VERIFIED.
