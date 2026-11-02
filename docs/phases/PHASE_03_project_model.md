@@ -15,12 +15,15 @@ not keep comments; say so in user docs), invalid-value tests, migration framewor
 `docs/user/PROJECT_FILE.md`. Deviations from §6, recorded in ARCHITECTURE: optional `file` on
 every component; KMP mode `manual` only; post-effect mode `template | manual`.
 
-### [ ] P3-T02 — Project layout, create/open, lock
+### [x] P3-T02 — Project layout, create/open, lock
 `Project.create(dir, name, blend=None, slot="beginner_course")` creates folders from ARCHITECTURE §5,
 default manifest, `.gitignore` (`.ctstudio/`, `build/`). `Project.open(dir)`. Lock file `.ctstudio/lock` with pid
 + hostname; stale-lock detection; read-only open when locked.
 **Acceptance:** tests for create/open/lock/stale lock; refuses to create inside a non-empty folder
 unless `--force`.
+**Done (e78ca9f):** `core/project/{project,lock}.py`. Added beyond the spec: a takeover guard
+so racing openers cannot both claim a stale lock, a 30 s grace for damaged locks, and `save`
+refused when read-only. The `--force` flag itself is P3-T07's CLI (`force=True` here).
 
 ### [ ] P3-T03 — Component registry
 One declarative definition per component: id, display name, one-sentence plain-language description,

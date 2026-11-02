@@ -4,23 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 3 — Project model & component status (P2 gate passed)
-**Next task:** P3-T02 — Project layout, create/open, lock
+**Next task:** P3-T03 — Component registry
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 89cd626 (P3-T01; Windows gate, Ubuntu/Windows CI)
+**Last green commit:** e78ca9f (P3-T02; Windows gate, Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P3-T02` — Project layout, create/open, lock. Plan (2026-11-02): `core/project/lock.py`
-  (`.ctstudio/lock`: JSON pid + host + token, created with O_EXCL so only one opener wins;
-  stale = same host and the pid is gone, or a damaged lock older than 30 s; another host or a
-  live pid = held → read-only; release only removes our own token; `pid_alive` via
-  OpenProcess/GetExitCodeProcess on Windows, `kill(pid, 0)` on POSIX) and
-  `core/project/project.py` (`Project.create(dir, name, blend=None, slot=…, force=False)`:
-  §5 folders, default manifest, `.gitignore` with `.ctstudio/` and `build/`; refuses a
-  non-empty folder unless `force`, and an existing `ctstudio.toml` always; `Project.open`;
-  `save` refused when read-only; context manager). Acceptance: create/open/lock/stale-lock
-  tests incl. two openers racing; mutants all caught; gate + CI green.
 ## Done (newest first)
+- `P3-T02` — Project layout, create/open, lock (2026-11-02). `core/project/project.py`
+  (`Project.create/open/save/close`, §5 folders, default manifest, `.gitignore`; non-empty
+  folder refused unless `force`, an existing `ctstudio.toml` always) and `lock.py`
+  (`.ctstudio/lock` with pid/host/token via `O_EXCL`; dead pid on this host or damaged > 30 s
+  = stale; other host respected; takeover under `lock.takeover` with a re-check; read-only
+  with the holder's description). Races of 8 openers (fresh and stale lock) give exactly one
+  lock on Windows and Linux CI. User doc `PROJECT_FILE.md` (folder, read-only, crash
+  recovery). 41 new tests; mutants 25/25. `check.py --all` 1,320 passed; CI green — e78ca9f.
 - `P3-T01` — Manifest model & TOML I/O (2026-11-02). `core/project/manifest.py` (frozen
   dataclasses for ARCHITECTURE §6), `manifest_io.py` (`load` never writes; `save` atomic via
   tomli-w), `toml_table.py` (every `ManifestError` names the key path, what is allowed and
