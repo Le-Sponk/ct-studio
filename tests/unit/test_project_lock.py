@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 from ctstudio.core.project import lock as lock_module
-from ctstudio.core.project.lock import LockOwner, acquire, pid_alive, read_owner
+from ctstudio.core.project.lock import LockOwner, acquire, pid_alive
 
 pytestmark = pytest.mark.timeout(30)
 
@@ -163,17 +163,6 @@ def test_a_damaged_lock_is_stale_only_once_it_is_old(tmp_path: Path, content: st
     old = time.time() - lock_module.DAMAGED_GRACE_S - 5
     os.utime(_lock_file(root), (old, old))
     assert acquire(root).held is not None
-
-
-def test_read_owner_reports_the_holder_without_taking_the_lock(tmp_path: Path) -> None:
-    root = _root(tmp_path)
-    assert read_owner(root) is None
-    held = acquire(root).held
-    assert held is not None
-    owner = read_owner(root)
-    assert owner is not None
-    assert owner.pid == os.getpid()
-    assert _lock_file(root).exists()
 
 
 def test_a_folder_that_cannot_take_a_lock_opens_read_only_with_the_reason(

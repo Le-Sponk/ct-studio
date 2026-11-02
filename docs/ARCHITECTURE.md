@@ -48,12 +48,13 @@ src/ctstudio/
   __main__.py            # `ctstudio` with no args → GUI; with subcommand → CLI
   core/
     errors.py  logging.py  platform.py  fsutil.py  events.py
-    project/     manifest.py  layout.py  migrations.py  settings.py (user-level)
-    components/  registry.py  status.py  (one module per component type if large)
+    project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
+                 slots.py slots.json  settings.py (user-level)
+    components/  registry.py  state.py  status.py  (one module per component type if large)
     build/       node.py  graph.py  cache.py  runner.py  cancel.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
-    tools/       spec.py registry.py discovery.py process.py
+    tools/       spec.py registry.py discovery.py availability.py process.py
                  wiimm.py rszst.py abmatt.py blender.py editors.py wine.py dolphin.py
     formats/     magic.py kcl.py kmp.py            # read-only parsers
     textures/    analyze.py recommend.py

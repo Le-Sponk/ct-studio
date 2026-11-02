@@ -10,6 +10,7 @@ subcommands never import Qt.
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import sys
 from collections.abc import Sequence
@@ -63,12 +64,21 @@ def _cli(args: argparse.Namespace) -> int:
     from ctstudio.core.errors import CTStudioError
     from ctstudio.core.logging import configure_logging
 
+    _utf8_output()
     try:
         configure_logging()
         return COMMANDS[args.command].run(args)
     except CTStudioError as exc:
         print(exc, file=sys.stderr)
         return 1
+
+
+def _utf8_output() -> None:
+    """Command output is UTF-8 everywhere (CLI.md). Windows otherwise writes redirected
+    output in the ANSI code page, where a name such as "Pistë" or "日本" cannot be written."""
+    for stream in (sys.stdout, sys.stderr):
+        if isinstance(stream, io.TextIOWrapper):
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
 
 if __name__ == "__main__":

@@ -21,6 +21,8 @@ from ctstudio.core.components.state import (
     ComponentRecord,
     FileRecord,
     ProjectState,
+    input_key,
+    input_path,
     load_state,
     record,
     save_state,
@@ -113,6 +115,44 @@ def test_a_damaged_state_file_is_empty_and_logged(
         logger.removeHandler(caplog.handler)
     assert "state.json" in caplog.text
     assert "starting fresh" in caplog.text
+
+
+def test_a_state_file_that_is_not_utf8_is_empty_and_logged(
+    root: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    (root / STATE_FILE).write_bytes(b"\xff\xfe{")
+    logger = logging.getLogger("ctstudio.core.components.state")
+    logger.addHandler(caplog.handler)
+    try:
+        assert load_state(root) == ProjectState({})
+    finally:
+        logger.removeHandler(caplog.handler)
+    assert "starting fresh" in caplog.text
+
+
+def test_a_relative_input_outside_the_project_is_kept_absolute(
+    root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write(tmp_path / "track.blend", b"blend")
+    monkeypatch.chdir(tmp_path)
+    key = input_key(root, Path("track.blend"))
+    assert Path(key).is_absolute()
+    assert input_path(root, key).read_bytes() == b"blend"
+
+
+def test_a_file_changing_while_it_is_hashed_reads_as_changed(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = _write(root / GENERATED_DIR / "a.bin", b"abc")
+    rec = FileRecord.of(out)
+    _bump_mtime(out)
+    fsutil._cached_digest.cache_clear()
+
+    def busy(path: Path) -> str:
+        raise ProjectError(f"{path.name} changed while hashing.")
+
+    monkeypatch.setattr(fsutil, "hash_file", busy)
+    assert rec.compare(out) == "changed"
 
 
 def test_an_unreadable_state_path_is_a_project_error(root: Path) -> None:

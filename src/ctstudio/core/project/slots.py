@@ -138,18 +138,8 @@ def find(text: str) -> Slot:
     raise UnknownSlot(f"{text!r} is not an original track or arena. {hint}")
 
 
-def race_tracks() -> tuple[Slot, ...]:
-    # parse() guarantees the 32 race tracks come first, so CATALOGUE[:32] would be equal;
-    # filtering by kind keeps this right even if that rule ever changes.
-    return tuple(s for s in CATALOGUE if s.kind == "race")
-
-
-def arenas() -> tuple[Slot, ...]:
-    return tuple(s for s in CATALOGUE if s.kind == "arena")
-
-
 def cups() -> dict[str, tuple[Slot, ...]]:
-    """Cup (or arena group) name -> its slots, both in game order."""
+    """Cup (or arena group) name -> its slots, both in game order (the P5-T02 slot picker)."""
     groups: dict[str, list[Slot]] = {}
     for s in CATALOGUE:
         groups.setdefault(s.cup, []).append(s)

@@ -22,10 +22,8 @@ from ctstudio.core.project.slots import (
     CatalogueError,
     Slot,
     UnknownSlot,
-    arenas,
     cups,
     find,
-    race_tracks,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -53,8 +51,8 @@ def _data() -> dict[str, Any]:
 
 
 def test_there_are_32_race_tracks_and_10_arenas() -> None:
-    assert len(race_tracks()) == 32
-    assert len(arenas()) == 10
+    assert [s.kind for s in CATALOGUE].count("race") == 32
+    assert [s.kind for s in CATALOGUE].count("arena") == 10
     assert len(CATALOGUE) == len(SLOTS) == 42
 
 
@@ -224,13 +222,12 @@ def test_arenas_are_labelled_as_arenas() -> None:
     assert find("old_House_ds").label == "DS Twilight House (Retro Arenas, arena 5)"
 
 
-def test_race_tracks_and_arenas_are_split_by_kind_not_by_position() -> None:
+def test_race_tracks_come_before_arenas() -> None:
     swapped = _break(lambda d: d["slots"].insert(31, d["slots"].pop(32)))
     with pytest.raises(CatalogueError, match=r"in that order"):
         slots.parse(swapped)
-    assert {s.kind for s in race_tracks()} == {"race"}
-    assert {s.kind for s in arenas()} == {"arena"}
-    assert race_tracks() + arenas() == CATALOGUE
+    assert {s.kind for s in CATALOGUE[:32]} == {"race"}
+    assert {s.kind for s in CATALOGUE[32:]} == {"arena"}
 
 
 def test_the_committed_catalogue_passes_the_loader_checks() -> None:

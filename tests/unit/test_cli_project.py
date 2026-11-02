@@ -112,11 +112,37 @@ def test_open_launches_the_editor_on_the_document(tmp_path: Path) -> None:
     assert opened.returncode == 0, opened.stderr
     assert opened.stdout.startswith("Started Blender for track.blend (process ")
 
+    # The editor is detached and gives no signal but the file it writes, so poll for it.
     deadline = time.monotonic() + 30
     while not record.exists() and time.monotonic() < deadline:
         time.sleep(0.1)
     launched = json.loads(record.read_text(encoding="utf-8"))
     assert launched == {"argv": [str(document.resolve())], "cwd": str(document.parent.resolve())}
+
+
+@pytest.mark.parametrize("json_output", [True, False])
+def test_redirected_output_survives_a_non_ascii_project(tmp_path: Path, json_output: bool) -> None:
+    """Windows writes redirected output in the ANSI code page unless told otherwise."""
+    env = _environment(tmp_path, os.environ.get("PATH", ""))
+    for name in ("PYTHONIOENCODING", "PYTHONUTF8"):
+        env.pop(name, None)
+    root = tmp_path / "Pistë 日本"
+    assert _ctstudio(env, "new", str(root)).returncode == 0
+    args = [
+        sys.executable,
+        "-m",
+        "ctstudio",
+        "status",
+        str(root),
+        *(["--json"] if json_output else []),
+    ]
+    result = subprocess.run(args, capture_output=True, env=env, timeout=100, check=False)  # noqa: S603
+    assert result.returncode == 1, result.stderr.decode("utf-8", "replace")
+    assert b"Traceback" not in result.stderr
+    if json_output:
+        assert json.loads(result.stdout.decode("utf-8"))["project"]["name"] == "Pistë 日本"
+    else:
+        assert result.stdout.decode("utf-8").startswith("Pistë 日本, replacing Luigi Circuit")
 
 
 def test_the_new_commands_never_import_qt(tmp_path: Path) -> None:

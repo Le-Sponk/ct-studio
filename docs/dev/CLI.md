@@ -31,8 +31,9 @@ start nothing except, for `open`, the editor itself.
 ## `ctstudio status [FOLDER] [--json]`
 
 Reads the project without taking its lock, so it works while the app has it open. Tools are
-the ones found on PATH, in the usual folders or set in CT Studio's settings (a damaged
-settings file is reported on stderr and ignored).
+the ones found on PATH, in the usual folders, in CT Studio's own tool folder, in a source
+checkout's `.tools/`, or set in CT Studio's settings (a damaged settings file is reported on
+stderr and ignored). Output is UTF-8, also when redirected to a file.
 
 ```text
 Sponk Raceway, replacing Moo Moo Meadows (Mushroom Cup, track 2)

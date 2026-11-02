@@ -1102,6 +1102,11 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   within 4 s + 12 s; the file passed 5/5 alone right after. Not the clock bound fixed in
   P2-T08d: find whether the child is slow to start or ended early (log its pid/exit), then
   make the test wait on a signal, not a sleep.
+- **TD-011 · P13-T02 · `ctstudio status` start-up.** P3-GATE measured a whole `status --json`
+  run at ~400 ms on this workstation: ~110 ms Python start, ~210 ms imports (`ctstudio.cli`
+  imports `cli.doctor` and so `core.tools.doctor`; `importlib.metadata` for `__version__`
+  ~70 ms), ~75 ms work. The 300 ms exit limit is for evaluation (~70 ms, met). Import each
+  subcommand module lazily from `COMMANDS` and read the version only for `--version`.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

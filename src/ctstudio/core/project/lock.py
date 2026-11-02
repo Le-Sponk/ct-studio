@@ -113,11 +113,6 @@ def lock_path(root: Path) -> Path:
     return root / ".ctstudio" / LOCK_NAME
 
 
-def read_owner(root: Path) -> LockOwner | None:
-    """Who holds the lock, or None when nobody does or the file is unreadable."""
-    return _parse(_read(lock_path(root)))
-
-
 def acquire(root: Path) -> LockResult:
     """Take the lock of the project in ``root`` (its ``.ctstudio/`` must exist)."""
     path = lock_path(root)

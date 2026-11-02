@@ -26,6 +26,14 @@
   and 30 ms, asserted by the test. Files had just been written (OS cache), so cold is not a
   cold-disk number.
 
+## P3-GATE — whole `ctstudio status --json` process (Windows)
+
+- Command: time `.venv/Scripts/python.exe -m ctstudio status <new project> --json` (5 runs),
+  same workstation; `python -X importtime` for the split.
+- Result: **382–418 ms** per run: Python start ~110 ms (`-c pass`), CT Studio imports
+  ~210 ms (`--version` alone ~320 ms), evaluation ~75 ms. Not a phase limit (the 300 ms
+  limit is for evaluation, above); TD-011 / P13-T02 trims the imports.
+
 ## Reproducing and comparing a baseline
 
 Run the command above from the repo root with `uv sync --locked` first. The test writes a fresh

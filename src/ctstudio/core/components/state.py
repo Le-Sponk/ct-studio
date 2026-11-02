@@ -49,7 +49,10 @@ class FileRecord:
             return "changed"
         if st.st_mtime_ns == self.mtime_ns:
             return "same"
-        same = _digest(path, st.st_size, st.st_mtime_ns) == self.digest
+        try:
+            same = _digest(path, st.st_size, st.st_mtime_ns) == self.digest
+        except ProjectError:  # being written (e.g. Blender saving) or gone mid-hash
+            return "changed"
         return "same" if same else "changed"
 
 
@@ -86,7 +89,7 @@ def record(
 
 def input_key(root: Path, path: Path) -> str:
     resolved, base = path.resolve(), root.resolve()
-    return resolved.relative_to(base).as_posix() if resolved.is_relative_to(base) else str(path)
+    return resolved.relative_to(base).as_posix() if resolved.is_relative_to(base) else str(resolved)
 
 
 def input_path(root: Path, key: str) -> Path:
@@ -96,7 +99,7 @@ def input_path(root: Path, key: str) -> Path:
 def load_state(root: Path) -> ProjectState:
     path = root / STATE_FILE
     try:
-        text = path.read_text(encoding="utf-8")
+        raw = path.read_bytes()
     except FileNotFoundError:
         return ProjectState({})
     except OSError as exc:
@@ -106,8 +109,8 @@ def load_state(root: Path) -> ProjectState:
             details=f"path={path}; error={exc}",
         ) from exc
     try:
-        return _parse(json.loads(text))
-    except (ValueError, TypeError, KeyError) as exc:
+        return _parse(json.loads(raw.decode("utf-8")))
+    except (ValueError, TypeError, KeyError) as exc:  # UnicodeDecodeError is a ValueError
         _LOG.warning("state.json is damaged (%s); starting fresh", exc)
         return ProjectState({})
 

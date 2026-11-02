@@ -120,6 +120,14 @@ def test_create_refuses_a_file_where_the_folder_should_be(tmp_path: Path) -> Non
         Project.create(root, "X")
 
 
+def test_a_folder_that_cannot_be_made_is_a_project_error(tmp_path: Path) -> None:
+    blocker = tmp_path / "a file"
+    blocker.write_text("x", encoding="utf-8")
+    with pytest.raises(ProjectError, match="Could not make") as info:
+        Project.create(blocker / "track", "T")
+    assert info.value.hint == "Choose a folder you can write to."
+
+
 def test_open_loads_the_manifest_and_holds_the_lock(tmp_path: Path) -> None:
     root = _dir(tmp_path)
     Project.create(root, "X").close()

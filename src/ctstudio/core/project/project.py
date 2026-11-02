@@ -56,11 +56,7 @@ class Project:
         """A new project in ``root`` (created if missing), opened and locked."""
         info = _checked(ProjectInfo(name=name, slot=slot, blend=_blend_text(root, blend)))
         _check_target(root, force=force)
-        for folder in FOLDERS:
-            (root / folder).mkdir(parents=True, exist_ok=True)
-        gitignore = root / ".gitignore"
-        if not gitignore.exists():
-            atomic_write_text(gitignore, GITIGNORE)
+        _make_layout(root)
         manifest_io.save(Manifest(project=info), root / manifest_io.FILE_NAME)
         return cls.open(root)
 
@@ -121,6 +117,21 @@ def _blend_text(root: Path, blend: Path | None) -> str | None:
     if absolute.is_relative_to(project):
         return absolute.relative_to(project).as_posix()
     return str(blend.resolve())
+
+
+def _make_layout(root: Path) -> None:
+    try:
+        for folder in FOLDERS:
+            (root / folder).mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ProjectError(
+            f"Could not make {root}.",
+            hint="Choose a folder you can write to.",
+            details=f"path={root}; error={exc}",
+        ) from exc
+    gitignore = root / ".gitignore"
+    if not gitignore.exists():
+        atomic_write_text(gitignore, GITIGNORE)
 
 
 def _check_target(root: Path, *, force: bool) -> None:
