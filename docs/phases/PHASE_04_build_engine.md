@@ -15,7 +15,7 @@ topological order, cycle detection with readable error, `subgraph(targets)` for 
 `Input` class; edges come from matching outputs to inputs, and `from_manifest` takes a
 `make_part(spec, mode)` factory so each later task adds its own steps.
 
-### [ ] P4-T02 — Cache
+### [x] P4-T02 — Cache
 `core/build/cache.py`: key = blake2b(canonical JSON params + sorted input fingerprints + tool
 versions + impl_version). Stored in `.ctstudio/cache.json` (atomic write). Hit requires identical key and
 outputs whose hashes match the recorded ones. `invalidate(node_id)`, `--force`.

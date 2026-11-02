@@ -4,29 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T02 — Cache
+**Next task:** P4-T03 — Runner & events
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `70ac493` (P4-T01; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `543c146` (P4-T02; Check, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T02` — Cache. Plan (2026-11-03):
-  - `core/build/cache.py` `BuildCache.load(root)` reads `.ctstudio/cache.json`
-    `{format: 1, nodes: {id: {key, inputs, outputs}}}` (files as `{size, mtime_ns, digest}`,
-    keyed project-relative like state.json); missing/damaged → empty (logged).
-  - `check(node, tool_versions) -> Lookup(key, fresh, inputs)`: key = blake2b of canonical JSON
-    (format, params, impl_version, versions of the node's own tools, output paths, every input
-    file's digest; a folder lists its files, a missing input is null). Size+mtime unchanged →
-    recorded digest, no hashing; a touched file is hashed once and its record refreshed, so the
-    next check does not hash. Fresh = same key and every output file (folders expanded) still
-    has its recorded hash.
-  - `store(node, lookup)` after a run records outputs (a declared output not written →
-    `BuildError`); `invalidate(id)`, `clear()` (for P4-T07 `--force`); `save()` atomic, only
-    when changed; a lock so P4-T03's parallel steps can share it.
-  - Acceptance tests: param change → miss; touch, same content → hit, hashed once; tool version
-    change → miss; output deleted → miss; plus impl_version, input edit/added/missing, moved
-    project still hits, damaged file. Mutants; ARCHITECTURE §7.
 ## Done (newest first)
+- 2026-11-03 `P4-T02` Cache (`core/build/cache.py`, `.ctstudio/cache.json`). Key = BLAKE2b over
+  params, `impl_version`, the node's own tool versions and the content of every input (a
+  folder by file name, a missing input as null). Fresh = same key and exactly the recorded
+  output files, unchanged. Unchanged size+mtime is not hashed; a touched file is hashed once
+  and its mtime recorded. A step that did not write a declared output is a `BuildError` and is
+  forgotten; `invalidate`/`clear` for `--force`; `save` atomic and only when changed; damaged
+  file → empty. Survives a moved project. `state.py` `parse_file`/`parse_object` now shared.
+  Gate `--all` 1,776 passed; mutants 32/32 (3 first-round survivors became tests);
+  commit 543c146, CI green (Windows + Ubuntu).
 - 2026-11-03 `P4-T01` Node & graph (`core/build/node.py`, `core/build/graph.py`). A `Node`
   is checked on creation (id form, absolute paths, at least one output, plain-JSON params
   copied read-only, known tools, `impl_version` >= 1). `BuildGraph` links steps through files
