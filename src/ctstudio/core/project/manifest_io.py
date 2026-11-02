@@ -94,7 +94,7 @@ def _manifest(top: Table) -> m.Manifest:
             "project",
             'missing; every project needs a [project] table with a name, such as name = "My Track"',
         )
-    project = _project(top.table("project"))
+    project = project_info(top.table("project"))
     build = _build(top.table("build"))
     blender = _blender(top.table("blender"))
     components = _components(top.table("components"))
@@ -107,7 +107,8 @@ def _manifest(top: Table) -> m.Manifest:
     return m.Manifest(project, migrations.CURRENT, build, blender, components, hooks, top.rest())
 
 
-def _project(t: Table) -> m.ProjectInfo:
+def project_info(t: Table) -> m.ProjectInfo:
+    """The ``[project]`` table, checked (also used by ``Project.create`` before writing)."""
     if "name" not in t.data:
         raise t.fail("name", "missing; every project needs a name")
     return m.ProjectInfo(

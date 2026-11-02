@@ -10,6 +10,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P3-T02` — Project layout, create/open, lock. Plan (2026-11-02): `core/project/lock.py`
+  (`.ctstudio/lock`: JSON pid + host + token, created with O_EXCL so only one opener wins;
+  stale = same host and the pid is gone, or a damaged lock older than 30 s; another host or a
+  live pid = held → read-only; release only removes our own token; `pid_alive` via
+  OpenProcess/GetExitCodeProcess on Windows, `kill(pid, 0)` on POSIX) and
+  `core/project/project.py` (`Project.create(dir, name, blend=None, slot=…, force=False)`:
+  §5 folders, default manifest, `.gitignore` with `.ctstudio/` and `build/`; refuses a
+  non-empty folder unless `force`, and an existing `ctstudio.toml` always; `Project.open`;
+  `save` refused when read-only; context manager). Acceptance: create/open/lock/stale-lock
+  tests incl. two openers racing; mutants all caught; gate + CI green.
 ## Done (newest first)
 - `P3-T01` — Manifest model & TOML I/O (2026-11-02). `core/project/manifest.py` (frozen
   dataclasses for ARCHITECTURE §6), `manifest_io.py` (`load` never writes; `save` atomic via

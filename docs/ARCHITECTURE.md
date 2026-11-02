@@ -103,6 +103,19 @@ MyTrack/
 ```
 The `.blend` may live anywhere; the manifest stores its path (relative when inside the project).
 
+**As built (P3-T02):** `core/project/project.py` — `Project.create(dir, name, blend=None,
+slot="beginner_course", force=False)` makes `files/ overrides/ build/ .ctstudio/`, the default
+manifest and a `.gitignore` (`.ctstudio/`, `build/`; an existing one is left alone). It
+refuses a non-empty folder unless `force`, and always refuses a folder that already has a
+`ctstudio.toml`. A blend inside the project is stored relative with `/`, else absolute.
+`Project.open(dir)` loads the manifest and takes the lock; `save` is refused when read-only;
+`close()` (or `with`) releases the lock. `core/project/lock.py` — `.ctstudio/lock` is JSON
+`{pid, host, token, since}` created with `O_EXCL`. Stale = same host and the pid is gone
+(Windows `OpenProcess`/`GetExitCodeProcess`, POSIX `kill(pid, 0)`), or a damaged lock older
+than 30 s; a lock from another host is always respected. A takeover runs under a second
+`O_EXCL` file `lock.takeover` and re-checks before deleting, so two openers that see the same
+stale lock cannot both win. Release removes the file only while it holds our token.
+
 ## 6. Manifest sketch (`ctstudio.toml`)
 ```toml
 schema_version = 1

@@ -67,3 +67,32 @@ Fix that line in a text editor and open the project again.
   version. CT Studio says so instead of guessing.
 - **A file from an older CT Studio** is upgraded when it is opened. The file on disk is not
   changed until CT Studio next saves it.
+
+## The project folder
+
+A new project folder contains:
+
+- `ctstudio.toml` — this file.
+- `files/` — files you supply yourself, such as `course.kmp`.
+- `overrides/` — your changes to what CT Studio makes (materials, textures, scripts).
+- `build/` — the finished track files.
+- `.ctstudio/` — CT Studio's own working files. It is safe to delete; CT Studio makes it
+  again.
+- `.gitignore` — if you use git, it keeps `build/` and `.ctstudio/` out of it.
+
+CT Studio only creates a project in an empty or new folder. To add a project to a folder
+that already has your files in it, use `--force`; your files are left alone. CT Studio never
+replaces an existing `ctstudio.toml`.
+
+## Opening a project twice
+
+While CT Studio has a project open, it keeps a small file `.ctstudio/lock` saying so. If
+you open the same project in a second CT Studio, the second one opens it **read-only**: it
+cannot save and tells you which CT Studio has it open. Close the project in the first one
+and open it again.
+
+If CT Studio crashed, the next time you open the project it notices that the CT Studio that
+had it open is no longer running and opens it normally. A project on a shared or network
+folder that is open on another computer stays read-only until that computer closes it.
+If CT Studio insists a project is open somewhere and you are sure it is not, close every
+CT Studio and delete `.ctstudio/lock`.
