@@ -3,21 +3,25 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 2 — Tools: registry, discovery, process runner, doctor (P1 gate passed)
-**Next task:** P2-GATE — Phase review
+**Current phase:** 3 — Project model & component status (P2 gate passed)
+**Next task:** P3-T01 — Manifest model & TOML I/O
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** c4a596f (P2-T08f; Windows gate, Ubuntu/Windows CI and Integration)
+**Last green commit:** 02c858b (P2-GATE; Windows gate, Ubuntu/Windows CI and Integration)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P2-GATE` — Phase 2 review (2026-11-02). Fresh-context review in
-  `docs/reviews/PHASE_02_REVIEW.md` (brief: `PHASE_02_BRIEF.md`): 1 Must fix, 7 Should fix,
-  6 Consider. Plan: fix Must fix 1 (a set path the OS cannot run crashed `ctstudio doctor`
-  and left the Tools page's Clear off) test-first and commit it alone; then fix the Should
-  fixes in small commits, decide each Consider; Integration green on both OSes; tag
-  `phase-02-done`. Acceptance: every finding fixed or logged with a task ID; gate green.
-  Progress: Must fix 1 done (mutants 9/9).
 ## Done (newest first)
+- `P2-GATE` — Phase 2 review passed (2026-11-02). Fresh-context reviewer
+  (`docs/reviews/PHASE_02_REVIEW.md`, brief `PHASE_02_BRIEF.md`) re-ran the gate (1,191),
+  Windows integration (113/14 listed), doctor against `.tools/`, 7/7 scratch mutations and a
+  copyright spot-check (no disc-derived data). 1 Must fix (a set path the OS cannot run
+  crashed `ctstudio doctor` and stuck the Tools page's Clear) fixed in bb8ef79; all 7 Should
+  fixes fixed (43547f4, 02c858b): `.tools/` only in a source checkout, Integration on tool
+  changes, a 400-line gate step, "required/optional" in words, typed doctor fields, a
+  provenance list for all 31 retained inputs (2 rebuilt byte-for-byte on both OSes), docs.
+  Consider items fixed or logged as TD-005–TD-008. Mutants 9/9 and 11/11. `check.py --all`
+  1,215 passed; Integration on 02c858b: Linux 114 passed / 17 listed skips, Windows 111 / 20.
+  No human checkpoint at Phase 2 (HC1 follows Phase 5). Gate tag `phase-02-done`.
 - `P2-T08f` — rszst adapter test and non-ASCII paths on Linux (2026-11-01).
   `test_riistudio_adapter_native` uses `tool_paths.RSZST` and runs on Linux through Wine;
   new `test_linux_paths.py` (8 tests, `latin é` / `cjk 日本`): rszst.exe through Wine keeps
