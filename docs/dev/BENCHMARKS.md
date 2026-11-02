@@ -15,6 +15,17 @@
   assertion passed, one pass. This is another recently written, cache-sensitive sample,
   not a new cross-platform threshold.
 
+## P3-T04 — component status (Windows)
+
+- Command: `uv run pytest -m "slow and benchmark" -q -s tests/benchmarks/test_status_speed.py`
+- Environment: same workstation as P1-T05 (Windows 11, AMD64 Family 23 Model 96, Python 3.12.14).
+- Input: 5 synthetic projects x 4 made parts = 20 parts; 25 files of 1 MiB (outputs + `.blend`).
+  "Cold": every file touched since it was made and the hash cache cleared, so each file is
+  hashed once. "Warm": the next evaluation; size+mtime match the cache, nothing is hashed.
+- Result (6 runs): cold **68.5–72.3 ms**, warm **10.0–11.5 ms**; limits (phase file) 300 ms
+  and 30 ms, asserted by the test. Files had just been written (OS cache), so cold is not a
+  cold-disk number.
+
 ## Reproducing and comparing a baseline
 
 Run the command above from the repo root with `uv sync --locked` first. The test writes a fresh

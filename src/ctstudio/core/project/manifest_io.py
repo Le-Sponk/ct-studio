@@ -44,7 +44,7 @@ def load(path: Path) -> m.Manifest:
 
 def save(manifest: m.Manifest, path: Path) -> None:
     """Write ``manifest`` to ``path`` in one step (no half-written file on failure)."""
-    atomic_write_bytes(path, tomli_w.dumps(_plain(manifest)).encode("utf-8"))
+    atomic_write_bytes(path, tomli_w.dumps(as_data(manifest)).encode("utf-8"))
 
 
 def _read(path: Path) -> dict[str, object]:
@@ -231,8 +231,10 @@ def _posteffect(t: Table) -> m.Posteffect:
     )
 
 
-def _plain(obj: object) -> dict[str, object]:
-    """A dataclass as TOML data: ``None`` and empty override tables left out, ``extra`` last.
+def as_data(obj: object) -> dict[str, object]:
+    """A manifest dataclass as TOML data: ``None``/empty override tables left out, ``extra`` last.
+
+    Also the input of the status settings key (``components.status.settings_key``).
 
     tomli-w writes plain values before tables, so ``schema_version`` comes first in the file.
     """
@@ -243,11 +245,11 @@ def _plain(obj: object) -> dict[str, object]:
         if f.name == "extra":
             extra = cast("Mapping[str, object]", value)
         elif is_dataclass(value):
-            out[f.name] = _plain(value)
+            out[f.name] = as_data(value)
         elif isinstance(value, Mapping):
             entries = cast("Mapping[str, object]", value)
             if entries:
-                out[f.name] = {name: _plain(entry) for name, entry in entries.items()}
+                out[f.name] = {name: as_data(entry) for name, entry in entries.items()}
         elif value is not None:
             out[f.name] = value
     return {**out, **extra}

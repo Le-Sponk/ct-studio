@@ -10,6 +10,18 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P3-T04` — Status evaluation. Plan (2026-11-02): `core/components/state.py` reads/writes
+  `.ctstudio/state.json` (per generated part: a settings key + size/mtime/BLAKE2b of every
+  output under `.ctstudio/stage/` and every input it was made from; missing or damaged = empty,
+  damaged is logged). `core/components/status.py`: `evaluate(project, tools)` → per part a
+  `ComponentStatus(state, reasons)`. Manual mode: no file / not found → Missing, wrong type
+  (P3-T05 sniffing) → Error, else Manual. Generated modes: no record / output gone → Missing,
+  settings or input changed → Stale, output changed → EditedExternally, needs a rebuild but a
+  tool or the .blend is missing → Error, else Ready. Track info / objects: Ready or Warning.
+  Unchanged size+mtime skips hashing; a touched file is hashed once (cached). Registry gains
+  each part's expected file kind. Acceptance: table of every reachable status per part (all
+  7 statuses covered), hash-count tests for cold/warm, benchmark (≤ 300 ms cold, ≤ 30 ms
+  warm, ~20 parts' files) recorded in BENCHMARKS.md; mutants all caught; gate + CI.
 ## Done (newest first)
 - `P3-T05` — File-type sniffing (2026-11-02; taken before P3-T04, see Plan changes).
   `core/formats/magic.py`: `identify(path)` / `identify_bytes` read the first and last 64 KiB

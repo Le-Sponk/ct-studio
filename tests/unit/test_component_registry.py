@@ -13,6 +13,7 @@ import re
 import pytest
 
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS, ComponentSpec
+from ctstudio.core.formats.magic import FileKind
 from ctstudio.core.project import manifest as m
 from ctstudio.core.tools.registry import TOOL_BY_ID
 
@@ -205,3 +206,16 @@ def test_a_spec_must_offer_modes_once_each_with_tools_for_every_mode() -> None:
         dataclasses.replace(spec, tools={})
     with pytest.raises(ValueError, match="kmp: tools must list exactly the modes"):
         dataclasses.replace(spec, tools={"manual": (), "auto": ("wszst",)})  # a mode it lacks
+
+
+def test_the_file_type_a_supplied_part_must_be() -> None:
+    assert {c.id: c.kind for c in COMPONENTS} == {
+        "course_model": FileKind.BRRES,
+        "kcl": FileKind.KCL,
+        "minimap": FileKind.BRRES,
+        "skybox": FileKind.BRRES,
+        "kmp": FileKind.KMP,
+        "posteffect": None,  # a folder; its files are checked one by one
+        "objects": None,
+        "track_info": None,
+    }

@@ -16,6 +16,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 
+from ctstudio.core.formats.magic import FileKind
 from ctstudio.core.project import manifest as m
 
 _WIKI = "https://mkwiiki.org/wiki/"
@@ -33,6 +34,7 @@ class ComponentSpec:
     required: bool
     tools: Mapping[str, tuple[str, ...]]
     manifest_table: str | None  # [components.<id>], "project", or None (no settings)
+    kind: FileKind | None = None  # what a supplied file must be; None: a folder or no file
 
     def __post_init__(self) -> None:
         if not self.modes or len(set(self.modes)) != len(self.modes):
@@ -60,6 +62,7 @@ def _spec(
     modes: tuple[str, ...],
     required: bool = True,
     table: str | None = "component",
+    kind: FileKind | None = None,
 ) -> ComponentSpec:
     return ComponentSpec(
         id=component_id,
@@ -71,6 +74,7 @@ def _spec(
         required=required,
         tools=MappingProxyType(tools),
         manifest_table=component_id if table == "component" else table,
+        kind=kind,
     )
 
 
@@ -83,6 +87,7 @@ COMPONENTS: tuple[ComponentSpec, ...] = (
         ("course_model.brres",),
         {"auto": _BRRES_TOOLS, "manual": ()},
         modes=m.GENERATED_MODES,
+        kind=FileKind.BRRES,
     ),
     _spec(
         "kcl",
@@ -92,6 +97,7 @@ COMPONENTS: tuple[ComponentSpec, ...] = (
         ("course.kcl",),
         {"auto": ("blender", "wkclt"), "manual": ()},
         modes=m.GENERATED_MODES,
+        kind=FileKind.KCL,
     ),
     _spec(
         "minimap",
@@ -101,6 +107,7 @@ COMPONENTS: tuple[ComponentSpec, ...] = (
         ("map_model.brres",),
         {"auto": ("wkclt", "abmatt", "wszst"), "manual": ()},
         modes=m.GENERATED_MODES,
+        kind=FileKind.BRRES,
     ),
     _spec(
         "skybox",
@@ -110,6 +117,7 @@ COMPONENTS: tuple[ComponentSpec, ...] = (
         ("vrcorn_model.brres",),
         {"auto": _BRRES_TOOLS, "template": ("wszst",), "manual": ()},
         modes=m.SKYBOX_MODES,
+        kind=FileKind.BRRES,
     ),
     _spec(
         "kmp",
@@ -119,6 +127,7 @@ COMPONENTS: tuple[ComponentSpec, ...] = (
         ("course.kmp",),
         {"manual": ()},
         modes=m.KMP_MODES,
+        kind=FileKind.KMP,
     ),
     _spec(
         "posteffect",

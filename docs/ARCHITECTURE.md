@@ -86,6 +86,20 @@ docs/
   cut-off files are not recognised. Raises `ProjectError` for an unreadable path.
 - **ComponentStatus** — `Missing | Stale | Ready | Warning | Error | Manual | EditedExternally`
   plus reasons. Computed from manifest + filesystem fingerprints + `.ctstudio/state.json`.
+  *As built (P3-T04):* `core/components/status.py` — `evaluate(project, tools, state=None)`
+  returns every part's `ComponentStatus(state, reasons)` in dashboard order. Made parts:
+  no record or an output gone → Missing; an output changed, or a file added to an output
+  folder → EditedExternally (reported before Stale; never treated as needing a rebuild);
+  settings (`settings_key`: the part's table without `file`, plus `.blend` + Blender
+  collections when Blender makes it) or an input changed/gone → Stale; Missing/Stale that
+  cannot be made now (tool not found, no `.blend`) → Error with every blocker listed. Manual:
+  none chosen/not found → Missing, wrong type (`formats.magic`, the registry's `kind`) or an
+  empty/non-folder post-effects folder → Error, else Manual. Objects: Warning when auto-add is
+  off or Wiimm is missing. Track info: Warning with no author. `core/components/state.py` —
+  `state.json` `{format: 1, components: {id: {settings, outputs, inputs}}}`, each file
+  `{size, mtime_ns, digest}`; outputs keyed inside `.ctstudio/stage/`, inputs
+  project-relative or absolute. Missing/damaged → empty (logged). Unchanged size+mtime → no
+  hash; a touched file is hashed once (Fingerprint cache). 20 parts: ~70 ms cold, ~11 ms warm.
 - **Node** — a build step with declared inputs (files, params, tool versions), outputs, and an
   `impl_version`. Pure w.r.t. declared inputs so it can be cached.
 - **BuildGraph / Runner** — topologically ordered nodes, bounded parallel execution, cancellation,
