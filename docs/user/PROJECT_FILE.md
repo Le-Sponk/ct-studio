@@ -4,6 +4,10 @@ Every CT Studio project is a folder with a file called `ctstudio.toml` in it. CT
 reads it when you open the project and writes it when you change a project setting.
 It is plain text, so you can also open it in a text editor.
 
+To make one from the command line: `ctstudio new FOLDER --slot "Moo Moo Meadows"`; to see
+what each part still needs: `ctstudio status FOLDER` (both are described in
+[the command-line notes](../dev/CLI.md)).
+
 ## Comments are not kept
 
 If you add comments (lines or line endings starting with `#`) and CT Studio later saves the

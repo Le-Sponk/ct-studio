@@ -58,6 +58,17 @@ def install(directory: Path, python: Path | None = None) -> dict[str, Path]:
     return {tool: _write_script(directory / tool, interpreter, entry_point(tool)) for tool in TOOLS}
 
 
+def install_program(path: Path, code: str, python: Path | None = None) -> Path:
+    """One real executable that runs ``code`` (``path`` gets ``.exe`` on Windows)."""
+    interpreter = Path(python or sys.executable)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if os.name == "nt":
+        return _write_exe(
+            path.with_name(path.name + ".exe"), _windows_launcher(), interpreter, code
+        )
+    return _write_script(path, interpreter, code)
+
+
 def _windows_launcher() -> bytes:
     bundled = Path(ensurepip.__file__).parent / "_bundled"
     wheel = next(iter(sorted(bundled.glob("pip-*.whl"))), None)

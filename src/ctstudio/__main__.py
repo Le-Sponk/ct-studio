@@ -1,7 +1,8 @@
 """`ctstudio` entry point.
 
 No arguments launch the GUI; `--offscreen-smoke` captures a headless PNG; `doctor` checks
-the external tools (P2-T06); `setup rszst` fetches or builds RiiStudio's CLI (P2-T06b).
+the external tools (P2-T06); `setup rszst` fetches or builds RiiStudio's CLI (P2-T06b);
+`new`, `status` and `open` make, check and edit projects (P3-T07).
 Only the stdlib and package metadata are imported until a path is selected, and CLI
 subcommands never import Qt.
 """
@@ -29,11 +30,11 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="PNG",
         help="render the dashboard to a PNG without opening a display, then exit",
     )
-    from ctstudio.cli import doctor, setup
+    from ctstudio.cli import COMMANDS
 
     subcommands = parser.add_subparsers(dest="command", metavar="COMMAND")
-    doctor.add_parser(subcommands)
-    setup.add_parser(subcommands)
+    for command in COMMANDS.values():
+        command.add_parser(subcommands)
     return parser
 
 
@@ -41,7 +42,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Parse ``argv`` (default: ``sys.argv[1:]``) and return the process exit code."""
     parser = _build_parser()
     args = parser.parse_args(argv)
-    if args.command in ("doctor", "setup"):
+    if args.command is not None:
         return _cli(args)
     if args.offscreen_smoke is not None:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -58,13 +59,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _cli(args: argparse.Namespace) -> int:
-    from ctstudio.cli import doctor, setup
+    from ctstudio.cli import COMMANDS
     from ctstudio.core.errors import CTStudioError
     from ctstudio.core.logging import configure_logging
 
     try:
         configure_logging()
-        return (doctor if args.command == "doctor" else setup).run(args)
+        return COMMANDS[args.command].run(args)
     except CTStudioError as exc:
         print(exc, file=sys.stderr)
         return 1

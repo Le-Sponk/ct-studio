@@ -11,6 +11,8 @@ User-authored files must be backed up before any automated replacement.
 Nintendo game files are never included; users provide their own assets when a feature needs them.
 The current build has a Qt dashboard shell and About dialog, not yet a track builder.
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
+On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
+still needs and open a file in its editor ([docs/dev/CLI.md](docs/dev/CLI.md)).
 Core utilities, architecture contracts and tests exist, but `.szs` export is not yet implemented.
 Follow [STATUS.md](STATUS.md) for progress and [the project brief](docs/PROJECT_BRIEF.md) for the plan.
 

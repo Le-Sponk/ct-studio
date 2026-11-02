@@ -59,6 +59,18 @@ class State(StrEnum):
     EDITED_EXTERNALLY = "edited_externally"
 
 
+# Plain words shared by ``ctstudio status`` and the dashboard.
+STATE_LABELS: Mapping[State, str] = {
+    State.MISSING: "missing",
+    State.STALE: "out of date",
+    State.READY: "ready",
+    State.WARNING: "warning",
+    State.ERROR: "problem",
+    State.MANUAL: "your own file",
+    State.EDITED_EXTERNALLY: "edited outside CT Studio",
+}
+
+
 @dataclass(frozen=True)
 class ComponentStatus:
     state: State

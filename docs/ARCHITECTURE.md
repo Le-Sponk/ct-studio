@@ -58,7 +58,7 @@ src/ctstudio/
     formats/     magic.py kcl.py kmp.py            # read-only parsers
     textures/    analyze.py recommend.py
     validation/  issues.py wszst_check.py kmp_rules.py
-  cli/           main.py  commands/*.py
+  cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
   blender_bridge/ run_job.py  exporters.py  preview_mesh.py
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
@@ -356,6 +356,12 @@ P2-T06: `core/tools/doctor.py` builds the tool report (no subprocess of its own;
 `versions.py`), `cli/doctor.py` renders it as a table or JSON, and `__main__` dispatches the
 `doctor` subcommand without importing Qt. Exit 1 only when a required tool (`wszst`) is not
 ready; optional tools only add fix hints.
+P3-T07: `cli/__init__.py` `COMMANDS` maps each subcommand to its module (`add_parser`, `run`);
+`__main__` dispatches every subcommand through it without importing Qt. `cli/new.py` wraps
+`Project.create`; `cli/status.py` loads the manifest without the lock and renders
+`components.status.evaluate` (table or JSON, schema in `docs/dev/CLI.md`); `cli/open_file.py`
+picks an editor by file type and calls `editors.open_in`. `core/tools/availability.py` gives
+the ids of the tools that are there to use (discovery only, nothing started).
 
 P1-T04 foundation: `core/logging.py` configures the package logger once at startup via
 `configure_logging()` (`platformdirs.user_log_dir("ctstudio")/ctstudio.log`, UTF-8 JSON lines,
