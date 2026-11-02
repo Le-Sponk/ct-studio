@@ -426,4 +426,5 @@ Passed 2026-11-02 with a fresh-context review (`docs/reviews/PHASE_02_REVIEW.md`
 and 7 Should fixes fixed (bb8ef79, 43547f4, 02c858b), Consider items fixed or logged as
 TD-005–TD-008. Exit criteria re-checked: `ctstudio doctor` shows a correct table with the real
 tools (Windows, run by the reviewer; Linux via `test_doctor_real` in Integration, now including
-the Wine rszst), and Integration runs on both OSes (02c858b green). Tag `phase-02-done`.
+the Wine rszst), and Integration runs on both OSes (02c858b green). An independent check of
+the Must fix passed; its one Should fix is in 54b5937 (green). Tag `phase-02-done`.

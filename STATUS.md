@@ -6,7 +6,7 @@
 **Current phase:** 3 — Project model & component status (P2 gate passed)
 **Next task:** P3-T01 — Manifest model & TOML I/O
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 02c858b (P2-GATE; Windows gate, Ubuntu/Windows CI and Integration)
+**Last green commit:** 54b5937 (P2-GATE verified; Windows gate, Ubuntu/Windows CI and Integration)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
@@ -1034,6 +1034,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   doctor; add one that runs the real `diagnose` limited to Blender with a scratch cache.
   (c) doctor's `not_working` fix for a *set* path could say "choose another file or Clear".
 
+- **TD-010 · P5-T01 · `test_launch_watch` still flaky on Windows under full-suite load.**
+  On 2026-11-02 (`check.py --fast`, docs-only change on 54b5937) the detached child of
+  `test_a_launch_still_running_after_the_watch_returns_its_pid` never wrote `opened.txt`
+  within 4 s + 12 s; the file passed 5/5 alone right after. Not the clock bound fixed in
+  P2-T08d: find whether the child is slow to start or ended early (log its pid/exit), then
+  make the test wait on a signal, not a sleep.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_
