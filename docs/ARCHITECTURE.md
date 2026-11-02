@@ -251,6 +251,16 @@ template/manual ─────────────────────�
 - **Cache key** = blake2b over: canonical JSON of node params, input fingerprints (content hash;
   fast path skips hashing when `(size, mtime_ns)` matches the cached record), tool versions,
   `impl_version`. Unchanged key + outputs present with recorded hashes ⇒ skip.
+  `build/cache.py` (P4-T02): `BuildCache.load(root)` reads `.ctstudio/cache.json`
+  `{format: 1, nodes: {id: {key, inputs, outputs}}}` (files `{size, mtime_ns, digest}`, keyed
+  like state.json: project-relative with `/`, or absolute); missing/damaged → empty (logged).
+  `check(node, tool_versions)` → `Lookup(node_id, key, fresh, inputs)`; the key takes only
+  the node's own tools (a version must be given, `None` when unknown), a folder input as
+  `{name: digest}` of every file in it and a missing input as null. Fresh = same key and
+  exactly the recorded output files (folders expanded), each unchanged; a hit records the new
+  mtimes of touched files, so they are hashed once. `store(node, lookup)` after a run (a
+  declared output not written → `BuildError`, and the step is forgotten), `invalidate(id)`,
+  `clear()` (for `--force`), `save()` (atomic, only when changed). Thread-safe for the runner.
 - **Outputs** are written to a temp path then atomically replaced.
 - **One Blender launch** exports everything the build needs (Blender start-up costs seconds).
 - **Parallelism**: default `min(4, os.cpu_count())`; nodes that call Blender or write the same

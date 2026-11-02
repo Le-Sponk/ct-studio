@@ -21,6 +21,9 @@ versions + impl_version). Stored in `.ctstudio/cache.json` (atomic write). Hit r
 outputs whose hashes match the recorded ones. `invalidate(node_id)`, `--force`.
 **Acceptance:** tests: param change → miss; touch without content change → hit (fast path re-hash
 once); tool version change → miss; output deleted → miss.
+**Note (P4-T02):** output paths are not in the key; a different set of output files is a
+miss through the recorded outputs instead. `--force` is `clear()` / `invalidate()`, wired to
+the CLI in P4-T07.
 
 ### [ ] P4-T03 — Runner & events
 `core/build/runner.py`: executes ready nodes with bounded parallelism respecting `resources`

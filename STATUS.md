@@ -10,6 +10,22 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T02` — Cache. Plan (2026-11-03):
+  - `core/build/cache.py` `BuildCache.load(root)` reads `.ctstudio/cache.json`
+    `{format: 1, nodes: {id: {key, inputs, outputs}}}` (files as `{size, mtime_ns, digest}`,
+    keyed project-relative like state.json); missing/damaged → empty (logged).
+  - `check(node, tool_versions) -> Lookup(key, fresh, inputs)`: key = blake2b of canonical JSON
+    (format, params, impl_version, versions of the node's own tools, output paths, every input
+    file's digest; a folder lists its files, a missing input is null). Size+mtime unchanged →
+    recorded digest, no hashing; a touched file is hashed once and its record refreshed, so the
+    next check does not hash. Fresh = same key and every output file (folders expanded) still
+    has its recorded hash.
+  - `store(node, lookup)` after a run records outputs (a declared output not written →
+    `BuildError`); `invalidate(id)`, `clear()` (for P4-T07 `--force`); `save()` atomic, only
+    when changed; a lock so P4-T03's parallel steps can share it.
+  - Acceptance tests: param change → miss; touch, same content → hit, hashed once; tool version
+    change → miss; output deleted → miss; plus impl_version, input edit/added/missing, moved
+    project still hits, damaged file. Mutants; ARCHITECTURE §7.
 ## Done (newest first)
 - 2026-11-03 `P4-T01` Node & graph (`core/build/node.py`, `core/build/graph.py`). A `Node`
   is checked on creation (id form, absolute paths, at least one output, plain-JSON params

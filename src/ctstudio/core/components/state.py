@@ -131,26 +131,28 @@ def save_state(root: Path, state: ProjectState) -> None:
 
 
 def _parse(data: object) -> ProjectState:
-    top = _object(data)
+    top = parse_object(data)
     if top["format"] != FORMAT:
         raise ValueError(f"format {top['format']!r}, expected {FORMAT}")
-    parts = _object(top["components"])
+    parts = parse_object(top["components"])
     return ProjectState({name: _component(entry) for name, entry in parts.items()})
 
 
 def _component(data: object) -> ComponentRecord:
-    entry = _object(data)
+    entry = parse_object(data)
     settings = entry["settings"]
     if not isinstance(settings, str):
         raise TypeError("settings is not text")
     files = {
-        k: {name: _file(v) for name, v in _object(entry[k]).items()} for k in ("outputs", "inputs")
+        k: {name: parse_file(v) for name, v in parse_object(entry[k]).items()}
+        for k in ("outputs", "inputs")
     }
     return ComponentRecord(settings, files["outputs"], files["inputs"])
 
 
-def _file(data: object) -> FileRecord:
-    entry = _object(data)
+def parse_file(data: object) -> FileRecord:
+    """A ``{size, mtime_ns, digest}`` record; ``TypeError``/``KeyError`` when malformed."""
+    entry = parse_object(data)
     size, mtime_ns, digest = entry["size"], entry["mtime_ns"], entry["digest"]
     numbers = all(type(n) is int for n in (size, mtime_ns))
     if not numbers or not isinstance(digest, str):
@@ -158,7 +160,7 @@ def _file(data: object) -> FileRecord:
     return FileRecord(cast("int", size), cast("int", mtime_ns), digest)
 
 
-def _object(data: object) -> dict[str, object]:
+def parse_object(data: object) -> dict[str, object]:
     if not isinstance(data, dict):
         raise TypeError(f"expected an object, found {type(data).__name__}")
     return cast("dict[str, object]", data)
