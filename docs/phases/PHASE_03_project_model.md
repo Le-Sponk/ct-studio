@@ -43,6 +43,7 @@ file exists & has the right magic bytes.
 components' worth of files ≤ 300 ms cold, ≤ 30 ms warm.
 
 ### [ ] P3-T05 — File-type sniffing
+*Order:* done before P3-T04, whose `Manual` status uses it (STATUS Plan changes, 2026-11-02).
 `core/formats/magic.py`: identify Yaz0, U8, BRRES, KMP, KCL (heuristic: header offsets sanity), PNG,
 DAE (XML root), OBJ (text heuristic), .blend (`BLENDER` header). Used by manual-file assignment and
 status.

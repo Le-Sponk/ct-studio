@@ -10,6 +10,16 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P3-T05` — File-type sniffing (taken before P3-T04, see Plan changes). Plan (2026-11-02):
+  `core/formats/magic.py`: `identify(path) -> FileKind | None` from the first 64 KiB (+ last
+  4 bytes). Kinds: yaz0 (SZS), u8, brres, kmp, kcl (header-offset/mask/shift sanity), png,
+  dae (XML root `COLLADA`), obj (text statements), blend (`BLENDER`, gzip, or Blender 3+'s
+  seekable zstd: frame magic `28 B5 2F FD` + footer `B1 EA 92 8F`; no zstd module on
+  3.12/3.13), and the four post-effect files with a magic (PBLM/PDOF/LGHT/LMAP; `.bfg` has
+  none). Size fields must equal the file size, so cut-off files are not recognised.
+  Acceptance: synthetic-header tests incl. near misses; committed real-tool fixtures (Wiimm
+  KCL/KMP, Blender DAE/.blend, ABMatt BRRES, OBJ, PNG); integration: wszst-built SZS/U8;
+  realdata (local only): files of the user's own tracks. Mutants all caught; gate + CI.
 ## Done (newest first)
 - `P3-T03` — Component registry (2026-11-02). `core/components/registry.py`: 8 parts
   (course model, collision, minimap, skybox, course data, post-effects, objects, track info)
@@ -572,6 +582,8 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-02: P3-T05 (file-type sniffing) done before P3-T04 (status evaluation): P3-T04's
+  `Manual` status needs "the file has the right magic bytes", which is what P3-T05 builds.
 - 2026-11-01: P2-T08e split. P2-T08e = rszst/ABMatt Linux operation recordings and their
   comparison with Windows. P2-T08f = the rszst adapter test on Linux (through Wine) and the
   Linux non-ASCII path measurement written into TOOLS.md.

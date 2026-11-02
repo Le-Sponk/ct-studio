@@ -80,6 +80,10 @@ docs/
   objects), tool ids per mode, and its `ctstudio.toml` table (`objects`: none, `track_info`:
   `[project]`). The skybox has a `template` mode (copy an original track's) with
   `template_track`, as PROJECT_BRIEF §5 and P8-T05 describe.
+- **FileKind** (P3-T05) — `core/formats/magic.py`: `identify(path)` recognises SZS (Yaz0), U8,
+  BRRES, KMP, KCL, the four post-effect files with a magic, PNG, DAE, OBJ and .blend (plain, gzip
+  or Zstandard) from contents only; byte layouts in MKW_DOMAIN §11. Size fields must match, so
+  cut-off files are not recognised. Raises `ProjectError` for an unreadable path.
 - **ComponentStatus** — `Missing | Stale | Ready | Warning | Error | Manual | EditedExternally`
   plus reasons. Computed from manifest + filesystem fingerprints + `.ctstudio/state.json`.
 - **Node** — a build step with declared inputs (files, params, tool versions), outputs, and an

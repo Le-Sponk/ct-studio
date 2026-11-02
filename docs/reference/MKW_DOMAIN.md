@@ -130,6 +130,30 @@ z-fighting (coplanar faces) · checkpoint errors (position jumps, lap count) · 
 (camera areas) · KCL glitches from thin/degenerate triangles (wkclt drops tiny/slim triangles by
 default thresholds). Link each hint to its mkwiiki page.
 
+## 11. Recognising files by their contents (P3-T05, checked 2026-11-02)
+`core/formats/magic.py` reads at most the first and last 64 KiB. Checked against files made by
+Wiimm's tools, ABMatt and Blender 5.2 (committed, synthetic) and, locally only, every file of
+the user's own 99 original track and arena files (`tests/realdata/test_magic_original_tracks.py`).
+All numbers are big-endian unless stated.
+- **SZS:** `Yaz0`, then the unpacked size (non-zero). **U8:** `55 AA 38 2D`, root node at 0x20,
+  data offset inside the file.
+- **BRRES:** `bres`, byte-order mark `FE FF`, total size at 0x08 (= file size), header length
+  0x10 at 0x0C, then the `root` section.
+- **KMP:** `RKMD`, size at 0x04 (= file size), section count (1–32) at 0x08, header length at
+  0x0A = 0x10 + 4 × count, first section `KTPT`. One original file (`old_mario_gc_narita`) has a
+  shorter 0x0C header without the version field; both are accepted.
+- **KCL** (no magic): four section offsets in order (points < normals < triangles < octree < file
+  size, first ≥ 0x38), normals − points a multiple of 12 bytes, three grid masks shaped
+  `1…10…0`, three shifts < 32. Wiimm-made files start at 0x3C or 0x44.
+- **Post-effects:** `PBLM` (.bblm), `PDOF` (.bdof), `LGHT` (.blight), `LMAP` (.blmap), each with the
+  file size at 0x04. `.bfg` (fog) has no magic and is not recognised.
+- **PNG:** the 8-byte PNG signature and an `IHDR` first chunk. **DAE:** XML whose root element is
+  `COLLADA`. **OBJ:** text whose every statement is an OBJ keyword, with at least one `v`.
+- **.blend:** `BLENDER` (plain), gzip holding `BLENDER` (Blender 2.x), or Zstandard (Blender 3+
+  "compress", the default for our fixtures): recognised by the seek table at the end, a
+  skippable frame `5E 2A 4D 18` ending in `B1 EA 92 8F`. Python 3.12/3.13 cannot unpack
+  Zstandard, so the file is not decompressed.
+
 ## 10. Legal/ethical
 Original game files are copyrighted. The app works with the user's own extracted files, stores them
 only locally (user data dir or the user's chosen folder), never commits or uploads them, and asks
