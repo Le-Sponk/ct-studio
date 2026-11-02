@@ -4,13 +4,16 @@
 **Exit:** `ctstudio new` + `ctstudio status [--json]` work on fixture projects; status of a
 typical project evaluates in < 300 ms (benchmark).
 
-### [ ] P3-T01 — Manifest model & TOML I/O
+### [x] P3-T01 — Manifest model & TOML I/O
 Dataclasses mirroring ARCHITECTURE §6 (frozen; `replace()` to edit). `load(path) -> Manifest` with
 validation errors that name the key path and expected values; `save(manifest, path)` atomic.
 Unknown keys preserved round-trip (keep the raw table and merge on save) with a logged warning.
 `schema_version` + `migrations.py` (list of `(from_version, fn)`), even if only v1 exists.
 **Acceptance:** round-trip tests (including unknown keys and comments loss documented — tomli-w does
 not keep comments; say so in user docs), invalid-value tests, migration framework test with a dummy v0.
+**Done (89cd626):** `core/project/{manifest,manifest_io,toml_table,migrations,slots}.py`;
+`docs/user/PROJECT_FILE.md`. Deviations from §6, recorded in ARCHITECTURE: optional `file` on
+every component; KMP mode `manual` only; post-effect mode `template | manual`.
 
 ### [ ] P3-T02 — Project layout, create/open, lock
 `Project.create(dir, name, blend=None, slot="beginner_course")` creates folders from ARCHITECTURE §5,

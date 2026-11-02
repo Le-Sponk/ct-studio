@@ -4,23 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 3 — Project model & component status (P2 gate passed)
-**Next task:** P3-T01 — Manifest model & TOML I/O
+**Next task:** P3-T02 — Project layout, create/open, lock
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** 54b5937 (P2-GATE verified; Windows gate, Ubuntu/Windows CI and Integration)
+**Last green commit:** 89cd626 (P3-T01; Windows gate, Ubuntu/Windows CI)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P3-T01` — Manifest model & TOML I/O. Plan (2026-11-02):
-  frozen dataclasses for ARCHITECTURE §6 (`core/project/manifest.py`); `load(path)` /
-  `save(manifest, path)` (`manifest_io.py`, atomic write via `fsutil`); a key reader that
-  names the full key path and the allowed values in every `ManifestError`; keys CT Studio
-  does not know are kept per table (`extra`) and written back, with one logged warning per
-  key; `schema_version` + `migrations.py` (`(from_version, fn)` list, only v1 today; a dummy
-  v0 in tests; newer file → clear error). Slots = the 42 internal track/arena names from
-  `wszst tracks`. User doc `docs/user/PROJECT_FILE.md` says comments are not kept on save.
-  Acceptance: round-trip (incl. unknown keys), invalid-value, migration (dummy v0) tests;
-  mutants all caught; gate + CI green.
 ## Done (newest first)
+- `P3-T01` — Manifest model & TOML I/O (2026-11-02). `core/project/manifest.py` (frozen
+  dataclasses for ARCHITECTURE §6), `manifest_io.py` (`load` never writes; `save` atomic via
+  tomli-w), `toml_table.py` (every `ManifestError` names the key path, what is allowed and
+  what was found), `migrations.py` (`(from_version, fn)` steps; v1 only, dummy v0 tested;
+  newer files refused with a clear message), `slots.py` (42 `wszst tracks` names). Unknown
+  keys kept per table and logged once each. User doc `docs/user/PROJECT_FILE.md` (comments
+  are lost on save). 58 new tests; mutants 23/23. `check.py --all` 1,278 passed; CI green —
+  commit 89cd626.
 - `P2-GATE` — Phase 2 review passed (2026-11-02). Fresh-context reviewer
   (`docs/reviews/PHASE_02_REVIEW.md`, brief `PHASE_02_BRIEF.md`) re-ran the gate (1,191),
   Windows integration (113/14 listed), doctor against `.tools/`, 7/7 scratch mutations and a
