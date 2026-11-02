@@ -233,6 +233,21 @@ template/manual ─────────────────────�
                                                                       │
                                                               [validate: wszst check + own rules]
 ```
+- **Nodes and edges** (P4-T01): `build/node.py` `Node` declares `inputs` (absolute paths; a
+  folder means every file in it), `outputs` (at least one, inside the project), `params`
+  (plain JSON, copied and read-only), `tools` (registry ids), `resources` and `impl_version`
+  (>= 1); two nodes are equal when all but `run` is. A badly made node raises `ValueError`
+  naming it. `build/graph.py` `BuildGraph` draws no edges by hand: a step waits for every
+  step whose output equals, contains or sits inside one of its inputs (paths compared after
+  `resolve()`). The same step given twice is kept once (one Blender export shared by several
+  parts); two different steps with one id, or two steps writing overlapping paths, are
+  refused. The order puts each step after those it waits for and otherwise keeps the given
+  order, so a project always builds the same way. Steps that wait for each other raise
+  `BuildGraphError` naming one loop (`stage:kmp → assemble → stage:kmp`); `subgraph(ids)` is
+  "rebuild just this" (the ids plus everything they need, did-you-mean for a typo).
+  `from_manifest(root, manifest, make_part, finish)` asks `make_part(spec, mode)` for the
+  steps of every part with outputs, in dashboard order; `None` means CT Studio cannot make
+  that mode yet and becomes a plain error naming the other modes.
 - **Cache key** = blake2b over: canonical JSON of node params, input fingerprints (content hash;
   fast path skips hashing when `(size, mtime_ns)` matches the cached record), tool versions,
   `impl_version`. Unchanged key + outputs present with recorded hashes ⇒ skip.

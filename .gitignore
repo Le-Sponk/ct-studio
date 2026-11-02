@@ -2,6 +2,7 @@
 .tools/
 .ctstudio/
 build/
+!src/ctstudio/core/build/
 dist/
 local_fixtures/
 tests/fixtures/generated/

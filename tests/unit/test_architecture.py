@@ -178,3 +178,27 @@ def test_filesystem_scan_rejects_forbidden_bridge_and_spike_imports(tmp_path: Pa
 def test_repository_imports_obey_the_bridge_and_spike_boundaries() -> None:
     violations = repository_import_violations(ROOT)
     assert not violations, "Forbidden imports:\n" + "\n".join(violations)
+
+
+GIT = shutil.which("git")
+
+
+@pytest.mark.skipif(GIT is None, reason="needs git")
+def test_no_package_file_is_hidden_by_gitignore() -> None:
+    """Regression (P4-T01): the root ``build/`` rule also hid ``src/ctstudio/core/build/``."""
+    files = sorted(
+        path.relative_to(ROOT).as_posix()
+        for path in PACKAGE.rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts
+    )
+    assert "src/ctstudio/core/build/graph.py" in files
+    assert GIT is not None
+    result = subprocess.run(  # noqa: S603 - git found on PATH, argv list, repo file names
+        [GIT, "-C", str(ROOT), "check-ignore", "--no-index", "--stdin"],
+        input="\n".join(files),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode in (0, 1), result.stderr
+    assert result.stdout.split() == []

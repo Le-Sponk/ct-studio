@@ -11,6 +11,9 @@ params: Mapping, tools: tuple[str, ...], resources: frozenset[str], impl_version
 run: Callable[[BuildContext], NodeResult])`. `graph.py`: build from manifest + component registry,
 topological order, cycle detection with readable error, `subgraph(targets)` for "rebuild just this".
 **Acceptance:** unit tests for ordering, cycles, subgraph selection.
+**Deviation (P4-T01):** an input is a plain path (a folder means every file in it), not an
+`Input` class; edges come from matching outputs to inputs, and `from_manifest` takes a
+`make_part(spec, mode)` factory so each later task adds its own steps.
 
 ### [ ] P4-T02 — Cache
 `core/build/cache.py`: key = blake2b(canonical JSON params + sorted input fingerprints + tool

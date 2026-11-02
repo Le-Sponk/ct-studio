@@ -119,6 +119,10 @@ class BuildError(CTStudioError):
         super().__init__(message + ".", hint="Review the build log, correct the issue and retry.")
 
 
+class BuildGraphError(CTStudioError):
+    """The build steps cannot be put in an order, or a requested step does not exist."""
+
+
 class Cancelled(CTStudioError):
     """An operation stopped at the user's request."""
 

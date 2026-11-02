@@ -10,6 +10,20 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T01` — Node & graph. Plan (2026-11-03):
+  - `core/build/node.py`: frozen `Node(id, inputs, outputs, params, tools, resources,
+    impl_version, run)`, checked on creation (id form, outputs inside the project, known tool
+    ids, JSON params frozen, impl_version >= 1); `BuildContext`, `NodeResult(issues)`.
+    Deviation: an input is a plain path (a folder means every file in it), no `Input` class.
+  - `core/build/graph.py`: `BuildGraph(nodes)` links steps through files (an input equal to,
+    inside, or containing another step's output waits for it), refuses duplicate ids and
+    clashing outputs, orders steps (dependencies first, otherwise as given), reports a cycle
+    as `a → b → a`; `needs(id)`; `subgraph(targets)` = targets + everything they need, with
+    did-you-mean for unknown ids. `from_manifest(manifest, root, parts, finish)` asks the
+    factory for each made part's mode (dashboard order) and says plainly when a part cannot
+    be made that way yet.
+  - Acceptance: unit tests for ordering, cycles, subgraph selection (+ the checks above);
+    mutants; docs (ARCHITECTURE §7).
 
 ## Done (newest first)
 - `P3-GATE` — Phase 3 review passed (2026-11-03). Fresh-context reviewer
