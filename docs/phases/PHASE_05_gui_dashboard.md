@@ -16,7 +16,7 @@ stack). Rule: views never call blocking core functions directly.
 `time.sleep(0.2)` on the UI thread.
 Split (2026-11-04, size check: about 650 changed lines with tests):
 
-#### [ ] P5-T01a — Services container and build controller
+#### [x] P5-T01a — Services container and build controller (commit 6a655dd)
 `gui/services.py` gains `AppServices` (current Project, tools, build controller) and
 `gui/build_controller.py` a `BuildController` QObject: it plans and runs a build on one dedicated,
 named worker thread (finding tools and probing versions happens there too), re-emits every core

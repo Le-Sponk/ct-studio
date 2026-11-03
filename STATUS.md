@@ -4,23 +4,20 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T01a — Services container and build controller
+**Next task:** P5-T01b — Status service and UI stall watchdog
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `2f7824b` (P4-GATE fixes; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `6a655dd` (P5-T01a; Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T01a` — Services container and build controller (split from P5-T01, see Plan changes).
-  Plan: (1) RED pytest-qt tests with a fake planner/runner; (2) `gui/build_controller.py`
-  `BuildController`: plan + run on one named worker thread, signals `event`/`finished`/
-  `failed`, `cancel`, `shutdown`; (3) `AppServices` in `gui/services.py` (current project,
-  open/close, tools, build); (4) gate, mutants, ARCHITECTURE §10. Acceptance: events in order
-  on the UI thread; planning and building off it; cancel reaches the runner; start-up and
-  unexpected errors arrive as `failed`; second build and read-only project refused; no
-  thread left after shutdown. Files: `gui/build_controller.py`, `gui/services.py`,
-  `tests/gui/test_build_controller.py`, docs. Risk: signals from a Python thread must be
-  queued to the UI thread; a controller deleted while a build runs.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T01a` The app's build controller and services (`gui/build_controller.py`,
+  `AppServices` in `gui/services.py`). A build is planned and run on one named background
+  thread (settings, finding tools and version checks included), and every build event comes
+  back to the window in order. A second build at once and a read-only project are refused; a
+  build that cannot start or crashes is reported; Cancel reaches the build; closing stops it
+  and leaves no thread behind. The current project stays locked while open, and is not
+  switched or closed during a build. 2,054 tests; mutants 31/31. Commit `6a655dd`.
 - `P4-GATE` — Phase 4 review passed (2026-11-04). Fresh-context reviewer
   (`docs/reviews/PHASE_04_REVIEW.md`, brief `PHASE_04_BRIEF.md`) re-ran the gate (2,011),
   the real-tool build tests, benchmarks, the local-only disc-track checks, the CLI by hand
