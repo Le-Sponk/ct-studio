@@ -54,6 +54,17 @@ shared with the dashboard; every fixable problem is one `Issue` via `StepFailed`
 deferred (see STATUS Plan changes). Mutants 25/25.
 
 ### [ ] P4-T05 — Assemble node
+Split 2026-11-03 (see STATUS Plan changes):
+- [x] **P4-T05a — Assemble without auto-add:** `wszst create` of `.ctstudio/stage/` with the
+  profile's compression into `build/<slot>.szs` (temporary file, then replaced), the `_d` copy
+  when enabled, and a `wszst list` post-check that every staged file is inside. Acceptance:
+  fake-tool unit tests for the arguments per profile and the post-check; an integration test
+  with the real wszst on synthetic files. Done 2026-11-03: `core/build/assemble.py`,
+  `wiimm.list_files`/`parse_list` (format measured, TOOLS.md); mutants 26/26.
+- [ ] **P4-T05b — Auto-add and missing objects:** the library setting and its usability check,
+  `--auto-add` only then, and the warning naming every KMP object missing from both the stage
+  and the library (needs the KMP object → file table); the `realdata` test.
+
 Stage → `wszst create` via adapter using the profile's compression. Auto-add is optional: fixtures
 and the default manual-mode path do not require it; pass `--auto-add` only when the user enabled it
 and the library passed the adapter's usability check. If the staged KMP references objects that are

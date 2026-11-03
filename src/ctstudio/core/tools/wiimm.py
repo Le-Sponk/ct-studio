@@ -28,6 +28,7 @@ _COMPRESSION_FLAGS: dict[Compression, tuple[str, ...]] = {
     "fast": ("--fast",),
     "none": ("--no-compress",),
 }
+_LIST_HEADER = re.compile(r"> (\d+) director(?:y|ies) \+ (\d+) files? of [\w.]+:.*")
 _ARCHIVE_MAGIC: dict[Compression, bytes] = {
     "best": b"Yaz0",
     "fast": b"Yaz0",
@@ -225,6 +226,36 @@ def create_szs(
     raise_on_error(out, stage, (0,))
     _require_archive(dest, before, compression, out)
     return dest
+
+
+def list_files(
+    archive: Path,
+    *,
+    executable: Path | None = None,
+    timeout: float = 120,
+    cancel: CancelToken | None = None,
+) -> tuple[str, ...]:
+    """The files inside an SZS/U8 archive, as ``a/b.ext`` paths (folders left out)."""
+    archive = Path(archive).resolve()
+    out = invoke(executable, ["list", archive.name], archive.parent, timeout, cancel)
+    raise_on_error(out, archive, (0,))
+    return parse_list(out.stdout, archive)
+
+
+def parse_list(text: str, archive: Path) -> tuple[str, ...]:
+    """Read ``wszst list`` (2.42a): a count header, then one entry per line; folders end in /.
+
+    Counts that disagree with the entries mean a cut-short report, which is refused.
+    """
+    lines = [line for line in text.splitlines() if line.strip()]
+    header = _LIST_HEADER.fullmatch(lines[0].strip()) if lines else None
+    if header is None:
+        raise ParseError("wszst list", f"no '> N directories + M files' line for {archive}")
+    folders = [line for line in lines[1:] if line.endswith("/")]
+    files = tuple(line for line in lines[1:] if not line.endswith("/"))
+    if (len(folders), len(files)) != (int(header.group(1)), int(header.group(2))):
+        raise ParseError("wszst list", f"the counts for {archive} do not match its entries")
+    return files
 
 
 def _require_archive(

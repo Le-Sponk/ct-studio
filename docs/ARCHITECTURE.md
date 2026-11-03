@@ -51,7 +51,8 @@ src/ctstudio/
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
-    build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py  stage.py
+    build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
+                 stage.py  assemble.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -289,6 +290,14 @@ template/manual ─────────────────────�
   `Issue` (`STAGE_*` code, hint, file, wiki) raised as `node.StepFailed` and carried in
   `NodeFailed.issues` and `BuildSummary.issues`. Unchanged file → skipped (cache).
   Hard links are not used (see STATUS Plan changes).
+- **Assemble** (P4-T05a, `build/assemble.py`): `assemble_step(root, manifest, profile)` reads
+  the whole `.ctstudio/stage/` folder (so it waits for every stage step) and writes
+  `build/<slot>.szs`, plus the identical `build/<slot>_d.szs` when `make_d_variant`.
+  `wszst create` uses the profile's compression (test/release) into a temporary folder in
+  `build/`; `wszst list` must show every staged file except dot-names, which wszst skips;
+  only then are the outputs replaced, so a failure keeps the last good SZS. Nothing staged,
+  a file missing from the archive, or a locked SZS → `StepFailed` Issue (`ASSEMBLE_*`).
+  Never passes `--auto-add` (P4-T05b).
 - **Build log** (P4-T03b, `build/build_log.py`): `.ctstudio/logs/build-<UTC time>.log`, one
   UTC-stamped plain line per event, flushed as it goes; then only the newest 20 `build-*.log`
   are kept. A log that cannot be written is reported in the app log, never fails the build;

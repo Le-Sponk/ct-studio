@@ -781,6 +781,26 @@ a library with no found or any invalid file raises `AutoAddUnavailable` before w
 the byte-identical recorded stage, the empty directory and unsupported files; it refuses
 (exit 121) to analyse any archive, since it cannot compute real archive contents.
 
+### wszst list (P4-T05a, measured 2026-11-03 on Windows 2.42a, synthetic stages)
+`wszst list FILE.szs` exits 0 and prints a blank line, a header, a blank line, then one entry
+per line in archive order, and a trailing blank line:
+
+```text
+> 1 directory + 4 files of YAZ0.U8:n.szs
+course.kcl
+my file é.bin
+posteffect/
+posteffect/posteffect.bfg
+```
+
+- Singular forms: `1 directory`, `1 file`; folders end in `/` and are counted separately;
+  an empty archive is `> 0 directories + 0 files of …` with no entries; `U8:` for
+  `--no-compress`. Non-ASCII names survive intact.
+- `wszst create` **leaves out every name starting with a dot**, at any depth (`.h`,
+  `.dotdir/x`), with no message.
+- `core.tools.wiimm.list_files(szs)` runs it in the archive's folder and `parse_list` returns
+  the file paths, refusing a report whose counts disagree with its lines (`ParseError`).
+
 ### wszst create (P0-T04)
 - Builds from a plain directory and **does not validate**: it produced an SZS from a
   KCL+KMP only, and from a completely empty directory. Always follow with `check`.

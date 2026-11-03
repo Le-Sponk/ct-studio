@@ -128,7 +128,9 @@ def test_the_log_can_be_read_during_the_build_and_is_closed_after(
 
     monkeypatch.setattr(BuildLog, "close", close)
     summary, _ = build(root, [step(root, "a", peek)])
-    assert "[a] started" in seen[0]
+    # Lines written before the step began are already on disk. ("[a] started" is written
+    # by the build's own thread and may land just after the step starts, so not that one.)
+    assert "Build started: 1 steps (a)" in seen[0]
     assert summary.log is not None
     assert closed == [summary.log], "closed by the build, not left to the garbage collector"
     summary.log.unlink()  # Windows refuses to delete a file that is still open

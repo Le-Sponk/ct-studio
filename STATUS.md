@@ -10,6 +10,19 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T05a` — Assemble without auto-add. Plan (2026-11-03):
+  - `core/tools/wiimm.py` `list_files(szs)`: parse `wszst list` (measured today on 2.42a:
+    `> N directories + M files of LABEL:name`, singular `1 file`, folders end in `/`, an empty
+    archive lists nothing; counts must agree).
+  - `core/build/assemble.py` `assemble_step(root, manifest, profile)`: input the whole
+    `.ctstudio/stage/` folder (so it waits for every stage step), outputs `build/<slot>.szs`
+    and `build/<slot>_d.szs` when `make_d_variant`; params slot, compression, `_d`.
+    Run: `create_szs` into a fresh temporary folder in `build/`, `list_files` must hold every
+    staged file (dot-files are left out by wszst, measured), then replace the outputs; the
+    temporary folder always goes. A missing file → `StepFailed` Issue naming them.
+  - Never passes `--auto-add` (that is P4-T05b).
+  - Acceptance: fake-tool unit tests (best/fast arguments, post-check, failures leave the old
+    SZS); real-wszst integration test incl. `none` and a sub-folder. Mutants; docs.
 ## Done (newest first)
 - 2026-11-03 `P4-T04` Manual-mode stage steps (`core/build/stage.py`). A part in manual mode
   gets a step `stage:<part>` that checks the chosen file with the dashboard's own type check
@@ -658,6 +671,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-T05 split. P4-T05a = assemble, `_d` copy and the `wszst list` post-check,
+  never with auto-add. P4-T05b = the auto-add library setting and check, `--auto-add`, and
+  the warning naming missing KMP objects (needs a KMP object → file table, a task of its own).
+  Until P4-T05b the Objects card's "added automatically" is not yet true.
 - 2026-11-03: P4-T04 deviation. Manual files are always copied, never hard-linked. The
   manifest has no setting to turn links on, and a hard link would let a later build step
   that edits a staged file in place write into the user's own file. Revisit in P13 if
