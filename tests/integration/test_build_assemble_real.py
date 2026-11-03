@@ -49,11 +49,14 @@ def test_real_assemble_packs_every_staged_file(tmp_path: Path, compression: Comp
     (stage / "posteffect" / "posteffect.bfg").write_bytes(b"synthetic fog settings")
     settings = dataclasses.replace(BuildSettings(), release_compression=compression)
     manifest = Manifest(project=ProjectInfo(name="T", slot="castle_course"), build=settings)
-    tools = {"wszst": ToolLocation(tp.WSZST, "2.42a", "dev", "direct")}
+    tools = {
+        "wszst": ToolLocation(tp.WSZST, "2.42a", "dev", "direct"),
+        "wkmpt": ToolLocation(tp.WKMPT, "2.42a", "dev", "direct"),
+    }
     summary = run_build(
         BuildGraph(root, [assemble_step(root, manifest, "release")]),
         BuildCache.load(root),
-        BuildRequest(manifest, "release", tools, {"wszst": "2.42a"}),
+        BuildRequest(manifest, "release", tools, {"wszst": "2.42a", "wkmpt": "2.42a"}),
         lambda _event: None,
         cancel=CancelToken(),
     )

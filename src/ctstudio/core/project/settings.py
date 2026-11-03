@@ -21,6 +21,7 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 
 FORMAT = 1
 FILE_NAME = "settings.json"
+AUTO_ADD_LIBRARY = "auto_add_library"  # folder built by `wszst autoadd` from the own disc
 
 
 class SettingsError(ProjectError):
@@ -45,6 +46,17 @@ class UserSettings:
     def configured(self) -> dict[str, Path]:
         """The set paths of tools this version knows, for discovery and doctor."""
         return {tool: Path(path) for tool, path in self.tools.items() if tool in TOOL_BY_ID}
+
+    def auto_add_library(self) -> Path | None:
+        """The auto-add library folder chosen on this computer (P4-T05b), if any."""
+        value = self.other.get(AUTO_ADD_LIBRARY)
+        return Path(value) if isinstance(value, str) and value else None
+
+    def with_auto_add_library(self, path: Path | None) -> UserSettings:
+        other = {key: value for key, value in self.other.items() if key != AUTO_ADD_LIBRARY}
+        if path is not None:
+            other[AUTO_ADD_LIBRARY] = str(path)
+        return UserSettings(self.tools, other)
 
     def with_tool(self, tool_id: str, path: Path | None) -> UserSettings:
         """A copy with ``tool_id`` set to ``path``, or cleared when ``path`` is None."""
@@ -82,6 +94,9 @@ def _parse(target: Path, data: object) -> UserSettings:
     fields = cast("dict[str, object]", data)
     _check_format(target, fields.get("format", FORMAT))
     other = {key: value for key, value in fields.items() if key not in ("format", "tools")}
+    library = other.get(AUTO_ADD_LIBRARY)
+    if library is not None and (not isinstance(library, str) or not library):
+        raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
     return UserSettings(_tool_paths(target, fields.get("tools", {})), other)
 
 

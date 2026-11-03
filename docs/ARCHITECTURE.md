@@ -297,7 +297,13 @@ template/manual ─────────────────────�
   `build/`; `wszst list` must show every staged file except dot-names, which wszst skips;
   only then are the outputs replaced, so a failure keeps the last good SZS. Nothing staged,
   a file missing from the archive, or a locked SZS → `StepFailed` Issue (`ASSEMBLE_*`).
-  Never passes `--auto-add` (P4-T05b).
+  Objects (P4-T05b, `build/objects.py`): with auto-add on and a library set
+  (`assemble_step(..., library)`, from the user settings key `auto_add_library`), the
+  library is checked with `wszst autoadd -vv` every assemble and passed as `--auto-add` only
+  when usable; the library folder is a step input. `wkmpt` lists the objects the staged KMP
+  places and Wiimm's files for each; one warning (`OBJECTS_*`) per object whose files are in
+  neither the stage nor the usable library, per unknown id, and for an unusable library.
+  Warnings never stop the build.
 - **Build log** (P4-T03b, `build/build_log.py`): `.ctstudio/logs/build-<UTC time>.log`, one
   UTC-stamped plain line per event, flushed as it goes; then only the newest 20 `build-*.log`
   are kept. A log that cannot be written is reported in the app log, never fails the build;

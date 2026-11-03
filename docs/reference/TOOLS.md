@@ -886,6 +886,34 @@ library and builds the objects stage with it; it skips when `local_fixtures/auto
 absent. Naming the KMP objects missing from both stage and library belongs to the build
 engine (`PHASE_04_build_engine.md`), which needs the KMP object → file table.
 
+### wkmpt objects and the KMP object table (P4-T05b, measured 2026-11-03 on Windows 2.42a)
+Synthetic KMPs only (the committed `objects.kmp` with its itembox row repeated as other ids).
+
+- `wkmpt cat KMP` (exit 0; a missing file is `ERROR #78`) prints the decoded text. Its
+  `[GOBJ]` section ends with an object table, one row per object **type**, then the total:
+
+  ```text
+  # Object statistics:
+  ##count id/hex  name               characteristics
+  ##   1    0x7   pocha              no route, found in tracks + arenas
+  ##   2   0x65   itembox            no route, solid, found in tracks + arenas + other files
+  ##   1  0x3ff
+  ## GOBJ total: 4 objects, 3 types
+  ```
+
+  An id Wiimm does not know has no name (and `cat`'s check adds `Unknown object with ID
+  0x3ff`); no objects gives just `## GOBJ total: 0 objects, 0 types`; one is `1 object, 1 type`.
+- `wkmpt objects --long ID...` prints Wiimm's object database: per id a `  <hex id> <name>`
+  line, `Info:`, `Files:` with **one file per line** (continuations indented 10 spaces, paths
+  as in the auto-add library, e.g. `effect/pocha/rk_pocha.breff`), and `Set#N:` lines. Some
+  objects list no files (`dummy`). Keys match loosely: `0xd2` also prints `0xd5`, and an
+  unknown id prints nothing (exit 0). `--width 4000` keeps long info on one line.
+- `wszst check` also names missing object files (`Missing file: ./itembox.brres`) but
+  ignores `--autoadd-path`, so it cannot tell what the library supplies.
+- `core.tools.wiimm_objects`: `kmp_objects(kmp)` → `KmpObject(id, name, count)` (refuses a
+  table whose rows disagree with the total); `object_files(ids)` → id → files, only the asked
+  ids, unknown ids left out.
+
 ## KMP text format (P0-T03, verified against wkmpt 2.42a)
 Hand-writing KMP text is easy to get wrong; these cost real debugging time:
 - Sections are `[KTPT]`, `[ENPT]`, … in **square brackets**. `#SECT# NAME` is not the

@@ -10,6 +10,24 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T05b` — Auto-add and missing objects. Plan (2026-11-03):
+  1. Measured: `wkmpt cat KMP` ends GOBJ with an "Object statistics" table (count, id,
+     name; unknown ids have no name) and `## GOBJ total: N objects, M types`;
+     `wkmpt objects --long ID…` prints Wiimm's own object → file table (`Files:` plus
+     continuation lines, paths like `effect/pocha/rk_pocha.breff`). Keys match loosely
+     (`0xd2` also gives `0xd5`), so filter by exact id. Record in TOOLS.md.
+  2. `core/tools/wiimm_objects.py`: `kmp_objects(kmp)`, `object_files(ids)` + parsers.
+  3. Settings: `auto_add_library` in the user settings file (one library per computer).
+  4. `core/build/objects.py`: objects whose files are in neither the stage nor the verified
+     library → one warning naming each object and the files it needs; ids Wiimm does not
+     know → warning too.
+  5. Assemble: when auto-add is on and a library is set, `autoadd_verify` it each build
+     (unusable → warning, built without it); `--auto-add` only for a usable library; the
+     library folder becomes a step input. Real-wkmpt integration test on a synthetic
+     multi-object KMP; `realdata` test with the user's own library (skips without it).
+  Acceptance: fake/stub unit tests for arguments per profile, unusable/empty library, and the
+  named warnings; integration with no library; realdata at HC1. Risk: warnings from a step
+  the cache skips are not shown again (runner keeps issues of steps that ran) → P4-T06.
 ## Done (newest first)
 - 2026-11-03 `P4-T05a` Assemble without auto-add (`core/build/assemble.py`,
   `wiimm.list_files`). The stage is packed with the profile's compression into
@@ -665,6 +683,14 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-T05b design notes. The object → file table is Wiimm's own (`wkmpt
+  objects`), read at build time, not a table copied into CT Studio, so it stays as current
+  as the pinned tools. The auto-add library is a per-computer user setting
+  (`auto_add_library` in settings.json); nothing passes it to the build yet: P4-T07
+  (`ctstudio build`) reads the setting, and P5 adds the Build page control. Object warnings
+  are lost when the cache skips the assemble step (the runner keeps issues of steps that ran
+  only); P4-T06 (validate node / issues.json) must keep them. The dashboard Objects card
+  still says "added automatically" whenever auto-add is on; P8-T07 makes it check the library.
 - 2026-11-03: P4-T05 split. P4-T05a = assemble, `_d` copy and the `wszst list` post-check,
   never with auto-add. P4-T05b = the auto-add library setting and check, `--auto-add`, and
   the warning naming missing KMP objects (needs a KMP object → file table, a task of its own).

@@ -21,6 +21,7 @@ from ctstudio.core.build.cache import BuildCache
 from ctstudio.core.build.events import BuildSummary, LogLine, NodeFailed
 from ctstudio.core.build.graph import BuildGraph, from_manifest
 from ctstudio.core.build.node import Profile
+from ctstudio.core.build.objects import ObjectCheck
 from ctstudio.core.build.runner import BuildRequest, run_build
 from ctstudio.core.build.stage import manual_parts
 from ctstudio.core.project.manifest import BuildSettings, Manifest, ProjectInfo
@@ -32,6 +33,13 @@ from ctstudio.core.validation.issues import Issue
 pytestmark = pytest.mark.timeout(60)
 RECORDINGS = Path(__file__).resolve().parents[1] / "fakes" / "recordings" / "wszst" / "2.42a"
 YAZ0 = b"Yaz0"
+VERSIONS = {"wszst": "2.42a", "wkmpt": "2.42a"}
+
+
+@pytest.fixture(autouse=True)
+def no_objects(monkeypatch: pytest.MonkeyPatch) -> None:
+    """These tests are about packing; the object check has its own (test_build_objects.py)."""
+    monkeypatch.setattr(assemble, "check_objects", lambda *_a: ObjectCheck(None, ()))
 
 
 @pytest.fixture
@@ -54,7 +62,7 @@ def run(root: Path, m: Manifest, profile: Profile = "test") -> tuple[BuildSummar
     summary = run_build(
         BuildGraph(root, [assemble_step(root, m, profile)]),
         BuildCache.load(root),
-        BuildRequest(m, profile, {}, {"wszst": "2.42a"}),
+        BuildRequest(m, profile, {}, VERSIONS),
         recorder,
         cancel=CancelToken(),
     )
@@ -83,15 +91,21 @@ def test_the_step_reads_the_whole_stage_and_writes_the_slot_files(root: Path) ->
         root / "build" / "castle_course.szs",
         root / "build" / "castle_course_d.szs",
     )
-    assert node.tools == ("wszst",)
+    assert node.tools == ("wszst", "wkmpt")
     assert node.component is None
-    assert dict(node.params) == {"slot": "castle_course", "compression": "fast", "d_variant": True}
+    assert dict(node.params) == {
+        "slot": "castle_course",
+        "compression": "fast",
+        "d_variant": True,
+        "library": None,
+    }
     single = assemble_step(root, manifest(make_d_variant=False), "release")
     assert single.outputs == (root / "build" / "castle_course.szs",)
     assert dict(single.params) == {
         "slot": "castle_course",
         "compression": "best",
         "d_variant": False,
+        "library": None,
     }
 
 
@@ -259,7 +273,7 @@ def test_the_wszst_found_on_the_tools_page_is_used(
     run_build(
         BuildGraph(root, [assemble_step(root, m, "test")]),
         BuildCache.load(root),
-        BuildRequest(m, "test", tools, {"wszst": "2.42a"}),
+        BuildRequest(m, "test", tools, VERSIONS),
         Recorder(),
         cancel=CancelToken(),
     )

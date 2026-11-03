@@ -7,8 +7,9 @@ must then show every staged file inside: Wiimm leaves out names starting with a 
 ``make_d_variant`` is on, the identical ``build/<slot>_d.szs`` replaced, so a failed build
 keeps the last good track. The temporary folder always goes.
 
-Auto-add is not passed here; P4-T05b adds it with the library check and the missing-object
-warning, because wszst builds silently without objects it cannot find.
+Objects (P4-T05b, ``build/objects.py``): ``--auto-add`` is passed only when the project has
+auto-add on and the computer's library passed Wiimm's check this build; every object the
+track will lack is one warning, because wszst builds silently without them.
 """
 
 from __future__ import annotations
@@ -19,16 +20,21 @@ import tempfile
 from pathlib import Path
 
 from ctstudio.core.build.node import BuildContext, Node, NodeResult, Profile, StepFailed
+from ctstudio.core.build.objects import check_objects
 from ctstudio.core.components.state import GENERATED_DIR
 from ctstudio.core.project.manifest import Compression, Manifest
-from ctstudio.core.tools.wiimm import create_szs, list_files
+from ctstudio.core.tools.wiimm import AutoAddLibrary, create_szs, list_files
 from ctstudio.core.validation.issues import Issue
 
 BUILD_DIR = "build"
 
 
-def assemble_step(root: Path, manifest: Manifest, profile: Profile) -> Node:
+def assemble_step(
+    root: Path, manifest: Manifest, profile: Profile, library: Path | None = None
+) -> Node:
+    """``library``: the computer's auto-add folder (user settings), used only with auto-add on."""
     stage = root / GENERATED_DIR
+    library = library if manifest.build.auto_add else None
     slot = manifest.project.slot
     settings = manifest.build
     compression = settings.test_compression if profile == "test" else settings.release_compression
@@ -37,19 +43,28 @@ def assemble_step(root: Path, manifest: Manifest, profile: Profile) -> Node:
 
     def run(ctx: BuildContext) -> NodeResult:
         staged = _staged(stage, szs)
+        objects = check_objects(ctx, stage, library)
         szs.parent.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(dir=szs.parent, prefix=f".{slot}."))
         try:
-            made = _create(ctx, stage, work / szs.name, compression, staged)
+            made = _create(ctx, stage, work / szs.name, (compression, objects.library), staged)
             _publish(made, outputs)
         finally:
             shutil.rmtree(work, ignore_errors=True)
         extra = ", and the _d copy" if len(outputs) > 1 else ""
-        ctx.log(f"{szs.name}: {len(staged)} files ({compression} compression){extra}")
-        return NodeResult()
+        added = ", with auto-add" if objects.library else ""
+        ctx.log(f"{szs.name}: {len(staged)} files ({compression} compression{added}){extra}")
+        return NodeResult(objects.issues)
 
-    params = {"slot": slot, "compression": compression, "d_variant": settings.make_d_variant}
-    return Node("assemble", (stage,), outputs, params, ("wszst",), frozenset(), 1, run)
+    params = {
+        "slot": slot,
+        "compression": compression,
+        "d_variant": settings.make_d_variant,
+        "library": None if library is None else str(library),
+    }
+    inputs = (stage,) if library is None else (stage, library)
+    tools = ("wszst", "wkmpt")
+    return Node("assemble", inputs, outputs, params, tools, frozenset(), 1, run)
 
 
 def _staged(stage: Path, szs: Path) -> set[str]:
@@ -70,10 +85,17 @@ def _staged(stage: Path, szs: Path) -> set[str]:
 
 
 def _create(
-    ctx: BuildContext, stage: Path, dest: Path, compression: Compression, staged: set[str]
+    ctx: BuildContext,
+    stage: Path,
+    dest: Path,
+    how: tuple[Compression, AutoAddLibrary | None],
+    staged: set[str],
 ) -> Path:
     exe = _executable(ctx)
-    create_szs(stage, dest, compression=compression, executable=exe, cancel=ctx.cancel)
+    compression, library = how
+    create_szs(
+        stage, dest, compression=compression, executable=exe, cancel=ctx.cancel, auto_add=library
+    )
     missing = sorted(staged - set(list_files(dest, executable=exe, cancel=ctx.cancel)))
     if missing:
         count = f"{len(missing)} staged file{'s' if len(missing) > 1 else ''}"

@@ -96,6 +96,8 @@ def test_every_save_keeps_a_backup_of_the_previous_file(tmp_path: Path) -> None:
         '{"format": 1, "tools": {"wszst": ""}}',
         '{"format": "1", "tools": {}}',
         '{"format": false, "tools": {}}',
+        '{"format": 1, "auto_add_library": 5}',
+        '{"format": 1, "auto_add_library": ""}',
         b"\xff\xfe".decode("latin-1"),
     ],
     ids=[
@@ -106,6 +108,8 @@ def test_every_save_keeps_a_backup_of_the_previous_file(tmp_path: Path) -> None:
         "empty path",
         "format text",
         "format false",
+        "library a number",
+        "library empty",
         "bytes",
     ],
 )
@@ -119,6 +123,19 @@ def test_a_damaged_file_is_reported_and_left_alone(text: str, tmp_path: Path) ->
     assert isinstance(caught.value, ProjectError)
     assert str(path) in str(caught.value) and "Next:" in str(caught.value)
     assert path.read_bytes() == before
+
+
+def test_the_auto_add_library_is_saved_read_back_and_cleared(tmp_path: Path) -> None:
+    library = tmp_path / "my own auto-add é"
+    chosen = UserSettings().with_tool("wszst", tmp_path / "w").with_auto_add_library(library)
+    save(chosen, _file(tmp_path))
+    loaded = load(_file(tmp_path))
+    assert loaded.auto_add_library() == library
+    assert loaded.configured() == {"wszst": tmp_path / "w"}, "tools are kept"
+    assert UserSettings().auto_add_library() is None
+    save(loaded.with_auto_add_library(None), _file(tmp_path))
+    data = json.loads(_file(tmp_path).read_text(encoding="utf-8"))
+    assert "auto_add_library" not in data and data["tools"] == {"wszst": str(tmp_path / "w")}
 
 
 def test_a_newer_format_is_not_read_or_overwritten(tmp_path: Path) -> None:

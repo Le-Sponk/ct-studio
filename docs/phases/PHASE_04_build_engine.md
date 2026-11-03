@@ -61,9 +61,12 @@ Split 2026-11-03 (see STATUS Plan changes):
   fake-tool unit tests for the arguments per profile and the post-check; an integration test
   with the real wszst on synthetic files. Done 2026-11-03: `core/build/assemble.py`,
   `wiimm.list_files`/`parse_list` (format measured, TOOLS.md); mutants 26/26.
-- [ ] **P4-T05b — Auto-add and missing objects:** the library setting and its usability check,
+- [x] **P4-T05b — Auto-add and missing objects:** the library setting and its usability check,
   `--auto-add` only then, and the warning naming every KMP object missing from both the stage
-  and the library (needs the KMP object → file table); the `realdata` test.
+  and the library (needs the KMP object → file table); the `realdata` test. Done 2026-11-03:
+  the table is Wiimm's own (`wkmpt cat` + `wkmpt objects`, `core/tools/wiimm_objects.py`),
+  not one kept by CT Studio; `core/build/objects.py`; user setting `auto_add_library`;
+  realdata test passed locally with the user's own library; mutants 33/33.
 
 Stage → `wszst create` via adapter using the profile's compression. Auto-add is optional: fixtures
 and the default manual-mode path do not require it; pass `--auto-add` only when the user enabled it
