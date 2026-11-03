@@ -7,6 +7,7 @@ called ``run_build``; the GUI turns them into Qt signals and the CLI prints them
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
 from ctstudio.core.validation.issues import Issue
@@ -64,6 +65,7 @@ class BuildSummary:
     not_run: tuple[str, ...]  # never started because the build stopped first
     issues: tuple[Issue, ...]
     duration: float  # seconds
+    log: Path | None  # this build's log file, None when it could not be written
 
 
 @dataclass(frozen=True)

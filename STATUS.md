@@ -10,6 +10,20 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T03b` — Build log & state. Plan (2026-11-03):
+  - `Node.component` (optional): the part a step makes; must be a part with outputs, and a
+    graph refuses two steps making one part.
+  - After such a step runs (or is skipped while state.json has no record of the part), the
+    runner records the part: settings key, its outputs (folders expanded, inside
+    `.ctstudio/stage/`) and the files it was made from: the inputs of the step and every step
+    it needs, minus files other steps write (so the `.blend`, not the exports). Saved once at
+    the end, keeping other parts' records; failed/cancelled steps record nothing.
+  - `core/build/build_log.py`: `.ctstudio/logs/build-<UTC time>.log`, one readable line per
+    event (time, step, what happened, issues, hints); a write error disables the log with a
+    warning instead of failing the build; afterwards only the newest 20 are kept.
+    `BuildSummary.log` gives the path.
+  - Acceptance: status Ready after a build, Stale after the `.blend` changes, Edited outside
+    CT Studio after an output edit; log written and pruned. Mutants; ARCHITECTURE §7.
 ## Done (newest first)
 - 2026-11-03 `P4-T03a` Runner & events (`core/build/runner.py`, `core/build/events.py`).
   `run_build` runs ready steps in up to `jobs` threads (default min(4, CPUs)); a step waits

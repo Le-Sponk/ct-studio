@@ -19,6 +19,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Literal, cast
 
+from ctstudio.core.components.registry import COMPONENTS
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.tools.discovery import ToolLocation
 from ctstudio.core.tools.process import CancelToken
@@ -27,6 +28,7 @@ from ctstudio.core.validation.issues import Issue
 
 Profile = Literal["test", "release"]
 _ID = re.compile(r"[a-z][a-z0-9_]*(:[a-z][a-z0-9_]*)?")
+_MADE_PARTS = frozenset(spec.id for spec in COMPONENTS if spec.outputs)
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,7 @@ class Node:
     resources: frozenset[str]
     impl_version: int
     run: Callable[[BuildContext], NodeResult] = field(compare=False, repr=False)
+    component: str | None = None  # the track part this step makes, for state.json
 
     def __post_init__(self) -> None:
         node_id = _field(self, "id")
@@ -68,6 +71,15 @@ class Node:
         object.__setattr__(self, "resources", frozenset(self.resources))
         object.__setattr__(self, "params", MappingProxyType(self._params()))
         self._check()
+
+    def _check_names(self) -> None:
+        for tool in self.tools:
+            if tool not in TOOL_BY_ID:
+                raise self._fail(f"unknown tool {tool!r}")
+        if "" in self.resources:
+            raise self._fail("a resource name cannot be empty")
+        if self.component is not None and self.component not in _MADE_PARTS:
+            raise self._fail(f"{self.component!r} is not a track part CT Studio makes")
 
     def _fail(self, problem: str) -> ValueError:
         return ValueError(f"{self.id}: {problem}")
@@ -92,11 +104,7 @@ class Node:
             raise self._fail("a build step must write at least one file")
         for path in set(self.inputs) & set(self.outputs):
             raise self._fail(f"reads and writes {path}")
-        for tool in self.tools:
-            if tool not in TOOL_BY_ID:
-                raise self._fail(f"unknown tool {tool!r}")
-        if "" in self.resources:
-            raise self._fail("a resource name cannot be empty")
+        self._check_names()
         version = _field(self, "impl_version")
         if isinstance(version, bool) or not isinstance(version, int) or version < 1:
             raise self._fail("impl_version must be a whole number >= 1")

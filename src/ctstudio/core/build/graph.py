@@ -29,6 +29,7 @@ class BuildGraph:
         self.root = root
         given = _unique(nodes)
         _check_outputs(root.resolve(), given)
+        _check_components(given)
         needs = _links(given)
         self.nodes: tuple[Node, ...] = _ordered(given, needs)
         position = {node.id: i for i, node in enumerate(self.nodes)}
@@ -120,6 +121,16 @@ def _check_outputs(root: Path, nodes: Sequence[Node]) -> None:
                     deeper = max(path, other, key=lambda p: len(p.parts))
                     raise ValueError(f"{writer!r} and {node.id!r} both write {deeper}")
             written.append((path, node.id))
+
+
+def _check_components(nodes: Sequence[Node]) -> None:
+    makers: dict[str, str] = {}
+    for node in nodes:
+        if node.component is None:
+            continue
+        first = makers.setdefault(node.component, node.id)
+        if first != node.id:
+            raise ValueError(f"{first!r} and {node.id!r} both make the {node.component} part")
 
 
 def _links(nodes: Sequence[Node]) -> dict[str, set[str]]:

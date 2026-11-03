@@ -51,7 +51,7 @@ src/ctstudio/
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
-    build/       node.py  graph.py  cache.py  runner.py  events.py  (cancel: tools.process.CancelToken)
+    build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -271,7 +271,18 @@ template/manual ─────────────────────�
   end (also on error). First failure or a cancel: nothing new starts, running steps finish
   (`ctx.cancel` is the build's `CancelToken`); `Cancelled` counts as cancelled only when the
   user cancelled. A non-CT Studio exception is logged and shown as `BuildError`.
-  `BuildSummary(outcome, ran, skipped, failed, cancelled, not_run, issues, duration)`.
+  `BuildSummary(outcome, ran, skipped, failed, cancelled, not_run, issues, duration, log)`.
+- **Part state** (P4-T03b, `build/part_state.py`): a step that makes a track part names it
+  (`Node.component`, a part with outputs, one step per part). After it runs (or is skipped
+  while state.json has no record of the part) the build records the part in `state.json`:
+  settings key, its outputs (folders expanded) and the user's files it was made from: the
+  inputs of the step and of every step it needs, minus files some step writes (the `.blend`,
+  not the export). Saved once at the end, merged over the newest file; failed or cancelled
+  steps record nothing, so status stays Missing/Stale.
+- **Build log** (P4-T03b, `build/build_log.py`): `.ctstudio/logs/build-<UTC time>.log`, one
+  UTC-stamped plain line per event, flushed as it goes; then only the newest 20 `build-*.log`
+  are kept. A log that cannot be written is reported in the app log, never fails the build;
+  `BuildSummary.log` is then `None`.
 - **Outputs** are written to a temp path then atomically replaced.
 - **One Blender launch** exports everything the build needs (Blender start-up costs seconds).
 - **Parallelism**: default `min(4, os.cpu_count())`; nodes that call Blender or write the same
@@ -405,8 +416,8 @@ P1-T04 foundation: `core/logging.py` configures the package logger once at start
 5 MB/3 backups by default); `get_logger(__name__)` names its children. CLI startup may also
 request a human-readable stderr handler. Reconfiguration closes only CT Studio-owned handlers.
 JSON fields: UTC `timestamp`, `level`, `logger`, `message`, optional `exception`; multiline
-messages are JSON-escaped to one line. Build-specific logs under `.ctstudio/logs/` are a
-separate later pipeline concern, not created by this package-wide logger.
+messages are JSON-escaped to one line. The per-build logs under `.ctstudio/logs/` are plain
+text written by the build itself (`core/build/build_log.py`, §7), not by this logger.
 `core/errors.py` keeps `user_message` and an actionable `hint` separate from `details` (argv,
 stderr tail, paths): `str(error)` shows the first two, never raw diagnostics. Typed subclasses
 carry tool argv/exit/log path, manifest key, or build node ID as appropriate.

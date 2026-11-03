@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Literal
 
+from ctstudio.core.build.build_log import BuildLog, prune
 from ctstudio.core.build.cache import BuildCache
 from ctstudio.core.build.events import (
     BuildEvent,
@@ -35,6 +36,7 @@ from ctstudio.core.build.events import (
 )
 from ctstudio.core.build.graph import BuildGraph
 from ctstudio.core.build.node import BuildContext, Node, Profile
+from ctstudio.core.build.part_state import PartRecorder
 from ctstudio.core.errors import BuildError, Cancelled, CTStudioError
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.tools.discovery import ToolLocation
@@ -102,18 +104,30 @@ class _Build:
         self._held: set[str] = set()
         self._status: dict[str, Status] = {}
         self._issues: dict[str, tuple[Issue, ...]] = {}
+        self._parts = PartRecorder(graph, request.manifest)
+        self._log = BuildLog(None, None)
 
     def run(self) -> BuildSummary:
         started = time.monotonic()
-        self.on_event(BuildStarted(tuple(node.id for node in self.graph.nodes)))
+        self._log = BuildLog.open(self.graph.root)
         try:
-            with ThreadPoolExecutor(self.jobs, thread_name_prefix="ctstudio-build") as pool:
-                self._loop(pool)
+            self._emit(BuildStarted(tuple(node.id for node in self.graph.nodes)))
+            try:
+                with ThreadPoolExecutor(self.jobs, thread_name_prefix="ctstudio-build") as pool:
+                    self._loop(pool)
+            finally:
+                self.cache.save()
+                self._parts.save()
+            summary = self._summary(time.monotonic() - started)
+            self._emit(BuildFinished(summary))
         finally:
-            self.cache.save()
-        summary = self._summary(time.monotonic() - started)
-        self.on_event(BuildFinished(summary))
+            self._log.close()
+            prune(self.graph.root)
         return summary
+
+    def _emit(self, event: BuildEvent) -> None:
+        self._log.write(event)
+        self.on_event(event)
 
     def _loop(self, pool: ThreadPoolExecutor) -> None:
         while True:
@@ -124,7 +138,7 @@ class _Build:
             if isinstance(item, _Done):
                 self._finish(item)
                 item = item.event
-            self.on_event(item)
+            self._emit(item)
 
     def _start_ready(self, pool: ThreadPoolExecutor) -> None:
         if self._stopping():
@@ -154,6 +168,9 @@ class _Build:
         self._held -= node.resources
         self._status[done.node_id] = done.status
         self._issues[done.node_id] = done.issues
+        succeeded = done.status in ("ran", "skipped")
+        if succeeded and self._parts.wants(node, ran=done.status == "ran"):
+            self._parts.record(node)
 
     def _work(self, node: Node) -> None:
         """One step in a worker thread; always ends with exactly one ``_Done``."""
@@ -210,6 +227,7 @@ class _Build:
             not_run,
             issues,
             duration,
+            self._log.path,
         )
 
 

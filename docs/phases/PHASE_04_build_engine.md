@@ -37,9 +37,12 @@ propagation, event order; no thread leaks (thread count before == after).
 - [x] **P4-T03a — Runner & events:** `runner.py` + `events.py` (scheduling, resources, cache
   skip, cancel, stop-on-first-error, events). Acceptance: the tests above. Cancel uses the
   existing `tools.process.CancelToken` (no `cancel.py`), so one token stops tools too.
-- [ ] **P4-T03b — Build log & state:** `.ctstudio/logs/build-<ts>.log` (keep last 20) and the
+- [x] **P4-T03b — Build log & state:** `.ctstudio/logs/build-<ts>.log` (keep last 20) and the
   `state.json` update for generated outputs (needs each step to say which part it makes).
   Acceptance: log written and pruned; status reads Ready after a build, Stale after an edit.
+  Done 2026-11-03: `Node.component`; `build/part_state.py` records the part with the user's
+  files behind it (the `.blend`, not the export) and `build/build_log.py` writes one UTC line
+  per event; an unwritable log never fails the build. Mutants 31/31.
 
 ### [ ] P4-T04 — Manual-mode stage nodes
 For each component in manual mode: validate file type (P3-T05), copy (or hard-link when same volume
