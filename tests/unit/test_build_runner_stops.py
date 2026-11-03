@@ -160,12 +160,24 @@ def test_cancelled_raised_without_a_cancel_is_a_failure(root: Path) -> None:
 # --- threads ----------------------------------------------------------------------------------
 
 
+def _build_threads() -> list[str]:
+    return [t.name for t in threading.enumerate() if t.name.startswith("ctstudio-build")]
+
+
 def test_no_thread_is_left_running(root: Path) -> None:
-    before = threading.active_count()
-    nodes = [step(root, f"s{i}", lambda _c: time.sleep(0.02) and None) for i in range(8)]
+    # Only the build's own threads: other tests' threads may end at any time (CI saw one go).
+    seen: list[list[str]] = []
+
+    def busy(_ctx: BuildContext) -> NodeResult:
+        seen.append(_build_threads())
+        time.sleep(0.02)
+        return NodeResult()
+
+    nodes = [step(root, f"s{i}", busy) for i in range(8)]
     build(root, [*nodes, step(root, "bad", fail)], jobs=4)
     build(root, [step(root, f"t{i}") for i in range(8)], jobs=4)
-    assert threading.active_count() == before
+    assert seen and all(names for names in seen), "the steps ran in the build's named threads"
+    assert _build_threads() == []
 
 
 def test_an_event_handler_error_still_stops_cleanly(root: Path) -> None:
