@@ -51,7 +51,7 @@ src/ctstudio/
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
-    build/       node.py  graph.py  cache.py  runner.py  cancel.py
+    build/       node.py  graph.py  cache.py  runner.py  events.py  (cancel: tools.process.CancelToken)
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -261,6 +261,17 @@ template/manual ─────────────────────�
   mtimes of touched files, so they are hashed once. `store(node, lookup)` after a run (a
   declared output not written → `BuildError`, and the step is forgotten), `invalidate(id)`,
   `clear()` (for `--force`), `save()` (atomic, only when changed). Thread-safe for the runner.
+- **Runner** (P4-T03a): `build/runner.py` `run_build(graph, cache, request, on_event, *, cancel,
+  jobs)`. The calling thread schedules and delivers events (`build/events.py`: `BuildStarted`,
+  `NodeStarted`, `LogLine`, `NodeSkipped`, `NodeFinished`, `NodeFailed`, `BuildFinished`) one
+  at a time; steps run in a `ThreadPoolExecutor` of `jobs` threads (default `min(4, CPUs)`),
+  closed before return. A step starts when every step it needs ran or was skipped and none
+  of its `resources` is held; a waiting step does not hold up later ready ones. Fresh in the
+  cache → `NodeSkipped`; after a run the outputs are stored, and the cache is saved at the
+  end (also on error). First failure or a cancel: nothing new starts, running steps finish
+  (`ctx.cancel` is the build's `CancelToken`); `Cancelled` counts as cancelled only when the
+  user cancelled. A non-CT Studio exception is logged and shown as `BuildError`.
+  `BuildSummary(outcome, ran, skipped, failed, cancelled, not_run, issues, duration)`.
 - **Outputs** are written to a temp path then atomically replaced.
 - **One Blender launch** exports everything the build needs (Blender start-up costs seconds).
 - **Parallelism**: default `min(4, os.cpu_count())`; nodes that call Blender or write the same

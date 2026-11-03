@@ -10,6 +10,20 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T03a` — Runner & events. Plan (2026-11-03):
+  - `core/build/events.py`: frozen `BuildStarted(steps)`, `NodeStarted`, `LogLine`,
+    `NodeSkipped`, `NodeFinished(duration, issues)`, `NodeFailed(message, hint, cancelled)`,
+    `BuildFinished(summary)`; `BuildSummary(outcome, ran, skipped, failed, cancelled, not_run,
+    issues, duration)`.
+  - `core/build/runner.py` `run_build(graph, cache, request, on_event, cancel, jobs)`: a step
+    starts when every step it needs succeeded or was skipped and none of its `resources` is
+    held; up to `jobs` (default min(4, CPUs)) at once; a cache hit is `NodeSkipped`, a run is
+    stored in the cache, the cache is saved at the end. First failure: nothing new starts,
+    running steps finish. Cancel: nothing new starts, steps see `ctx.cancel`. Events are
+    delivered one at a time. `BuildContext` gains `cancel`. Deviation: no `cancel.py`, the
+    existing `tools.process.CancelToken` is used.
+  - Acceptance: parallel (barrier) and timed speed-up, resource exclusion, cancel, failure
+    propagation, event order, cache skip, no thread leaks. Mutants; ARCHITECTURE §7.
 ## Done (newest first)
 - 2026-11-03 `P4-T02` Cache (`core/build/cache.py`, `.ctstudio/cache.json`). Key = BLAKE2b over
   params, `impl_version`, the node's own tool versions and the content of every input (a
@@ -636,6 +650,8 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-T03 split. P4-T03a = runner and events. P4-T03b = the per-build log file and
+  the `state.json` update, which needs each step to name the part it makes.
 - 2026-11-03: P4-T01 design deviation. Build inputs are plain paths (a folder means every file
   in it), not the phase file's `Input` class; steps are linked by matching outputs to inputs,
   and `from_manifest` takes a `make_part(spec, mode)` factory so P4-T04 to P4-T06 each add

@@ -21,6 +21,7 @@ from typing import Literal, cast
 
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.tools.discovery import ToolLocation
+from ctstudio.core.tools.process import CancelToken
 from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.core.validation.issues import Issue
 
@@ -30,13 +31,15 @@ _ID = re.compile(r"[a-z][a-z0-9_]*(:[a-z][a-z0-9_]*)?")
 
 @dataclass(frozen=True)
 class BuildContext:
-    """What a running step may use: the project, its manifest, the found tools, a log."""
+    """What a running step may use: the project, its manifest, the found tools, a log and the
+    build's cancel request (pass it to every tool run so Cancel stops the tool)."""
 
     root: Path
     manifest: Manifest
     profile: Profile
     tools: Mapping[str, ToolLocation]
     log: Callable[[str], None]
+    cancel: CancelToken = field(default_factory=CancelToken)
 
 
 @dataclass(frozen=True)

@@ -33,6 +33,13 @@ cancelled cleanly), events via callback (`BuildStarted`, `NodeStarted`, `LogLine
 keep last 20. Updates `.ctstudio/state.json` for generated outputs.
 **Acceptance:** tests with synthetic nodes: parallel speed-up, resource exclusion, cancel, failure
 propagation, event order; no thread leaks (thread count before == after).
+**Split (2026-11-03):**
+- **P4-T03a — Runner & events:** `runner.py` + `events.py` (scheduling, resources, cache
+  skip, cancel, stop-on-first-error, events). Acceptance: the tests above. Cancel uses the
+  existing `tools.process.CancelToken` (no `cancel.py`), so one token stops tools too.
+- **P4-T03b — Build log & state:** `.ctstudio/logs/build-<ts>.log` (keep last 20) and the
+  `state.json` update for generated outputs (needs each step to say which part it makes).
+  Acceptance: log written and pruned; status reads Ready after a build, Stale after an edit.
 
 ### [ ] P4-T04 — Manual-mode stage nodes
 For each component in manual mode: validate file type (P3-T05), copy (or hard-link when same volume
