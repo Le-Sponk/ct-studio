@@ -26,8 +26,9 @@ from ctstudio.core.build.runner import BuildRequest, run_build
 from ctstudio.core.build.stage import manual_parts
 from ctstudio.core.build.validate import validate_step
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS, ComponentSpec
-from ctstudio.core.errors import BuildGraphError, ToolNotFound
+from ctstudio.core.errors import BuildGraphError, ProjectError, ToolNotFound
 from ctstudio.core.project.manifest import Manifest
+from ctstudio.core.project.project import Project
 from ctstudio.core.tools.discovery import ToolLocation, default_dev_root, discover
 from ctstudio.core.tools.process import CancelToken
 from ctstudio.core.tools.registry import TOOL_BY_ID
@@ -43,6 +44,16 @@ _PRODUCT = {"wszst": "Wiimms SZS Tools", "wkmpt": "Wiimms SZS Tools"}
 class BuildPlan:
     graph: BuildGraph
     request: BuildRequest
+
+
+def check_buildable(project: Project) -> None:
+    """ProjectError when ``project`` is open read-only: someone else may be building it."""
+    if project.read_only:
+        raise ProjectError(
+            "This project is in use by CT Studio or another build, so it was not built.",
+            hint=f"{project.read_only_reason}. Wait for that build to finish or close "
+            "the project there, then build again.",
+        )
 
 
 def plan_build(

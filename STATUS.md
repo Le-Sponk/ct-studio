@@ -4,11 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T01 — GUI services & threading
+**Next task:** P5-T01a — Services container and build controller
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `2f7824b` (P4-GATE fixes; Check + Integration, Windows + Ubuntu)
 
 ## In progress
+- `P5-T01a` — Services container and build controller (split from P5-T01, see Plan changes).
+  Plan: (1) RED pytest-qt tests with a fake planner/runner; (2) `gui/build_controller.py`
+  `BuildController`: plan + run on one named worker thread, signals `event`/`finished`/
+  `failed`, `cancel`, `shutdown`; (3) `AppServices` in `gui/services.py` (current project,
+  open/close, tools, build); (4) gate, mutants, ARCHITECTURE §10. Acceptance: events in order
+  on the UI thread; planning and building off it; cancel reaches the runner; start-up and
+  unexpected errors arrive as `failed`; second build and read-only project refused; no
+  thread left after shutdown. Files: `gui/build_controller.py`, `gui/services.py`,
+  `tests/gui/test_build_controller.py`, docs. Risk: signals from a Python thread must be
+  queued to the UI thread; a controller deleted while a build runs.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - `P4-GATE` — Phase 4 review passed (2026-11-04). Fresh-context reviewer
@@ -712,6 +722,8 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-04: P5-T01 split into P5-T01a (services container, build controller) and P5-T01b
+  (status service, UI stall watchdog): about 650 changed lines with tests, over one session.
 - 2026-11-03: P4-GATE review deferred the `[build] extra_wszst_args` runtime support and
   `[hooks]` scripts to P7-T06. Both fields already parse into the manifest but the current
   build does not run them; PROJECT_FILE.md now says so. P7-T06 will validate options, pass

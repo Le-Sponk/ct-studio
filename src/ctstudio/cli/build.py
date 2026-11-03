@@ -32,9 +32,13 @@ from ctstudio.core.build.events import (
     NodeFinished,
     NodeSkipped,
 )
-from ctstudio.core.build.project_build import BuildPlan, build_project, plan_build
+from ctstudio.core.build.project_build import (
+    BuildPlan,
+    build_project,
+    check_buildable,
+    plan_build,
+)
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS
-from ctstudio.core.errors import ProjectError
 from ctstudio.core.project import settings
 from ctstudio.core.project.project import Project
 from ctstudio.core.project.settings import SettingsError, UserSettings
@@ -77,12 +81,7 @@ def run(args: argparse.Namespace) -> int:
     cancel = CancelToken()
     try:
         with Project.open(root) as project:
-            if project.read_only:
-                raise ProjectError(
-                    "This project is in use by CT Studio or another build, so it was not built.",
-                    hint=f"{project.read_only_reason}. Wait for that build to finish or close "
-                    "the project there, then build again.",
-                )
+            check_buildable(project)
             plan = plan_build(
                 root,
                 project.manifest,

@@ -418,6 +418,19 @@ wrote, a timestamped backup is made — no exceptions.
 - Dev mode (`CTSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
 - Log view is virtualised and capped (e.g. last 20k lines in memory; full log on disk).
 
+P5-T01a: `gui/services.py` `AppServices` holds the current `Project` (opened, so locked, by this
+app; opening the same folder again keeps it, opening another closes the first only once the new
+one opened; neither while a build runs), the `ToolsService` and the `BuildController`
+(`gui/build_controller.py`). The controller runs one build at a time on a named Python thread
+(`ctstudio-build`): reading the user's settings, `plan_build` (finding tools, probing versions) and
+`build_project` all happen there. Core events come back through a parentless relay `QObject` as
+queued signals (`build_event`, then `finished` with the summary or `failed` with the exception;
+`notice` for a damaged settings file, `running_changed`). Each build has a generation number, so
+signals queued by a build that `shutdown` already waited for are dropped. A read-only project is
+refused (`project_build.check_buildable`, shared with `ctstudio build`). Deleting the controller
+cancels the build; `AppServices.shutdown` cancels, waits, then closes the project, and keeps it
+open (locked) if the build did not stop in time.
+
 P1-T06 shell: `ctstudio` with no arguments opens a minimal Qt Widgets empty-project dashboard;
 Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
 placeholder. Widgets keep Qt's native palette (no hard-coded stylesheet), so a system palette

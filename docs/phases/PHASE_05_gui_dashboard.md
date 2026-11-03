@@ -14,6 +14,24 @@ status on a worker, debounced), WatcherBridge (P5-T06). Dev-mode UI stall watchd
 stack). Rule: views never call blocking core functions directly.
 **Acceptance:** unit tests for signal marshalling with fakes; watchdog test that detects an injected
 `time.sleep(0.2)` on the UI thread.
+Split (2026-11-04, size check: about 650 changed lines with tests):
+
+#### [ ] P5-T01a — Services container and build controller
+`gui/services.py` gains `AppServices` (current Project, tools, build controller) and
+`gui/build_controller.py` a `BuildController` QObject: it plans and runs a build on one dedicated,
+named worker thread (finding tools and probing versions happens there too), re-emits every core
+event as a signal on the UI thread, cancels, refuses a second build and a read-only project, and
+reports a build that could not start. `shutdown()` cancels and waits, so no thread outlives it.
+**Acceptance:** tests with a fake planner and runner: events arrive in order on the UI thread,
+planning and building run on the worker, cancel reaches the runner, start-up errors and unexpected
+exceptions arrive as a `failed` signal, second start and read-only project refused, no thread left.
+
+#### [ ] P5-T01b — Status service and UI stall watchdog
+`StatusService` (debounced status evaluation on a worker, newest result wins, a request during a
+run re-runs once after it) and the dev-mode watchdog (`CTSTUDIO_DEV=1`: a UI stall over 100 ms logs
+the UI thread's stack once per stall).
+**Acceptance:** debounce/coalescing tests with a fake evaluator; watchdog test that detects an
+injected `time.sleep(0.2)` on the UI thread and stays quiet when idle.
 
 ### [ ] P5-T02 — Welcome & new-project wizard
 Welcome: New, Open, Recent (with missing-folder handling). Wizard pages: name + folder; source
