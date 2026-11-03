@@ -99,6 +99,17 @@ integration test (missing parts → release fails; complete stand-ins → passes
 `ctstudio build [dir] [--release] [--force] [--only component] [--json-events]`; human-friendly
 progress output; exit codes documented (0 ok, 1 build failed, 2 invalid usage, 3 cancelled).
 **Acceptance:** CLI integration test; `--json-events` output validates against documented schema.
+Split 2026-11-03 (STATUS "Plan changes"):
+- [x] **P4-T07a — Build a project (core)****:** `core/build/project_build.py`: the steps
+  (manual parts, then assemble and validate; `only` = one part's steps), the tools they use
+  found as doctor finds them (missing → stop before anything runs), versions for the cache,
+  the auto-add library, `force`. **Acceptance:** plan tests with fake tools; a real-tool
+  build of a synthetic manual project. Done 2026-11-03: `core/build/project_build.py`
+  (`plan_build`, `build_project`); a tool that would run only through Wine is not used yet;
+  real-tool build of an all-manual synthetic project, then a full skip; mutants 20/20.
+- [ ] **P4-T07b — The `ctstudio build` command****:** human output, `--json-events` (schema in
+  `docs/dev/CLI.md`), Ctrl+C cancels, exit codes 0/1/2/3. **Acceptance:** CLI integration
+  test; every `--json-events` line validates against the documented schema.
 
 ### [ ] P4-T08 — Benchmarks baseline
 `tests/benchmarks/`: status evaluation, no-op rebuild, stage copy of 100 MB, cache key computation

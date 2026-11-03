@@ -10,6 +10,18 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T07a` — Build a project (core). Plan (2026-11-03):
+  1. `core/build/project_build.py` `plan_build(root, manifest, profile, *, only, configured,
+     library)` → `BuildPlan(graph, request)`: manual parts from the manifest, then assemble
+     + validate. A part in a mode CT Studio cannot make yet stops it (BuildGraphError).
+  2. `only=PART`: just that part's steps, no packing; a part with no step is refused, naming
+     the parts that have one.
+  3. Tools: the ones the steps use, found like doctor (a path set in CT Studio wins, never
+     silently replaced); a missing or unusable one stops the build before anything runs,
+     naming it and its fix. Versions for the cache from the version cache/probe (None when
+     unknown).
+  4. `build_project(plan, on_event, cancel, force)`: loads the cache, `force` clears it, runs.
+  Acceptance (a): plan tests with fake tools; one real-tool run of a synthetic manual project.
 ## Done (newest first)
 - 2026-11-03 `P4-T06` Validate node (`core/build/validate.py`). Checks `build/<slot>.szs` and
   writes `.ctstudio/issues.json`: one error per missing required part (from `wszst analyze`,
@@ -681,6 +693,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-T07 split (about 700 lines in one go). P4-T07a = the core "build this
+  project" (`core/build/project_build.py`: steps, tools, versions, auto-add library,
+  `force`, `only`), shared later by the Build page. P4-T07b = `ctstudio build`, its human
+  output, `--json-events` with the schema in `docs/dev/CLI.md`, Ctrl+C, exit codes and the
+  CLI integration test.
 - 2026-11-03: P4-T05b design notes. The object → file table is Wiimm's own (`wkmpt
   objects`), read at build time, not a table copied into CT Studio, so it stays as current
   as the pinned tools. The auto-add library is a per-computer user setting

@@ -52,7 +52,7 @@ src/ctstudio/
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
     build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
-                 stage.py  assemble.py  objects.py  validate.py
+                 stage.py  assemble.py  objects.py  validate.py  project_build.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -312,6 +312,14 @@ template/manual ─────────────────────�
   "Missing file" lines for those parts. Test builds never fail on findings; strict (release
   by default, or the caller's choice) fails on any error with `VALIDATE_STRICT`, reporting
   every finding (`StepFailed(issue, also=...)`).
+- **Build a project** (P4-T07a, `build/project_build.py`, shared by `ctstudio build` and the
+  Build page): `plan_build(root, manifest, profile, only=, configured=, library=)` gives the
+  steps (a stage step per manual part, then assemble and validate; `only=PART` = that part's
+  steps, no packing) and finds every tool they use as doctor does (a path set in CT Studio
+  wins; PATH, usual folders, a checkout's `.tools/`; only programs started directly). A
+  missing tool raises `ToolNotFound` before anything runs. Versions for the cache come from
+  the version cache/probe (None when unknown). `build_project(plan, on_event, cancel=,
+  force=)`; `force` forgets the plan's steps only.
 - **Issues survive a skip** (P4-T06): the cache stores each step's issues with its entry, and
   a step skipped as unchanged reports them again (`NodeSkipped.issues`, the summary, the
   log marked "found before"). Old cache files without issues read as none.
