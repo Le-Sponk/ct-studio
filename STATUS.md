@@ -4,25 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T07 — `ctstudio build`
+**Next task:** P4-T07b — The `ctstudio build` command
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `f0159fc` (P4-T06; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `9dc27b9` (P4-T07a; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T07a` — Build a project (core). Plan (2026-11-03):
-  1. `core/build/project_build.py` `plan_build(root, manifest, profile, *, only, configured,
-     library)` → `BuildPlan(graph, request)`: manual parts from the manifest, then assemble
-     + validate. A part in a mode CT Studio cannot make yet stops it (BuildGraphError).
-  2. `only=PART`: just that part's steps, no packing; a part with no step is refused, naming
-     the parts that have one.
-  3. Tools: the ones the steps use, found like doctor (a path set in CT Studio wins, never
-     silently replaced); a missing or unusable one stops the build before anything runs,
-     naming it and its fix. Versions for the cache from the version cache/probe (None when
-     unknown).
-  4. `build_project(plan, on_event, cancel, force)`: loads the cache, `force` clears it, runs.
-  Acceptance (a): plan tests with fake tools; one real-tool run of a synthetic manual project.
 ## Done (newest first)
+- 2026-11-03 `P4-T07a` Build a project, core (`core/build/project_build.py`). The build's
+  steps come from the project (each hand-supplied part, then pack and check; or one part
+  only), and every tool they use is found the way doctor finds it before anything runs; a
+  missing one stops the build naming it. `force` rebuilds. Real tools built a made-up
+  all-manual project on both CI systems, then skipped every step on the second build.
+  1,942 tests; mutants 20/20. Commit `9dc27b9`.
 - 2026-11-03 `P4-T06` Validate node (`core/build/validate.py`). Checks `build/<slot>.szs` and
   writes `.ctstudio/issues.json`: one error per missing required part (from `wszst analyze`,
   which sees them with or without a KMP), then `wszst check`'s findings. Test builds never
