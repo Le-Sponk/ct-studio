@@ -4,31 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T05b — Auto-add and missing objects
+**Next task:** P4-T06 — Validate node
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `267b996` (P4-T05a; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `ad91b49` (P4-T05b; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T05b` — Auto-add and missing objects. Plan (2026-11-03):
-  1. Measured: `wkmpt cat KMP` ends GOBJ with an "Object statistics" table (count, id,
-     name; unknown ids have no name) and `## GOBJ total: N objects, M types`;
-     `wkmpt objects --long ID…` prints Wiimm's own object → file table (`Files:` plus
-     continuation lines, paths like `effect/pocha/rk_pocha.breff`). Keys match loosely
-     (`0xd2` also gives `0xd5`), so filter by exact id. Record in TOOLS.md.
-  2. `core/tools/wiimm_objects.py`: `kmp_objects(kmp)`, `object_files(ids)` + parsers.
-  3. Settings: `auto_add_library` in the user settings file (one library per computer).
-  4. `core/build/objects.py`: objects whose files are in neither the stage nor the verified
-     library → one warning naming each object and the files it needs; ids Wiimm does not
-     know → warning too.
-  5. Assemble: when auto-add is on and a library is set, `autoadd_verify` it each build
-     (unusable → warning, built without it); `--auto-add` only for a usable library; the
-     library folder becomes a step input. Real-wkmpt integration test on a synthetic
-     multi-object KMP; `realdata` test with the user's own library (skips without it).
-  Acceptance: fake/stub unit tests for arguments per profile, unusable/empty library, and the
-  named warnings; integration with no library; realdata at HC1. Risk: warnings from a step
-  the cache skips are not shown again (runner keeps issues of steps that ran) → P4-T06.
 ## Done (newest first)
+- 2026-11-03 `P4-T05b` Auto-add and missing objects (`core/build/objects.py`,
+  `core/tools/wiimm_objects.py`, user setting `auto_add_library`). The assemble step passes
+  `--auto-add` only for a library that passed Wiimm's check this build, and gives one warning
+  per object whose files are in neither the track nor the library, naming the object and its
+  files (Wiimm's own object list, read with wkmpt). Real-tool test green on both CI systems;
+  realdata test with the user's own library passed locally. 1,904 tests; mutants 33/33.
+  Commit `ad91b49`.
+- 2026-11-03 README: "under development" notice and progress bar (`scripts/progress.py`,
+  counted from the phase-file checkboxes; the gate fails while it is stale). Commit `df0bffe`.
 - 2026-11-03 `P4-T05a` Assemble without auto-add (`core/build/assemble.py`,
   `wiimm.list_files`). The stage is packed with the profile's compression into
   `build/<slot>.szs` (and the `_d` copy) via a temporary folder; `wszst list` must show every
@@ -689,7 +680,7 @@
   (`auto_add_library` in settings.json); nothing passes it to the build yet: P4-T07
   (`ctstudio build`) reads the setting, and P5 adds the Build page control. Object warnings
   are lost when the cache skips the assemble step (the runner keeps issues of steps that ran
-  only); P4-T06 (validate node / issues.json) must keep them. The dashboard Objects card
+  only); P4-T06 (validate node / issues.json) must keep them. [Open for P4-T06.] The dashboard Objects card
   still says "added automatically" whenever auto-add is on; P8-T07 makes it check the library.
 - 2026-11-03: P4-T05 split. P4-T05a = assemble, `_d` copy and the `wszst list` post-check,
   never with auto-add. P4-T05b = the auto-add library setting and check, `--auto-add`, and

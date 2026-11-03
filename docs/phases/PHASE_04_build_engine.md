@@ -53,7 +53,7 @@ Done 2026-11-03: `core/build/stage.py` (`manual_parts`, `stage_part`); the type 
 shared with the dashboard; every fixable problem is one `Issue` via `StepFailed`. Hard links
 deferred (see STATUS Plan changes). Mutants 25/25.
 
-### [ ] P4-T05 — Assemble node
+### [x] P4-T05 — Assemble node
 Split 2026-11-03 (see STATUS Plan changes):
 - [x] **P4-T05a — Assemble without auto-add** (commit 267b996)**:** `wszst create` of `.ctstudio/stage/` with the
   profile's compression into `build/<slot>.szs` (temporary file, then replaced), the `_d` copy
@@ -61,7 +61,7 @@ Split 2026-11-03 (see STATUS Plan changes):
   fake-tool unit tests for the arguments per profile and the post-check; an integration test
   with the real wszst on synthetic files. Done 2026-11-03: `core/build/assemble.py`,
   `wiimm.list_files`/`parse_list` (format measured, TOOLS.md); mutants 26/26.
-- [x] **P4-T05b — Auto-add and missing objects:** the library setting and its usability check,
+- [x] **P4-T05b — Auto-add and missing objects** (commit ad91b49)**:** the library setting and its usability check,
   `--auto-add` only then, and the warning naming every KMP object missing from both the stage
   and the library (needs the KMP object → file table); the `realdata` test. Done 2026-11-03:
   the table is Wiimm's own (`wkmpt cat` + `wkmpt objects`, `core/tools/wiimm_objects.py`),
