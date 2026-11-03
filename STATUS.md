@@ -4,27 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T03b — Build log & state
+**Next task:** P4-T04 — Manual-mode stage nodes
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `a87bdf7` (P4-T03a; Check, Windows + Ubuntu)
+**Last green commit:** `dc4fbe8` (P4-T03b; Check, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T03b` — Build log & state. Plan (2026-11-03):
-  - `Node.component` (optional): the part a step makes; must be a part with outputs, and a
-    graph refuses two steps making one part.
-  - After such a step runs (or is skipped while state.json has no record of the part), the
-    runner records the part: settings key, its outputs (folders expanded, inside
-    `.ctstudio/stage/`) and the files it was made from: the inputs of the step and every step
-    it needs, minus files other steps write (so the `.blend`, not the exports). Saved once at
-    the end, keeping other parts' records; failed/cancelled steps record nothing.
-  - `core/build/build_log.py`: `.ctstudio/logs/build-<UTC time>.log`, one readable line per
-    event (time, step, what happened, issues, hints); a write error disables the log with a
-    warning instead of failing the build; afterwards only the newest 20 are kept.
-    `BuildSummary.log` gives the path.
-  - Acceptance: status Ready after a build, Stale after the `.blend` changes, Edited outside
-    CT Studio after an output edit; log written and pruned. Mutants; ARCHITECTURE §7.
 ## Done (newest first)
+- 2026-11-03 `P4-T03b` Build log & state (`core/build/part_state.py`, `core/build/build_log.py`).
+  A step names the track part it makes (`Node.component`); after it runs the build records
+  the part in state.json with the user's files behind it (the `.blend`, not the export), so
+  status reads Ready, then Stale or edited outside CT Studio. One plain UTC log per build in
+  `.ctstudio/logs/`, newest 20 kept; an unwritable log never fails the build. 1,823 tests;
+  mutants 31/31. Commit `dc4fbe8`.
 - 2026-11-03 `P4-T03a` Runner & events (`core/build/runner.py`, `core/build/events.py`).
   `run_build` runs ready steps in up to `jobs` threads (default min(4, CPUs)); a step waits
   for the steps it needs and for its `resources`, without holding up other ready steps.
