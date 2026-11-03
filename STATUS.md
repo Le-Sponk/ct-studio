@@ -6,7 +6,7 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T02 — Welcome & new-project wizard
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `6a655dd` (P5-T01a; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `f548f83` (P5-T01b; Check, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
@@ -18,7 +18,8 @@
   a window freeze over 100 ms is logged once, with where the window was stuck (an injected
   0.2 s sleep is caught; idle and 0.1 s waits are not). Closing stops both and leaves no
   thread. Mutants 41/41 caught, 2 equivalent (a guard only the type checker needs; a
-  "still watching" check whose two halves always stop together). Commit `TBD`.
+  "still watching" check whose two halves always stop together). 2,079 tests. Commit
+  `f548f83`.
 - 2026-11-04 `P5-T01a` The app's build controller and services (`gui/build_controller.py`,
   `AppServices` in `gui/services.py`). A build is planned and run on one named background
   thread (settings, finding tools and version checks included), and every build event comes

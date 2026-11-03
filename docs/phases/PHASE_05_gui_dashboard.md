@@ -7,7 +7,7 @@ UI style: clean, calm, native-feeling Qt; few colours (status colours only); gen
 every control has a tooltip in plain language. Consistent spacing scale, one accent colour, no
 decorative clutter. Status must never be conveyed by colour alone (icon + text too).
 
-### [ ] P5-T01 — GUI services & threading
+### [x] P5-T01 — GUI services & threading
 `gui/services.py`: holds current Project, ToolRegistry, BuildController (QObject running the core
 runner on a dedicated worker thread, re-emitting core events as signals), StatusService (evaluates
 status on a worker, debounced), WatcherBridge (P5-T06). Dev-mode UI stall watchdog (> 100 ms logs a
@@ -26,7 +26,7 @@ reports a build that could not start. `shutdown()` cancels and waits, so no thre
 planning and building run on the worker, cancel reaches the runner, start-up errors and unexpected
 exceptions arrive as a `failed` signal, second start and read-only project refused, no thread left.
 
-#### [ ] P5-T01b — Status service and UI stall watchdog
+#### [x] P5-T01b — Status service and UI stall watchdog (commit f548f83)
 `StatusService` (debounced status evaluation on a worker, newest result wins, a request during a
 run re-runs once after it) and the dev-mode watchdog (`CTSTUDIO_DEV=1`: a UI stall over 100 ms logs
 the UI thread's stack once per stall).
