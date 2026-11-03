@@ -23,6 +23,10 @@ tests require an X server instead. Real-tool integration tests need the optional
 `.tools/` and may skip when those tools are absent. See the [testing strategy](docs/process/TESTING_STRATEGY.md)
 and [environment notes](docs/dev/ENVIRONMENT.md) for details.
 
+Before every commit, run `uv run python scripts/progress.py`. It recounts the ticked tasks in
+`docs/phases/` and rewrites the progress bar at the top of the README; the gate fails while the
+README figure is out of date.
+
 ## Boundaries
 
 Keep `core` independent of Qt; launch external programs through the core tool adapters rather

@@ -85,7 +85,7 @@ docstring-code-format = true
 
 [tool.pyright]
 # The application and the gate itself. scripts/ and tests/ are ruff-only for now.
-include = ["src", "scripts/check.py"]
+include = ["src", "scripts/check.py", "scripts/progress.py"]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
 strict = ["src/ctstudio/core"]  # ADR-010
