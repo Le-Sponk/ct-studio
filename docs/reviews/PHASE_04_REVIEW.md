@@ -35,6 +35,12 @@ Independent fresh-context review of `503dd1e` plus the Phase 4 brief. Reviewer r
   ruff, pyright (0 errors), 3 import contracts, xenon, vulture and file length green.
   Eleven relevant real-Wiimm integration tests, five local-only realdata tests on the user's
   own ignored disc copy, and 42 focused tests from a `Q:` checkout all passed.
-- Windows/Ubuntu CI and independent Must-fix verification: pending when this draft was
-  written; add actual results before tagging.
+- CI on `2f7824b`: Check and Integration green on Windows and Ubuntu. The job logs show
+  the build tests ran (`test_build_assemble_real.py`, `_objects_`, `_project_`,
+  `_validate_`, `test_cli_build_real.py`); Ubuntu 129 passed / 17 expected skips, Windows
+  126 passed / 20 expected skips.
+- Independent Must-fix check (separate fresh context, scratch worktree): 44 cache/validate
+  tests pass; with `entry.issues` dropped again both new tests fail (2 failed), restored
+  they pass; a synthetic CLI project kept and reported its 7 findings on builds 2-4.
+  Verdict: **passed**; tagged `phase-04-done`.
 - No copyrighted files in the changes. Committed tests use synthetic/recorded inputs; local-only realdata reads the user's own ignored files.

@@ -3,21 +3,23 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-GATE — Phase 4 review
+**Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
+**Next task:** P5-T01 — GUI services & threading
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `5831980` (P4-T08; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `2f7824b` (P4-GATE fixes; Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P4-GATE` — Independent Phase 4 review (`docs/reviews/PHASE_04_REVIEW.md`).
-  Plan: (1) reproduce all findings; (2) regression tests first for the Must fix and Should
-  fixes; (3) code and docs, with P7-T06 deferral; (4) full local gate, real-tool tests,
-  benchmark and copyright/staged-diff checks; (5) commit/push and confirm Windows/Ubuntu
-  Check and Integration CI; (6) independent Must-fix verification before tagging. Acceptance:
-  no open Must fixes; every Should fixed or assigned an ID; all checks green; Phase 4 exit
-  criteria met. Risks: cache-key compatibility and Windows pipe/backup behavior.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- `P4-GATE` — Phase 4 review passed (2026-11-04). Fresh-context reviewer
+  (`docs/reviews/PHASE_04_REVIEW.md`, brief `PHASE_04_BRIEF.md`) re-ran the gate (2,011),
+  the real-tool build tests, benchmarks, the local-only disc-track checks, the CLI by hand
+  and 8/8 scratch mutations; no disc data in the repo. 1 Must fix (build findings vanished
+  from the cache and the report from the second unchanged build on) and 7 Should fixes
+  fixed in `2f7824b` (one, reserved project settings, documented and moved to P7-T06; a
+  runner edge case logged as TD-012 for P5-T03). Gate `--all` 2,027 passed; Check and
+  Integration CI green on Windows and Ubuntu. A separate check of the Must fix passed (the
+  new tests fail without the fix, and a made-up project kept its 7 findings over 4 builds).
 - 2026-11-03 `P4-T08` Build benchmarks (`tests/benchmarks/test_build_speed.py`, numbers and
   machine in `docs/dev/BENCHMARKS.md`): typical track first test build 0.7 s (limit 10 s),
   no-change rebuild 45 ms in-process / 0.5 s as a process (limit 1 s), 100 MiB part staged

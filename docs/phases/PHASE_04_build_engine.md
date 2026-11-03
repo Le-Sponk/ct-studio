@@ -127,4 +127,4 @@ numbers in BENCHMARKS.md. Found and fixed: a warm 1,000-input check took 0.94 s 
 shapes, LE-CODE / SLOT / SUGGESTION lines; `tests/realdata/test_build_original_tracks.py`
 checks every track of the user's own disc). Mutants 21/21.
 
-### [ ] P4-GATE — Phase review
+### [x] P4-GATE — Phase review
