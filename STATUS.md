@@ -4,28 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T07b — The `ctstudio build` command
+**Next task:** P4-T08 — Benchmarks baseline
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `9dc27b9` (P4-T07a; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `7e4db32` (P4-T07b; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T07b` — The `ctstudio build` command. Plan (2026-11-03):
-  1. `core/build/event_json.py`: each build event as one JSON object (`format`, `event`,
-     fields; issues as in issues.json, files relative to the project).
-  2. `cli/build.py`: `ctstudio build [FOLDER] [--release] [--force] [--only PART]
-     [--json-events]`. Takes the project lock (refused, exit 1, when the app has it open);
-     tool paths and the auto-add library from CT Studio's settings (a damaged file is
-     reported and ignored); runs the build on its own thread so Ctrl+C cancels (running
-     steps finish). Human output: one line per step finished/skipped/failed and its log
-     lines, then the issues, the outcome, the track and the log. `--only` choices come
-     from the parts, so a wrong one is a usage error (exit 2).
-  3. Exit 0 succeeded, 1 failed or could not start, 2 usage, 3 cancelled. `docs/dev/CLI.md`
-     gets the section and the JSON schema of every event (a JSON Schema block).
-  Acceptance: CLI integration test (subprocess, real Wiimm, synthetic project: success,
-  a failing part, `--json-events`); every line validates against the schema read from
-  CLI.md by a small validator in the tests; Ctrl+C test with `_thread.interrupt_main`.
 ## Done (newest first)
+- 2026-11-03 `P4-T07b` The `ctstudio build` command (`cli/build.py`,
+  `core/build/event_json.py`). Readable progress (one line per step, then what was found,
+  the track and the log), `--release`, `--force`, `--only PART`, `--json-events` (schema in
+  `docs/dev/CLI.md`, checked by the tests), Ctrl+C cancels cleanly, exit 0/1/2/3; refuses
+  while the app has the project open. Real-process tests with the real Wiimm tools green on
+  both CI systems. 1,979 tests; mutants 33/33. Commit `7e4db32`.
 - 2026-11-03 `P4-T07a` Build a project, core (`core/build/project_build.py`). The build's
   steps come from the project (each hand-supplied part, then pack and check; or one part
   only), and every tool they use is found the way doctor finds it before anything runs; a
