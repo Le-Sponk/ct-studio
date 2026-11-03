@@ -55,7 +55,7 @@ deferred (see STATUS Plan changes). Mutants 25/25.
 
 ### [ ] P4-T05 — Assemble node
 Split 2026-11-03 (see STATUS Plan changes):
-- [x] **P4-T05a — Assemble without auto-add:** `wszst create` of `.ctstudio/stage/` with the
+- [x] **P4-T05a — Assemble without auto-add** (commit 267b996)**:** `wszst create` of `.ctstudio/stage/` with the
   profile's compression into `build/<slot>.szs` (temporary file, then replaced), the `_d` copy
   when enabled, and a `wszst list` post-check that every staged file is inside. Acceptance:
   fake-tool unit tests for the arguments per profile and the post-check; an integration test

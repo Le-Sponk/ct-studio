@@ -4,26 +4,20 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T05 — Assemble node
+**Next task:** P4-T05b — Auto-add and missing objects
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `4fcf8cc` (P4-T04; Check, Windows + Ubuntu)
+**Last green commit:** `267b996` (P4-T05a; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T05a` — Assemble without auto-add. Plan (2026-11-03):
-  - `core/tools/wiimm.py` `list_files(szs)`: parse `wszst list` (measured today on 2.42a:
-    `> N directories + M files of LABEL:name`, singular `1 file`, folders end in `/`, an empty
-    archive lists nothing; counts must agree).
-  - `core/build/assemble.py` `assemble_step(root, manifest, profile)`: input the whole
-    `.ctstudio/stage/` folder (so it waits for every stage step), outputs `build/<slot>.szs`
-    and `build/<slot>_d.szs` when `make_d_variant`; params slot, compression, `_d`.
-    Run: `create_szs` into a fresh temporary folder in `build/`, `list_files` must hold every
-    staged file (dot-files are left out by wszst, measured), then replace the outputs; the
-    temporary folder always goes. A missing file → `StepFailed` Issue naming them.
-  - Never passes `--auto-add` (that is P4-T05b).
-  - Acceptance: fake-tool unit tests (best/fast arguments, post-check, failures leave the old
-    SZS); real-wszst integration test incl. `none` and a sub-folder. Mutants; docs.
 ## Done (newest first)
+- 2026-11-03 `P4-T05a` Assemble without auto-add (`core/build/assemble.py`,
+  `wiimm.list_files`). The stage is packed with the profile's compression into
+  `build/<slot>.szs` (and the `_d` copy) via a temporary folder; `wszst list` must show every
+  staged file before the old SZS is replaced, so a failed build keeps the last good track.
+  `wszst list` format measured (TOOLS.md). Real-wszst integration test green on both CI
+  systems. Also: a build-log test no longer races the first step line. 1,872 tests; mutants
+  26/26. Commit `267b996`.
 - 2026-11-03 `P4-T04` Manual-mode stage steps (`core/build/stage.py`). A part in manual mode
   gets a step `stage:<part>` that checks the chosen file with the dashboard's own type check
   and copies it under its game name into `.ctstudio/stage/` (post-effects as a whole folder,
