@@ -323,8 +323,8 @@ def test_a_project_open_elsewhere_is_not_built(
     with Project.open(root):
         assert main(["build", str(root)]) == 1
     err = capsys.readouterr().err
-    assert "This project is open in CT Studio, so it was not built." in err
-    assert "Close it there, or build from the app." in err
+    assert "This project is in use by CT Studio or another build, so it was not built." in err
+    assert "Wait for that build to finish or close the project there, then build again." in err
     assert builds.planned == []
 
 

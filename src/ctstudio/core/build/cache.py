@@ -1,11 +1,14 @@
 """``.ctstudio/cache.json``: which build steps can be skipped (ARCHITECTURE §7, ADR-006).
 
 ``check`` gives a step's key, a BLAKE2b hash over its settings, ``impl_version``, the versions
-of the tools it starts and the content of every file it reads (a folder counts as every file
-in it, by name; a missing input counts as missing). The step is *fresh* when the key equals
+of the tools it starts and the name and content of every file it reads (a folder counts as
+every file in it, by name; a missing input counts as missing). The name counts, so the same
+bytes read from another file (a new slot) are a miss. The step is *fresh* when the key equals
 the one stored after its last run and exactly the files it wrote then are there, unchanged.
 Size+mtime unchanged means unchanged, so checking an untouched project hashes nothing; a
-touched file is hashed once and its new mtime recorded.
+touched file is hashed once and its new mtime recorded. ``Lookup.edited`` names the files the
+step wrote last time that were changed since (by hand), so they can be backed up first; a
+forgotten step (``invalidate``, ``--force``) still knows what it wrote.
 
 The file is app-managed and safe to delete: missing or damaged reads as "nothing cached".
 One cache may be shared by steps running in parallel.
@@ -49,6 +52,7 @@ class Lookup:
     fresh: bool
     inputs: Records  # the input files as they were when the key was made
     issues: tuple[Issue, ...] = ()  # when fresh: what the step found when it last ran
+    edited: tuple[Path, ...] = ()  # files it wrote last time, changed since (not missing ones)
 
 
 @dataclass(frozen=True)
@@ -98,9 +102,13 @@ class BuildCache:
         }
         text = json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         key = hashlib.blake2b(text.encode("utf-8")).hexdigest()
-        fresh = entry is not None and self._fresh(node, entry, _Entry(key, inputs, {}))
-        issues = entry.issues if fresh and entry is not None else ()
-        return Lookup(node.id, key, fresh, inputs, issues)
+        if entry is None:
+            return Lookup(node.id, key, False, inputs)
+        outputs, edited = self._outputs(node, entry)
+        if entry.key == key and not edited and self._complete(node, entry, outputs):
+            self._refresh(node.id, entry, _Entry(key, inputs, outputs, entry.issues))
+            return Lookup(node.id, key, True, inputs, entry.issues)
+        return Lookup(node.id, key, False, inputs, (), edited)
 
     def store(self, node: Node, lookup: Lookup, issues: tuple[Issue, ...] = ()) -> None:
         """Record a step that just ran and what it found, so the same key is fresh next time."""
@@ -108,7 +116,8 @@ class BuildCache:
             raise ValueError(f"{node.id}: this lookup is for {lookup.node_id}")
         absent = [path for path in node.outputs if not path.exists()]
         if absent:
-            self.invalidate(node.id)
+            with self._lock:  # what it wrote is unknown now: forget the step entirely
+                self._changed = self._entries.pop(node.id, None) is not None or self._changed
             names = ", ".join(input_key(self.root, path) for path in absent)
             raise BuildError(node.id, f"it did not write {names}")
         made = self._records(self._keyed(_expand(node.outputs)), {})
@@ -117,8 +126,11 @@ class BuildCache:
             self._changed = True
 
     def invalidate(self, node_id: str) -> None:
+        """The step runs next time; what it wrote stays known, so hand edits are still seen."""
         with self._lock:
-            if self._entries.pop(node_id, None) is not None:
+            entry = self._entries.get(node_id)
+            if entry is not None and entry.key:
+                self._entries[node_id] = _Entry("", entry.inputs, entry.outputs)
                 self._changed = True
 
     def clear(self) -> None:
@@ -137,38 +149,49 @@ class BuildCache:
             self._changed = False
 
     def _input(self, path: Path, known: Records, seen: dict[str, FileRecord]) -> object:
-        """What the key holds for one declared input: a digest, a folder's digests, or None."""
+        """What the key holds for one declared input: its name, then its digest, every digest
+        in it (a folder) or None (missing); the name is resolved once, with the files."""
         if path.is_dir():
             files = _files(path)
             keyed = self._keyed(files)
             records = self._records(keyed, known)
             seen.update(records)
-            return {
+            digests = {
                 f.relative_to(path).as_posix(): records[key].digest
                 for f, (key, _) in zip(files, keyed, strict=True)
             }
+            # One resolve for each file, not another resolve for a folder of 1,000 files.
+            return [resolved_key(path, self._base), digests]
         if not path.is_file():  # not path.exists() would hash a pipe or device and hang
-            return None
-        record = self._records(self._keyed([path]), known)
+            return [input_key(self.root, path), None]
+        [(name, resolved)] = self._keyed([path])
+        record = self._records([(name, resolved)], known)
         seen.update(record)
-        return next(iter(record.values())).digest
+        return [name, record[name].digest]
 
-    def _fresh(self, node: Node, entry: _Entry, now: _Entry) -> bool:
-        """Same key and outputs; then records the new mtimes of touched but unchanged files."""
-        if entry.key != now.key or not all(path.exists() for path in node.outputs):
-            return False
-        keyed = self._keyed(_expand(node.outputs))
-        if {key for key, _ in keyed} != set(entry.outputs):
-            return False
-        outputs = self._records(keyed, entry.outputs)
-        if any(outputs[k].digest != entry.outputs[k].digest for k in outputs):
-            return False
+    def _outputs(self, node: Node, entry: _Entry) -> tuple[dict[str, FileRecord], tuple[Path, ...]]:
+        """The step's output files now, by key, and those that differ from what it wrote."""
+        files = _expand(path for path in node.outputs if path.exists())
+        keyed = self._keyed(files)
+        records = self._records(keyed, entry.outputs)
+        edited = tuple(
+            file
+            for file, (key, _) in zip(files, keyed, strict=True)
+            if key in entry.outputs and records[key].digest != entry.outputs[key].digest
+        )
+        return records, edited
+
+    @staticmethod
+    def _complete(node: Node, entry: _Entry, outputs: Records) -> bool:
+        """Exactly the files the step wrote last time are there."""
+        return all(path.exists() for path in node.outputs) and set(outputs) == set(entry.outputs)
+
+    def _refresh(self, node_id: str, entry: _Entry, new: _Entry) -> None:
+        """Record the new mtimes of touched but unchanged files (no rehash next time)."""
         with self._lock:
-            new = _Entry(now.key, now.inputs, outputs)
-            if new != entry and self._entries.get(node.id) is entry:
-                self._entries[node.id] = new
+            if new != entry and self._entries.get(node_id) is entry:
+                self._entries[node_id] = new
                 self._changed = True
-        return True
 
     @cached_property
     def _base(self) -> Path:

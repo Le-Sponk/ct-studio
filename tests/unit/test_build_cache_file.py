@@ -92,3 +92,41 @@ def test_an_unreadable_cache_is_a_project_error(root: Path) -> None:
     (root / CACHE_FILE).mkdir(parents=True)
     with pytest.raises(ProjectError, match=r"Could not read cache\.json"):
         BuildCache.load(root)
+
+
+# --- P4-GATE review fixes -----------------------------------------------------------------------
+
+
+def test_the_same_bytes_under_another_name_is_a_miss(root: Path, built: BuildCache) -> None:
+    """validate read build/castle_course.szs; a new slot with the same bytes must check again."""
+    moved = _write(root / "files" / "other.kmp", (root / "files" / "course.kmp").read_bytes())
+    renamed = stage_node(root, inputs=(moved, root / "files" / "posteffect"))
+    assert not built.check(renamed, VERSIONS).fresh
+    assert built.check(stage_node(root), VERSIONS).fresh
+
+
+def test_outputs_edited_by_hand_are_named_by_the_lookup(root: Path, built: BuildCache) -> None:
+    node = stage_node(root)
+    assert built.check(node, VERSIONS).edited == ()
+    node.outputs[0].write_bytes(b"edited by hand")
+    _write(node.outputs[1] / "sub" / "b.bblm", b"also edited")
+    (node.outputs[1] / "a.bblm").unlink()  # gone is not edited: nothing to lose
+    lookup = built.check(node, VERSIONS)
+    assert not lookup.fresh
+    assert lookup.edited == (node.outputs[0], node.outputs[1] / "sub" / "b.bblm")
+
+
+def test_a_forced_step_still_knows_what_it_wrote(root: Path, built: BuildCache) -> None:
+    """--force forgets the key, not the outputs: a hand edit is still backed up."""
+    node = stage_node(root)
+    built.invalidate(node.id)
+    built.save()
+    node.outputs[0].write_bytes(b"edited by hand")
+    lookup = _new_process(root).check(node, VERSIONS)
+    assert not lookup.fresh and lookup.edited == (node.outputs[0],)
+
+
+def test_outputs_with_no_record_are_not_edited(root: Path) -> None:
+    node = stage_node(root)
+    _write(node.outputs[0], b"there before any build")
+    assert BuildCache.load(root).check(node, VERSIONS).edited == ()

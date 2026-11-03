@@ -51,10 +51,12 @@ class StepFailed(CTStudioError):
     ``also``: everything else the step found, reported with it (validate's findings).
     """
 
-    def __init__(self, issue: Issue, *, also: tuple[Issue, ...] = ()) -> None:
+    def __init__(
+        self, issue: Issue, *, also: tuple[Issue, ...] = (), details: str | None = None
+    ) -> None:
         self.issue = issue
         self.issues = (*also, issue) if also else (issue,)
-        super().__init__(issue.message, hint=issue.hint)
+        super().__init__(issue.message, hint=issue.hint, details=details)
 
 
 @dataclass(frozen=True)

@@ -63,11 +63,14 @@ materials, textures, BRRES size, facepoints (if known), warnings.
 **Acceptance:** fixture auto build end-to-end; cached when nothing changed; each sub-step logged with
 its exact command.
 
-### [ ] P7-T06 — Power-user hooks
+### [ ] P7-T06 — Power-user hooks and advanced Wiimm options
 `overrides/course_model.abmatt` (ABMatt command file) executed after rules when present;
-`extra_import_args`; project `hooks.post_stage` script run with env vars (`TS_PROJECT`, `TS_STAGE`,
-`TS_PROFILE`). Documented in user docs with examples.
-**Acceptance:** tests for hook invocation, failure reporting, and env vars.
+`extra_import_args`; project `hooks.post_stage` and `hooks.post_build` scripts run with env vars
+(`TS_PROJECT`, `TS_STAGE`, `TS_PROFILE`). Wire `[build] extra_wszst_args` through the Wiimm
+adapter to `wszst create`, include the options in the cache key, and validate options before
+passing them to the external tool (P4-GATE deferral: the manifest accepts but currently ignores
+them). Documented in user docs with examples.
+**Acceptance:** tests for hook invocation, failure reporting, env vars and custom Wiimm options.
 
 ### [ ] P7-T07 — External edit reconciliation (capture & reapply)
 Complete ARCHITECTURE §8 option 1 using the S4 mechanism (ADR-012): capture is

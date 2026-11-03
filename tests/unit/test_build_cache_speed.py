@@ -114,7 +114,8 @@ def test_a_project_folder_reached_through_dots_gives_the_same_keys(root: Path) -
 
 
 def test_a_folder_inputs_key_names_each_file_with_its_own_content(root: Path) -> None:
-    """The key's exact material (cache.json compatibility): a folder is ``{name: digest}``."""
+    """The key's exact material (cache.json compatibility): each input is ``[its project
+    path, its digest]``, a folder's digest ``{name: digest}`` (P4-GATE: the name counts)."""
     folder = root / "fx"
     folder.mkdir()
     for name, data in (("a.bin", b"one"), ("b.bin", b"two"), ("c.bin", b"three")):
@@ -125,7 +126,9 @@ def test_a_folder_inputs_key_names_each_file_with_its_own_content(root: Path) ->
         "params": {"k": 1},
         "impl_version": 3,
         "tools": {},
-        "inputs": [{name: hash_file(folder / name) for name in ("a.bin", "b.bin", "c.bin")}],
+        "inputs": [
+            ["fx", {name: hash_file(folder / name) for name in ("a.bin", "b.bin", "c.bin")}]
+        ],
     }
     text = json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     expected = hashlib.blake2b(text.encode("utf-8")).hexdigest()

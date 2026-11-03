@@ -239,3 +239,10 @@ def test_fake_refuses_auto_add_with_an_unrecorded_stage(fake_tools_path, tmp_pat
     result = _run_fake(fake_tools_path, tmp_path, *argv)
     assert (result.returncode, result.stdout) == (121, b"")
     assert not (tmp_path / "a.szs").exists()
+
+
+def test_a_librarys_names_are_its_found_file_names(tmp_path: Path) -> None:
+    from ctstudio.core.tools.wiimm import AutoAddLibrary
+
+    lib = AutoAddLibrary(tmp_path, ("BRRES itembox.brres", "KCL a b.kcl"), (), ())
+    assert lib.names == frozenset({"itembox.brres", "a b.kcl"})

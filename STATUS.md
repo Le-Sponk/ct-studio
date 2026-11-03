@@ -9,6 +9,13 @@
 **Last green commit:** `5831980` (P4-T08; Check + Integration, Windows + Ubuntu)
 
 ## In progress
+- `P4-GATE` — Independent Phase 4 review (`docs/reviews/PHASE_04_REVIEW.md`).
+  Plan: (1) reproduce all findings; (2) regression tests first for the Must fix and Should
+  fixes; (3) code and docs, with P7-T06 deferral; (4) full local gate, real-tool tests,
+  benchmark and copyright/staged-diff checks; (5) commit/push and confirm Windows/Ubuntu
+  Check and Integration CI; (6) independent Must-fix verification before tagging. Acceptance:
+  no open Must fixes; every Should fixed or assigned an ID; all checks green; Phase 4 exit
+  criteria met. Risks: cache-key compatibility and Windows pipe/backup behavior.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-03 `P4-T08` Build benchmarks (`tests/benchmarks/test_build_speed.py`, numbers and
@@ -703,6 +710,12 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-GATE review deferred the `[build] extra_wszst_args` runtime support and
+  `[hooks]` scripts to P7-T06. Both fields already parse into the manifest but the current
+  build does not run them; PROJECT_FILE.md now says so. P7-T06 will validate options, pass
+  them via the adapter, include them in the cache key and test hooks. The UI callback error
+  / missing state.json case is tracked as TD-012 for the P5 Build page before it uses the
+  runner. No Phase 4 exit criterion depends on these optional settings.
 - 2026-11-03: P4-T07 split (about 700 lines in one go). P4-T07a = the core "build this
   project" (`core/build/project_build.py`: steps, tools, versions, auto-add library,
   `force`, `only`), shared later by the Build page. P4-T07b = `ctstudio build`, its human
@@ -1223,6 +1236,11 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   within 4 s + 12 s; the file passed 5/5 alone right after. Not the clock bound fixed in
   P2-T08d: find whether the child is slow to start or ended early (log its pid/exit), then
   make the test wait on a signal, not a sleep.
+- **TD-012 · P5-T03 · failed UI event callback can omit part-state records.**
+  `core/build/runner.py` stops on an exception from `on_event`; worker results already queued
+  may be cached without being recorded to state.json. Before P5 uses this runner for the
+  Build page, add a failing callback test and drain/record completed steps or otherwise
+  reconcile state from the cache on the next build. Found in P4-GATE review.
 - **TD-011 · P13-T02 · `ctstudio status` start-up.** P3-GATE measured a whole `status --json`
   run at ~400 ms on this workstation: ~110 ms Python start, ~210 ms imports (`ctstudio.cli`
   imports `cli.doctor` and so `core.tools.doctor`; `importlib.metadata` for `__version__`

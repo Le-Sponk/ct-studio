@@ -136,6 +136,22 @@ def test_only_a_part_without_a_step_is_refused_naming_those_with_one(root: Path)
     assert unknown.value.user_message == "There is no part called 'kmpp'. Did you mean kmp?"
 
 
+def test_only_one_part_does_not_need_the_others_to_be_buildable(
+    root: Path, no_settings: None
+) -> None:
+    """P4-GATE: --only kcl failed because the (auto) course model cannot be made yet."""
+    manifest = all_manual(root)
+    auto = dataclasses.replace(manifest.components.course_model, mode="auto")
+    manifest = dataclasses.replace(
+        manifest, components=dataclasses.replace(manifest.components, course_model=auto)
+    )
+    assert [n.id for n in plan_build(root, manifest, "test", only="kcl").graph.nodes] == [
+        "stage:kcl"
+    ]
+    with pytest.raises(BuildGraphError, match="cannot make the Course model in auto mode yet"):
+        plan_build(root, manifest, "test", only="course_model")
+
+
 def test_a_part_ct_studio_cannot_make_yet_stops_the_plan(root: Path) -> None:
     manifest = all_manual(root)
     auto = dataclasses.replace(manifest.components.kcl, mode="auto")
@@ -169,8 +185,11 @@ def test_a_tool_that_would_run_through_wine_is_not_used_yet(
         return ToolLocation(tmp_path / f"{spec.id}.exe", None, "path", "wine")
 
     monkeypatch.setattr(project_build, "discover", through_wine)
-    with pytest.raises(ToolNotFound, match="Wiimms SZS Tool was not found"):
+    with pytest.raises(ToolNotFound) as caught:
         plan_build(root, all_manual(root), "test")
+    assert caught.value.user_message == (
+        "Wiimms SZS Tool was found, but only runs through Wine, which builds cannot use yet."
+    )
 
 
 def test_a_tool_path_set_in_ct_studio_is_used(

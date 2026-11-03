@@ -34,13 +34,13 @@ def check_objects(ctx: BuildContext, stage: Path, library: Path | None) -> Objec
     usable = _usable(ctx, library, issues) if library is not None else None
     if not (stage / KMP).is_file():
         return ObjectCheck(usable, tuple(issues))
-    there: set[str] = {entry.split(" ", 1)[-1] for entry in usable.found} if usable else set()
+    there = usable.names if usable else frozenset[str]()
     issues.extend(_lacking(ctx, stage, there, _where(ctx, library, usable)))
     return ObjectCheck(usable, tuple(issues))
 
 
 def _lacking(
-    ctx: BuildContext, stage: Path, there: set[str], where: tuple[str, str]
+    ctx: BuildContext, stage: Path, there: frozenset[str], where: tuple[str, str]
 ) -> list[Issue]:
     """A warning per placed object whose files are in neither the stage nor ``there``."""
     wkmpt = _exe(ctx, "wkmpt")

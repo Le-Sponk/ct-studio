@@ -5,26 +5,27 @@ build's steps (a stage step per part in manual mode, then assemble and validate)
 every tool those steps use the way doctor does: a path set in CT Studio wins and is never
 silently replaced, then PATH, the usual folders and a checkout's ``.tools/``. A missing or
 unusable tool stops the build before anything runs, naming it. ``only`` keeps one part's
-steps and does not pack the track. ``build_project`` runs a plan; ``force`` forgets what was
-built before, for the steps in the plan only.
+steps (the other parts need not be buildable) and does not pack the track.
+``build_project`` runs a plan; ``force`` forgets what was built before, for the steps in the
+plan only.
 """
 
 from __future__ import annotations
 
 import difflib
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
 from ctstudio.core.build.assemble import assemble_step
 from ctstudio.core.build.cache import BuildCache
 from ctstudio.core.build.events import BuildEvent, BuildSummary
-from ctstudio.core.build.graph import BuildGraph, from_manifest
-from ctstudio.core.build.node import Profile
+from ctstudio.core.build.graph import BuildGraph, MakePart, from_manifest
+from ctstudio.core.build.node import Node, Profile
 from ctstudio.core.build.runner import BuildRequest, run_build
 from ctstudio.core.build.stage import manual_parts
 from ctstudio.core.build.validate import validate_step
-from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS
+from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS, ComponentSpec
 from ctstudio.core.errors import BuildGraphError, ToolNotFound
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.tools.discovery import ToolLocation, default_dev_root, discover
@@ -58,9 +59,12 @@ def plan_build(
         assemble_step(root, manifest, profile, library),
         validate_step(root, manifest, profile),
     )
-    graph = from_manifest(root, manifest, manual_parts(root, manifest), finish)
-    if only is not None:
-        graph = graph.subgraph([f"stage:{_part(only)}"])
+    if only is None:
+        graph = from_manifest(root, manifest, manual_parts(root, manifest), finish)
+    else:  # just that part: the others need not be buildable (an auto course model, say)
+        part = _part(only)
+        graph = from_manifest(root, manifest, _just(part, manual_parts(root, manifest)))
+        graph = graph.subgraph([f"stage:{part}"])
     needed = list(dict.fromkeys(tool for node in graph.nodes for tool in node.tools))
     tools = _tools(needed, configured or {})
     return BuildPlan(graph, BuildRequest(manifest, profile, tools, _versions(tools)))
@@ -78,6 +82,15 @@ def build_project(
         for node in plan.graph.nodes:
             cache.invalidate(node.id)
     return run_build(plan.graph, cache, plan.request, on_event, cancel=cancel)
+
+
+def _just(part: str, make: MakePart) -> MakePart:
+    """``make`` for ``part``, and no steps for every other part."""
+
+    def just(spec: ComponentSpec, mode: str) -> Iterable[Node] | None:
+        return make(spec, mode) if spec.id == part else []
+
+    return just
 
 
 def _part(only: str) -> str:
@@ -102,9 +115,12 @@ def _tools(needed: list[str], configured: Mapping[str, Path]) -> dict[str, ToolL
         where = discover(
             spec, configured=configured.get(tool), include_dev=True, dev_root=default_dev_root()
         )
-        if where is None or where.launcher != "direct":
-            hint = _TOOL_HINT.format(product=_PRODUCT.get(tool, spec.name))
+        hint = _TOOL_HINT.format(product=_PRODUCT.get(tool, spec.name))
+        if where is None:
             raise ToolNotFound(spec.name, hint=hint)
+        if where.launcher != "direct":
+            problem = "was found, but only runs through Wine, which builds cannot use yet"
+            raise ToolNotFound(spec.name, hint=hint, problem=problem)
         found[tool] = where
     return found
 

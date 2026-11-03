@@ -319,3 +319,44 @@ def test_a_wszst_failure_leaves_no_temporary_files(
     assert summary.outcome == "failed"
     assert "ERROR #64" in failed.message
     assert list((root / "build").iterdir()) == []
+
+
+# --- P4-GATE review fixes -----------------------------------------------------------------------
+
+
+def test_a_track_edited_by_hand_is_backed_up_before_it_is_replaced(
+    fake_tools_path, root: Path
+) -> None:
+    assert run(root, manifest())[0].outcome == "succeeded"
+    szs = root / "build" / "castle_course.szs"
+    szs.write_bytes(szs.read_bytes() + b" + my hand edit")
+    assert run(root, manifest())[0].ran == ("assemble",)
+    [copy] = (root / ".ctstudio" / "backups").rglob("castle_course.szs")
+    assert copy.read_bytes().endswith(b" + my hand edit")
+    assert not szs.read_bytes().endswith(b" + my hand edit")
+
+
+def test_a_wszst_crash_is_said_plainly_and_its_output_kept_for_the_log(
+    fake_tools_path, root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    dump = "0 [main] wszst 1105 cygwin_exception::open_stackdumpfile: Dumping stack trace"
+
+    def crashed(stage: Path, dest: Path, **_kwargs: object) -> Path:
+        raise WiimmError(stage, 35584, f"tool exited 35584: {dump}", error_code=None, details=dump)
+
+    monkeypatch.setattr(assemble, "create_szs", crashed)
+    summary, recorder = run(root, manifest())
+    [failed] = [e for e in recorder.events if isinstance(e, NodeFailed)]
+    assert summary.outcome == "failed"
+    assert failed.message == (
+        "Wiimm's tool stopped unexpectedly while packing the track: "
+        "one of the track's files is probably damaged."
+    )
+    assert failed.hint == (
+        "Export or choose the BRRES files again, then build again. "
+        "The build log has the tool's own output."
+    )
+    [issue] = failed.issues
+    assert issue.code == "ASSEMBLE_TOOL_CRASHED"
+    assert failed.details == dump
+    assert summary.log is not None and dump in summary.log.read_text(encoding="utf-8")

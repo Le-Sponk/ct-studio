@@ -250,19 +250,24 @@ template/manual ─────────────────────�
   `from_manifest(root, manifest, make_part, finish)` asks `make_part(spec, mode)` for the
   steps of every part with outputs, in dashboard order; `None` means CT Studio cannot make
   that mode yet and becomes a plain error naming the other modes.
-- **Cache key** = blake2b over: canonical JSON of node params, input fingerprints (content hash;
-  fast path skips hashing when `(size, mtime_ns)` matches the cached record), tool versions,
-  `impl_version`. Unchanged key + outputs present with recorded hashes ⇒ skip.
-  `build/cache.py` (P4-T02): `BuildCache.load(root)` reads `.ctstudio/cache.json`
-  `{format: 1, nodes: {id: {key, inputs, outputs}}}` (files `{size, mtime_ns, digest}`, keyed
-  like state.json: project-relative with `/`, or absolute); missing/damaged → empty (logged).
-  `check(node, tool_versions)` → `Lookup(node_id, key, fresh, inputs)`; the key takes only
-  the node's own tools (a version must be given, `None` when unknown), a folder input as
-  `{name: digest}` of every file in it and a missing input as null. Fresh = same key and
-  exactly the recorded output files (folders expanded), each unchanged; a hit records the new
-  mtimes of touched files, so they are hashed once. `store(node, lookup)` after a run (a
-  declared output not written → `BuildError`, and the step is forgotten), `invalidate(id)`,
-  `clear()` (for `--force`), `save()` (atomic, only when changed). Thread-safe for the runner.
+- **Cache key** = blake2b over: canonical JSON of node params, each input's path and
+  fingerprint (content hash; fast path skips hashing when `(size, mtime_ns)` matches the
+  cached record), tool versions, `impl_version`. A new slot with identical bytes is a miss.
+  Unchanged key + outputs present with recorded hashes ⇒ skip.
+  `build/cache.py` (P4-T02, P4-GATE): `BuildCache.load(root)` reads `.ctstudio/cache.json`
+  `{format: 1, nodes: {id: {key, inputs, outputs, issues}}}` (files `{size, mtime_ns, digest}`,
+  keyed like state.json: project-relative with `/`, or absolute); missing/damaged → empty
+  (logged). `check(node, tool_versions)` → `Lookup(node_id, key, fresh, inputs, issues, edited)`;
+  the key takes only the node's own tools (a version must be given, `None` when unknown), a
+  folder input as `[path, {name: digest}]` and a missing input as `[path, null]`. Fresh = same
+  key and exactly the recorded output files (folders expanded), each unchanged; a hit
+  records new mtimes and keeps the issues across repeated skips. `edited` lists output
+  files changed by hand since CT Studio last wrote them, even on a forced rebuild. The
+  runner copies them into `.ctstudio/backups/<UTC time>/<project-relative path>` before
+  replacing them; a failed copy stops the step, leaving the edit. `store(node, lookup)`
+  after a run (a declared output not written → `BuildError`, and the step is forgotten),
+  `invalidate(id)` (forget the key, not output hashes), `clear()`, `save()` (atomic, only
+  when changed). Thread-safe for the runner.
 - **Runner** (P4-T03a): `build/runner.py` `run_build(graph, cache, request, on_event, *, cancel,
   jobs)`. The calling thread schedules and delivers events (`build/events.py`: `BuildStarted`,
   `NodeStarted`, `LogLine`, `NodeSkipped`, `NodeFinished`, `NodeFailed`, `BuildFinished`) one

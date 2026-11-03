@@ -27,7 +27,8 @@ colour + text, one-line summary, primary action, "Open in ▾", overflow: Reveal
 path, Mode: Auto/Manual/Template, Settings…). Footer build bar: Build test SZS, Release build,
 Cancel, progress, last result. Collapsible virtualised log panel with "Copy command" on command lines.
 **Acceptance:** cards reflect status changes live during a fake build; keyboard navigation works;
-screenshots in light and dark themes.
+screenshots in light and dark themes. Before the Build page uses the core runner, close TD-012:
+prove a failed UI event callback cannot leave cached outputs with missing part-state records.
 
 ### [ ] P5-T04 — Manual file assignment
 Drag & drop onto a card or "Choose file…". Validate type (magic). Copy into `files/` by default, or

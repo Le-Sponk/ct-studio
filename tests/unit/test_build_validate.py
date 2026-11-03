@@ -227,5 +227,25 @@ def test_an_unchanged_track_is_not_checked_again_but_its_issues_stay(
     again, _ = run(root)
     assert again.skipped == ("validate",) and again.issues == first.issues
     assert len(wiimm.asked) == 2, "wszst ran only for the first build"
+    for _ in range(2):  # P4-GATE Must fix 1: the first skip rewrote the entry without them
+        assert run(root)[0].issues == first.issues
+    saved = json.loads((root / ".ctstudio" / "cache.json").read_text(encoding="utf-8"))
+    assert len(saved["nodes"]["validate"]["issues"]) == len(first.issues)
     (root / "build" / "castle_course.szs").write_bytes(b"Yaz0 built again, longer")
     assert run(root)[0].ran == ("validate",)
+
+
+def test_a_new_slot_is_checked_again_even_with_the_same_bytes(root: Path, wiimm: Wiimm) -> None:
+    run(root)
+    other = Manifest(project=ProjectInfo(name="T", slot="beginner_course"))
+    (root / "build" / "beginner_course.szs").write_bytes(b"Yaz0 built")
+    summary = run_build(
+        BuildGraph(root, [validate_step(root, other, "test")]),
+        BuildCache.load(root),
+        BuildRequest(other, "test", {}, VERSIONS),
+        Recorder(),
+        cancel=CancelToken(),
+    )
+    assert summary.ran == ("validate",)
+    data = json.loads((root / ISSUES_FILE).read_text(encoding="utf-8"))
+    assert data["track"] == "build/beginner_course.szs"

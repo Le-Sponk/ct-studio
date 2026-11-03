@@ -110,8 +110,15 @@ def _step_lines(
         case NodeFinished(_, duration, issues):
             notes = [f"{i.severity}: {_join(i.message, i.hint)}" for i in issues]
             return [*notes, f"finished in {duration:.2f} s"]
-        case NodeFailed(_, message, hint, cancelled):
-            return [f"{'cancelled' if cancelled else 'FAILED'}: {_join(message, hint)}"]
+        case NodeFailed(_, message, hint, cancelled, _issues, details):
+            return _failed_lines(message, hint, cancelled, details)
+
+
+def _failed_lines(
+    message: str, hint: str | None, cancelled: bool, details: str | None
+) -> list[str]:
+    said = [f"tool output: {line}" for line in (details or "").splitlines()]
+    return [f"{'cancelled' if cancelled else 'FAILED'}: {_join(message, hint)}", *said]
 
 
 def _join(message: str, hint: str | None) -> str:

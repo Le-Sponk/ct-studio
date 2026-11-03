@@ -159,6 +159,7 @@ def test_every_event_kind_has_a_line(root: Path) -> None:
         NodeSkipped("c"),
         NodeFinished("a", 0.25, ()),
         NodeFailed("a", "a was cancelled.", None, True),
+        NodeFailed("b", "b failed.", None, False, details="tool said\nthis"),
         BuildFinished(summary),
     ):
         log.write(event)
@@ -173,5 +174,8 @@ def test_every_event_kind_has_a_line(root: Path) -> None:
         "[c] skipped: nothing it uses changed",
         "[a] finished in 0.25 s",
         "[a] cancelled: a was cancelled.",
+        "[b] FAILED: b failed.",
+        "[b] tool output: tool said",
+        "[b] tool output: this",
         "Build cancelled: 0 ran, 0 skipped, 0 failed, 1 not run (1 cancelled) in 1.5 s",
     ]

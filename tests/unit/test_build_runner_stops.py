@@ -8,11 +8,10 @@ when ``run_build`` returns, also when the event handler raises.
 from __future__ import annotations
 
 import threading
-import time
 from pathlib import Path
 
 import pytest
-from build_runner_helpers import REQUEST, build, fail, make_root, step
+from build_runner_helpers import REQUEST, Recorder, build, fail, make_root, step
 
 from ctstudio.core.build.cache import BuildCache
 from ctstudio.core.build.events import BuildEvent, NodeFailed, NodeFinished
@@ -49,18 +48,24 @@ def test_a_failure_stops_new_steps_and_names_the_step(root: Path) -> None:
 
 
 def test_running_steps_finish_after_another_fails(root: Path) -> None:
-    started = threading.Event()
+    started, failed = threading.Event(), threading.Event()
 
     def slow(_ctx: BuildContext) -> None:
         started.set()
-        time.sleep(0.2)
+        assert failed.wait(10), "bad's failure was seen while slow still ran"
 
     def fail_soon(_ctx: BuildContext) -> None:
         assert started.wait(10)
         fail(_ctx)
 
+    class Watch(Recorder):
+        def __call__(self, event: BuildEvent) -> None:
+            super().__call__(event)
+            if isinstance(event, NodeFailed):
+                failed.set()
+
     nodes = [step(root, "slow", slow), step(root, "bad", fail_soon), step(root, "later")]
-    summary, _ = build(root, nodes, jobs=2)
+    summary, _ = build(root, nodes, jobs=2, recorder=Watch())
     assert summary.failed == ("bad",)
     assert summary.ran == ("slow",)
     assert summary.not_run == ("later",)
@@ -170,7 +175,6 @@ def test_no_thread_is_left_running(root: Path) -> None:
 
     def busy(_ctx: BuildContext) -> NodeResult:
         seen.append(_build_threads())
-        time.sleep(0.02)
         return NodeResult()
 
     nodes = [step(root, f"s{i}", busy) for i in range(8)]

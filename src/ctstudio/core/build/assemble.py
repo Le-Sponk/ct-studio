@@ -23,7 +23,7 @@ from ctstudio.core.build.node import BuildContext, Node, NodeResult, Profile, St
 from ctstudio.core.build.objects import check_objects
 from ctstudio.core.components.state import GENERATED_DIR
 from ctstudio.core.project.manifest import Compression, Manifest
-from ctstudio.core.tools.wiimm import AutoAddLibrary, create_szs, list_files
+from ctstudio.core.tools.wiimm import AutoAddLibrary, WiimmError, create_szs, list_files
 from ctstudio.core.validation.issues import Issue
 
 BUILD_DIR = "build"
@@ -93,9 +93,20 @@ def _create(
 ) -> Path:
     exe = _executable(ctx)
     compression, library = how
-    create_szs(
-        stage, dest, compression=compression, executable=exe, cancel=ctx.cancel, auto_add=library
-    )
+    try:
+        create_szs(
+            stage,
+            dest,
+            compression=compression,
+            executable=exe,
+            cancel=ctx.cancel,
+            auto_add=library,
+        )
+    except WiimmError as exc:
+        if exc.error_code is not None:  # Wiimm said what was wrong: its own words are clearer
+            raise
+        (stage.parent / "wszst.exe.stackdump").unlink(missing_ok=True)  # left by a crash
+        raise _crashed(ctx.root / BUILD_DIR / dest.name, exc) from exc
     missing = sorted(staged - set(list_files(dest, executable=exe, cancel=ctx.cancel)))
     if missing:
         count = f"{len(missing)} staged file{'s' if len(missing) > 1 else ''}"
@@ -125,6 +136,21 @@ def _publish(made: Path, outputs: tuple[Path, ...]) -> None:
                 output,
                 "assemble",
             ) from exc
+
+
+def _crashed(szs: Path, exc: WiimmError) -> StepFailed:
+    issue = Issue(
+        "error",
+        "assemble",
+        "ASSEMBLE_TOOL_CRASHED",
+        "Wiimm's tool stopped unexpectedly while packing the track: "
+        "one of the track's files is probably damaged.",
+        "Export or choose the BRRES files again, then build again. "
+        "The build log has the tool's own output.",
+        "wszst create",
+        szs,
+    )
+    return StepFailed(issue, details=exc.details)
 
 
 def _executable(ctx: BuildContext) -> Path | None:

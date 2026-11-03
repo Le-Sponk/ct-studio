@@ -25,7 +25,7 @@ once); tool version change → miss; output deleted → miss.
 miss through the recorded outputs instead. `--force` is `clear()` / `invalidate()`, wired to
 the CLI in P4-T07.
 
-### [ ] P4-T03 — Runner & events
+### [x] P4-T03 — Runner & events
 `core/build/runner.py`: executes ready nodes with bounded parallelism respecting `resources`
 (e.g. `blender`, `stage:<file>`), cancellation token, stop-on-first-error (others finish or are
 cancelled cleanly), events via callback (`BuildStarted`, `NodeStarted`, `LogLine`, `NodeSkipped`,

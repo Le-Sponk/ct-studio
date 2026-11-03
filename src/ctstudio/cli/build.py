@@ -11,7 +11,9 @@ instead (schema in ``docs/dev/CLI.md``). Exit status: 0 built, 1 failed or could
 from __future__ import annotations
 
 import argparse
+import errno
 import json
+import os
 import sys
 import threading
 from collections import defaultdict
@@ -77,8 +79,9 @@ def run(args: argparse.Namespace) -> int:
         with Project.open(root) as project:
             if project.read_only:
                 raise ProjectError(
-                    "This project is open in CT Studio, so it was not built.",
-                    hint=f"{project.read_only_reason}. Close it there, or build from the app.",
+                    "This project is in use by CT Studio or another build, so it was not built.",
+                    hint=f"{project.read_only_reason}. Wait for that build to finish or close "
+                    "the project there, then build again.",
                 )
             plan = plan_build(
                 root,
@@ -89,11 +92,47 @@ def run(args: argparse.Namespace) -> int:
                 library=user.auto_add_library(),
             )
             show = _json_printer(root) if args.json_events else _TextPrinter(root, plan)
-            summary = _run(plan, show, cancel, force=args.force)
+            summary = _run(plan, _until_closed(show, cancel), cancel, force=args.force)
     except KeyboardInterrupt:
         print("\nBuild cancelled before it started.", file=sys.stderr)
         return CANCELLED
+    except _OutputClosed:
+        _quiet_stdout()
+        print("The output was closed, so the build was stopped.", file=sys.stderr)
+        return FAILED
     return _EXIT[summary.outcome]
+
+
+class _OutputClosed(Exception):
+    """Whoever read the build's output stopped reading (``| head``)."""
+
+
+def _until_closed(
+    show: Callable[[BuildEvent], None], cancel: CancelToken
+) -> Callable[[BuildEvent], None]:
+    """``show``, stopping the build when the output is closed (the runner re-raises it)."""
+
+    def shown(event: BuildEvent) -> None:
+        try:
+            show(event)
+        except (BrokenPipeError, OSError) as exc:
+            if isinstance(exc, BrokenPipeError) or exc.errno == errno.EINVAL:  # Windows says 22
+                cancel.cancel()
+                raise _OutputClosed from exc
+            raise
+
+    return shown
+
+
+def _quiet_stdout() -> None:
+    """Send what is left for stdout nowhere, so exiting does not fail to flush it again."""
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    try:
+        os.dup2(devnull, sys.stdout.fileno())
+    except (OSError, ValueError):  # no real stdout (tests): nothing will be flushed to it
+        pass
+    finally:
+        os.close(devnull)
 
 
 def _user_settings() -> UserSettings:
@@ -201,10 +240,17 @@ class _TextPrinter:
         return f"Building {manifest.project.name}, replacing {slot}: {kind}, {steps}"
 
     def _end(self, summary: BuildSummary) -> list[str]:
-        found = [issue for issue in summary.issues if issue.message not in self.told]
+        new = [issue for issue in summary.issues if issue.message not in self.told]
+        found = [issue for issue in new if issue.severity != "info"]
+        notes = len(new) - len(found)
         lines = [""]
         if found:
-            lines += ["Found while building:", *(_issue_lines(i) for i in found), ""]
+            lines += ["Found while building:", *(_issue_lines(i) for i in found)]
+            if notes:
+                lines.append(
+                    f"  and {notes} note{'s' if notes > 1 else ''} for information, in the log."
+                )
+            lines.append("")
         counts = [
             f"{len(steps)} {word}"
             for steps, word in (

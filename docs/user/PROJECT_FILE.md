@@ -46,7 +46,7 @@ default, so a missing setting means "use the default".
 | `[build]` `test_compression`, `release_compression` | How hard to compress the built track. | `best`, `fast`, `none` (test: `fast`, release: `best`) |
 | `[build]` `make_d_variant` | Also build the `_d` copy of the track. | `true`, `false` |
 | `[build]` `auto_add` | Let Wiimms SZS Tools add missing object files. | `true`, `false` |
-| `[build]` `extra_wszst_args` | Extra options passed to Wiimms SZS Tools. | a list, such as `["--a", "--b"]` |
+| `[build]` `extra_wszst_args` | Reserved; not passed to Wiimms SZS Tools yet (P7-T06). | a list, such as `["--a", "--b"]` |
 | `[blender.collections]` `course`, `kcl`, `skybox`, `minimap` | Which Blender collection holds each part. | collection names (`Course`, `KCL`, `Skybox`, empty minimap = make it from the KCL) |
 | `[components.<part>]` `mode` | Whether CT Studio makes the part, copies it from an original track (`template`), or you supply it. | `auto` or `manual`; skybox: `auto`, `template` or `manual`; KMP: `manual` only; post effects: `template` or `manual` |
 | `[components.<part>]` `file` | Your own file, when the mode is `manual`. | a path, such as `files/course.kmp` |
@@ -57,7 +57,7 @@ default, so a missing setting means "use the default".
 | `[components.kmp]` `editor` | Which KMP editor CT Studio opens. | `lorenzi`, `kmp_cloud` |
 | `[components.posteffect]` `template_track` | The original track whose lighting and effects to copy. | an original track or arena file name |
 | `[components.skybox]` `template_track` | The original track whose sky to copy, in `template` mode. | an original track or arena file name |
-| `[hooks]` `post_stage`, `post_build` | Your own scripts, run at those points. | a path, or empty for none |
+| `[hooks]` `post_stage`, `post_build` | Reserved; scripts are not run yet (P7-T06). | a path, or empty for none |
 
 ## When CT Studio cannot read the file
 

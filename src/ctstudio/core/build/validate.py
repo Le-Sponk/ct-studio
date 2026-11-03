@@ -14,6 +14,7 @@ import json
 from pathlib import Path
 
 from ctstudio.core import fsutil
+from ctstudio.core.build.assemble import BUILD_DIR
 from ctstudio.core.build.node import BuildContext, Node, NodeResult, Profile, StepFailed
 from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.project.manifest import Manifest
@@ -22,7 +23,6 @@ from ctstudio.core.validation.issues import Issue, issue_to_json
 
 ISSUES_FILE = ".ctstudio/issues.json"
 FORMAT = 1
-BUILD_DIR = "build"
 # analyze key -> the part it fingerprints, in the order the dashboard lists parts
 _PARTS = (
     ("sha1_course", "course_model"),

@@ -81,6 +81,11 @@ class AutoAddLibrary:
     missed: tuple[str, ...]
     invalid: tuple[str, ...]
 
+    @property
+    def names(self) -> frozenset[str]:
+        """The file names found, without their type."""
+        return frozenset(entry.split(" ", 1)[-1] for entry in self.found)
+
     def unusable_reason(self) -> str | None:
         if self.invalid:
             shown = ", ".join(entry.split(" ", 1)[-1] for entry in self.invalid[:3])

@@ -114,10 +114,13 @@ what the check found. Steps whose inputs did not change since the last build are
   check finds an error. Without it, a test build: quick compression, and findings never
   fail it.
 - `--force`: rebuild every step, even unchanged ones.
-- `--only PART`: just that part's steps, without packing the track. PART is one of
+- `--only PART`: just that part's steps, without packing the track; the other parts need not
+  be buildable yet. PART is one of
   `course_model`, `kcl`, `minimap`, `skybox`, `kmp`, `posteffect`.
 - `--json-events`: instead of the text below, one JSON object per line as the build runs
   (schema below). Errors that stop the build before it starts still go to stderr only.
+  If the reader closes the output pipe, the build stops with exit 1, not a traceback.
+  Human output lists errors and warnings; information notes remain in the build log.
 - Ctrl+C cancels: nothing new starts, running steps finish (a running tool is stopped),
   and the last good track is kept.
 - Exit status: 0 the build succeeded; 1 it failed, or could not start (no project, project

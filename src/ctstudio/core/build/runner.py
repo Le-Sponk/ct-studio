@@ -18,8 +18,10 @@ import time
 from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
+from ctstudio.core.build.backups import back_up
 from ctstudio.core.build.build_log import BuildLog, prune
 from ctstudio.core.build.cache import BuildCache
 from ctstudio.core.build.events import (
@@ -185,11 +187,21 @@ class _Build:
         if lookup.fresh:
             return _Done(node.id, "skipped", NodeSkipped(node.id, lookup.issues), lookup.issues)
         self._queue.put(NodeStarted(node.id))
+        if lookup.edited:
+            self._back_up(node, lookup.edited)
         started = time.monotonic()
         result = node.run(self._context(node))
         self.cache.store(node, lookup, result.issues)
         finished = NodeFinished(node.id, time.monotonic() - started, result.issues)
         return _Done(node.id, "ran", finished, result.issues)
+
+    def _back_up(self, node: Node, edited: tuple[Path, ...]) -> None:
+        root = self.graph.root
+        folder = back_up(root, edited, node.id).relative_to(root).as_posix()
+        count = f"{len(edited)} file{'s' if len(edited) > 1 else ''}"
+        self._queue.put(
+            LogLine(node.id, f"Backed up {count} you edited to {folder}/ before replacing it.")
+        )
 
     def _context(self, node: Node) -> BuildContext:
         def log(text: str) -> None:
@@ -208,7 +220,9 @@ class _Build:
             _LOG.error("build step %s failed unexpectedly", node.id, exc_info=exc)
             error = BuildError(node.id, "an unexpected error happened")
         issues = exc.issues if isinstance(exc, StepFailed) else ()
-        event = NodeFailed(node.id, error.user_message, error.hint, cancelled, issues)
+        event = NodeFailed(
+            node.id, error.user_message, error.hint, cancelled, issues, error.details
+        )
         return _Done(node.id, "cancelled" if cancelled else "failed", event, issues)
 
     def _summary(self, duration: float) -> BuildSummary:

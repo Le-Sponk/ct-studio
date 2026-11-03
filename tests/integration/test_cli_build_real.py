@@ -130,6 +130,32 @@ def test_build_then_build_again_then_json_events(tmp_path: Path) -> None:
     assert events[-1] is end
 
 
+def test_json_output_closed_by_its_reader_stops_without_a_traceback(tmp_path: Path) -> None:
+    env = _environment(tmp_path)
+    root = _project(env, tmp_path)
+    process = subprocess.Popen(  # noqa: S603 - our own interpreter
+        [sys.executable, "-m", "ctstudio", "build", str(root), "--json-events"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        env=env,
+    )
+    assert process.stdout is not None and process.stderr is not None
+    try:
+        first = process.stdout.readline()
+        assert json.loads(first)["event"] == "build_started"
+        process.stdout.close()  # as when a pipe's reader stops after its first line
+        error = process.stderr.read()
+        assert process.wait(timeout=60) == 1
+        assert "The output was closed, so the build was stopped." in error
+        assert "Traceback" not in error
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait(timeout=5)
+
+
 def test_a_wrong_file_fails_the_build_with_exit_1(tmp_path: Path) -> None:
     env = _environment(tmp_path)
     root = _project(env, tmp_path)

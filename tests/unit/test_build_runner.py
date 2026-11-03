@@ -8,7 +8,6 @@ Events arrive one at a time. Failure, cancel and threads: ``test_build_runner_st
 from __future__ import annotations
 
 import threading
-import time
 from pathlib import Path
 
 import pytest
@@ -108,31 +107,15 @@ def test_independent_steps_run_at_the_same_time(root: Path) -> None:
     assert summary.outcome == "succeeded", "a barrier of 4 opens only if 4 steps run at once"
 
 
-def test_parallel_is_faster_than_one_at_a_time(root: Path) -> None:
-    nodes = [step(root, f"s{i}", lambda _ctx: time.sleep(0.25) and None) for i in range(4)]
-    started = time.monotonic()
-    build(root, nodes, jobs=4)
-    parallel = time.monotonic() - started
-    started = time.monotonic()
-    build(
-        root,
-        [step(root, f"t{i}", lambda _ctx: time.sleep(0.25) and None) for i in range(4)],
-        jobs=1,
-    )
-    serial = time.monotonic() - started
-    assert serial >= 1.0
-    assert parallel < serial * 0.6, (parallel, serial)
-
-
 def test_no_more_than_jobs_steps_run_at_once(root: Path) -> None:
-    counter = Concurrency()
+    counter = Concurrency(together=2)  # each pair meets: 2 run at once, a third would show
     build(root, [step(root, f"s{i}", counter.work) for i in range(6)], jobs=2)
     assert counter.peak == 2
 
 
 def test_steps_sharing_a_resource_never_overlap(root: Path) -> None:
     blender = Concurrency()
-    free = Concurrency()
+    free = Concurrency(together=3)  # the 3 free steps run at once beside one Blender step
     nodes = [
         *(step(root, f"b{i}", blender.work, resources=frozenset({"blender"})) for i in range(3)),
         *(step(root, f"f{i}", free.work) for i in range(3)),
@@ -166,8 +149,11 @@ def test_a_step_waiting_for_a_resource_does_not_hold_up_others(root: Path) -> No
 
 
 class Concurrency:
-    def __init__(self) -> None:
+    """Counts the steps running at once; ``together`` steps meet before any of them ends."""
+
+    def __init__(self, together: int = 1) -> None:
         self._lock = threading.Lock()
+        self._meet = threading.Barrier(together, timeout=10) if together > 1 else None
         self.now = 0
         self.peak = 0
 
@@ -175,7 +161,8 @@ class Concurrency:
         with self._lock:
             self.now += 1
             self.peak = max(self.peak, self.now)
-        time.sleep(0.05)
+        if self._meet is not None:
+            self._meet.wait()
         with self._lock:
             self.now -= 1
 

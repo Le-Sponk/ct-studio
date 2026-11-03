@@ -20,6 +20,7 @@ from ctstudio.core import fsutil
 from ctstudio.core.build.cache import BuildCache, Lookup
 from ctstudio.core.build.node import BuildContext, Node, NodeResult
 from ctstudio.core.errors import BuildError
+from ctstudio.core.validation.issues import Issue
 
 pytestmark = pytest.mark.timeout(30)
 VERSIONS: Mapping[str, str | None] = {"wszst": "2.42a", "blender": "4.2.3"}
@@ -222,6 +223,22 @@ def test_a_touched_input_is_a_hit_and_hashed_only_once(
     cache.save()
     monkeypatch.setattr(fsutil, "hash_file", _no_hashing)
     assert _new_process(root).check(stage_node(root), VERSIONS).fresh
+
+
+def test_a_skip_that_records_new_mtimes_keeps_the_steps_issues(root: Path) -> None:
+    """P4-GATE Must fix 1: refreshing the entry on a skip must not drop what the step found."""
+    cache = BuildCache.load(root)
+    node = stage_node(root)
+    lookup = cache.check(node, VERSIONS)
+    run_step(node)
+    found = (Issue("warning", "kmp", "K", "Something to fix.", None, "test", None),)
+    cache.store(node, lookup, found)
+    cache.save()
+    _touch(root / "files" / "course.kmp")  # the skip records the new mtime
+    for _ in range(3):
+        again = _new_process(root)
+        assert again.check(node, VERSIONS).issues == found
+        again.save()
 
 
 # --- outputs ----------------------------------------------------------------------------------
