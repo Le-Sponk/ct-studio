@@ -20,11 +20,13 @@ import threading
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from ctstudio.core import fsutil
 from ctstudio.core.build.node import Node
 from ctstudio.core.components.state import FileRecord, input_key, parse_file, parse_object
 from ctstudio.core.errors import BuildError, ProjectError
+from ctstudio.core.validation.issues import Issue, issue_from_json, issue_to_json
 
 CACHE_FILE = ".ctstudio/cache.json"
 FORMAT = 1
@@ -39,6 +41,7 @@ class Lookup:
     key: str
     fresh: bool
     inputs: Records  # the input files as they were when the key was made
+    issues: tuple[Issue, ...] = ()  # when fresh: what the step found when it last ran
 
 
 @dataclass(frozen=True)
@@ -46,6 +49,7 @@ class _Entry:
     key: str
     inputs: Records
     outputs: Records
+    issues: tuple[Issue, ...] = ()  # absent in files from before P4-T06: none
 
 
 class BuildCache:
@@ -69,7 +73,7 @@ class BuildCache:
                 details=f"path={path}; error={exc}",
             ) from exc
         try:
-            return cls(root, _parse(json.loads(raw.decode("utf-8"))))
+            return cls(root, _parse(json.loads(raw.decode("utf-8")), root))
         except (ValueError, TypeError, KeyError) as exc:  # UnicodeDecodeError is a ValueError
             _LOG.warning("cache.json is damaged (%s); starting fresh", exc)
             return cls(root, {})
@@ -88,10 +92,11 @@ class BuildCache:
         text = json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         key = hashlib.blake2b(text.encode("utf-8")).hexdigest()
         fresh = entry is not None and self._fresh(node, entry, _Entry(key, inputs, {}))
-        return Lookup(node.id, key, fresh, inputs)
+        issues = entry.issues if fresh and entry is not None else ()
+        return Lookup(node.id, key, fresh, inputs, issues)
 
-    def store(self, node: Node, lookup: Lookup) -> None:
-        """Record a step that just ran, so the next ``check`` with the same key is fresh."""
+    def store(self, node: Node, lookup: Lookup, issues: tuple[Issue, ...] = ()) -> None:
+        """Record a step that just ran and what it found, so the same key is fresh next time."""
         if lookup.node_id != node.id:
             raise ValueError(f"{node.id}: this lookup is for {lookup.node_id}")
         absent = [path for path in node.outputs if not path.exists()]
@@ -101,7 +106,7 @@ class BuildCache:
             raise BuildError(node.id, f"it did not write {names}")
         made = self._records(_expand(node.outputs), {})
         with self._lock:
-            self._entries[node.id] = _Entry(lookup.key, lookup.inputs, made)
+            self._entries[node.id] = _Entry(lookup.key, lookup.inputs, made, issues)
             self._changed = True
 
     def invalidate(self, node_id: str) -> None:
@@ -119,7 +124,8 @@ class BuildCache:
         with self._lock:
             if not self._changed:
                 return
-            text = json.dumps(_dump(self._entries), indent=2, sort_keys=True) + "\n"
+            data = _dump(self._entries, self.root)
+            text = json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
             fsutil.atomic_write_text(self.root / CACHE_FILE, text)
             self._changed = False
 
@@ -187,26 +193,27 @@ def _record(path: Path, old: FileRecord | None) -> FileRecord:
     return FileRecord(now.size, now.mtime_ns, now.digest)
 
 
-def _dump(entries: Mapping[str, _Entry]) -> dict[str, object]:
+def _dump(entries: Mapping[str, _Entry], root: Path) -> dict[str, object]:
     nodes = {
         node_id: {
             "key": entry.key,
             "inputs": {k: vars(v) for k, v in entry.inputs.items()},
             "outputs": {k: vars(v) for k, v in entry.outputs.items()},
+            "issues": [issue_to_json(issue, root) for issue in entry.issues],
         }
         for node_id, entry in entries.items()
     }
     return {"format": FORMAT, "nodes": nodes}
 
 
-def _parse(data: object) -> dict[str, _Entry]:
+def _parse(data: object, root: Path) -> dict[str, _Entry]:
     top = parse_object(data)
     if top["format"] != FORMAT:
         raise ValueError(f"format {top['format']!r}, expected {FORMAT}")
-    return {node_id: _entry(value) for node_id, value in parse_object(top["nodes"]).items()}
+    return {node_id: _entry(value, root) for node_id, value in parse_object(top["nodes"]).items()}
 
 
-def _entry(data: object) -> _Entry:
+def _entry(data: object, root: Path) -> _Entry:
     entry = parse_object(data)
     key = entry["key"]
     if not isinstance(key, str):
@@ -215,4 +222,8 @@ def _entry(data: object) -> _Entry:
         part: {name: parse_file(v) for name, v in parse_object(entry[part]).items()}
         for part in ("inputs", "outputs")
     }
-    return _Entry(key, files["inputs"], files["outputs"])
+    issues = entry.get("issues", [])
+    if not isinstance(issues, list):
+        raise TypeError("issues is not a list")
+    found = tuple(issue_from_json(item, root) for item in cast("list[object]", issues))
+    return _Entry(key, files["inputs"], files["outputs"], found)

@@ -768,6 +768,13 @@ then one JSON object; `duration_usec` varies per run (recorded as `"<usec>"`).
   a missing file exits 78 with `ERROR #78` on stderr and a blank stdout line.
 - A stage directory analyses like the archive built from it (same `sha1`, type `U8`).
 
+P4-T06 (measured 2026-11-03, synthetic SZS): each required part's `sha1_*` is empty when it
+is absent **with or without a KMP** (a KCL-only archive: `sha1_kmp`, `sha1_course`,
+`sha1_vrcorn`, `sha1_minimap` all `""`), while `check` then names nothing missing; with
+stand-in BRRES for course, skybox and minimap, `valid_track` is 1, `warn` `0=`, and `check`
+warns `Missing bones 'posLD' and 'posRU' in minimap MDL.` A KMP alone with
+`course_model_d.brres`: `sha1_course` is still `""`, and `check` lists `course.kcl` too.
+
 `core.tools.wiimm.analyze(path)` returns the JSON object and raises `WiimmError` on
 `ERROR #`, a nonzero exit, `valid != 1`, or non-object/non-JSON output. Callers judge track
 status from `valid_track`, `warn` and empty `sha1_*` hashes, not `valid`.

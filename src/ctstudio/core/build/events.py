@@ -36,6 +36,7 @@ class NodeSkipped:
     """Nothing the step depends on changed since it last ran, so its files were kept."""
 
     node_id: str
+    issues: tuple[Issue, ...] = ()  # what it found when it last ran, still true
 
 
 @dataclass(frozen=True)

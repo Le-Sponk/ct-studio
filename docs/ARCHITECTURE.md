@@ -52,7 +52,7 @@ src/ctstudio/
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
     build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
-                 stage.py  assemble.py
+                 stage.py  assemble.py  objects.py  validate.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -304,6 +304,17 @@ template/manual ─────────────────────�
   places and Wiimm's files for each; one warning (`OBJECTS_*`) per object whose files are in
   neither the stage nor the usable library, per unknown id, and for an unusable library.
   Warnings never stop the build.
+- **Validate** (P4-T06, `build/validate.py`): `validate_step(root, manifest, profile,
+  strict=None)` reads `build/<slot>.szs` and writes `.ctstudio/issues.json` (`format`,
+  `track`, `issues`; files inside the project stored relative). One error
+  (`VALIDATE_PART_MISSING`, with the part's wiki link) per required part whose `sha1_*` is
+  empty in `wszst analyze --json`, then `wszst check`'s findings without its duplicate
+  "Missing file" lines for those parts. Test builds never fail on findings; strict (release
+  by default, or the caller's choice) fails on any error with `VALIDATE_STRICT`, reporting
+  every finding (`StepFailed(issue, also=...)`).
+- **Issues survive a skip** (P4-T06): the cache stores each step's issues with its entry, and
+  a step skipped as unchanged reports them again (`NodeSkipped.issues`, the summary, the
+  log marked "found before"). Old cache files without issues read as none.
 - **Build log** (P4-T03b, `build/build_log.py`): `.ctstudio/logs/build-<UTC time>.log`, one
   UTC-stamped plain line per event, flushed as it goes; then only the newest 20 `build-*.log`
   are kept. A log that cannot be written is reported in the app log, never fails the build;

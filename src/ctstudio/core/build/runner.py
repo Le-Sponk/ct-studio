@@ -183,11 +183,11 @@ class _Build:
     def _attempt(self, node: Node) -> _Done:
         lookup = self.cache.check(node, self.request.versions)
         if lookup.fresh:
-            return _Done(node.id, "skipped", NodeSkipped(node.id))
+            return _Done(node.id, "skipped", NodeSkipped(node.id, lookup.issues), lookup.issues)
         self._queue.put(NodeStarted(node.id))
         started = time.monotonic()
         result = node.run(self._context(node))
-        self.cache.store(node, lookup)
+        self.cache.store(node, lookup, result.issues)
         finished = NodeFinished(node.id, time.monotonic() - started, result.issues)
         return _Done(node.id, "ran", finished, result.issues)
 
@@ -207,7 +207,7 @@ class _Build:
         else:
             _LOG.error("build step %s failed unexpectedly", node.id, exc_info=exc)
             error = BuildError(node.id, "an unexpected error happened")
-        issues = (exc.issue,) if isinstance(exc, StepFailed) else ()
+        issues = exc.issues if isinstance(exc, StepFailed) else ()
         event = NodeFailed(node.id, error.user_message, error.hint, cancelled, issues)
         return _Done(node.id, "cancelled" if cancelled else "failed", event, issues)
 
@@ -218,7 +218,7 @@ class _Build:
             return tuple(i for i in order if self._status.get(i) == status)
 
         not_run = tuple(node.id for node in self._waiting)
-        reported = [i for i in order if self._status.get(i) in ("ran", "failed")]
+        reported = [i for i in order if self._status.get(i) in ("ran", "skipped", "failed")]
         issues = tuple(issue for i in reported for issue in self._issues[i])
         return BuildSummary(
             _outcome(having("failed"), having("cancelled"), not_run, self.cancel),

@@ -10,6 +10,19 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T06` — Validate node. Plan (2026-11-03):
+  1. Measured on synthetic SZS (2.42a): `analyze --json` gives an empty `sha1_kcl`/`kmp`/
+     `course`/`vrcorn`/`minimap` for each missing part, with or without a KMP; `check` only
+     names missing files when a KMP is present, and its exit is 2 with findings.
+  2. `core/build/validate.py` `validate_step(root, manifest, profile, strict=None)`: input
+     `build/<slot>.szs`, output `.ctstudio/issues.json`; `wszst check` findings plus one
+     error per required part `analyze` reports missing (check's duplicate "Missing file" for
+     those parts dropped). Test builds never fail on findings; release (or `strict`) fails
+     when there is any error, reporting every finding.
+  3. `StepFailed` may carry more issues than the one it is about (`also=`).
+  4. Issues to/from JSON (`validation/issues.py`); the cache keeps each step's issues, so a
+     step skipped as unchanged reports them again (closes the P4-T05b gap). Cache format 2.
+  Acceptance: parser tests on recorded outputs (clean, warnings, errors); integration test.
 ## Done (newest first)
 - 2026-11-03 `P4-T05b` Auto-add and missing objects (`core/build/objects.py`,
   `core/tools/wiimm_objects.py`, user setting `auto_add_library`). The assemble step passes
@@ -680,7 +693,7 @@
   (`auto_add_library` in settings.json); nothing passes it to the build yet: P4-T07
   (`ctstudio build`) reads the setting, and P5 adds the Build page control. Object warnings
   are lost when the cache skips the assemble step (the runner keeps issues of steps that ran
-  only); P4-T06 (validate node / issues.json) must keep them. [Open for P4-T06.] The dashboard Objects card
+  only); P4-T06 (validate node / issues.json) must keep them. [Done in P4-T06.] The dashboard Objects card
   still says "added automatically" whenever auto-add is on; P8-T07 makes it check the library.
 - 2026-11-03: P4-T05 split. P4-T05a = assemble, `_d` copy and the `wszst list` post-check,
   never with auto-add. P4-T05b = the auto-add library setting and check, `--auto-add`, and

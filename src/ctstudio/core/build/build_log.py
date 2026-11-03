@@ -104,8 +104,9 @@ def _step_lines(
             return ["started"]
         case LogLine(_, text):
             return text.splitlines() or [""]
-        case NodeSkipped():
-            return ["skipped: nothing it uses changed"]
+        case NodeSkipped(_, issues):
+            notes = [f"{i.severity}: {_join(i.message, i.hint)} (found before)" for i in issues]
+            return ["skipped: nothing it uses changed", *notes]
         case NodeFinished(_, duration, issues):
             notes = [f"{i.severity}: {_join(i.message, i.hint)}" for i in issues]
             return [*notes, f"finished in {duration:.2f} s"]

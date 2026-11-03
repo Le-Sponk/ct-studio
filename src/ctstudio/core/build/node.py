@@ -46,10 +46,14 @@ class BuildContext:
 
 
 class StepFailed(CTStudioError):
-    """A step stopped on a problem the user can fix, described by one ``Issue``."""
+    """A step stopped on a problem the user can fix, described by one ``Issue``.
 
-    def __init__(self, issue: Issue) -> None:
+    ``also``: everything else the step found, reported with it (validate's findings).
+    """
+
+    def __init__(self, issue: Issue, *, also: tuple[Issue, ...] = ()) -> None:
         self.issue = issue
+        self.issues = (*also, issue) if also else (issue,)
         super().__init__(issue.message, hint=issue.hint)
 
 

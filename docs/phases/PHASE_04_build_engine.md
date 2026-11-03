@@ -80,7 +80,7 @@ tests for argument construction per profile, unavailable/empty-library behavior,
 missing-object warnings. Add a `realdata` test for a user-owned library and run it at HC1; it skips
 when the local library/game fixtures are absent.
 
-### [ ] P4-T06 — Validate node
+### [x] P4-T06 — Validate node
 `wszst check` → Issues (parser from S1 findings) → `.ctstudio/issues.json`. Warnings never fail test builds;
 `--strict`/release profile fails on errors.
 **From S1 (P0-T04):** severities come from the line prefixes `+ WARNING:` / `- HINT:` /
@@ -90,6 +90,10 @@ but **only when a KMP is present**, so do not rely on `check` alone to detect a 
 component — use the empty `sha1_course`/`sha1_vrcorn`/`sha1_minimap` fields from
 `wszst analyze --json`. Never treat `check`'s exit code as pass/fail (see TOOLS.md).
 **Acceptance:** parser tests on recorded outputs (clean, warnings, errors); integration test.
+Done 2026-11-03: `core/build/validate.py`; missing parts from `analyze`, the rest from
+`check` (recorded real output); release = strict unless told otherwise; the cache now keeps
+each step's issues, so a skipped step reports them again (closes the P4-T05b gap). Real-tool
+integration test (missing parts → release fails; complete stand-ins → passes). Mutants 34/34.
 
 ### [ ] P4-T07 — `ctstudio build`
 `ctstudio build [dir] [--release] [--force] [--only component] [--json-events]`; human-friendly
