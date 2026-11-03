@@ -4,13 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T01b — Status service and UI stall watchdog
+**Next task:** P5-T02 — Welcome & new-project wizard
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `6a655dd` (P5-T01a; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T01b` Part statuses in the background and the freeze watchdog
+  (`gui/status_service.py`, `gui/watchdog.py`). Statuses are worked out off the window's
+  thread, once per burst of requests (300 ms), with exactly one more run when asked during a
+  run; they are asked for when a project opens and after every build. With `CTSTUDIO_DEV=1`
+  a window freeze over 100 ms is logged once, with where the window was stuck (an injected
+  0.2 s sleep is caught; idle and 0.1 s waits are not). Closing stops both and leaves no
+  thread. Mutants 41/41 caught, 2 equivalent (a guard only the type checker needs; a
+  "still watching" check whose two halves always stop together). Commit `TBD`.
 - 2026-11-04 `P5-T01a` The app's build controller and services (`gui/build_controller.py`,
   `AppServices` in `gui/services.py`). A build is planned and run on one named background
   thread (settings, finding tools and version checks included), and every build event comes

@@ -431,6 +431,17 @@ refused (`project_build.check_buildable`, shared with `ctstudio build`). Deletin
 cancels the build; `AppServices.shutdown` cancels, waits, then closes the project, and keeps it
 open (locked) if the build did not stop in time.
 
+P5-T01b: `gui/status_service.py` `StatusService` works the part statuses out on a named thread
+(`ctstudio-status`): the user's settings, `availability.available_tools` (discovery only) and
+`components.status.evaluate`. `request(project)` restarts a 300 ms single-shot timer, so a burst
+gives one run; a request while a run is going gives exactly one more run afterwards, for the
+newest project. `updated` carries a `StatusResult` (root, statuses, settings problem) and
+`failed` the exception, both on the UI thread; `clear` (project closed) drops a result still to
+come. `AppServices` asks for statuses when a project opens and after every build, finished or
+failed. `gui/watchdog.py` `StallWatchdog` (started by `run_gui` only when `CTSTUDIO_DEV=1`) beats
+a 25 ms precise timer on the UI thread; a named watcher thread (`ctstudio-watchdog`) logs a
+warning with the UI thread's stack (`sys._current_frames`) once per stall longer than 100 ms.
+
 P1-T06 shell: `ctstudio` with no arguments opens a minimal Qt Widgets empty-project dashboard;
 Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
 placeholder. Widgets keep Qt's native palette (no hard-coded stylesheet), so a system palette

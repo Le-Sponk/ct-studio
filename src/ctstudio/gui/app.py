@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QApplication
 
 from ctstudio.core.errors import ProjectError
 from ctstudio.gui.main_window import MainWindow
+from ctstudio.gui.watchdog import dev_watchdog
 
 
 def _save_smoke(window: MainWindow, path: Path) -> None:
@@ -52,12 +53,17 @@ def run_gui(smoke_path: Path | None = None) -> int:
     app = QApplication([])
     app.setApplicationName("CT Studio")
     window = MainWindow()
-    window.show()
-    if smoke_path is not None:
+    watching = dev_watchdog(window)  # CTSTUDIO_DEV=1 only
+    try:
+        window.show()
+        if smoke_path is None:
+            return app.exec()
         app.processEvents()
         try:
             _save_smoke(window, smoke_path)
         finally:
             window.close()
         return 0
-    return app.exec()
+    finally:
+        if watching is not None:
+            watching.stop(1.0)

@@ -12,13 +12,15 @@ from ctstudio.core.errors import ProjectError
 from ctstudio.core.project.project import Project
 from ctstudio.gui.build_controller import BuildController
 from ctstudio.gui.services import AppServices, ToolsService
+from ctstudio.gui.status_service import StatusService
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(30)]
 __all__ = ["fake", "project"]  # fixtures used by name
 
 
 def services(fake: FakeBuilds) -> AppServices:
-    return AppServices(build=BuildController(plan=fake.plan, build=fake.run))
+    quiet = StatusService(evaluate=lambda _project, _tools: {}, find_tools=lambda **_kw: ())
+    return AppServices(build=BuildController(plan=fake.plan, build=fake.run), status=quiet)
 
 
 def second(tmp_path: Path) -> Path:
@@ -32,6 +34,7 @@ def test_nothing_is_open_at_first_and_the_parts_are_there(fake: FakeBuilds) -> N
     assert made.project is None
     assert isinstance(made.tools, ToolsService)
     assert isinstance(made.build, BuildController)
+    assert isinstance(made.status, StatusService)
     assert made.shutdown(1)
 
 
