@@ -10,6 +10,19 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T04` — Manual-mode stage steps. Plan (2026-11-03):
+  - `core/build/stage.py`: `stage_part(root, manifest, spec)` gives one step `stage:<part>` for
+    a part in manual mode: input = the chosen file or folder, output = its canonical name in
+    `.ctstudio/stage/` (`course.kcl`, `posteffect/`). Unchanged → skipped (cache).
+  - At run time the file is checked with the status code's type check (shared, not copied):
+    wrong type / not chosen / not found / inside `.ctstudio/` → the step fails with a clear
+    `Issue` (code, message, hint, file, wiki), carried by a new `StepFailed` error and
+    reported in `NodeFailed.issues` and the build summary.
+  - Copy to a temporary name then replace, so a failed copy never leaves half a file; a
+    folder is copied whole and replaces the old folder (no leftover files).
+  - Deviation: hard links deferred (no manifest setting yet; a link would let a later step
+    write into the user's own file). Logged in Plan changes.
+  - Acceptance: tests incl. wrong file type → Issue + failure; skip when unchanged; mutants.
 ## Done (newest first)
 - 2026-11-03 `P4-T03b` Build log & state (`core/build/part_state.py`, `core/build/build_log.py`).
   A step names the track part it makes (`Node.component`); after it runs the build records
@@ -651,6 +664,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-03: P4-T04 deviation. Manual files are always copied, never hard-linked. The
+  manifest has no setting to turn links on, and a hard link would let a later build step
+  that edits a staged file in place write into the user's own file. Revisit in P13 if
+  copying large files proves slow.
 - 2026-11-03: P4-T03 split. P4-T03a = runner and events. P4-T03b = the per-build log file and
   the `state.json` update, which needs each step to name the part it makes.
 - 2026-11-03: P4-T01 design deviation. Build inputs are plain paths (a folder means every file

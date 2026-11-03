@@ -51,7 +51,7 @@ src/ctstudio/
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
-    build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
+    build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py  stage.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -279,6 +279,16 @@ template/manual ─────────────────────�
   inputs of the step and of every step it needs, minus files some step writes (the `.blend`,
   not the export). Saved once at the end, merged over the newest file; failed or cancelled
   steps record nothing, so status stays Missing/Stale.
+- **Manual stage** (P4-T04, `build/stage.py`): `manual_parts(root, manifest)` gives
+  `from_manifest` a step `stage:<part>` per part in manual mode. It checks the chosen file
+  with the dashboard's own type check (`components.status.type_problem`), then copies it
+  under its game name in `.ctstudio/stage/` (`course.kcl`; post-effects as a whole folder,
+  swapped in so removed files go). A file is copied to a temporary name and replaced; a
+  folder is copied beside the old one, which is put back if the swap fails. No file chosen,
+  not found, wrong type, inside `.ctstudio/`, or a failed copy each fail the step with one
+  `Issue` (`STAGE_*` code, hint, file, wiki) raised as `node.StepFailed` and carried in
+  `NodeFailed.issues` and `BuildSummary.issues`. Unchanged file → skipped (cache).
+  Hard links are not used (see STATUS Plan changes).
 - **Build log** (P4-T03b, `build/build_log.py`): `.ctstudio/logs/build-<UTC time>.log`, one
   UTC-stamped plain line per event, flushed as it goes; then only the newest 20 `build-*.log`
   are kept. A log that cannot be written is reported in the app log, never fails the build;

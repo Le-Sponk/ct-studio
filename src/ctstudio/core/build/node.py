@@ -20,6 +20,7 @@ from types import MappingProxyType
 from typing import Literal, cast
 
 from ctstudio.core.components.registry import COMPONENTS
+from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.tools.discovery import ToolLocation
 from ctstudio.core.tools.process import CancelToken
@@ -42,6 +43,14 @@ class BuildContext:
     tools: Mapping[str, ToolLocation]
     log: Callable[[str], None]
     cancel: CancelToken = field(default_factory=CancelToken)
+
+
+class StepFailed(CTStudioError):
+    """A step stopped on a problem the user can fix, described by one ``Issue``."""
+
+    def __init__(self, issue: Issue) -> None:
+        self.issue = issue
+        super().__init__(issue.message, hint=issue.hint)
 
 
 @dataclass(frozen=True)

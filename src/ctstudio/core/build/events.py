@@ -51,6 +51,7 @@ class NodeFailed:
     message: str
     hint: str | None
     cancelled: bool  # stopped because the user cancelled, not because of a problem
+    issues: tuple[Issue, ...] = ()  # what to fix, when the step said (``StepFailed``)
 
 
 @dataclass(frozen=True)

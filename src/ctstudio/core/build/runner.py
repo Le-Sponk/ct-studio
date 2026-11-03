@@ -35,7 +35,7 @@ from ctstudio.core.build.events import (
     Outcome,
 )
 from ctstudio.core.build.graph import BuildGraph
-from ctstudio.core.build.node import BuildContext, Node, Profile
+from ctstudio.core.build.node import BuildContext, Node, Profile, StepFailed
 from ctstudio.core.build.part_state import PartRecorder
 from ctstudio.core.errors import BuildError, Cancelled, CTStudioError
 from ctstudio.core.project.manifest import Manifest
@@ -207,8 +207,9 @@ class _Build:
         else:
             _LOG.error("build step %s failed unexpectedly", node.id, exc_info=exc)
             error = BuildError(node.id, "an unexpected error happened")
-        event = NodeFailed(node.id, error.user_message, error.hint, cancelled)
-        return _Done(node.id, "cancelled" if cancelled else "failed", event)
+        issues = (exc.issue,) if isinstance(exc, StepFailed) else ()
+        event = NodeFailed(node.id, error.user_message, error.hint, cancelled, issues)
+        return _Done(node.id, "cancelled" if cancelled else "failed", event, issues)
 
     def _summary(self, duration: float) -> BuildSummary:
         order = [node.id for node in self.graph.nodes]
@@ -217,7 +218,8 @@ class _Build:
             return tuple(i for i in order if self._status.get(i) == status)
 
         not_run = tuple(node.id for node in self._waiting)
-        issues = tuple(issue for i in having("ran") for issue in self._issues[i])
+        reported = [i for i in order if self._status.get(i) in ("ran", "failed")]
+        issues = tuple(issue for i in reported for issue in self._issues[i])
         return BuildSummary(
             _outcome(having("failed"), having("cancelled"), not_run, self.cancel),
             having("ran"),

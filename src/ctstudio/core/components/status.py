@@ -195,12 +195,17 @@ def _manual(spec: ComponentSpec, root: Path, file: str | None) -> ComponentStatu
     path = input_path(root, file)
     if not path.exists():
         return ComponentStatus(State.MISSING, (f"{file} was not found",))
-    problem = (
-        _folder_problem(path, file) if spec.kind is None else _file_problem(path, file, spec.kind)
-    )
+    problem = type_problem(spec, path, file)
     if problem:
         return ComponentStatus(State.ERROR, (problem,))
     return ComponentStatus(State.MANUAL, (f"using {file}",))
+
+
+def type_problem(spec: ComponentSpec, path: Path, shown: str) -> str | None:
+    """Why the file or folder at ``path`` cannot be this part, or None (shared with the build)."""
+    if spec.kind is None:
+        return _folder_problem(path, shown)
+    return _file_problem(path, shown, spec.kind)
 
 
 def _wrong(shown: str, expected: str, found: str) -> str:

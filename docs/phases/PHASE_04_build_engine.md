@@ -44,11 +44,14 @@ propagation, event order; no thread leaks (thread count before == after).
   files behind it (the `.blend`, not the export) and `build/build_log.py` writes one UTC line
   per event; an unwritable log never fails the build. Mutants 31/31.
 
-### [ ] P4-T04 — Manual-mode stage nodes
+### [x] P4-T04 — Manual-mode stage nodes
 For each component in manual mode: validate file type (P3-T05), copy (or hard-link when same volume
 and user enabled it) into `.ctstudio/stage/` under its canonical name; folders (posteffect) copied
 recursively. Skipped when unchanged.
 **Acceptance:** tests incl. wrong file type → clear Issue + failure.
+Done 2026-11-03: `core/build/stage.py` (`manual_parts`, `stage_part`); the type check is
+shared with the dashboard; every fixable problem is one `Issue` via `StepFailed`. Hard links
+deferred (see STATUS Plan changes). Mutants 25/25.
 
 ### [ ] P4-T05 — Assemble node
 Stage → `wszst create` via adapter using the profile's compression. Auto-add is optional: fixtures
