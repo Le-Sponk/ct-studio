@@ -4,26 +4,20 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T06 — Validate node
+**Next task:** P4-T07 — `ctstudio build`
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `ad91b49` (P4-T05b; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `f0159fc` (P4-T06; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T06` — Validate node. Plan (2026-11-03):
-  1. Measured on synthetic SZS (2.42a): `analyze --json` gives an empty `sha1_kcl`/`kmp`/
-     `course`/`vrcorn`/`minimap` for each missing part, with or without a KMP; `check` only
-     names missing files when a KMP is present, and its exit is 2 with findings.
-  2. `core/build/validate.py` `validate_step(root, manifest, profile, strict=None)`: input
-     `build/<slot>.szs`, output `.ctstudio/issues.json`; `wszst check` findings plus one
-     error per required part `analyze` reports missing (check's duplicate "Missing file" for
-     those parts dropped). Test builds never fail on findings; release (or `strict`) fails
-     when there is any error, reporting every finding.
-  3. `StepFailed` may carry more issues than the one it is about (`also=`).
-  4. Issues to/from JSON (`validation/issues.py`); the cache keeps each step's issues, so a
-     step skipped as unchanged reports them again (closes the P4-T05b gap). Cache format 2.
-  Acceptance: parser tests on recorded outputs (clean, warnings, errors); integration test.
 ## Done (newest first)
+- 2026-11-03 `P4-T06` Validate node (`core/build/validate.py`). Checks `build/<slot>.szs` and
+  writes `.ctstudio/issues.json`: one error per missing required part (from `wszst analyze`,
+  which sees them with or without a KMP), then `wszst check`'s findings. Test builds never
+  fail on findings; release builds fail on any error, still listing everything. The build
+  cache now keeps each step's issues, so a step skipped as unchanged reports them again
+  (closes the P4-T05b gap). Real-tool test green on both CI systems. 1,928 tests; mutants
+  34/34. Commit `f0159fc`.
 - 2026-11-03 `P4-T05b` Auto-add and missing objects (`core/build/objects.py`,
   `core/tools/wiimm_objects.py`, user setting `auto_add_library`). The assemble step passes
   `--auto-add` only for a library that passed Wiimm's check this build, and gives one warning
