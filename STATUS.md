@@ -4,27 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T03 — Runner & events
+**Next task:** P4-T03b — Build log & state
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `543c146` (P4-T02; Check, Windows + Ubuntu)
+**Last green commit:** `a87bdf7` (P4-T03a; Check, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T03a` — Runner & events. Plan (2026-11-03):
-  - `core/build/events.py`: frozen `BuildStarted(steps)`, `NodeStarted`, `LogLine`,
-    `NodeSkipped`, `NodeFinished(duration, issues)`, `NodeFailed(message, hint, cancelled)`,
-    `BuildFinished(summary)`; `BuildSummary(outcome, ran, skipped, failed, cancelled, not_run,
-    issues, duration)`.
-  - `core/build/runner.py` `run_build(graph, cache, request, on_event, cancel, jobs)`: a step
-    starts when every step it needs succeeded or was skipped and none of its `resources` is
-    held; up to `jobs` (default min(4, CPUs)) at once; a cache hit is `NodeSkipped`, a run is
-    stored in the cache, the cache is saved at the end. First failure: nothing new starts,
-    running steps finish. Cancel: nothing new starts, steps see `ctx.cancel`. Events are
-    delivered one at a time. `BuildContext` gains `cancel`. Deviation: no `cancel.py`, the
-    existing `tools.process.CancelToken` is used.
-  - Acceptance: parallel (barrier) and timed speed-up, resource exclusion, cancel, failure
-    propagation, event order, cache skip, no thread leaks. Mutants; ARCHITECTURE §7.
 ## Done (newest first)
+- 2026-11-03 `P4-T03a` Runner & events (`core/build/runner.py`, `core/build/events.py`).
+  `run_build` runs ready steps in up to `jobs` threads (default min(4, CPUs)); a step waits
+  for the steps it needs and for its `resources`, without holding up other ready steps.
+  Cache hits are skipped and the cache is saved at the end. First failure or a cancel: nothing
+  new starts, running steps finish and see the cancel through `ctx.cancel` (the existing
+  `CancelToken`, so no `cancel.py`). Unexpected exceptions are logged and reported as
+  `BuildError`; events are delivered one at a time on the calling thread; no thread is left.
+  Gate `--all` 1,803 passed; timing tests 10/10 runs; mutants 29/29 (+1 equivalent,
+  documented); commit a87bdf7, CI green (Windows + Ubuntu).
 - 2026-11-03 `P4-T02` Cache (`core/build/cache.py`, `.ctstudio/cache.json`). Key = BLAKE2b over
   params, `impl_version`, the node's own tool versions and the content of every input (a
   folder by file name, a missing input as null). Fresh = same key and exactly the recorded
