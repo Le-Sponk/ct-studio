@@ -88,8 +88,15 @@ def record(
 
 
 def input_key(root: Path, path: Path) -> str:
-    resolved, base = path.resolve(), root.resolve()
-    return resolved.relative_to(base).as_posix() if resolved.is_relative_to(base) else str(resolved)
+    return resolved_key(path.resolve(), root.resolve())
+
+
+def resolved_key(resolved: Path, base: Path) -> str:
+    """``input_key`` for paths already resolved (resolving is slow on Windows: P4-T08)."""
+    try:
+        return resolved.relative_to(base).as_posix()
+    except ValueError:  # outside the project: the full path
+        return str(resolved)
 
 
 def input_path(root: Path, key: str) -> Path:

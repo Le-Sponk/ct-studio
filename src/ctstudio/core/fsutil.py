@@ -157,9 +157,10 @@ class Fingerprint:
     mtime_ns: int
 
     @classmethod
-    def from_path(cls, path: Path) -> Fingerprint:
+    def from_path(cls, path: Path, *, resolved: bool = False) -> Fingerprint:
+        """``resolved=True`` when ``path`` already is (resolving is slow on Windows)."""
         try:
-            path = path.resolve()
+            path = path if resolved else path.resolve()
             stat = path.stat()
         except (OSError, RuntimeError) as exc:
             raise ProjectError(

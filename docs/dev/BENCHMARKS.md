@@ -34,6 +34,43 @@
   ~210 ms (`--version` alone ~320 ms), evaluation ~75 ms. Not a phase limit (the 300 ms
   limit is for evaluation, above); TD-011 / P13-T02 trims the imports.
 
+## P4-T08 — build engine (Windows)
+
+- Command: `uv run pytest -m "slow and benchmark" -q -s tests/benchmarks/test_build_speed.py`
+  (all benchmarks: `uv run pytest -m benchmark -q -s`).
+- Machine: AMD Ryzen 7 4800H (8 cores / 16 threads), 15 GiB RAM, KIOXIA 512 GB NVMe SSD,
+  Windows 11 Pro, Python 3.12.14, Wiimm's SZS Tools 2.42a (Cygwin build). Commit: P4-T08.
+- Inputs: synthetic only. "Typical track": the committed synthetic KCL and KMP, BRRES
+  stand-ins of 3 MiB (course), 1 MiB (skybox) and 256 KiB (minimap), four post-effect files;
+  all six parts in manual mode, test build (fast compression). Freshly written files (OS cache).
+- Results (3 runs each; limits from ARCHITECTURE §15, asserted):
+
+| What | Runs | Limit |
+|---|---|---|
+| Typical track, first test build (copy 6 parts, pack, check) | 0.67–0.72 s | < 10 s |
+| Same, rebuild with nothing changed, in-process | 41–48 ms | < 1 s |
+| Same, as a whole `ctstudio build` process | 474–515 ms | < 1 s |
+| One 100 MiB part: copied into the stage | 0.51–0.52 s | — |
+| One 100 MiB part: unchanged next build | 21–23 ms | < 1 s |
+| Cache key of one step with 1,000 × 4 KiB inputs, cold (all hashed) | 782–838 ms | — |
+| Same, warm (size and mtime match, nothing hashed) | 252–260 ms | < 1 s |
+
+- The process figure is mostly start-up (P3-GATE: ~110 ms Python, ~210 ms imports); the build
+  itself is ~45 ms. TD-011 / P13-T02 trims the imports.
+- **Fixed by this benchmark**: the warm 1,000-input check first took **0.94 s**, almost all in
+  `Path.resolve` (five calls per file, slow on Windows). Each input is now resolved once and
+  the project folder once per cache (`BuildCache._keyed`, `components.state.resolved_key`):
+  0.94 s → 0.25 s, keys unchanged (`tests/unit/test_build_cache_speed.py`).
+- Stand-in BRRES bodies are zeros: wszst 2.42a crashed (Cygwin stack dump, exit 35584) on
+  random-byte bodies of any size from 128 KiB. Zeros pack faster than real models, so the
+  first-build time above is a lower bound. A real track, below, is the honest figure.
+- Real track, local only (`tests/realdata/test_build_original_tracks.py`, the user's own
+  disc copy in git-ignored `local_fixtures/`, extracted to a temporary folder): castle_course's
+  six parts (3.9 MiB unpacked, 2.1 MiB packed) as manual files. 3 runs: test build
+  **1.11–1.19 s**, no change **39–50 ms**, release build (best compression, pack + check)
+  **2.83–2.89 s**. This run also found that the track check could not read Wiimm's report
+  for most real tracks (fixed in P4-T08; see TOOLS.md "wszst check").
+
 ## Reproducing and comparing a baseline
 
 Run the command above from the repo root with `uv sync --locked` first. The test writes a fresh

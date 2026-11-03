@@ -305,6 +305,9 @@ template/manual ─────────────────────�
   places and Wiimm's files for each; one warning (`OBJECTS_*`) per object whose files are in
   neither the stage nor the usable library, per unknown id, and for an unusable library.
   Warnings never stop the build.
+- **Input keys** (P4-T08): `BuildCache._keyed` resolves each file once and the project
+  folder once per cache (`components.state.resolved_key`); `Path.resolve` is slow on
+  Windows and a no-change check of 1,000 inputs spent 0.94 s in it (now 0.25 s).
 - **Validate** (P4-T06, `build/validate.py`): `validate_step(root, manifest, profile,
   strict=None)` reads `build/<slot>.szs` and writes `.ctstudio/issues.json` (`format`,
   `track`, `issues`; files inside the project stored relative). One error
@@ -479,12 +482,12 @@ carry tool argv/exit/log path, manifest key, or build node ID as appropriate.
 |---|---|
 | Packaged cold start → dashboard interactive | < 2.0 s |
 | Open project + status evaluation (typical) | < 300 ms |
-| No-change rebuild | < 1 s |
+| No-change rebuild | < 1 s (P4-T08: 41–48 ms; as a process ~0.5 s) |
 | UI thread stall (dev watchdog) | never > 100 ms |
 | KCL parse, 500k triangles | < 0.5 s |
 | Preview: 200k tris load / frame | < 1 s / ≥ 60 fps on integrated GPU |
 | Idle memory with project open | < 250 MB |
-| Test build excl. Blender export, typical track | < 10 s |
+| Test build excl. Blender export, typical track | < 10 s (P4-T08: a real track's parts 1.1 s) |
 Budgets may be revised with evidence (log in DECISIONS.md); they may not be silently ignored.
 
 ## 16. Platform matrix

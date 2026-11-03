@@ -10,6 +10,19 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T08` — Benchmarks baseline. Plan (2026-11-03):
+  1. `tests/benchmarks/test_build_speed.py` (`slow` + `benchmark`, synthetic files only):
+     a typical all-manual track (stand-in sizes) built with the real Wiimm tools, then a
+     no-change rebuild, in-process and as a `ctstudio build` process; a 100 MiB part staged,
+     then unchanged; the cache key of one step with 1,000 input files, cold and warm.
+  2. Budgets asserted (ARCHITECTURE §15): no-change rebuild < 1 s; test build of a typical
+     track (no Blender) < 10 s. Others printed only. Status evaluation is the P3-T04 test.
+  3. Several runs on this machine into `docs/dev/BENCHMARKS.md` with the machine described.
+  Acceptance: `uv run pytest -m benchmark` runs them; the < 1 s no-change budget asserted.
+  Found while measuring (fixed in this task, tests first): a warm 1,000-input cache check took
+  0.94 s (now 0.25 s); the track check could not read Wiimm's report for most real tracks
+  (summary shapes, LE-CODE / SLOT / SUGGESTION lines), so every original track is now
+  re-checked locally by `tests/realdata/test_build_original_tracks.py`.
 ## Done (newest first)
 - 2026-11-03 `P4-T07b` The `ctstudio build` command (`cli/build.py`,
   `core/build/event_json.py`). Readable progress (one line per step, then what was found,

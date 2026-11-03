@@ -19,12 +19,19 @@ import logging
 import threading
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 from typing import cast
 
 from ctstudio.core import fsutil
 from ctstudio.core.build.node import Node
-from ctstudio.core.components.state import FileRecord, input_key, parse_file, parse_object
+from ctstudio.core.components.state import (
+    FileRecord,
+    input_key,
+    parse_file,
+    parse_object,
+    resolved_key,
+)
 from ctstudio.core.errors import BuildError, ProjectError
 from ctstudio.core.validation.issues import Issue, issue_from_json, issue_to_json
 
@@ -104,7 +111,7 @@ class BuildCache:
             self.invalidate(node.id)
             names = ", ".join(input_key(self.root, path) for path in absent)
             raise BuildError(node.id, f"it did not write {names}")
-        made = self._records(_expand(node.outputs), {})
+        made = self._records(self._keyed(_expand(node.outputs)), {})
         with self._lock:
             self._entries[node.id] = _Entry(lookup.key, lookup.inputs, made, issues)
             self._changed = True
@@ -133,12 +140,16 @@ class BuildCache:
         """What the key holds for one declared input: a digest, a folder's digests, or None."""
         if path.is_dir():
             files = _files(path)
-            records = self._records(files, known)
+            keyed = self._keyed(files)
+            records = self._records(keyed, known)
             seen.update(records)
-            return {f.relative_to(path).as_posix(): records[self._key(f)].digest for f in files}
+            return {
+                f.relative_to(path).as_posix(): records[key].digest
+                for f, (key, _) in zip(files, keyed, strict=True)
+            }
         if not path.is_file():  # not path.exists() would hash a pipe or device and hang
             return None
-        record = self._records([path], known)
+        record = self._records(self._keyed([path]), known)
         seen.update(record)
         return next(iter(record.values())).digest
 
@@ -146,10 +157,10 @@ class BuildCache:
         """Same key and outputs; then records the new mtimes of touched but unchanged files."""
         if entry.key != now.key or not all(path.exists() for path in node.outputs):
             return False
-        files = _expand(node.outputs)
-        if {self._key(path) for path in files} != set(entry.outputs):
+        keyed = self._keyed(_expand(node.outputs))
+        if {key for key, _ in keyed} != set(entry.outputs):
             return False
-        outputs = self._records(files, entry.outputs)
+        outputs = self._records(keyed, entry.outputs)
         if any(outputs[k].digest != entry.outputs[k].digest for k in outputs):
             return False
         with self._lock:
@@ -159,11 +170,20 @@ class BuildCache:
                 self._changed = True
         return True
 
-    def _key(self, path: Path) -> str:
-        return input_key(self.root, path)
+    @cached_property
+    def _base(self) -> Path:
+        return self.root.resolve()
 
-    def _records(self, files: Iterable[Path], known: Records) -> dict[str, FileRecord]:
-        return {self._key(path): _record(path, known.get(self._key(path))) for path in files}
+    def _keyed(self, files: Iterable[Path]) -> list[tuple[str, Path]]:
+        """Each file's key and resolved path, resolving it once (slow on Windows: P4-T08)."""
+        keyed: list[tuple[str, Path]] = []
+        for path in files:
+            resolved = path.resolve()
+            keyed.append((resolved_key(resolved, self._base), resolved))
+        return keyed
+
+    def _records(self, keyed: Iterable[tuple[str, Path]], known: Records) -> dict[str, FileRecord]:
+        return {key: _record(path, known.get(key)) for key, path in keyed}
 
 
 def _versions(node: Node, given: Mapping[str, str | None]) -> dict[str, str | None]:
@@ -187,7 +207,7 @@ def _expand(paths: Iterable[Path]) -> list[Path]:
 
 def _record(path: Path, old: FileRecord | None) -> FileRecord:
     """``old`` when size and mtime match it (no hashing), else a freshly hashed record."""
-    now = fsutil.Fingerprint.from_path(path)
+    now = fsutil.Fingerprint.from_path(path, resolved=True)
     if old is not None and (now.size, now.mtime_ns) == (old.size, old.mtime_ns):
         return old
     return FileRecord(now.size, now.mtime_ns, now.digest)

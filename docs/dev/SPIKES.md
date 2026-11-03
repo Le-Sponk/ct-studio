@@ -131,7 +131,8 @@ and skip `slots` entirely.
 
 - `missed_subfiles` / `warn` / `ct_attributes` code encodings (`2b`, `4=no-minimap`) are
   undocumented in `--help`; decode them in P4 if the empty-SHA1 fields prove insufficient.
-- Compression timings need re-measuring on a real track (P4 benchmark).
+- Compression timings need re-measuring on a real track (P4 benchmark). Done P4-T08:
+  castle_course's parts, test build 1.1 s, release (best) 2.8 s (BENCHMARKS.md).
 - Auto-add behaviour *with* a real library is untestable here: it needs the user's own
   game files (HC0 question).
 - Cygwin path handling on Windows with spaces/unicode: Windows CI (P1-T07).

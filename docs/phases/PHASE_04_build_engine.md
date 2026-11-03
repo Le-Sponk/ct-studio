@@ -115,10 +115,16 @@ Split 2026-11-03 (STATUS "Plan changes"):
   the real Wiimm tools (build, rebuild with `--json-events`, a wrong file, `--only`,
   `--release`); mutants 33/33.
 
-### [ ] P4-T08 — Benchmarks baseline
+### [x] P4-T08 — Benchmarks baseline
 `tests/benchmarks/`: status evaluation, no-op rebuild, stage copy of 100 MB, cache key computation
 for 1,000 inputs. Write numbers to `docs/dev/BENCHMARKS.md` (machine description included).
 **Acceptance:** benchmarks run via `pytest -m benchmark`; budgets from ARCHITECTURE §15 asserted
 where applicable (no-op rebuild < 1 s).
+Done 2026-11-03: `tests/benchmarks/test_build_speed.py` (typical track first build < 10 s,
+no-change rebuild < 1 s in-process and as a process, 100 MiB stage, 1,000-input cache key);
+numbers in BENCHMARKS.md. Found and fixed: a warm 1,000-input check took 0.94 s (one
+`resolve` per file now, 0.25 s); the track check rejected most real tracks' reports (summary
+shapes, LE-CODE / SLOT / SUGGESTION lines; `tests/realdata/test_build_original_tracks.py`
+checks every track of the user's own disc). Mutants 21/21.
 
 ### [ ] P4-GATE — Phase review

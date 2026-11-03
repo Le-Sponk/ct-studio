@@ -693,6 +693,15 @@ proof of track completeness: `analyze --json` is the status source (P2-T05b).
 
 Output severities are prefixed `+ WARNING:`, `- HINT:`, `* INFO:`, and the run ends with
 `=> N warnings, M hints and K info for <type>:<path>`. `-B/--brief` drops hints.
+**The summary lists only the kinds present** (measured on every track of a retail disc,
+P4-T08): `=> 1 warning and 10 hints`, `=> no warnings, 4 hints and 1 info`, `=> 16
+warnings`, `=> 7 warnings and 1 hint`, joined by `, ` with ` and ` before the last. Real
+tracks also print `+ WARNING/LE-CODE:` (counted as a warning), `- HINT/LE-CODE:` (a hint),
+`* SLOT:` (counted as info), `* SUGGESTION:` (**not counted** in the summary) and
+`* CHECK BRRES:<file>` sections, plus `! wszst: …` notes that are not findings. With
+`--brief` and no warnings the summary line is left out entirely (exit 0), so the build never
+uses `--brief`. `tests/realdata/test_build_original_tracks.py` re-checks all of this on the
+user's own disc copy.
 Missing components are only reported when a KMP is present:
 `+ WARNING: Missing file:    ./course_model.brres (or '_d' variant)`.
 P2-T05a's `core.tools.wiimm.check(Path, executable=...)` runs the CLI via the core
