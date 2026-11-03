@@ -44,7 +44,7 @@ propagation, event order; no thread leaks (thread count before == after).
   files behind it (the `.blend`, not the export) and `build/build_log.py` writes one UTC line
   per event; an unwritable log never fails the build. Mutants 31/31.
 
-### [x] P4-T04 — Manual-mode stage nodes
+### [x] P4-T04 — Manual-mode stage nodes (commit 4fcf8cc)
 For each component in manual mode: validate file type (P3-T05), copy (or hard-link when same volume
 and user enabled it) into `.ctstudio/stage/` under its canonical name; folders (posteffect) copied
 recursively. Skipped when unchanged.

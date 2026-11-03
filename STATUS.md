@@ -4,26 +4,20 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T04 — Manual-mode stage nodes
+**Next task:** P4-T05 — Assemble node
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `dc4fbe8` (P4-T03b; Check, Windows + Ubuntu)
+**Last green commit:** `4fcf8cc` (P4-T04; Check, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T04` — Manual-mode stage steps. Plan (2026-11-03):
-  - `core/build/stage.py`: `stage_part(root, manifest, spec)` gives one step `stage:<part>` for
-    a part in manual mode: input = the chosen file or folder, output = its canonical name in
-    `.ctstudio/stage/` (`course.kcl`, `posteffect/`). Unchanged → skipped (cache).
-  - At run time the file is checked with the status code's type check (shared, not copied):
-    wrong type / not chosen / not found / inside `.ctstudio/` → the step fails with a clear
-    `Issue` (code, message, hint, file, wiki), carried by a new `StepFailed` error and
-    reported in `NodeFailed.issues` and the build summary.
-  - Copy to a temporary name then replace, so a failed copy never leaves half a file; a
-    folder is copied whole and replaces the old folder (no leftover files).
-  - Deviation: hard links deferred (no manifest setting yet; a link would let a later step
-    write into the user's own file). Logged in Plan changes.
-  - Acceptance: tests incl. wrong file type → Issue + failure; skip when unchanged; mutants.
 ## Done (newest first)
+- 2026-11-03 `P4-T04` Manual-mode stage steps (`core/build/stage.py`). A part in manual mode
+  gets a step `stage:<part>` that checks the chosen file with the dashboard's own type check
+  and copies it under its game name into `.ctstudio/stage/` (post-effects as a whole folder,
+  so removed files go too). No file, not found, wrong type, inside `.ctstudio/` or a failed
+  copy each fail the step with one clear Issue (`StepFailed`), shown in the build summary
+  and log. Unchanged → skipped; a failed copy keeps the old one whole. Hard links deferred
+  (Plan changes). 1,844 tests; mutants 25/25. Commit `4fcf8cc`.
 - 2026-11-03 `P4-T03b` Build log & state (`core/build/part_state.py`, `core/build/build_log.py`).
   A step names the track part it makes (`Node.component`); after it runs the build records
   the part in state.json with the user's files behind it (the `.blend`, not the export), so
