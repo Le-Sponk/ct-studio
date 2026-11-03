@@ -4,26 +4,23 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 4 — Build engine (P3 gate passed, tag `phase-03-done`)
-**Next task:** P4-T08 — Benchmarks baseline
+**Next task:** P4-GATE — Phase 4 review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7e4db32` (P4-T07b; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `5831980` (P4-T08; Check + Integration, Windows + Ubuntu)
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
-- `P4-T08` — Benchmarks baseline. Plan (2026-11-03):
-  1. `tests/benchmarks/test_build_speed.py` (`slow` + `benchmark`, synthetic files only):
-     a typical all-manual track (stand-in sizes) built with the real Wiimm tools, then a
-     no-change rebuild, in-process and as a `ctstudio build` process; a 100 MiB part staged,
-     then unchanged; the cache key of one step with 1,000 input files, cold and warm.
-  2. Budgets asserted (ARCHITECTURE §15): no-change rebuild < 1 s; test build of a typical
-     track (no Blender) < 10 s. Others printed only. Status evaluation is the P3-T04 test.
-  3. Several runs on this machine into `docs/dev/BENCHMARKS.md` with the machine described.
-  Acceptance: `uv run pytest -m benchmark` runs them; the < 1 s no-change budget asserted.
-  Found while measuring (fixed in this task, tests first): a warm 1,000-input cache check took
-  0.94 s (now 0.25 s); the track check could not read Wiimm's report for most real tracks
-  (summary shapes, LE-CODE / SLOT / SUGGESTION lines), so every original track is now
-  re-checked locally by `tests/realdata/test_build_original_tracks.py`.
 ## Done (newest first)
+- 2026-11-03 `P4-T08` Build benchmarks (`tests/benchmarks/test_build_speed.py`, numbers and
+  machine in `docs/dev/BENCHMARKS.md`): typical track first test build 0.7 s (limit 10 s),
+  no-change rebuild 45 ms in-process / 0.5 s as a process (limit 1 s), 100 MiB part staged
+  0.5 s, 1,000-input cache key cold 0.8 s / warm 0.25 s. Found and fixed: the warm 1,000-input
+  check took 0.94 s (each path now resolved once); the track check rejected Wiimm's report
+  for most real tracks (summaries list only the kinds present; LE-CODE / SLOT / SUGGESTION
+  lines), now re-checked on every original track by the local-only
+  `tests/realdata/test_build_original_tracks.py`. Integration CI now also runs on
+  `core/build/**` and `core/validation/**` changes (it missed this commit; run by hand,
+  green). 2,011 tests; mutants 21/21. Commit `5831980`.
 - 2026-11-03 `P4-T07b` The `ctstudio build` command (`cli/build.py`,
   `core/build/event_json.py`). Readable progress (one line per step, then what was found,
   the track and the log), `--release`, `--force`, `--only PART`, `--json-events` (schema in

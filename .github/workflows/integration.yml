@@ -16,6 +16,8 @@ on:
       - scripts/tool_paths.py
       # What the real-tool tests exercise (P2-GATE): a change runs them, not only the nightly.
       - src/ctstudio/core/tools/**
+      - src/ctstudio/core/build/**
+      - src/ctstudio/core/validation/**
       - src/ctstudio/core/errors.py
       - src/ctstudio/cli/**
       - tests/integration/**
