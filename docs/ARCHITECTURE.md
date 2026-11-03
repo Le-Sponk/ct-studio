@@ -53,6 +53,7 @@ src/ctstudio/
     components/  registry.py  state.py  status.py  (one module per component type if large)
     build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
                  stage.py  assemble.py  objects.py  validate.py  project_build.py
+                 event_json.py
     pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
                  kmp.py posteffect.py assemble.py validate.py
     tools/       spec.py registry.py discovery.py availability.py process.py
@@ -60,7 +61,7 @@ src/ctstudio/
     formats/     magic.py kcl.py kmp.py            # read-only parsers
     textures/    analyze.py recommend.py
     validation/  issues.py wszst_check.py kmp_rules.py
-  cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py
+  cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py build.py
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
   blender_bridge/ run_job.py  exporters.py  preview_mesh.py
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
@@ -320,6 +321,13 @@ template/manual ─────────────────────�
   missing tool raises `ToolNotFound` before anything runs. Versions for the cache come from
   the version cache/probe (None when unknown). `build_project(plan, on_event, cancel=,
   force=)`; `force` forgets the plan's steps only.
+- **`ctstudio build`** (P4-T07b, `cli/build.py`): takes the project lock, reads tool paths
+  and the auto-add library from user settings, runs `build_project` on a thread named
+  `ctstudio-build` while the main thread waits in short joins, so Ctrl+C sets the cancel
+  token (a Ctrl+C before the thread starts still cancels). Text output holds each step's log
+  lines until it ends; `--json-events` prints `event_json.event_to_json` lines whose schema is
+  the JSON block in `docs/dev/CLI.md` (checked by the tests with `tests/unit/json_schema_check.py`).
+  Exit 0/1/2/3.
 - **Issues survive a skip** (P4-T06): the cache stores each step's issues with its entry, and
   a step skipped as unchanged reports them again (`NodeSkipped.issues`, the summary, the
   log marked "found before"). Old cache files without issues read as none.

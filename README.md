@@ -5,8 +5,8 @@
 > may still change without notice.
 
 <!-- progress:start (written by scripts/progress.py; do not edit by hand) -->
-**Progress:** `█████████░░░░░░░░░░░` 45% — 69 of 152 planned tasks done.
-Now working on phase 4, Build engine & SZS assembly (9 of 12 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
+**Progress:** `█████████░░░░░░░░░░░` 46% — 70 of 152 planned tasks done.
+Now working on phase 4, Build engine & SZS assembly (10 of 12 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
 <!-- progress:end -->
 
 CT Studio is an in-progress desktop app for building Mario Kart Wii custom tracks from Blender projects.
@@ -22,8 +22,9 @@ The current build has a Qt dashboard shell and About dialog, not yet a track bui
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
 On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
 still needs and open a file in its editor ([docs/dev/CLI.md](docs/dev/CLI.md)).
-A build engine can already pack files you supply into an `.szs`, but there is no `ctstudio build`
-command or dashboard button for it yet.
+`ctstudio build` turns a project whose parts are files you supply into a checked `.szs`;
+CT Studio cannot make those parts from a Blender scene yet, and the dashboard has no Build
+button yet.
 Follow [STATUS.md](STATUS.md) for progress and [the project brief](docs/PROJECT_BRIEF.md) for the plan.
 
 ## Development quick start

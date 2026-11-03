@@ -9,7 +9,7 @@ import argparse
 from collections.abc import Mapping
 from typing import Protocol
 
-from ctstudio.cli import doctor, new, open_file, setup, status
+from ctstudio.cli import build, doctor, new, open_file, setup, status
 
 
 class Command(Protocol):
@@ -23,6 +23,7 @@ class Command(Protocol):
 COMMANDS: Mapping[str, Command] = {
     "new": new,
     "status": status,
+    "build": build,
     "open": open_file,
     "doctor": doctor,
     "setup": setup,

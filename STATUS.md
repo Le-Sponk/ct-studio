@@ -10,6 +10,21 @@
 
 ## In progress
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
+- `P4-T07b` — The `ctstudio build` command. Plan (2026-11-03):
+  1. `core/build/event_json.py`: each build event as one JSON object (`format`, `event`,
+     fields; issues as in issues.json, files relative to the project).
+  2. `cli/build.py`: `ctstudio build [FOLDER] [--release] [--force] [--only PART]
+     [--json-events]`. Takes the project lock (refused, exit 1, when the app has it open);
+     tool paths and the auto-add library from CT Studio's settings (a damaged file is
+     reported and ignored); runs the build on its own thread so Ctrl+C cancels (running
+     steps finish). Human output: one line per step finished/skipped/failed and its log
+     lines, then the issues, the outcome, the track and the log. `--only` choices come
+     from the parts, so a wrong one is a usage error (exit 2).
+  3. Exit 0 succeeded, 1 failed or could not start, 2 usage, 3 cancelled. `docs/dev/CLI.md`
+     gets the section and the JSON schema of every event (a JSON Schema block).
+  Acceptance: CLI integration test (subprocess, real Wiimm, synthetic project: success,
+  a failing part, `--json-events`); every line validates against the schema read from
+  CLI.md by a small validator in the tests; Ctrl+C test with `_thread.interrupt_main`.
 ## Done (newest first)
 - 2026-11-03 `P4-T07a` Build a project, core (`core/build/project_build.py`). The build's
   steps come from the project (each hand-supplied part, then pack and check; or one part

@@ -95,7 +95,7 @@ Done 2026-11-03: `core/build/validate.py`; missing parts from `analyze`, the res
 each step's issues, so a skipped step reports them again (closes the P4-T05b gap). Real-tool
 integration test (missing parts → release fails; complete stand-ins → passes). Mutants 34/34.
 
-### [ ] P4-T07 — `ctstudio build`
+### [x] P4-T07 — `ctstudio build`
 `ctstudio build [dir] [--release] [--force] [--only component] [--json-events]`; human-friendly
 progress output; exit codes documented (0 ok, 1 build failed, 2 invalid usage, 3 cancelled).
 **Acceptance:** CLI integration test; `--json-events` output validates against documented schema.
@@ -107,9 +107,13 @@ Split 2026-11-03 (STATUS "Plan changes"):
   build of a synthetic manual project. Done 2026-11-03: `core/build/project_build.py`
   (`plan_build`, `build_project`); a tool that would run only through Wine is not used yet;
   real-tool build of an all-manual synthetic project, then a full skip; mutants 20/20.
-- [ ] **P4-T07b — The `ctstudio build` command****:** human output, `--json-events` (schema in
+- [x] **P4-T07b — The `ctstudio build` command****:** human output, `--json-events` (schema in
   `docs/dev/CLI.md`), Ctrl+C cancels, exit codes 0/1/2/3. **Acceptance:** CLI integration
-  test; every `--json-events` line validates against the documented schema.
+  test; every `--json-events` line validates against the documented schema. Done
+  2026-11-03: `cli/build.py`, `core/build/event_json.py`; the schema is a JSON Schema block in
+  CLI.md that the tests read (a small checker, no new dependency); real-process tests with
+  the real Wiimm tools (build, rebuild with `--json-events`, a wrong file, `--only`,
+  `--release`); mutants 33/33.
 
 ### [ ] P4-T08 — Benchmarks baseline
 `tests/benchmarks/`: status evaluation, no-op rebuild, stage copy of 100 MB, cache key computation
