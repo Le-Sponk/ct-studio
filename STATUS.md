@@ -4,25 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T02b — Welcome screen and recent projects
+**Next task:** P5-T03 — Dashboard
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `c0d6e6b` (P5-T02a; Check, Windows + Ubuntu)
+**Last green commit:** `8d2f788` (P5-T02b; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T02b` — Welcome screen and recent projects. Plan: tests first for persistence,
-  backups, unknown keys and missing folders; recent-project service and background welcome
-  page; wire New/Open/Recent and remember successful opens/creations; screenshots, mutations,
-  full gate and Windows/Ubuntu CI, then closeout. Acceptance: newest-first maximum ten,
-  missing entries retained/removable, checks and opening off the UI thread, restart persistence,
-  light/dark screenshots. Risk: lock ownership if the window closes during an open.
-  Implemented: worker-backed Welcome/New/Open/Recent; history keeps missing folders and
-  preserves unrelated settings, with backups. Gate --all: 2,209 passed, 6 skipped,
-  175 deselected with .tools outside the checkout; 83 new tests; mutations 31/31 GUI/navigation
-  and 16/16 settings caught. Reviewed five screenshots (empty, recent, dark, error, busy).
-  GUI tests use isolated settings; shutdown releases pending locks and drops queued signals.
-  Windows local checks and Linux-mode typing green; push/CI and closeout remain.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T02b` Welcome screen with New, Open (Ctrl+O) and recent projects.
+  Recent history persists in settings (newest ten distinct folders), retains missing entries,
+  marks them and offers removal without deleting project files. Settings backups and unknown
+  fields are preserved; malformed settings/history are reported without overwriting them.
+  Checks, opening and history writes run on a joined worker; successful creation/opening is
+  remembered; an already-current project keeps its lock; shutdown closes an undelivered
+  project and drops queued results. Five screenshots reviewed (empty, recent, dark, error,
+  busy). `docs/user/PROJECT_NAVIGATION.md` explains the workflow. Full gate with .tools outside
+  the checkout: 2,209 passed, 6 skipped, 175 deselected; 83 new tests and 47/47 mutations.
+  Windows/Linux-mode typing, complexity, lint and file limits green. Commit `8d2f788`;
+  CI Windows 126321647735 (2,200 passed/15 skipped), Ubuntu 126321648196 (2,201/14),
+  both 2,215 collected as locally. Integration not triggered: no adapter/build changes.
 - 2026-11-04 `P5-T02a` New-project wizard (`gui/views/new_project.py`, `new_project_pages.py`):
   name and folder (shown before it is made; a folder with a project or files, a file in the
   way, a relative or empty location are refused in plain words), optional .blend (missing or

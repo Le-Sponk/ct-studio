@@ -33,7 +33,7 @@ the UI thread's stack once per stall).
 **Acceptance:** debounce/coalescing tests with a fake evaluator; watchdog test that detects an
 injected `time.sleep(0.2)` on the UI thread and stays quiet when idle.
 
-### [ ] P5-T02 — Welcome & new-project wizard
+### [x] P5-T02 — Welcome & new-project wizard (commits c0d6e6b, 8d2f788)
 Welcome: New, Open, Recent (with missing-folder handling). Wizard pages: name + folder; source
 (.blend optional, can be added later); slot picker (search by display name; default Luigi Circuit);
 summary → create.
@@ -41,7 +41,7 @@ summary → create.
 Split (2026-11-04, size check: the wizard and the welcome screen with recent projects are each
 about 500 changed lines with tests):
 
-#### [x] P5-T02a — New-project wizard
+#### [x] P5-T02a — New-project wizard (commit c0d6e6b)
 `gui/views/new_project.py`: four pages (name + location, with the project folder it makes; .blend,
 optional; track to replace, searched by display name, abbreviation or cup, default Luigi Circuit;
 summary). Create runs off the UI thread with the core `Project.create`; a failure is shown on the
@@ -51,7 +51,7 @@ chosen name, slot and .blend; each page's checks (empty name, folder that alread
 other files, missing .blend, no track found); screenshots of each page (light) and the summary
 (dark).
 
-#### [ ] P5-T02b — Welcome screen and recent projects
+#### [x] P5-T02b — Welcome screen and recent projects (commit 8d2f788)
 Welcome screen in place of the empty card: New (the wizard), Open (folder chooser), Recent (from
 the user settings, newest first, at most 10; a missing folder is marked and can be removed, never
 silently dropped). Folder checks run off the UI thread. **Acceptance:** recent list kept in
