@@ -485,6 +485,15 @@ progress, navigation/history errors and shutdown-timeout explanations remain vis
 than being hidden by the dashboard switch. Component/launch actions and build/log controls
 remain separate tasks.
 
+P5-T03d: `gui/component_modes.py` adds a blocking mode service using registry capabilities.
+It changes only the selected component's mode, retaining inactive file/template/custom settings
+and unknown keys. It never moves generated/manual files, starts builds or publishes the live
+manifest. The stable loader and `persist_snapshot` commit path are shared with project details;
+both still reject read-only/closed/foreign/stale state, including no-ops, and pass expected
+bytes into replacement after staging. Callers must own the lock/busy lifetime, join before
+publishing and refresh statuses; dashboard controls follow in T03f, launch actions in T03g.
+No widget changes or new launch contracts are introduced in this persistence-only slice.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves

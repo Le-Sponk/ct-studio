@@ -82,11 +82,23 @@ validation and saving run off the UI thread; backed-up atomic saves preserve oth
 settings and refuse external changes, read-only/build/busy guards hold, errors leave the dialog
 open and project unchanged, successful saves refresh the header/statuses; keyboard and screenshots.
 
-#### [ ] P5-T03d — Component and launch actions
-Open in Blender and component primary/overflow actions wired to the service layer (file
-assignment and the editor framework remain P5-T04/P5-T07). **Acceptance:** safe mode changes,
-read-only/busy guards, cancellation/errors, keyboard navigation and screenshots. Split from
-project persistence so file replacement and action lifecycles are independently verified.
+#### [ ] P5-T03d — Component-mode persistence
+Blocking service to load exact manifest snapshots and change only a registry-supported mode.
+**Acceptance:** all legal modes, unsupported component/mode refusal, backed-up atomic saves,
+unknown and inactive settings/files retained, no-op avoidance, stale live/disk/root and
+read-only/closed guards, final staging-window conflict protection, no worker-side publication.
+Reuse project-details commit safety without changing its behavior. Split again for size: the
+persistence, card controls and launch lifecycles each need independently proven failure tests.
+
+#### [ ] P5-T03f — Dashboard mode and component controls
+Wire component mode/primary/overflow controls to the service layer; file assignment and the
+configurable editor framework remain T04/T07. **Acceptance:** joined background work, busy/
+read-only guards, cancellation/errors, last-good-state retention, keyboard and screenshots.
+
+#### [ ] P5-T03g — Blender and basic launch actions
+Open in Blender and reveal component locations using service-layer/core adapters; the full
+configurable editor framework remains P5-T07. **Acceptance:** off-thread discovery/launching,
+missing-tool/path errors, safe project ownership, read-only/busy rules, keyboard and screenshots.
 
 #### [ ] P5-T03e — Build controls and live log
 Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with

@@ -64,21 +64,31 @@ class ProjectDetailsService:
             text = _blend_text(snapshot.root, blend)
             info = replace(snapshot.manifest.project, slot=slot, blend=text)
             manifest = replace(snapshot.manifest, project=info)
-            raw = tomli_w.dumps(manifest_io.as_data(manifest)).encode("utf-8")
-            if project.manifest_path.read_bytes() != snapshot.raw:
-                raise _conflict(
-                    "The project file changed after loading details; nothing was saved."
-                )
-            if info == snapshot.manifest.project:
-                return replace(snapshot, backup=None)
-            backup = fsutil.replace_with_backup(project.manifest_path, raw, expected=snapshot.raw)
-            return DetailsSnapshot(snapshot.root, manifest, raw, backup)
+            return persist_snapshot(project, snapshot, manifest)
         except (OSError, ValueError, RuntimeError) as exc:
             raise ProjectError(
                 "Could not save project details.",
                 hint="Check file paths, permissions and free disk space, then reopen the details.",
                 details=str(exc),
             ) from exc
+
+
+def persist_snapshot(
+    project: Project, snapshot: DetailsSnapshot, manifest: Manifest
+) -> DetailsSnapshot:
+    """Commit an edited snapshot; callers wrap disk errors and join before publishing.
+
+    No-op saves still verify ownership, live state and exact disk bytes. Staging uses
+    the same expected-content commit check as other edits; no generated/manual files move.
+    """
+    _check_editable(project, snapshot)
+    raw = tomli_w.dumps(manifest_io.as_data(manifest)).encode("utf-8")
+    if project.manifest_path.read_bytes() != snapshot.raw:
+        raise _conflict("The project file changed after loading details; nothing was saved.")
+    if manifest == snapshot.manifest:
+        return replace(snapshot, backup=None)
+    backup = fsutil.replace_with_backup(project.manifest_path, raw, expected=snapshot.raw)
+    return DetailsSnapshot(snapshot.root, manifest, raw, backup)
 
 
 def _check_editable(project: Project, snapshot: DetailsSnapshot) -> None:
