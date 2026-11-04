@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 )
 
 from ctstudio import __version__
+from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.gui.recent_projects import RecentProjects
@@ -33,6 +34,7 @@ from ctstudio.gui.views.welcome_page import WelcomePage, choose_project
 
 MakeWizard = Callable[["MainWindow"], NewProjectWizard]
 MakeDetails = Callable[[AppServices, QWidget], ProjectDetailsDialog]
+MakeMode = Callable[[AppServices, str, str, QWidget], ProjectDetailsDialog]
 _SHUTDOWN_WAIT = 10.0  # seconds a running build gets to stop when the window closes
 
 
@@ -42,6 +44,14 @@ def _new_project_wizard(parent: MainWindow) -> NewProjectWizard:
 
 def _project_details_dialog(services: AppServices, parent: QWidget) -> ProjectDetailsDialog:
     return ProjectDetailsDialog(services, parent=parent)
+
+
+def _component_mode_dialog(
+    services: AppServices, component: str, mode: str, parent: QWidget
+) -> ProjectDetailsDialog:
+    from ctstudio.gui.views.component_mode import ComponentModeDialog
+
+    return ComponentModeDialog(services, component, initial_mode=mode or None, parent=parent)
 
 
 def _ensure_offscreen_font() -> None:
@@ -75,6 +85,7 @@ class MainWindow(QMainWindow):
         *,
         new_project: MakeWizard = _new_project_wizard,
         edit_project: MakeDetails = _project_details_dialog,
+        edit_component: MakeMode = _component_mode_dialog,
         recent_projects: RecentProjects | None = None,
         choose_folder: Callable[[QWidget], Path | None] = choose_project,
     ) -> None:
@@ -84,6 +95,7 @@ class MainWindow(QMainWindow):
         self._tools = self.services.tools
         self._make_wizard = new_project
         self._make_details = edit_project
+        self._make_mode = edit_component
         self._details: ProjectDetailsDialog | None = None
         self._tools_dialog: QDialog | None = None
         self._tools_page: ToolsPage | None = None
@@ -118,6 +130,7 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(page)
         self.dashboard = Dashboard(self.services, self)
         self.dashboard.edit_requested.connect(self._edit_project)
+        self.dashboard.mode_requested.connect(self._edit_component)
         scroll = QScrollArea(self.pages)
         scroll.setObjectName("dashboardScroll")
         scroll.setWidgetResizable(True)
@@ -222,6 +235,7 @@ class MainWindow(QMainWindow):
         self.new_project_action.setEnabled(available)
         self.open_project_action.setEnabled(available)
         self.welcome.setEnabled(not building and not self.services.editing)
+        self.dashboard.setEnabled(not self.welcome.busy)
         self.home_action.setEnabled(navigating)
         self.dashboard_action.setEnabled(self.services.project is not None and navigating)
 
@@ -256,17 +270,34 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def _edit_project(self) -> None:
+        if not self._can_edit():
+            return
+        self._open_editor(self._make_details(self.services, self))
+
+    def _can_edit(self) -> bool:
         project = self.services.project
+        return (
+            project is not None
+            and not project.read_only
+            and not self.services.editing
+            and not self.services.build.running
+            and not self.welcome.busy
+            and not self.dashboard.busy
+        )
+
+    def _edit_component(self, component: str, mode: str = "") -> None:
+        spec = COMPONENT_BY_ID.get(component)
         if (
-            project is None
-            or project.read_only
-            or self.services.editing
-            or self.services.build.running
-            or self.welcome.busy
-            or self.dashboard.busy
+            not self._can_edit()
+            or spec is None
+            or spec.manifest_table in (None, "project")
+            or len(spec.modes) < 2
+            or (mode != "" and mode not in spec.modes)
         ):
             return
-        dialog = self._make_details(self.services, self)
+        self._open_editor(self._make_mode(self.services, component, mode, self))
+
+    def _open_editor(self, dialog: ProjectDetailsDialog) -> None:
         self._details = dialog
         dialog.finished.connect(self._details_finished)
         dialog.finished.connect(dialog.deleteLater)

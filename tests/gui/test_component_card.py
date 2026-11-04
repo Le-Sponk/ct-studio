@@ -329,8 +329,10 @@ def test_two_column_layout_fits_720_and_keyboard_tab_order(qtbot: QtBot, project
     cards[0].copy_button.setFocus()
     qtbot.waitUntil(cards[0].copy_button.hasFocus)
     QTest.keyClick(cards[0].copy_button, Qt.Key.Key_Tab)
+    qtbot.waitUntil(cards[0].more_button.hasFocus)
+    QTest.keyClick(cards[0].more_button, Qt.Key.Key_Tab)
     qtbot.waitUntil(cards[1].copy_button.hasFocus)
-    assert len(host.findChildren(QPushButton)) == len(COMPONENTS)
+    assert len(host.findChildren(QPushButton)) == 2 * len(COMPONENTS)
 
 
 def test_long_reason_does_not_make_an_enormous_card(qtbot: QtBot, project: Project) -> None:

@@ -57,7 +57,8 @@ def test_cards_follow_background_status_results(qtbot: QtBot, tmp_path: Path) ->
         qtbot.addWidget(page)
         page.set_project(project)
         page.show()
-        qtbot.waitUntil(lambda: page.cards["kcl"].status_label.text() == "ready")
+        qtbot.waitUntil(lambda: not services.status.busy and not services.status.pending)
+        assert page.cards["kcl"].status_label.text() == "ready"
         assert list(page.cards) == [spec.id for spec in COMPONENTS]
         assert all(card.summary.text() == "Output checked" for card in page.cards.values())
         assert threads and all(t is not threading.main_thread() for t in threads)

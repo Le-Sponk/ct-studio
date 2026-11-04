@@ -22,6 +22,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ctstudio.core.errors import ProjectError
+from ctstudio.core.project.project import Project
 from ctstudio.core.project.slots import CATALOGUE
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
 from ctstudio.gui.services import AppServices
@@ -36,6 +38,9 @@ class _Relay(QObject):
 
 
 class ProjectDetailsDialog(QDialog):
+    SUBJECT = "project details"
+    worker_name = WORKER_NAME
+
     def __init__(
         self,
         services: AppServices,
@@ -67,14 +72,14 @@ class ProjectDetailsDialog(QDialog):
         project = self.project
         if project is None or project.read_only or services.editing or services.build.running:
             self.problem.setText(
-                "Project details cannot be edited now. Close this window and try again "
-                "with a writable project after other work finishes."
+                f"{self.SUBJECT.capitalize()} cannot be edited now. "
+                "Close this window and try again with a writable project after other work finishes."
             )
             self._controls()
             return
         self._owns_edit = True
         services.editing = True
-        self._start(lambda: self.service.load(project))
+        self._start(lambda: self._load(project))
 
     def _make_fields(self) -> None:
         layout = QVBoxLayout(self)
@@ -109,6 +114,9 @@ class ProjectDetailsDialog(QDialog):
         row.addWidget(self.clear_button)
         row.addStretch()
         layout.addLayout(row)
+        self._make_footer(layout)
+
+    def _make_footer(self, layout: QVBoxLayout) -> None:
         self.problem = QLabel(self)
         self.problem.setObjectName("detailsProblem")
         self.problem.setTextFormat(Qt.TextFormat.PlainText)
@@ -143,13 +151,24 @@ class ProjectDetailsDialog(QDialog):
 
     def _controls(self) -> None:
         editable = self._allowed() and not self._busy and self._snapshot is not None
+        self._editing_controls(editable)
+        self.save_button.setEnabled(editable)
+        self.buttons.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(not self._busy)
+        self.progress.setVisible(self._busy)
+
+    def _editing_controls(self, editable: bool) -> None:
         self.slot.setEnabled(editable)
         self.source.setEnabled(editable)
         self.choose_button.setEnabled(editable)
         self.clear_button.setEnabled(editable)
-        self.save_button.setEnabled(editable)
-        self.buttons.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(not self._busy)
-        self.progress.setVisible(self._busy)
+
+    def _load(self, project: Project) -> DetailsSnapshot:
+        return self.service.load(project)
+
+    def _fill(self, snapshot: DetailsSnapshot) -> None:
+        self.slot.setCurrentIndex(self.slot.findData(snapshot.manifest.project.slot))
+        source = snapshot.manifest.project.blend
+        self.source.setText(str(snapshot.root / source) if source else "")
 
     def _browse(self) -> None:
         if self._busy or not self._allowed() or self.project is None:
@@ -173,19 +192,25 @@ class ProjectDetailsDialog(QDialog):
     def _start(self, action: Callable[[], DetailsSnapshot], *, saving: bool = False) -> None:
         self._saving = saving
         self._busy = True
-        self.problem.setText("Saving project details…" if saving else "Loading project details…")
+        operation = "Saving" if saving else "Loading"
+        self.problem.setText(f"{operation} {self.SUBJECT}…")
         self._controls()
         relay = self._relay
+        project = self.project
 
         def job() -> None:
             try:
                 result: DetailsSnapshot | Exception = action()
+                if project is None or result.root != project.root.resolve():
+                    raise ProjectError(
+                        "The project changed.", hint="Close and reopen the editor before retrying."
+                    )
             except Exception as exc:  # failures must reach the dialog, not vanish in a thread
-                _LOG.exception("Project details operation failed")
+                _LOG.exception("%s operation failed", self.SUBJECT.capitalize())
                 result = exc
             relay.done.emit(result)
 
-        self._worker = threading.Thread(target=job, name=WORKER_NAME, daemon=True)
+        self._worker = threading.Thread(target=job, name=self.worker_name, daemon=True)
         try:
             self._worker.start()
         except Exception as exc:
@@ -203,15 +228,13 @@ class ProjectDetailsDialog(QDialog):
                 self.saved = True
                 super().accept()
                 return
-            self.slot.setCurrentIndex(self.slot.findData(payload.manifest.project.slot))
-            source = payload.manifest.project.blend
-            self.source.setText(str(payload.root / source) if source else "")
+            self._fill(payload)
             self.problem.clear()
         else:
             operation = "save" if self._saving else "load"
             reason = str(payload) if isinstance(payload, Exception) else "The project changed."
             self.problem.setText(
-                f"Could not {operation} project details. {reason} Close and reopen to retry."
+                f"Could not {operation} {self.SUBJECT}. {reason} Close and reopen to retry."
             )
         self._controls()
 

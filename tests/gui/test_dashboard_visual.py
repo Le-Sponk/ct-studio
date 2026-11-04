@@ -100,7 +100,7 @@ def test_native_dashboard_screenshots(qtbot: QtBot, tmp_path: Path) -> None:
     view.close()
 
 
-def test_tab_order_and_small_window_reach_every_available_copy_action(
+def test_tab_order_and_small_window_reach_every_available_component_action(
     qtbot: QtBot, tmp_path: Path
 ) -> None:
     view = window(qtbot, tmp_path)
@@ -112,11 +112,12 @@ def test_tab_order_and_small_window_reach_every_available_copy_action(
     qtbot.keyClick(page.copy_project, Qt.Key.Key_Tab)
     assert page.edit_button.hasFocus()
     for card in page.cards.values():
-        if card.copy_button.isEnabled():
-            focus = QApplication.focusWidget()
-            assert focus is not None
-            qtbot.keyClick(focus, Qt.Key.Key_Tab)
-            assert card.copy_button.hasFocus()
+        for button in (card.mode_button, card.copy_button, card.more_button):
+            if button.isEnabled() and button.isVisible():
+                focus = QApplication.focusWidget()
+                assert focus is not None
+                qtbot.keyClick(focus, Qt.Key.Key_Tab)
+                assert button.hasFocus()
     scroll = view.findChild(QScrollArea, "dashboardScroll")
     assert scroll is not None and scroll.verticalScrollBar().value() > 0
     shot(view, "p5-t03b-dashboard-small.png")

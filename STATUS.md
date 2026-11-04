@@ -9,7 +9,30 @@
 **Last green commit:** `47b70f6` (P5-T03d; Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03f` — Dashboard mode and component controls. Plan: tests-first card entry/overflow
+  controls and explicit Save/Cancel mode dialog; reuse joined-worker details lifecycle;
+  integrate dashboard/window ownership and refresh; cover busy/read-only/stale/cancel/error
+  paths, keyboard and visuals; full gate, deliberate faults, independent review and CI.
+  Acceptance: registry-supported modes only; no disk work on the UI thread; modal ownership
+  prevents switching/closing/releasing the project while working; only a joined successful
+  save publishes the manifest and rechecks statuses; failed/cancelled edits retain last-good
+  cards and all user files/settings. Existing path copying stays available read-only.
+  Files: card/dashboard/main window, details lifecycle hooks/new mode dialog, focused tests
+  and navigation/architecture docs. Risk: lifecycle reuse without a second worker owner.
+- Final local verification: full gate without checkout tools passes (2,739 passed / 6 existing
+  skips / 175 deselected); all 630 GUI/service tests, including 164 new cases, pass. No new
+  test needs local generated fixtures. Card/dialog/dashboard have 100% statement coverage.
+  Windows/Linux touched typing, scoped complexity/budgets and native/150% visual checks pass.
+  Final isolated campaigns caught window 27/27, overview 35/35, details lifecycle 25/25,
+  card actions 30/30, mode lifecycle 14/14, independent card/dialog 38/38 and history 3/3:
+  172/172 fault-injection runs. Baseline/restored copies green, source hashes unchanged.
+- Initial independent review FAILED R1: effective widget-enabled state cached during history
+  work left mode controls stuck off. Four RED history success/error and ancestor-copy tests
+  now pass after a third-context explicit-state fix; busy/read-only/navigation guards remain.
+  Final independent re-review passed: 14 acceptance probes, three reverted R1 faults caught,
+  native keyboard/accessibility and UI-thread I/O instrumentation; all five source hashes
+  verified unchanged. Exact-commit Windows/Ubuntu Check remains before closeout.
+- No file assignment or editor launching here (T04/T07 and T03g); build/log remains T03e.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-04 `P5-T03d` Component-mode persistence (`47b70f6`). Added a blocking, registry-driven

@@ -492,7 +492,19 @@ manifest. The stable loader and `persist_snapshot` commit path are shared with p
 both still reject read-only/closed/foreign/stale state, including no-ops, and pass expected
 bytes into replacement after staging. Callers must own the lock/busy lifetime, join before
 publishing and refresh statuses; dashboard controls follow in T03f, launch actions in T03g.
-No widget changes or new launch contracts are introduced in this persistence-only slice.
+No widget changes or new launch contracts are introduced in that persistence-only slice.
+
+P5-T03f: `ComponentCard` exposes signal-only mode entry/overflow actions, plus lexical path
+copying. The dashboard gates mutating actions while checking/building/editing/read-only;
+the window rechecks ownership and registry capabilities before creating an editor. Eligibility
+comes from explicit application/project/path state, not effective widget-enabled flags that
+include temporarily disabled ancestors. Menu checkmarks stay at the persisted mode until a
+successful rebind. `ComponentModeDialog` reuses
+`ProjectDetailsDialog`'s joined-worker, Save/Cancel and modal lock ownership via small field/
+loader hooks, rather than introducing another thread owner. The window shares editor finish/
+close handling, invalidates status results and rebinds only after a successful save; cancel
+and errors retain last-good cards. Navigation also disables the dashboard during Open/history
+work. File assignment, launches and GUI build controls remain separate tasks.
 
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live

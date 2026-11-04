@@ -36,13 +36,14 @@ until built. A supplied part uses the chosen file. Objects has no single file to
 info copies the project manifest path. Copying remains available in read-only projects.
 
 View → Recent projects (Ctrl+H) returns to the welcome list without closing the current project.
-View → Project dashboard (Ctrl+D) returns to it. Tab reaches the available copy buttons; the
+View → Project dashboard (Ctrl+D) returns to it. Tab reaches the available mode, copy and More controls; the
 dashboard scrolls to focused controls in a small window. File → New/Open remain available.
 Navigation errors and history-save problems stay visible on the welcome screen; a project that
 opened successfully remains open, and its dashboard is still available from View.
 
-Project details can edit the slot and source as described below. Component actions and GUI
-build controls are still under development; the command-line build remains available for supplied parts.
+Project details can edit the slot and source; component cards can change supported modes as
+described below. Editor launching, file assignment and GUI build controls are still under
+development; the command-line build remains available for supplied parts.
 
 ## Editing project details
 
@@ -69,7 +70,32 @@ then, saving stops and leaves that edit in place. Other editors do not obey CT S
 there is still a very small gap between this final check and replacement that cannot be locked
 across unrelated apps. Avoid editing `ctstudio.toml` elsewhere while pressing Save.
 
-Open in Blender and other component actions are still under development.
+Open in Blender and editor launching are still under development.
+
+## Changing a component mode
+
+After statuses finish checking, choose Change mode… on a component card, or use its More (…)
+menu → Mode → the mode you want. The menu selects a draft, not a saved change. Only modes
+supported by that component are listed. Parts with only one mode have no mode control.
+
+The dialog explains the available choices: auto asks CT Studio to make the part from project
+sources/settings, manual uses a supplied file or folder, and template uses the configured
+original-track template. Save applies the choice; Cancel or Escape leaves it unchanged.
+The mode checkmark and card stay at the last saved choice until Save succeeds.
+
+Changing a mode never chooses, copies or deletes a file, nor clears inactive settings. Existing
+manual references and template choices are retained when switching away and back. Switching to
+manual without a supplied file will show that the part is missing; GUI file assignment is not
+ready yet, so use projects that already name their supplied files.
+
+Loading and saving run in the background with the same backups and external-edit protection
+as project details. Read-only, checking and building projects cannot change modes. While a
+mode dialog is open, project navigation is blocked; while its worker is active, Save, Cancel
+and closing are disabled/refused. Wait for it to finish. A failure keeps the old project and
+card statuses visible with an explanation. A successful save refreshes modes, paths and statuses.
+
+More → Copy path is another way to use the existing lexical path copy: it does not open or
+validate the target, which may not exist yet, and remains available in read-only projects.
 
 ## Recent projects
 

@@ -33,6 +33,7 @@ def _label(name: str, parent: QWidget) -> QLabel:
 
 class Dashboard(QWidget):
     edit_requested = Signal()
+    mode_requested = Signal(str, str)
 
     def __init__(self, services: AppServices, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -120,6 +121,7 @@ class Dashboard(QWidget):
         self.cards: dict[str, ComponentCard] = {}
         for index, spec in enumerate(COMPONENTS):
             card = ComponentCard(spec, self)
+            card.mode_requested.connect(self.mode_requested)
             self.cards[spec.id] = card
             grid.addWidget(card, index // 2, index % 2)
         self._layout.addLayout(grid)
@@ -130,7 +132,13 @@ class Dashboard(QWidget):
 
     def refresh(self) -> None:
         project = self._project
-        if project is None or not self._current() or self._checking or self.services.build.running:
+        if (
+            project is None
+            or not self._current()
+            or self._checking
+            or self.services.build.running
+            or self.services.editing
+        ):
             return
         self._begin_check()
         self.services.status.request(project)
@@ -176,16 +184,13 @@ class Dashboard(QWidget):
             "Build running — showing last checked statuses." if building else ""
         )
         self.work_label.setVisible(building)
-        self.refresh_button.setEnabled(self._current() and not self._checking and not building)
+        idle = self._current() and not self._checking and not building and not self.services.editing
+        self.refresh_button.setEnabled(idle)
         self.copy_project.setEnabled(self._current())
-        self.edit_button.setEnabled(
-            self._current()
-            and self._project is not None
-            and not self._project.read_only
-            and not self._checking
-            and not building
-            and not self.services.editing
-        )
+        mutable = idle and self._project is not None and not self._project.read_only
+        self.edit_button.setEnabled(mutable)
+        for card in self.cards.values():
+            card.set_actions_enabled(mutable)
 
     def _after_build(self, _result: object) -> None:
         if self._current():

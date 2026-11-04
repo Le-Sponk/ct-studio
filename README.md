@@ -21,7 +21,8 @@ Nintendo game files are never included; users provide their own assets when a fe
 The GUI can create and open projects, remember the ten most recent folders between runs,
 and show a live dashboard of component statuses with refresh and path copying
 ([project navigation](docs/user/PROJECT_NAVIGATION.md)). Project details can change the original
-track slot and Blender source with backed-up saves; component actions and GUI builds are not yet implemented.
+track slot and Blender source; component cards can change supported modes, with backed-up saves.
+Editor launching, file assignment and GUI builds are not yet implemented.
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
 On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
 still needs and open a file in its editor ([docs/dev/CLI.md](docs/dev/CLI.md)).
