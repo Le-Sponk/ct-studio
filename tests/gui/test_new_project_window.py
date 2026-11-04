@@ -62,6 +62,7 @@ def window_with(
     window = MainWindow(services=services, new_project=wizard)
     qtbot.addWidget(window)
     window.show()
+    qtbot.waitUntil(lambda: not window.welcome.busy, timeout=WAIT)
     return window, services
 
 
@@ -89,6 +90,8 @@ def test_new_project_opens_the_wizard_and_then_the_project(
     assert services.project is not None
     assert not services.project.read_only
     assert window.windowTitle() == "Ma piste é — CT Studio"
+    qtbot.waitUntil(lambda: not window.welcome.busy, timeout=WAIT)
+    assert window.welcome.history.check().entries[0].root == tmp_path / "Ma piste é"
     assert "Ma piste é" in label(window, "emptyTitle").text()
     assert Project.open(tmp_path / "Ma piste é").read_only  # this app holds it
     assert not [t for t in threading.enumerate() if t.name == WORKER_NAME]

@@ -454,7 +454,19 @@ and the project is handed over open (locked) as `wizard.project`. `MainWindow` t
 project to `AppServices.adopt` (refused while a build runs, closing the new project so no lock is
 left) and shuts the services down when the window closes, giving the lock back.
 
-P1-T06 shell: `ctstudio` with no arguments opens a minimal Qt Widgets empty-project dashboard;
+P5-T02b: the shell shows `gui/views/welcome_page.py` `WelcomePage`: New, Open (Ctrl+O),
+recent folders and explicit missing-folder labels. `gui/recent_projects.py` `RecentProjects`
+loads `recent_projects` from the user's settings, resolves/deduplicates paths, keeps the newest
+10 and preserves unknown keys/tool settings with a backup on save. Missing entries stay until
+removed; Remove changes only the list. Damaged settings/history are shown without overwriting.
+A single named worker (`ctstudio-welcome`) handles checks, opens and history writes; busy actions
+are disabled. Results return through a queued relay and the worker is joined before delivery.
+The receiver owns an opened project; shutdown closes one still awaiting delivery and suppresses
+queued results. A window refuses to close if welcome/build/status work has not stopped in time.
+Successfully created and opened projects are remembered; history-save failure does not undo an
+open. An already-current project is reused rather than reacquiring its own lock read-only.
+
+P1-T06 shell (now extended by P5-T02): `ctstudio` with no arguments opens the Qt Widgets welcome;
 Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
 placeholder. Widgets keep Qt's native palette (no hard-coded stylesheet), so a system palette
 change reaches open windows. `ctstudio --offscreen-smoke <png>` forces offscreen before importing
@@ -463,7 +475,7 @@ than overwriting user work. `--version`/`--help` remain Qt-free. On Windows the 
 can enumerate zero system fonts; only in that case the shell loads the installed Segoe UI font
 from `%WINDIR%/Fonts` (Linux fallback: system DejaVu Sans) so screenshots have real glyphs.
 No font is bundled. GUI screenshots are reviewed from `tests/artifacts/screens/` in light/dark and
-at 150% scaling; project actions remain for later phases.
+at 150% scaling; the dashboard's component cards and Build button remain for P5-T03.
 
 ## 11. File watching
 watchfiles in a background thread watches the project folder, the `.blend`, and referenced

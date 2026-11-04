@@ -18,7 +18,8 @@ Course models, collision, minimaps, KMP data and validation are planned dashboar
 Projects will remain ordinary directories with readable configuration and inspectable commands.
 User-authored files must be backed up before any automated replacement.
 Nintendo game files are never included; users provide their own assets when a feature needs them.
-The current build has a Qt dashboard shell and About dialog, not yet a track builder.
+The GUI can create and open projects and remembers the ten most recent folders between runs
+([project navigation](docs/user/PROJECT_NAVIGATION.md)); component cards and GUI builds are not yet implemented.
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
 On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
 still needs and open a file in its editor ([docs/dev/CLI.md](docs/dev/CLI.md)).

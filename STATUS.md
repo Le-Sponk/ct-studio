@@ -9,6 +9,18 @@
 **Last green commit:** `c0d6e6b` (P5-T02a; Check, Windows + Ubuntu)
 
 ## In progress
+- `P5-T02b` — Welcome screen and recent projects. Plan: tests first for persistence,
+  backups, unknown keys and missing folders; recent-project service and background welcome
+  page; wire New/Open/Recent and remember successful opens/creations; screenshots, mutations,
+  full gate and Windows/Ubuntu CI, then closeout. Acceptance: newest-first maximum ten,
+  missing entries retained/removable, checks and opening off the UI thread, restart persistence,
+  light/dark screenshots. Risk: lock ownership if the window closes during an open.
+  Implemented: worker-backed Welcome/New/Open/Recent; history keeps missing folders and
+  preserves unrelated settings, with backups. Gate --all: 2,209 passed, 6 skipped,
+  175 deselected with .tools outside the checkout; 83 new tests; mutations 31/31 GUI/navigation
+  and 16/16 settings caught. Reviewed five screenshots (empty, recent, dark, error, busy).
+  GUI tests use isolated settings; shutdown releases pending locks and drops queued signals.
+  Windows local checks and Linux-mode typing green; push/CI and closeout remain.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-04 `P5-T02a` New-project wizard (`gui/views/new_project.py`, `new_project_pages.py`):
