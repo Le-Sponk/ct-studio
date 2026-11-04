@@ -41,7 +41,7 @@ summary → create.
 Split (2026-11-04, size check: the wizard and the welcome screen with recent projects are each
 about 500 changed lines with tests):
 
-#### [ ] P5-T02a — New-project wizard
+#### [x] P5-T02a — New-project wizard
 `gui/views/new_project.py`: four pages (name + location, with the project folder it makes; .blend,
 optional; track to replace, searched by display name, abbreviation or cup, default Luigi Circuit;
 summary). Create runs off the UI thread with the core `Project.create`; a failure is shown on the

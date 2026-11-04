@@ -4,24 +4,23 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T02a — New-project wizard
+**Next task:** P5-T02b — Welcome screen and recent projects
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `f548f83` (P5-T01b; Check, Windows + Ubuntu)
+**Last green commit:** `c0d6e6b` (P5-T02a; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T02a` — New-project wizard (split from P5-T02, see Plan changes). Plan: (1) RED
-  pytest-qt tests: the flow makes a project on disk, each page's checks, screenshots;
-  (2) `gui/views/new_project.py` `NewProjectWizard` (QWizard, four pages, injected file and
-  folder choosers and creator; create on a QThreadPool worker); (3) main window File → New
-  project… opens it, then `AppServices.open_project`; `MainWindow` takes `AppServices` and
-  shuts them down on close; (4) gate, mutants, screenshots looked at, docs. Acceptance: as in
-  the phase file. Risk: QWizard's Finish must wait for the worker.
-  Progress: done in the working copy; flow, page checks, File → New project… and 11
-  screenshots (light, dark summary and track list); `AppServices.adopt`; 43/43 mutants (one
-  redundant hidden-row check removed). Deleting the wizard while a QThreadPool thread was
-  ending crashed (access violation), so creation runs on one named thread joined first.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T02a` New-project wizard (`gui/views/new_project.py`, `new_project_pages.py`):
+  name and folder (shown before it is made; a folder with a project or files, a file in the
+  way, a relative or empty location are refused in plain words), optional .blend (missing or
+  not .blend refused), track to replace (all 42 by cup, search by name, abbreviation or cup,
+  Luigi Circuit by default), summary. Finish makes it off the window's thread and waits for
+  it; failures show on the summary page and Finish can be tried again. File → New project…
+  (Ctrl+N) opens it and then the new project; closing the window gives the lock back.
+  11 screenshots looked at (light; summary and track list dark). Mutants 43/43. Commit
+  `c0d6e6b`; CI Check Windows 126301434290 and Ubuntu 126301433667 green (2,132 collected
+  on each, as locally); Integration not triggered (GUI-only paths).
 - 2026-11-04 `P5-T01b` Part statuses in the background and the freeze watchdog
   (`gui/status_service.py`, `gui/watchdog.py`). Statuses are worked out off the window's
   thread, once per burst of requests (300 ms), with exactly one more run when asked during a
