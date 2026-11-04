@@ -4,11 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03 — Dashboard
+**Next task:** P5-T03a — Build callback failure safety
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `8d2f788` (P5-T02b; Check, Windows + Ubuntu)
 
 ## In progress
+- `P5-T03a` — Build callback failure safety (TD-012), split from the dashboard. Plan:
+  deterministic failing regression with a callback error while component workers finish;
+  drain completed worker results after joining without calling the broken receiver again;
+  verify state, cache, next-build reuse, logging and no new steps/threads; mutation checks,
+  full gate, real-tool regressions, docs and Windows/Ubuntu CI, then closeout.
+  Files: core/build/runner.py, callback regression tests, STATUS, phase plan and architecture.
+  Acceptance: all successfully completed parts have state records before the original callback
+  error escapes; failed/unstarted parts are not recorded; next build reuses valid outputs.
+  Local evidence on revised code: full gate with .tools outside checkout,
+  2,235 passed / 6 skipped; 26 new regressions; 12/12 isolated mutations caught,
+  restored copy green and checkout byte-identical; Windows/Linux-mode typing green.
+  Secondary I/O fault fix preserves the original callback error, drains other results/logs
+  and attempts cache/state saves independently; secondary faults are warning-logged.
+  Independent re-review passed with no security or logic findings; 26 callback tests
+  passed ten repeated runs and 11 real-Wiimm integration regressions passed again.
+  CI verification remains before closeout.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-04 `P5-T02b` Welcome screen with New, Open (Ctrl+O) and recent projects.
@@ -750,6 +766,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-04: P5-T03 split into P5-T03a (runner callback-error safety / TD-012),
+  P5-T03b (dashboard header and component cards), P5-T03c (build controls and live log).
+  Combined scope is larger than one session; the recorded safety prerequisite comes first.
 - 2026-11-04: P5-T02 split into P5-T02a (new-project wizard) and P5-T02b (welcome screen
   and recent projects), each about 500 changed lines with tests.
 - 2026-11-04: P5-T01 split into P5-T01a (services container, build controller) and P5-T01b

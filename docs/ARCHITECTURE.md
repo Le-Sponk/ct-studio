@@ -277,7 +277,13 @@ template/manual ─────────────────────�
   cache → `NodeSkipped`; after a run the outputs are stored, and the cache is saved at the
   end (also on error). First failure or a cancel: nothing new starts, running steps finish
   (`ctx.cancel` is the build's `CancelToken`); `Cancelled` counts as cancelled only when the
-  user cancelled. A non-CT Studio exception is logged and shown as `BuildError`.
+  user cancelled. A non-CT Studio exception from a step is logged and shown as `BuildError`.
+  If the event receiver raises (P5-T03a / TD-012), its exception propagates: no more steps
+  start or callbacks run, but already submitted workers finish. Their queued results and log
+  lines are drained after joining the pool, before saving the cache and part state, so reused
+  outputs cannot be left without their completed part records. If recording or saving also
+  fails during error cleanup, the original exception is kept, other results and independent
+  saves are still attempted, and secondary failures are logged. No success event is fabricated.
   `BuildSummary(outcome, ran, skipped, failed, cancelled, not_run, issues, duration, log)`.
 - **Part state** (P4-T03b, `build/part_state.py`): a step that makes a track part names it
   (`Node.component`, a part with outputs, one step per part). After it runs (or is skipped

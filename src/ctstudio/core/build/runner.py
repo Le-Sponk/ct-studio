@@ -73,6 +73,8 @@ def run_build(
     """Run every step of ``graph`` that is not fresh in ``cache``, then save the cache.
 
     An exception from ``on_event`` stops the build: running steps finish, then it propagates.
+    Their queued results and logs are recorded before saving cache and part state;
+    the failed receiver is never called again.
     """
     workers = default_jobs() if jobs is None else jobs
     if workers < 1:
@@ -117,7 +119,11 @@ class _Build:
             try:
                 with ThreadPoolExecutor(self.jobs, thread_name_prefix="ctstudio-build") as pool:
                     self._loop(pool)
-            finally:
+            except BaseException:
+                self._recover()
+                raise
+            else:
+                self._drain_finished()
                 self.cache.save()
                 self._parts.save()
             summary = self._summary(time.monotonic() - started)
@@ -141,6 +147,34 @@ class _Build:
                 self._finish(item)
                 item = item.event
             self._emit(item)
+
+    def _recover(self) -> None:
+        """Keep the active exception, but report secondary faults and salvage other work."""
+        self._drain_finished(recovering=True)
+        for name, save in (("build cache", self.cache.save), ("part state", self._parts.save)):
+            try:
+                save()
+            except Exception:
+                _LOG.warning("could not save %s during build cleanup", name, exc_info=True)
+
+    def _drain_finished(self, *, recovering: bool = False) -> None:
+        """Workers have joined: reconcile results left by a failed event callback."""
+        while True:
+            try:
+                item = self._queue.get_nowait()
+            except queue.Empty:
+                return
+            if isinstance(item, _Done):
+                try:
+                    self._finish(item)
+                except Exception:
+                    if not recovering:
+                        raise
+                    _LOG.warning(
+                        "could not record build result for %s", item.node_id, exc_info=True
+                    )
+                item = item.event
+            self._log.write(item)
 
     def _start_ready(self, pool: ThreadPoolExecutor) -> None:
         if self._stopping():

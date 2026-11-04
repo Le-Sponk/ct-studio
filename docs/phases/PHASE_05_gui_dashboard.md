@@ -59,6 +59,27 @@ settings across restarts (with backup, unknown keys kept); missing-folder handli
 the list; screenshots light and dark.
 
 ### [ ] P5-T03 — Dashboard
+Split (2026-11-04: header/cards, build controls and log together exceed one session):
+
+#### [ ] P5-T03a — Build callback failure safety (TD-012)
+Before adding GUI build controls, fix the runner's callback-error cleanup. After its workers
+finish, record every successful queued result before saving state/cache; never call the failed
+receiver again. **Acceptance:** deterministic callback-error tests prove completed parts are
+recorded, failed/unstarted parts are not, no new work starts, the original error propagates,
+workers end, the disk log retains completed work and the next build reuses the cache correctly.
+
+#### [ ] P5-T03b — Dashboard header and component cards
+Project name, slot/source controls and component cards with status icon, text and summary;
+primary and overflow actions wired to the service layer (file assignment and editor framework
+remain P5-T04/P5-T07). **Acceptance:** cards follow StatusService results, read-only/busy states,
+keyboard navigation and light/dark screenshots.
+
+#### [ ] P5-T03c — Build controls and live log
+Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with
+command copying, using BuildController. **Acceptance:** fake-build events update cards and log
+live; shortcuts, cancel/failure behavior and light/dark screenshots. TD-012 must be closed first.
+
+Original combined scope:
 Header: project name, slot selector, source file + "Open in Blender". Component cards (status icon +
 colour + text, one-line summary, primary action, "Open in ▾", overflow: Reveal in file manager, Copy
 path, Mode: Auto/Manual/Template, Settings…). Footer build bar: Build test SZS, Release build,
