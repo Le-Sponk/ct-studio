@@ -132,8 +132,11 @@ def test_settings_tools_opens_the_page(
     qtbot: QtBot, doctor: FakeDoctor, settings_file: Path
 ) -> None:
     from ctstudio.gui.main_window import MainWindow
+    from ctstudio.gui.services import AppServices
 
-    window = MainWindow(tools=ToolsService(settings_path=settings_file, diagnose=doctor))
+    window = MainWindow(
+        AppServices(tools=ToolsService(settings_path=settings_file, diagnose=doctor))
+    )
     qtbot.addWidget(window)
     window.show()
     action = window.findChild(QAction, "toolsAction")

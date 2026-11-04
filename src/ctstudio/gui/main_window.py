@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import os
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QFontDatabase
+from PySide6.QtGui import QAction, QCloseEvent, QFontDatabase
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -20,8 +21,16 @@ from PySide6.QtWidgets import (
 )
 
 from ctstudio import __version__
-from ctstudio.gui.services import ToolsService
+from ctstudio.gui.services import AppServices
+from ctstudio.gui.views.new_project import NewProjectWizard
 from ctstudio.gui.views.tools_page import ToolsPage
+
+MakeWizard = Callable[["MainWindow"], NewProjectWizard]
+_SHUTDOWN_WAIT = 10.0  # seconds a running build gets to stop when the window closes
+
+
+def _new_project_wizard(parent: MainWindow) -> NewProjectWizard:
+    return NewProjectWizard(default_location=Path.home(), parent=parent)
 
 
 def _ensure_offscreen_font() -> None:
@@ -49,10 +58,17 @@ def _ensure_offscreen_font() -> None:
 class MainWindow(QMainWindow):
     """Show the empty-project dashboard until project workflows are implemented."""
 
-    def __init__(self, tools: ToolsService | None = None) -> None:
+    def __init__(
+        self,
+        services: AppServices | None = None,
+        *,
+        new_project: MakeWizard = _new_project_wizard,
+    ) -> None:
         _ensure_offscreen_font()
         super().__init__()
-        self._tools = tools if tools is not None else ToolsService()
+        self.services = services if services is not None else AppServices()
+        self._tools = self.services.tools
+        self._make_wizard = new_project
         self._tools_dialog: QDialog | None = None
         self._tools_page: ToolsPage | None = None
         self.setWindowTitle("CT Studio")
@@ -75,6 +91,7 @@ class MainWindow(QMainWindow):
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(32, 32, 32, 32)
         title = QLabel("No project open", card)
+        self._empty_title = title
         title.setObjectName("emptyTitle")
         title_font = title.font()
         title_font.setPointSize(16)
@@ -82,7 +99,7 @@ class MainWindow(QMainWindow):
         title.setFont(title_font)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         card_layout.addWidget(title)
-        body = QLabel("Project creation and opening are coming in a later phase.", card)
+        body = QLabel("Make a new track project with File → New project… (Ctrl+N).", card)
         body.setObjectName("emptyBody")
         body.setAlignment(Qt.AlignmentFlag.AlignCenter)
         body.setWordWrap(True)
@@ -90,6 +107,14 @@ class MainWindow(QMainWindow):
         layout.addWidget(card)
         layout.addStretch()
         self.setCentralWidget(page)
+
+        file_menu = self.menuBar().addMenu("&File")
+        self.new_project_action = QAction("New project…", self)
+        self.new_project_action.setObjectName("newProjectAction")
+        self.new_project_action.setShortcut("Ctrl+N")
+        self.new_project_action.setToolTip("Make a new track project.")
+        self.new_project_action.triggered.connect(self._new_project)
+        file_menu.addAction(self.new_project_action)
 
         settings_menu = self.menuBar().addMenu("&Settings")
         self.tools_action = QAction("Tools…", self)
@@ -103,6 +128,33 @@ class MainWindow(QMainWindow):
         self.about_action.setObjectName("aboutAction")
         self.about_action.triggered.connect(self.about_dialog.open)
         help_menu.addAction(self.about_action)
+
+    def _new_project(self) -> None:
+        """File → New project…: a fresh wizard each time; the new project becomes current."""
+        wizard = self._make_wizard(self)
+        wizard.accepted.connect(lambda: self._created(wizard))
+        wizard.finished.connect(wizard.deleteLater)
+        wizard.open()
+
+    def _created(self, wizard: NewProjectWizard) -> None:
+        if wizard.project is not None:
+            self.services.adopt(wizard.project)
+            self._show_project()
+
+    def _show_project(self) -> None:
+        project = self.services.project
+        if project is None:
+            self.setWindowTitle("CT Studio")
+            self._empty_title.setText("No project open")
+            return
+        name = project.manifest.project.name
+        self.setWindowTitle(f"{name} — CT Studio")
+        self._empty_title.setText(f"{name} is open")  # the dashboard comes in P5-T03
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """Stop the build and the status work, then give the project's lock back."""
+        self.services.shutdown(_SHUTDOWN_WAIT)
+        super().closeEvent(event)
 
     def _open_tools(self) -> None:
         """Settings → Tools: made on first use (checking starts then), checked again later."""

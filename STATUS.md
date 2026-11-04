@@ -4,11 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T02 — Welcome & new-project wizard
+**Next task:** P5-T02a — New-project wizard
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `f548f83` (P5-T01b; Check, Windows + Ubuntu)
 
 ## In progress
+- `P5-T02a` — New-project wizard (split from P5-T02, see Plan changes). Plan: (1) RED
+  pytest-qt tests: the flow makes a project on disk, each page's checks, screenshots;
+  (2) `gui/views/new_project.py` `NewProjectWizard` (QWizard, four pages, injected file and
+  folder choosers and creator; create on a QThreadPool worker); (3) main window File → New
+  project… opens it, then `AppServices.open_project`; `MainWindow` takes `AppServices` and
+  shuts them down on close; (4) gate, mutants, screenshots looked at, docs. Acceptance: as in
+  the phase file. Risk: QWizard's Finish must wait for the worker.
+  Progress: done in the working copy; flow, page checks, File → New project… and 11
+  screenshots (light, dark summary and track list); `AppServices.adopt`; 43/43 mutants (one
+  redundant hidden-row check removed). Deleting the wizard while a QThreadPool thread was
+  ending crashed (access violation), so creation runs on one named thread joined first.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-04 `P5-T01b` Part statuses in the background and the freeze watchdog
@@ -728,6 +739,8 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-04: P5-T02 split into P5-T02a (new-project wizard) and P5-T02b (welcome screen
+  and recent projects), each about 500 changed lines with tests.
 - 2026-11-04: P5-T01 split into P5-T01a (services container, build controller) and P5-T01b
   (status service, UI stall watchdog): about 650 changed lines with tests, over one session.
 - 2026-11-03: P4-GATE review deferred the `[build] extra_wszst_args` runtime support and

@@ -442,6 +442,18 @@ failed. `gui/watchdog.py` `StallWatchdog` (started by `run_gui` only when `CTSTU
 a 25 ms precise timer on the UI thread; a named watcher thread (`ctstudio-watchdog`) logs a
 warning with the UI thread's stack (`sys._current_frames`) once per stall longer than 100 ms.
 
+P5-T02a: `gui/views/new_project.py` `NewProjectWizard` (pages in `new_project_pages.py`): name
+and folder, .blend (optional), track to replace (searched by words of the name, abbreviation or
+cup), summary. The folder is named from the track by `folder_name` (characters Windows forbids
+become `_`, trailing dots and spaces go, reserved names such as `CON` get a `_`). Each page's
+check is a single look at one folder or file, so it stays on the UI thread. Finish runs
+`Project.create` on a named thread (`ctstudio-new-project`), joined before the wizard closes;
+Back, Finish and Cancel (and Escape) are off meanwhile, a failure is shown on the summary page,
+and the project is handed over open (locked) as `wizard.project`. `MainWindow` takes
+`AppServices`; File → New project… (Ctrl+N) makes a fresh wizard each time, passes the new
+project to `AppServices.adopt` (refused while a build runs, closing the new project so no lock is
+left) and shuts the services down when the window closes, giving the lock back.
+
 P1-T06 shell: `ctstudio` with no arguments opens a minimal Qt Widgets empty-project dashboard;
 Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
 placeholder. Widgets keep Qt's native palette (no hard-coded stylesheet), so a system palette

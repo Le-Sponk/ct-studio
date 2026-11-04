@@ -38,6 +38,25 @@ Welcome: New, Open, Recent (with missing-folder handling). Wizard pages: name + 
 (.blend optional, can be added later); slot picker (search by display name; default Luigi Circuit);
 summary → create.
 **Acceptance:** pytest-qt flow creates a project on disk; screenshot artifacts of each page.
+Split (2026-11-04, size check: the wizard and the welcome screen with recent projects are each
+about 500 changed lines with tests):
+
+#### [ ] P5-T02a — New-project wizard
+`gui/views/new_project.py`: four pages (name + location, with the project folder it makes; .blend,
+optional; track to replace, searched by display name, abbreviation or cup, default Luigi Circuit;
+summary). Create runs off the UI thread with the core `Project.create`; a failure is shown on the
+summary page and nothing is half made by the wizard. File → New project… in the main window opens
+it and opens the new project. **Acceptance:** pytest-qt flow creates a project on disk with the
+chosen name, slot and .blend; each page's checks (empty name, folder that already has a project or
+other files, missing .blend, no track found); screenshots of each page (light) and the summary
+(dark).
+
+#### [ ] P5-T02b — Welcome screen and recent projects
+Welcome screen in place of the empty card: New (the wizard), Open (folder chooser), Recent (from
+the user settings, newest first, at most 10; a missing folder is marked and can be removed, never
+silently dropped). Folder checks run off the UI thread. **Acceptance:** recent list kept in
+settings across restarts (with backup, unknown keys kept); missing-folder handling; opening from
+the list; screenshots light and dark.
 
 ### [ ] P5-T03 — Dashboard
 Header: project name, slot selector, source file + "Open in Blender". Component cards (status icon +

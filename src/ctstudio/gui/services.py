@@ -102,6 +102,18 @@ class AppServices:
         self.status.request(opened)
         return opened
 
+    def adopt(self, project: Project) -> None:
+        """Make ``project`` (already opened, e.g. just created) current, closing the one before.
+
+        Refused while a build runs; ``project`` is then closed, so its lock is not left behind.
+        """
+        if self.build.running:
+            project.close()
+            self._refuse_while_building()
+        self.close_project()
+        self.project = project
+        self.status.request(project)
+
     def close_project(self) -> None:
         self._refuse_while_building()
         self.status.clear()
