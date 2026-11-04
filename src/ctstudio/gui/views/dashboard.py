@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QFormLayout,
@@ -32,6 +32,8 @@ def _label(name: str, parent: QWidget) -> QLabel:
 
 
 class Dashboard(QWidget):
+    edit_requested = Signal()
+
     def __init__(self, services: AppServices, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.services = services
@@ -61,8 +63,8 @@ class Dashboard(QWidget):
         self.services.build.finished.connect(self._after_build)
         self.services.build.failed.connect(self._after_build)
 
-    def set_project(self, project: Project) -> None:
-        if project is self._project:
+    def set_project(self, project: Project, *, changed: bool = False) -> None:
+        if project is self._project and not changed:
             self.refresh()  # retain last good results, including during an existing check/build
             return
         self._project = project
@@ -107,6 +109,11 @@ class Dashboard(QWidget):
         self.copy_project.setEnabled(False)
         self.copy_project.clicked.connect(self._copy_project)
         controls.addWidget(self.copy_project)
+        self.edit_button = QPushButton("Project details…", self)
+        self.edit_button.setObjectName("editProjectDetails")
+        self.edit_button.setToolTip("Change the track to replace and the Blender source file.")
+        self.edit_button.clicked.connect(self.edit_requested)
+        controls.addWidget(self.edit_button)
         controls.addStretch()
         self._layout.addLayout(controls)
         grid = QGridLayout()
@@ -171,6 +178,14 @@ class Dashboard(QWidget):
         self.work_label.setVisible(building)
         self.refresh_button.setEnabled(self._current() and not self._checking and not building)
         self.copy_project.setEnabled(self._current())
+        self.edit_button.setEnabled(
+            self._current()
+            and self._project is not None
+            and not self._project.read_only
+            and not self._checking
+            and not building
+            and not self.services.editing
+        )
 
     def _after_build(self, _result: object) -> None:
         if self._current():

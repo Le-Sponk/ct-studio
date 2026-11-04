@@ -88,6 +88,7 @@ class AppServices:
         self.build = build if build is not None else BuildController()
         self.status = status if status is not None else StatusService()
         self.project: Project | None = None
+        self.editing = False  # modal project-details owner; prevents switching/releasing its lock
         self.build.finished.connect(self._refresh)
         self.build.failed.connect(self._refresh)
 
@@ -107,8 +108,9 @@ class AppServices:
 
         Refused while a build runs; ``project`` is then closed, so its lock is not left behind.
         """
-        if self.build.running:
-            project.close()
+        if self.build.running or self.editing:
+            if project is not self.project:
+                project.close()
             self._refuse_while_building()
         self.close_project()
         self.project = project
@@ -127,6 +129,8 @@ class AppServices:
 
         False when either did not stop in time; the project then stays open (and locked).
         """
+        if self.editing:
+            return False  # the modal editor owns a worker and the project lock until it closes
         if not self.build.shutdown(timeout) or not self.status.shutdown(timeout):
             return False
         self.close_project()
@@ -137,6 +141,11 @@ class AppServices:
             self.status.request(self.project)
 
     def _refuse_while_building(self) -> None:
+        if self.editing:
+            raise ProjectError(
+                "Project details are open, so this project stays open.",
+                hint="Save or cancel project details, then try again.",
+            )
         if self.build.running:
             raise ProjectError(
                 "The project is being built, so it stays open.",

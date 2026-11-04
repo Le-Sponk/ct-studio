@@ -27,15 +27,21 @@ from ctstudio.gui.recent_projects import RecentProjects
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.dashboard import Dashboard
 from ctstudio.gui.views.new_project import NewProjectWizard
+from ctstudio.gui.views.project_details import ProjectDetailsDialog
 from ctstudio.gui.views.tools_page import ToolsPage
 from ctstudio.gui.views.welcome_page import WelcomePage, choose_project
 
 MakeWizard = Callable[["MainWindow"], NewProjectWizard]
+MakeDetails = Callable[[AppServices, QWidget], ProjectDetailsDialog]
 _SHUTDOWN_WAIT = 10.0  # seconds a running build gets to stop when the window closes
 
 
 def _new_project_wizard(parent: MainWindow) -> NewProjectWizard:
     return NewProjectWizard(default_location=Path.home(), parent=parent)
+
+
+def _project_details_dialog(services: AppServices, parent: QWidget) -> ProjectDetailsDialog:
+    return ProjectDetailsDialog(services, parent=parent)
 
 
 def _ensure_offscreen_font() -> None:
@@ -68,6 +74,7 @@ class MainWindow(QMainWindow):
         services: AppServices | None = None,
         *,
         new_project: MakeWizard = _new_project_wizard,
+        edit_project: MakeDetails = _project_details_dialog,
         recent_projects: RecentProjects | None = None,
         choose_folder: Callable[[QWidget], Path | None] = choose_project,
     ) -> None:
@@ -76,6 +83,8 @@ class MainWindow(QMainWindow):
         self.services = services if services is not None else AppServices()
         self._tools = self.services.tools
         self._make_wizard = new_project
+        self._make_details = edit_project
+        self._details: ProjectDetailsDialog | None = None
         self._tools_dialog: QDialog | None = None
         self._tools_page: ToolsPage | None = None
         self.setWindowTitle("CT Studio")
@@ -108,6 +117,7 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget(self)
         self.pages.addWidget(page)
         self.dashboard = Dashboard(self.services, self)
+        self.dashboard.edit_requested.connect(self._edit_project)
         scroll = QScrollArea(self.pages)
         scroll.setObjectName("dashboardScroll")
         scroll.setWidgetResizable(True)
@@ -171,14 +181,14 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentIndex(0)
 
     def _browse(self) -> None:
-        if self.welcome.busy or self.services.build.running:
+        if self.welcome.busy or self.services.build.running or self.services.editing:
             return
         self._home()
         self.welcome.browse()
 
     def _new_project(self) -> None:
         """File → New project…: a fresh wizard each time; the new project becomes current."""
-        if self.welcome.busy or self.services.build.running:
+        if self.welcome.busy or self.services.build.running or self.services.editing:
             return
         wizard = self._make_wizard(self)
         wizard.accepted.connect(lambda: self._created(wizard))
@@ -207,14 +217,13 @@ class MainWindow(QMainWindow):
 
     def _navigation(self, _busy: bool = False) -> None:
         building = self.services.build.running
-        available = not self.welcome.busy and not building
+        navigating = not self.welcome.busy and not self.services.editing
+        available = navigating and not building
         self.new_project_action.setEnabled(available)
         self.open_project_action.setEnabled(available)
-        self.welcome.setEnabled(not building)
-        self.home_action.setEnabled(not self.welcome.busy)
-        self.dashboard_action.setEnabled(
-            self.services.project is not None and not self.welcome.busy
-        )
+        self.welcome.setEnabled(not building and not self.services.editing)
+        self.home_action.setEnabled(navigating)
+        self.dashboard_action.setEnabled(self.services.project is not None and navigating)
 
     def _show_project(self) -> None:
         project = self.services.project
@@ -233,12 +242,46 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         """Stop the build and the status work, then give the project's lock back."""
+        if self._details is not None:
+            if self._details.busy:
+                self._details.problem.setText("Work is still finishing. Wait, then close again.")
+                event.ignore()
+                return
+            self._details.reject()
         if not self.welcome.shutdown(_SHUTDOWN_WAIT) or not self.services.shutdown(_SHUTDOWN_WAIT):
             self._home()
             self.welcome.show_problem("Work is still stopping. Wait a moment, then close again.")
             event.ignore()
             return
         super().closeEvent(event)
+
+    def _edit_project(self) -> None:
+        project = self.services.project
+        if (
+            project is None
+            or project.read_only
+            or self.services.editing
+            or self.services.build.running
+            or self.welcome.busy
+            or self.dashboard.busy
+        ):
+            return
+        dialog = self._make_details(self.services, self)
+        self._details = dialog
+        dialog.finished.connect(self._details_finished)
+        dialog.finished.connect(dialog.deleteLater)
+        self._navigation()
+        self.dashboard._sync()
+        dialog.open()
+
+    def _details_finished(self, _result: int) -> None:
+        dialog, self._details = self._details, None
+        project = self.services.project
+        if dialog is not None and dialog.saved and project is not None:
+            self.services.status.clear()
+            self.dashboard.set_project(project, changed=True)
+        self._navigation()
+        self.dashboard._sync()
 
     def _open_tools(self) -> None:
         """Settings → Tools: made on first use (checking starts then), checked again later."""

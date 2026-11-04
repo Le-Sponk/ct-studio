@@ -4,12 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03c — Project controls and component actions
+**Next task:** P5-T03c — Project slot and source editing
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `f766568` (P5-T03b; Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03c` — Project slot and source editing. Plan: tests-first blocking persistence service;
+  background-loaded/saved details dialog with slot/source choose/clear and Save/Cancel;
+  integrate dashboard and app busy/close guards; test backups, external edits, failures,
+  read-only/build states and UI responsiveness; screenshots, mutations, review, full gate and CI.
+  Acceptance: no writes before Save; backed-up atomic writes preserve unknown settings and
+  refuse external changes; disk work stays off the UI thread; failure preserves current data;
+  saving updates the overview and refreshes statuses. Risks: worker/lock lifetime and stale results.
+  Files: GUI details service/dialog, services/main window/dashboard, GUI tests and user/architecture docs.
+  Final verification after the review fix: full gate without checkout tools 2,473 passed /
+  6 skipped / 175 deselected; all 364 GUI tests pass, including the two former race failures.
+  120 focused filesystem/service/race tests and four real-tool build regressions pass.
+  Windows/Linux touched-file typing, lint/complexity and budgets pass. Isolated mutations:
+  UI 25/25, service 28/28 rerun after the fix, replacement safety 15/15; prior overview 35/35
+  also rerun. Restored copies green and checkout unchanged. Light/dark/error/saving images
+  and 150% scaling inspected. Review found a staging-window external-edit race; final byte
+  and symlink checks now run after staging/mode-copy immediately before replacement, with
+  a documented residual race for noncooperating external writers. Independent re-review passed:
+  144 focused tests (repeated), 47 existing GUI contracts and 93 downstream settings/manifest
+  tests; three negative probes reproduce the former race/symlink faults. All six reviewed
+  production hashes match the final checkout. Exact-commit Check/Integration remain pending.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-04 `P5-T03b` Live project overview (`f766568`). Opening/creating a project shows
@@ -779,6 +798,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-04: P5-T03c's persistence dialog and component/launch controls each need a separate
+  service lifecycle and extensive failure tests. Keep slot/source editing as T03c; move actions
+  to T03d and the unstarted build/log slice to T03e. No original feature is dropped.
 - 2026-11-04: P5-T03b narrowed to the integrated live overview, refresh and path copying.
   Header editing and component actions exceed the session budget with card/status/navigation
   tests: P5-T03c now owns those controls; the unstarted build/log task moves to P5-T03d.
@@ -1320,6 +1342,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   imports `cli.doctor` and so `core.tools.doctor`; `importlib.metadata` for `__version__`
   ~70 ms), ~75 ms work. The 300 ms exit limit is for evaluation (~70 ms, met). Import each
   subcommand module lazily from `COMMANDS` and read the version only for `--version`.
+- **TD-013 · Deep Clean #1 · stale-lock takeover concurrency test intermittently has no winner.**
+  During P5-T03c's pre-commit fast gate on Windows, all eight openers returned read-only in
+  `test_openers_racing_to_take_over_a_stale_lock_get_exactly_one_lock`; no lock code changed.
+  The complete 23-test project-lock file passed five consecutive reruns afterward. Measure
+  takeover-guard contention and the dead-process test fixture under full-suite load before
+  changing the lock algorithm or test bounds. Keep this visible at the Phase 5 review.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

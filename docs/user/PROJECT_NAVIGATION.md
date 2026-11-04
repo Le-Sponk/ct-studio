@@ -41,8 +41,35 @@ dashboard scrolls to focused controls in a small window. File → New/Open remai
 Navigation errors and history-save problems stay visible on the welcome screen; a project that
 opened successfully remains open, and its dashboard is still available from View.
 
-This step is an overview only. Slot/source editing, component actions and GUI build controls
-are still under development; the command-line build remains available for supplied parts.
+Project details can edit the slot and source as described below. Component actions and GUI
+build controls are still under development; the command-line build remains available for supplied parts.
+
+## Editing project details
+
+On a writable project's dashboard, choose Project details… after the status check finishes.
+Select the original track or arena to replace, and type or choose the full path of an existing
+`.blend` file. Clear source removes the reference, not the file. You can leave it empty when
+supplying track parts manually. Save applies both choices; Cancel or Escape discards the draft.
+
+Reading, checking and saving run in the background. While work is in progress, fields and
+Save/Cancel are disabled; wait for it to finish before closing. Other project navigation is
+blocked while details are open, keeping the project's write lock. Read-only projects and a
+running build cannot edit details. A save failure keeps the dialog open and the old project
+settings in use, so you can correct the source or cancel.
+
+Before saving, CT Studio checks that the project file and its in-memory settings still match
+what the dialog loaded. If another editor changed the file, it refuses to replace it: cancel,
+close/reopen the project, then try again. Each changed save keeps the original exact file beside
+`ctstudio.toml` as a timestamped `.bak` and writes the new file atomically. Unknown settings are
+preserved, but TOML comments/formatting are not; the backup retains them. Saving unchanged
+choices does not rewrite or back up the file. The dashboard then updates and checks statuses again.
+
+The file is checked again after the replacement has been prepared. If an external edit is found
+then, saving stops and leaves that edit in place. Other editors do not obey CT Studio's lock:
+there is still a very small gap between this final check and replacement that cannot be locked
+across unrelated apps. Avoid editing `ctstudio.toml` elsewhere while pressing Save.
+
+Open in Blender and other component actions are still under development.
 
 ## Recent projects
 

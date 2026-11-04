@@ -19,6 +19,7 @@ on:
       - src/ctstudio/core/build/**
       - src/ctstudio/core/validation/**
       - src/ctstudio/core/errors.py
+      - src/ctstudio/core/fsutil.py
       - src/ctstudio/cli/**
       - tests/integration/**
       - tests/fakes/**

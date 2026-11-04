@@ -57,14 +57,38 @@ def _stage_bytes(path: Path, data: bytes) -> Path:
     return Path(temp.name)
 
 
-def atomic_write_bytes(path: Path, data: bytes) -> None:
-    """Atomically replace an app-managed file; use replace_with_backup for user files."""
+def _verify_expected(path: Path, expected: bytes) -> None:
+    """Refuse a stale, missing, unreadable or symlink destination before committing."""
+    try:
+        matches = not path.is_symlink() and path.read_bytes() == expected
+    except OSError as exc:
+        raise ProjectError(
+            f"Could not verify {path.name} before saving; nothing was saved.",
+            hint="Check that the file exists and is readable, then close and reopen the project.",
+            details=f"path={path}; error={exc}",
+        ) from exc
+    if not matches:
+        raise ProjectError(
+            f"{path.name} changed or became a symlink; nothing was saved.",
+            hint="Close and reopen the project before editing it again.",
+        )
+
+
+def atomic_write_bytes(path: Path, data: bytes, *, expected: bytes | None = None) -> None:
+    """Atomically replace a file; use replace_with_backup for user files.
+
+    With expected bytes, recheck content and symlinks after staging, just before replace.
+    This is optimistic, not portable compare-and-swap: a noncooperating external writer
+    can still change the destination between the final read/check and os.replace.
+    """
     staged: Path | None = None
     try:
         staged = _stage_bytes(path, data)
         with _replace_lock:
             if path.exists():
                 shutil.copymode(path, staged)
+            if expected is not None:
+                _verify_expected(path, expected)
             os.replace(staged, path)
     except OSError as exc:
         raise ProjectError(
@@ -82,8 +106,11 @@ def atomic_write_text(path: Path, text: str) -> None:
     atomic_write_bytes(path, text.encode("utf-8"))
 
 
-def replace_with_backup(path: Path, data: bytes) -> Path | None:
-    """Back up a user file before replacing it; return backup path, or None if new."""
+def replace_with_backup(path: Path, data: bytes, *, expected: bytes | None = None) -> Path | None:
+    """Back up a user file before replacing it; return backup path, or None if new.
+
+    expected opts into atomic_write_bytes' optimistic final content/symlink check.
+    """
     with _replace_lock:
         if path.is_symlink():
             raise ProjectError(
@@ -109,7 +136,10 @@ def replace_with_backup(path: Path, data: bytes) -> Path | None:
             finally:
                 if staged is not None:
                     staged.unlink(missing_ok=True)
-        atomic_write_bytes(path, data)
+        if expected is None:
+            atomic_write_bytes(path, data)
+        else:
+            atomic_write_bytes(path, data, expected=expected)
         return backup
 
 

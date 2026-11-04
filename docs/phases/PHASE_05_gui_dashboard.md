@@ -75,13 +75,20 @@ welcome/dashboard navigation. **Acceptance:** live StatusService results, old-pr
 ignored, last good statuses retained on error, read-only/build/checking states, keyboard and
 light/dark/small-window screenshots; no filesystem checks on the UI thread.
 
-#### [ ] P5-T03c — Project controls and component actions
-Slot/source editing, Open in Blender, component primary/overflow actions wired to the service
-layer (file assignment and editor framework remain P5-T04/P5-T07). **Acceptance:** edits
-persist safely off the UI thread; read-only/busy guards, cancellation/error tests, keyboard
-navigation and screenshots. Split from the overview to keep each session bounded.
+#### [ ] P5-T03c — Project slot and source editing
+Project details dialog with the original track/arena selector and optional Blender source,
+including choose/clear, explicit Save/Cancel and no writes until Save. **Acceptance:** loading,
+validation and saving run off the UI thread; backed-up atomic saves preserve other/unknown
+settings and refuse external changes, read-only/build/busy guards hold, errors leave the dialog
+open and project unchanged, successful saves refresh the header/statuses; keyboard and screenshots.
 
-#### [ ] P5-T03d — Build controls and live log
+#### [ ] P5-T03d — Component and launch actions
+Open in Blender and component primary/overflow actions wired to the service layer (file
+assignment and the editor framework remain P5-T04/P5-T07). **Acceptance:** safe mode changes,
+read-only/busy guards, cancellation/errors, keyboard navigation and screenshots. Split from
+project persistence so file replacement and action lifecycles are independently verified.
+
+#### [ ] P5-T03e — Build controls and live log
 Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with
 command copying, using BuildController. **Acceptance:** fake-build events update cards and log
 live; shortcuts, cancel/failure behavior and light/dark screenshots. TD-012 must be closed first.

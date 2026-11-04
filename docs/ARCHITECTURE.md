@@ -482,7 +482,24 @@ results are ignored, and returning mid-build does not clear checked statuses. A 
 keeps all controls keyboard-reachable. Opening/creating shows the dashboard; View offers
 Recent projects (Ctrl+H) and Project dashboard (Ctrl+D), keeping the project lock. Welcome
 progress, navigation/history errors and shutdown-timeout explanations remain visible rather
-than being hidden by the dashboard switch. Editing/actions and build/log controls are P5-T03c/d.
+than being hidden by the dashboard switch. Component/launch actions and build/log controls
+remain separate tasks.
+
+P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
+exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
+manifest, different project or lost write lock, validates slot/source on the worker, preserves
+other and unknown values, and uses `replace_with_backup` for changed writes. The expected
+bytes are checked again in the replacement commit path after staging/fsync, so a change during
+preparation is refused without overwriting the unexpected destination. This is optimistic
+conflict detection, not cross-process compare-and-swap: an unrelated writer can still race
+between the final check and `os.replace`; the UI docs advise against concurrent manual editing.
+It never mutates
+`Project.manifest`; the receiver publishes the saved snapshot on the UI thread after joining.
+`gui/views/project_details.py` is a modal Save/Cancel dialog, with a named joined worker for
+load/save, error banner and busy guards. While open it owns `AppServices.editing`, so navigation,
+adoption and project closure cannot release the lock; the main window refuses closing during
+an active operation. Successful save invalidates queued status results, rebinds the updated
+header/cards and requests fresh statuses. Cancel retains the existing cards. No tool is launched.
 
 P1-T06 shell (now extended by P5-T02/P5-T03b): `ctstudio` with no arguments opens the Qt Widgets welcome;
 Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
@@ -493,7 +510,8 @@ than overwriting user work. `--version`/`--help` remain Qt-free. On Windows the 
 can enumerate zero system fonts; only in that case the shell loads the installed Segoe UI font
 from `%WINDIR%/Fonts` (Linux fallback: system DejaVu Sans) so screenshots have real glyphs.
 No font is bundled. GUI screenshots are reviewed from `tests/artifacts/screens/` in light/dark and
-at 150% scaling; project editing controls and the Build button remain for P5-T03c/d.
+at 150% scaling; project slot/source edits are implemented, while component/launch actions
+and build/log controls remain P5-T03d/e.
 
 ## 11. File watching
 watchfiles in a background thread watches the project folder, the `.blend`, and referenced
