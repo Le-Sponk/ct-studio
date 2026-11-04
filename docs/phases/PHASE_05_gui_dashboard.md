@@ -82,7 +82,7 @@ validation and saving run off the UI thread; backed-up atomic saves preserve oth
 settings and refuse external changes, read-only/build/busy guards hold, errors leave the dialog
 open and project unchanged, successful saves refresh the header/statuses; keyboard and screenshots.
 
-#### [ ] P5-T03d — Component-mode persistence
+#### [x] P5-T03d — Component-mode persistence (commit 47b70f6)
 Blocking service to load exact manifest snapshots and change only a registry-supported mode.
 **Acceptance:** all legal modes, unsupported component/mode refusal, backed-up atomic saves,
 unknown and inactive settings/files retained, no-op avoidance, stale live/disk/root and

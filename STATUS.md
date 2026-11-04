@@ -4,33 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03d — Component-mode persistence
+**Next task:** P5-T03f — Dashboard mode and component controls
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `da5b2bb` (P5-T03c; Check + Integration, Windows + Ubuntu)
+**Last green commit:** `47b70f6` (P5-T03d; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03d` — Component-mode persistence. Plan: tests-first mode service using registry
-  capabilities; share snapshot commit safety with project details; test all legal/illegal
-  transitions, retained settings/files, no-ops, stale snapshots and staging conflicts; full
-  gate, mutations, independent review and both-platform CI. No dashboard controls in this slice.
-  Acceptance: backed-up mode-only writes preserve all other data, reject read-only/closed/
-  foreign/stale state and unsupported choices, never publish the live manifest from a worker,
-  and retain external changes. Existing details behavior stays green. Files: details persistence,
-  new component-mode service/tests and architecture/phase/status docs. Risk: reusing persistence
-  without weakening its final expected-byte check. Dashboard busy ownership follows in T03f.
-  Final full gate with .tools outside checkout: 2,575 passed / 6 skipped / 175 deselected;
-  466 GUI/service tests green, including 102 new mode cases. Both persistence modules have
-  100% statements (22 + 70); touched source/tests pass Windows/Linux typing, Ruff and complexity
-  budgets. Existing details 28/28 isolated faults remain caught after extraction. New campaign
-  initially exposed two load-test gaps; added parse-time edit/delete and I/O-cause regressions.
-  Final 35/35 faults caught, baseline/restored both 102 passed, checkout unchanged.
-  Independent review passed: 237 focused regressions + 96 mode cases and three negative probes;
-  production hashes unchanged afterward (only six regression cases added). Pre-existing NaN
-  comparison limitation recorded as TD-014. Exact-commit CI remains pending.
-  No widget, core adapter or pipeline changes: screenshots/real-tool Integration not required
-  for this service-only slice; the existing dialog regression tests still pass.
+- None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T03d` Component-mode persistence (`47b70f6`). Added a blocking, registry-driven
+  mode service: it changes only supported modes, preserves inactive file/template/custom and
+  unknown settings, and never moves user/generated files or publishes the live manifest.
+  Shared snapshot commit safety with project details: read-only/closed/foreign/stale guards,
+  exact backups, no-op avoidance and expected-byte staging protection stay intact. Dashboard
+  controls/worker ownership follow in T03f; launch actions T03g, then build/log T03e.
+  Final hidden-tools full gate: 2,575 passed / 6 skipped / 175 deselected; 466 GUI/service
+  tests, including 102 new mode cases; 100% statements in both persistence modules (22 + 70).
+  Windows/Linux touched-file typing, lint/complexity/budgets and whitespace checks pass.
+  New isolated mutations 35/35 caught after closing two load-test gaps; previous details
+  campaign 28/28 still caught. Baseline/restored green and checkout unchanged. Independent
+  review passed (237 focused regressions + 96 mode cases, three negative probes); production
+  hashes verified after the six added regressions. Pre-existing NaN comparison limit is TD-014.
+  Exact-commit Check Windows 126472244807: 2,566 passed / 15 skipped; Ubuntu 126472245022:
+  2,567 passed / 14 skipped. Both selected totals 2,581 match local; remote main verified.
+  No widget, core adapter or pipeline changes: screenshots/real-tool Integration not required
+  for this service-only slice; existing details dialog regressions still pass.
 - 2026-11-04 `P5-T03c` Project slot and source editing (`da5b2bb`). Project details opens
   from the dashboard; choose a replacement track/arena and optional Blender source, choose/clear,
   then Save or Cancel. Loading, validation and saving run on a joined worker; only successful
