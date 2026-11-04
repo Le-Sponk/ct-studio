@@ -68,7 +68,7 @@ receiver again. **Acceptance:** deterministic callback-error tests prove complet
 recorded, failed/unstarted parts are not, no new work starts, the original error propagates,
 workers end, the disk log retains completed work and the next build reuses the cache correctly.
 
-#### [ ] P5-T03b — Live project overview
+#### [x] P5-T03b — Live project overview (commit f766568)
 Read-only header (project name, folder, slot and Blender source); all component cards with
 status icon/text, reasons and mode; refresh and path copying. Show it after create/open, with
 welcome/dashboard navigation. **Acceptance:** live StatusService results, old-project results
