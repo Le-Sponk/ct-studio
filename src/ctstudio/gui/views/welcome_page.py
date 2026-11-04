@@ -140,6 +140,11 @@ class WelcomePage(QWidget):
         button.setToolTip(tip)
         return button
 
+    @property
+    def problem(self) -> str:
+        """The navigation/history warning, also visible when a project was opened."""
+        return self._problem.text()
+
     def show_problem(self, message: str) -> None:
         self._problem.setText(message)
 

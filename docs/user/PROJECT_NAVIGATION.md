@@ -20,6 +20,30 @@ If the folder cannot be opened, the explanation appears below the recent list an
 already open stays open. A project held by another CT Studio opens read-only, marked in the
 heading; close it in the other copy before reopening if you need to change it.
 
+## Project overview
+
+Creating or opening a project shows its dashboard: name, project folder, the original track
+file it replaces, Blender source (if set), and whether the project is writable or read-only.
+The eight cards show each part's mode, status icon and text, and a short explanation. Hover a
+card to read all its reasons; these are also available to screen readers. Statuses are checked
+in the background. Refresh statuses checks again without changing project files. An error
+keeps the last checked statuses visible, so they may be out of date until a refresh succeeds.
+During a build the last checked statuses stay visible and refresh is disabled until it ends.
+
+Copy project folder and each available Copy path button copy a path without opening or
+changing it. An automatically generated part's path is its planned output and may not exist
+until built. A supplied part uses the chosen file. Objects has no single file to copy; Track
+info copies the project manifest path. Copying remains available in read-only projects.
+
+View → Recent projects (Ctrl+H) returns to the welcome list without closing the current project.
+View → Project dashboard (Ctrl+D) returns to it. Tab reaches the available copy buttons; the
+dashboard scrolls to focused controls in a small window. File → New/Open remain available.
+Navigation errors and history-save problems stay visible on the welcome screen; a project that
+opened successfully remains open, and its dashboard is still available from View.
+
+This step is an overview only. Slot/source editing, component actions and GUI build controls
+are still under development; the command-line build remains available for supplied parts.
+
 ## Recent projects
 
 Successfully created or opened folders are saved in this computer's `settings.json`, newest

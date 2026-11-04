@@ -4,11 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03b — Dashboard header and component cards
+**Next task:** P5-T03b — Live project overview
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `bb2f4eb` (P5-T03a; Check + Integration, Windows + Ubuntu)
 
 ## In progress
+- `P5-T03b` — Live project overview. Plan: failing card/dashboard/window tests; implement
+  registry-driven native-palette cards and project header; connect background status results,
+  refresh, error/read-only/build states and path copying; verify navigation, keyboard and
+  light/dark/small-window screenshots; mutation probes, full checks, docs and both CI jobs.
+  Files: GUI card/dashboard/main window, GUI tests, project-navigation docs, architecture, phase.
+  Acceptance: opening/creating a project shows its real header and all eight live statuses;
+  status work stays off the UI thread, errors keep last good results, old-project results
+  are ignored, navigation remains usable, and copy actions work without touching files.
+  Editing/modes and tool-launch actions remain separate from this read-only overview.
+  Verification: full gate with .tools outside checkout: 2,340 passed / 6 skipped / 175 deselected;
+  all 251 GUI tests pass; 35/35 isolated mutations caught, restored copy green, checkout unchanged.
+  Windows/Linux typing, scoped lint/complexity and 150% visual tests pass; light/dark,
+  checking/error and small-window keyboard screenshots inspected. Review found same-project
+  navigation cleared last good results; four failing regressions now pass after preserving
+  the binding/check state on return. Independent re-review passed (105 dashboard/card tests
+  plus 20 existing navigation regressions); no security or logic findings. Exact-commit CI pending.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-04 `P5-T03a` Build callback failure safety; TD-012 closed (`bb2f4eb`).
@@ -763,6 +779,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-04: P5-T03b narrowed to the integrated live overview, refresh and path copying.
+  Header editing and component actions exceed the session budget with card/status/navigation
+  tests: P5-T03c now owns those controls; the unstarted build/log task moves to P5-T03d.
 - 2026-11-04: P5-T03 split into P5-T03a (runner callback-error safety / TD-012),
   P5-T03b (dashboard header and component cards), P5-T03c (build controls and live log).
   Combined scope is larger than one session; the recorded safety prerequisite comes first.

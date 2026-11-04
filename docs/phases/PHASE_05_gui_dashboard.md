@@ -68,13 +68,20 @@ receiver again. **Acceptance:** deterministic callback-error tests prove complet
 recorded, failed/unstarted parts are not, no new work starts, the original error propagates,
 workers end, the disk log retains completed work and the next build reuses the cache correctly.
 
-#### [ ] P5-T03b — Dashboard header and component cards
-Project name, slot/source controls and component cards with status icon, text and summary;
-primary and overflow actions wired to the service layer (file assignment and editor framework
-remain P5-T04/P5-T07). **Acceptance:** cards follow StatusService results, read-only/busy states,
-keyboard navigation and light/dark screenshots.
+#### [ ] P5-T03b — Live project overview
+Read-only header (project name, folder, slot and Blender source); all component cards with
+status icon/text, reasons and mode; refresh and path copying. Show it after create/open, with
+welcome/dashboard navigation. **Acceptance:** live StatusService results, old-project results
+ignored, last good statuses retained on error, read-only/build/checking states, keyboard and
+light/dark/small-window screenshots; no filesystem checks on the UI thread.
 
-#### [ ] P5-T03c — Build controls and live log
+#### [ ] P5-T03c — Project controls and component actions
+Slot/source editing, Open in Blender, component primary/overflow actions wired to the service
+layer (file assignment and editor framework remain P5-T04/P5-T07). **Acceptance:** edits
+persist safely off the UI thread; read-only/busy guards, cancellation/error tests, keyboard
+navigation and screenshots. Split from the overview to keep each session bounded.
+
+#### [ ] P5-T03d — Build controls and live log
 Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with
 command copying, using BuildController. **Acceptance:** fake-build events update cards and log
 live; shortcuts, cancel/failure behavior and light/dark screenshots. TD-012 must be closed first.

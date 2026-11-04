@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QLabel,
     QMainWindow,
+    QScrollArea,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -23,6 +25,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.gui.recent_projects import RecentProjects
 from ctstudio.gui.services import AppServices
+from ctstudio.gui.views.dashboard import Dashboard
 from ctstudio.gui.views.new_project import NewProjectWizard
 from ctstudio.gui.views.tools_page import ToolsPage
 from ctstudio.gui.views.welcome_page import WelcomePage, choose_project
@@ -98,12 +101,22 @@ class MainWindow(QMainWindow):
         )
         self.welcome.new_requested.connect(self._new_project)
         self.welcome.opened.connect(self._opened)
+        self.welcome.checked.connect(self._welcome_checked)
         self._empty_title = self.welcome.title
         layout.addWidget(self.welcome, 1)
         layout.addStretch()
-        self.setCentralWidget(page)
+        self.pages = QStackedWidget(self)
+        self.pages.addWidget(page)
+        self.dashboard = Dashboard(self.services, self)
+        scroll = QScrollArea(self.pages)
+        scroll.setObjectName("dashboardScroll")
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.dashboard)
+        self.pages.addWidget(scroll)
+        self.setCentralWidget(self.pages)
 
         self._build_menus()
+        self._show_project()
 
     def _build_menus(self) -> None:
         file_menu = self.menuBar().addMenu("&File")
@@ -117,11 +130,10 @@ class MainWindow(QMainWindow):
         self.open_project_action.setObjectName("openProjectAction")
         self.open_project_action.setShortcut("Ctrl+O")
         self.open_project_action.setToolTip("Open a CT Studio project folder.")
-        self.open_project_action.triggered.connect(self.welcome.browse)
+        self.open_project_action.triggered.connect(self._browse)
         file_menu.addAction(self.open_project_action)
         self.welcome.busy_changed.connect(self._navigation)
         self.services.build.running_changed.connect(self._navigation)
-        self._navigation()
 
         settings_menu = self.menuBar().addMenu("&Settings")
         self.tools_action = QAction("Tools…", self)
@@ -135,6 +147,34 @@ class MainWindow(QMainWindow):
         self.about_action.setObjectName("aboutAction")
         self.about_action.triggered.connect(self.about_dialog.open)
         help_menu.addAction(self.about_action)
+        self._view_menu()
+        self._navigation()
+
+    def _view_menu(self) -> None:
+        menu = self.menuBar().addMenu("&View")
+        self.home_action = QAction("Recent projects", self)
+        self.home_action.setObjectName("homeAction")
+        self.home_action.setShortcut("Ctrl+H")
+        self.home_action.triggered.connect(self._home)
+        menu.addAction(self.home_action)
+        self.dashboard_action = QAction("Project dashboard", self)
+        self.dashboard_action.setObjectName("dashboardAction")
+        self.dashboard_action.setShortcut("Ctrl+D")
+        self.dashboard_action.triggered.connect(self._show_project)
+        menu.addAction(self.dashboard_action)
+
+    def _welcome_checked(self) -> None:
+        if self.welcome.problem:
+            self._home()  # keep ancillary history failures visible after adopting a project
+
+    def _home(self) -> None:
+        self.pages.setCurrentIndex(0)
+
+    def _browse(self) -> None:
+        if self.welcome.busy or self.services.build.running:
+            return
+        self._home()
+        self.welcome.browse()
 
     def _new_project(self) -> None:
         """File → New project…: a fresh wizard each time; the new project becomes current."""
@@ -162,6 +202,7 @@ class MainWindow(QMainWindow):
                 self.services.adopt(project)
             self._show_project()
         except CTStudioError as exc:
+            self._home()
             self.welcome.show_problem(str(exc))
 
     def _navigation(self, _busy: bool = False) -> None:
@@ -170,21 +211,30 @@ class MainWindow(QMainWindow):
         self.new_project_action.setEnabled(available)
         self.open_project_action.setEnabled(available)
         self.welcome.setEnabled(not building)
+        self.home_action.setEnabled(not self.welcome.busy)
+        self.dashboard_action.setEnabled(
+            self.services.project is not None and not self.welcome.busy
+        )
 
     def _show_project(self) -> None:
         project = self.services.project
         if project is None:
             self.setWindowTitle("CT Studio")
             self._empty_title.setText("No project open")
+            self._home()
             return
         name = project.manifest.project.name
         self.setWindowTitle(f"{name} — CT Studio")
         mode = " (read-only)" if project.read_only else ""
-        self._empty_title.setText(f"{name} is open{mode}")  # the dashboard comes in P5-T03
+        self._empty_title.setText(f"{name} is open{mode}")
+        self.dashboard.set_project(project)
+        self.pages.setCurrentIndex(1)
+        self._navigation()
 
     def closeEvent(self, event: QCloseEvent) -> None:
         """Stop the build and the status work, then give the project's lock back."""
         if not self.welcome.shutdown(_SHUTDOWN_WAIT) or not self.services.shutdown(_SHUTDOWN_WAIT):
+            self._home()
             self.welcome.show_problem("Work is still stopping. Wait a moment, then close again.")
             event.ignore()
             return
