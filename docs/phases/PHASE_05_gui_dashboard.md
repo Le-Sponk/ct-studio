@@ -61,7 +61,7 @@ the list; screenshots light and dark.
 ### [ ] P5-T03 — Dashboard
 Split (2026-11-04: header/cards, build controls and log together exceed one session):
 
-#### [ ] P5-T03a — Build callback failure safety (TD-012)
+#### [x] P5-T03a — Build callback failure safety (TD-012) (commit bb2f4eb)
 Before adding GUI build controls, fix the runner's callback-error cleanup. After its workers
 finish, record every successful queued result before saving state/cache; never call the failed
 receiver again. **Acceptance:** deterministic callback-error tests prove completed parts are

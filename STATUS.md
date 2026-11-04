@@ -4,29 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03a — Build callback failure safety
+**Next task:** P5-T03b — Dashboard header and component cards
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `8d2f788` (P5-T02b; Check, Windows + Ubuntu)
+**Last green commit:** `bb2f4eb` (P5-T03a; Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03a` — Build callback failure safety (TD-012), split from the dashboard. Plan:
-  deterministic failing regression with a callback error while component workers finish;
-  drain completed worker results after joining without calling the broken receiver again;
-  verify state, cache, next-build reuse, logging and no new steps/threads; mutation checks,
-  full gate, real-tool regressions, docs and Windows/Ubuntu CI, then closeout.
-  Files: core/build/runner.py, callback regression tests, STATUS, phase plan and architecture.
-  Acceptance: all successfully completed parts have state records before the original callback
-  error escapes; failed/unstarted parts are not recorded; next build reuses valid outputs.
-  Local evidence on revised code: full gate with .tools outside checkout,
-  2,235 passed / 6 skipped; 26 new regressions; 12/12 isolated mutations caught,
-  restored copy green and checkout byte-identical; Windows/Linux-mode typing green.
-  Secondary I/O fault fix preserves the original callback error, drains other results/logs
-  and attempts cache/state saves independently; secondary faults are warning-logged.
-  Independent re-review passed with no security or logic findings; 26 callback tests
-  passed ten repeated runs and 11 real-Wiimm integration regressions passed again.
-  CI verification remains before closeout.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T03a` Build callback failure safety; TD-012 closed (`bb2f4eb`).
+  If the event receiver fails, already-submitted workers finish; queued results and logs
+  are reconciled before cache/state are saved, without retrying the receiver or starting
+  waiting steps. Successful parts retain their records and cache reuse. Ordinary secondary
+  recording/save failures are warning-logged; other results and independent saves are still
+  attempted while the original error propagates. Interrupts are not silently ignored.
+  Full gate with .tools outside checkout: 2,235 passed / 6 skipped / 175 deselected;
+  26 new regressions, ten repeated runs of those 26 tests, 12/12 isolated mutations caught
+  with restored copy green and checkout byte-identical; 11 real-Wiimm regressions passed.
+  Independent re-review and Windows/Linux typing, lint, complexity and budgets green.
+  CI Check Windows 126346682773 (2,226 passed / 15 skipped), Ubuntu 126346683093
+  (2,227 / 14), both 2,241 collected as locally. Integration Windows 126346682711
+  (126 passed / 20 expected skips), Ubuntu 126346683811 (129 / 17), no failures.
 - 2026-11-04 `P5-T02b` Welcome screen with New, Open (Ctrl+O) and recent projects.
   Recent history persists in settings (newest ten distinct folders), retains missing entries,
   marks them and offers removal without deleting project files. Settings backups and unknown
@@ -1299,11 +1296,6 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   within 4 s + 12 s; the file passed 5/5 alone right after. Not the clock bound fixed in
   P2-T08d: find whether the child is slow to start or ended early (log its pid/exit), then
   make the test wait on a signal, not a sleep.
-- **TD-012 · P5-T03 · failed UI event callback can omit part-state records.**
-  `core/build/runner.py` stops on an exception from `on_event`; worker results already queued
-  may be cached without being recorded to state.json. Before P5 uses this runner for the
-  Build page, add a failing callback test and drain/record completed steps or otherwise
-  reconcile state from the cache on the next build. Found in P4-GATE review.
 - **TD-011 · P13-T02 · `ctstudio status` start-up.** P3-GATE measured a whole `status --json`
   run at ~400 ms on this workstation: ~110 ms Python start, ~210 ms imports (`ctstudio.cli`
   imports `cli.doctor` and so `core.tools.doctor`; `importlib.metadata` for `__version__`
