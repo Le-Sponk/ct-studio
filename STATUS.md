@@ -4,33 +4,34 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03c — Project slot and source editing
+**Next task:** P5-T03d — Component and launch actions
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `f766568` (P5-T03b; Check, Windows + Ubuntu)
+**Last green commit:** `da5b2bb` (P5-T03c; Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03c` — Project slot and source editing. Plan: tests-first blocking persistence service;
-  background-loaded/saved details dialog with slot/source choose/clear and Save/Cancel;
-  integrate dashboard and app busy/close guards; test backups, external edits, failures,
-  read-only/build states and UI responsiveness; screenshots, mutations, review, full gate and CI.
-  Acceptance: no writes before Save; backed-up atomic writes preserve unknown settings and
-  refuse external changes; disk work stays off the UI thread; failure preserves current data;
-  saving updates the overview and refreshes statuses. Risks: worker/lock lifetime and stale results.
-  Files: GUI details service/dialog, services/main window/dashboard, GUI tests and user/architecture docs.
-  Final verification after the review fix: full gate without checkout tools 2,473 passed /
-  6 skipped / 175 deselected; all 364 GUI tests pass, including the two former race failures.
-  120 focused filesystem/service/race tests and four real-tool build regressions pass.
-  Windows/Linux touched-file typing, lint/complexity and budgets pass. Isolated mutations:
-  UI 25/25, service 28/28 rerun after the fix, replacement safety 15/15; prior overview 35/35
-  also rerun. Restored copies green and checkout unchanged. Light/dark/error/saving images
-  and 150% scaling inspected. Review found a staging-window external-edit race; final byte
-  and symlink checks now run after staging/mode-copy immediately before replacement, with
-  a documented residual race for noncooperating external writers. Independent re-review passed:
-  144 focused tests (repeated), 47 existing GUI contracts and 93 downstream settings/manifest
-  tests; three negative probes reproduce the former race/symlink faults. All six reviewed
-  production hashes match the final checkout. Exact-commit Check/Integration remain pending.
+- None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-04 `P5-T03c` Project slot and source editing (`da5b2bb`). Project details opens
+  from the dashboard; choose a replacement track/arena and optional Blender source, choose/clear,
+  then Save or Cancel. Loading, validation and saving run on a joined worker; only successful
+  completion publishes the new manifest on the UI thread and refreshes the header/statuses.
+  Edits preserve other/unknown settings, back up exact original bytes and refuse stale disk/live
+  snapshots. Modal ownership blocks project switching/lock release; active work refuses closing.
+  Review caught external edits during replacement staging being overwritten. Expected bytes and
+  symlinks are now checked after staging/fsync/mode-copy immediately before replacement; edit,
+  deletion and late-symlink regressions pass. The residual unrelated-writer race is documented.
+  Full gate without checkout tools: 2,473 passed / 6 skipped / 175 deselected; 364 GUI tests;
+  120 focused filesystem/service/race tests; four local real-tool build regressions. Isolated
+  mutations caught: UI 25/25, service 28/28, replacement safety 15/15; prior overview 35/35 rerun.
+  Restored copies green and checkout unchanged. Both-platform typing, lint/complexity/budgets,
+  light/dark/error/saving images and 150% scaling pass. Independent re-review passed (144 + 47
+  + 93 tests, three negative probes); all six source hashes verified. An unrelated intermittent
+  stale-lock test passed five 23-test reruns; recorded as TD-013, not weakened.
+  Exact-commit Check Windows 126449908500: 2,464 passed / 15 skipped; Ubuntu 126449908946:
+  2,465 passed / 14 skipped; both 2,479 collected as locally. Integration Windows 126449908427:
+  126 passed / 20 expected skips; Ubuntu 126449908768: 129 / 17; no failures. Added fsutil to
+  Integration push paths; remote main verified. Component/launch actions are next, build/log later.
 - 2026-11-04 `P5-T03b` Live project overview (`f766568`). Opening/creating a project shows
   its metadata and all eight registry-driven cards with native status icons/text, reasons,
   mode, refresh and path copying. Background checks keep the window responsive; errors and

@@ -75,7 +75,7 @@ welcome/dashboard navigation. **Acceptance:** live StatusService results, old-pr
 ignored, last good statuses retained on error, read-only/build/checking states, keyboard and
 light/dark/small-window screenshots; no filesystem checks on the UI thread.
 
-#### [ ] P5-T03c — Project slot and source editing
+#### [x] P5-T03c — Project slot and source editing (commit da5b2bb)
 Project details dialog with the original track/arena selector and optional Blender source,
 including choose/clear, explicit Save/Cancel and no writes until Save. **Acceptance:** loading,
 validation and saving run off the UI thread; backed-up atomic saves preserve other/unknown
