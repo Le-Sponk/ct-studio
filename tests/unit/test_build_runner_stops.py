@@ -185,19 +185,30 @@ def test_no_thread_is_left_running(root: Path) -> None:
 
 
 def test_an_event_handler_error_still_stops_cleanly(root: Path) -> None:
-    before = threading.active_count()
+    released = threading.Event()
+    ambient = threading.Thread(target=lambda: released.wait(10), name="unrelated-test-helper")
 
     def broken(event: BuildEvent) -> None:
         if isinstance(event, NodeFinished):
+            released.set()
+            ambient.join(10)
             raise RuntimeError("GUI bug")
 
-    with pytest.raises(RuntimeError, match="GUI bug"):
-        run_build(
-            BuildGraph(root, [step(root, f"s{i}") for i in range(4)]),
-            BuildCache.load(root),
-            REQUEST,
-            broken,
-            cancel=CancelToken(),
-            jobs=2,
-        )
-    assert threading.active_count() == before
+    try:
+        ambient.start()
+        before = _build_threads()
+        with pytest.raises(RuntimeError, match="GUI bug"):
+            run_build(
+                BuildGraph(root, [step(root, f"s{i}") for i in range(4)]),
+                BuildCache.load(root),
+                REQUEST,
+                broken,
+                cancel=CancelToken(),
+                jobs=2,
+            )
+    finally:
+        released.set()
+        if ambient.ident is not None:
+            ambient.join(10)
+    assert not ambient.is_alive()
+    assert _build_threads() == before

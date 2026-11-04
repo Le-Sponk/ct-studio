@@ -31,7 +31,14 @@
   now pass after a third-context explicit-state fix; busy/read-only/navigation guards remain.
   Final independent re-review passed: 14 acceptance probes, three reverted R1 faults caught,
   native keyboard/accessibility and UI-thread I/O instrumentation; all five source hashes
-  verified unchanged. Exact-commit Windows/Ubuntu Check remains before closeout.
+  verified unchanged. Implementation `49eb132` passed Ubuntu Check; Windows exposed an older
+  callback-cleanup test's global thread-count race (11 versus 12). An Event-gated unrelated
+  thread makes the old assertion fail deterministically (2 versus 3). The test now compares
+  only named build workers and verifies its ambient helper ends. The full gate again passes
+  (2,739 / 6 existing skips); all 12 cleanup tests pass five repeated runs. A planted named
+  worker is still caught by an assertion. Independent test-only review passed three negative
+  controls and the exact test hash; no production changes. Replacement exact-commit
+  Windows/Ubuntu Check remains before closeout.
 - No file assignment or editor launching here (T04/T07 and T03g); build/log remains T03e.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
