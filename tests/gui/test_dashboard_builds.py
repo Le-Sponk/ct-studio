@@ -171,7 +171,8 @@ def test_same_project_navigation_preserves_overlay_new_request_and_binding_clear
     project = services.project
     assert project is not None
     page.builds.start()
-    qtbot.waitUntil(lambda: len(fake.ran) == 1)
+    # Worker entry is not delivery of the queued plan needed to accept NodeStarted.
+    qtbot.waitUntil(lambda: page.builds.controls.progress.maximum() == 1)
     services.build.build_event.emit(NodeStarted("stage:kcl"))
     page.set_project(project)
     assert page.cards["kcl"].build_label.text() == "Build: working"

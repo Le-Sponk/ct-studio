@@ -26,9 +26,18 @@
   review approved the final snapshot: 44 focused + 232 existing tests, six adversarial probes
   and six independent assertion-only mutants, with per-run import-origin/hash evidence.
   Reference probes cover 16,383 retained-history events and 262,143 reverse-scanner comparisons.
-  Synthetic timings/allocation bounds are recorded in docs/dev/BENCHMARKS.md. Exact-commit
-  Windows/Ubuntu Check and documentation closeout remain; Integration is not applicable to
-  this GUI model/tests/docs-only change (no core/adapters or tool invocation changed).
+  Synthetic timings/allocation bounds are recorded in docs/dev/BENCHMARKS.md.
+  Initial implementation `9ffbb9a` Check exposed an existing navigation-test race on Ubuntu:
+  runner entry was mistaken for queued BuildStarted delivery, so an injected NodeStarted could
+  correctly be ignored. Forced the same primary label AssertionError locally without sleeps;
+  changed only that test's wait to the known-step progress maximum, retaining all assertions.
+  Production hashes unchanged; forced-race GREEN and 84 model/dashboard cases pass, with strict
+  four-file Windows/Linux typing. Corrective hidden-tools full gate passed: 3,176 / 6 existing
+  skips, all checks; developer tools restored. Independent delta review approved: 84 focused +
+  85 relevant cases, strict four-file Windows/Linux checks; old wait fails the exact primary
+  assertion in 3/3 isolated runs and fixed wait passes 5/5, with all production hashes unchanged.
+  Exact corrective Check and closeout remain. Integration is not applicable: GUI model/tests/
+  docs only; no core, adapters or tool invocation changed.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-06 `P5-T03e22` Connected dashboard builds and live part progress (`1616f99`,
