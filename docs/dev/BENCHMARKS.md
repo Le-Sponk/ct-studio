@@ -71,6 +71,35 @@
   **2.83–2.89 s**. This run also found that the track check could not read Wiimm's report
   for most real tracks (fixed in P4-T08; see TOOLS.md "wszst check").
 
+## P5-T03e31 — bounded Qt build log model (Windows)
+
+- Scope: the data model only, not a painted dashboard log panel (e32). Synthetic strings;
+  Python 3.12.14 on the Windows workstation. These are local samples, not a CI speed limit
+  or Linux desktop evidence. Input strings are made before timing the oversized append.
+- A single `LogLine("n", "x\r\n" * 1_000_000)` into a model with `max_rows=31`,
+  `max_chars=1024`, `max_line_chars=64`: **0.287 s** with a Python loop over every newline,
+  **0.0064 s** after C-level counts and cached reverse newline cursors. Both retained 31
+  newest rows and counted 999,970 omitted rows. The reverse iterator visits only the bounded
+  newest tail; exact total-row counting still scans input in C without copying it.
+- With `tracemalloc` active, 50,000 sequential `line {i:06d}` appends under default limits
+  took **2.21 s**; reading all 20,000 retained indexes took **0.60 s**. Final message count
+  220,000 characters, 30,000 omitted rows; traced Python peak **5,583,092 bytes** after model
+  construction. This excludes the caller's input strings and Qt/native allocations.
+- Two oversized appends (3,000,000 non-BMP characters, then 1,000,000 CRLF rows) into the
+  small model took **0.013 s** with tracing. Python peak **1,004,979 bytes**, including the
+  synthetic million-character step ID constructed during the measured loop. No full split
+  list, normalized input copy or hidden full original is stored.
+- Reproduce the untraced large-event probe from the checkout after `uv sync --locked`:
+
+  ```sh
+  uv run python -c "import time; from ctstudio.core.build.events import LogLine; from ctstudio.gui.build_log_model import BuildLogModel; e=LogLine('n','x\r\n'*1000000); m=BuildLogModel(max_rows=31,max_chars=1024,max_line_chars=64); t=time.perf_counter(); m.append(e); print(time.perf_counter()-t, m.rowCount(), m.dropped_rows); assert m.rowCount()==31 and m.dropped_rows==999970"
+  ```
+
+- Committed regressions: `tests/gui/test_build_log_model.py` checks peak Python allocation
+  bounds for oversized events and sustained eviction, default caps, Unicode and exact-limit
+  truncation. `test_build_log_model_protocol.py` checks a real list selection and Qt's model
+  protocol against a separate retained-history reference. No machine-time threshold is set.
+
 ## Reproducing and comparing a baseline
 
 Run the command above from the repo root with `uv sync --locked` first. The test writes a fresh

@@ -4,12 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e3 — Bounded live build log and command copying
+**Next task:** P5-T03e31 — Bounded virtual log model (then e32 view, e33 commands)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `731fe93` (P5-T03e22; Check, Windows + Ubuntu)
+**Last green commit:** `5619032` (P5-T03e22 closeout; Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03e31`: (1) tests first for bounded LogLine retention and real Qt model notifications,
+  (2) implement a virtual list model with row, total-text, per-row and step-ID limits,
+  (3) prove Unicode/multiline/oversized input handling, eviction counts and stable indexes,
+  (4) full gate, strict Windows/Linux checks, assertion-only isolated mutations and review,
+  (5) architecture/progress docs, commit/push, exact Windows/Ubuntu CI and task closeout.
+  Files: gui/build_log_model.py, focused GUI model tests, phase/STATUS/architecture/README.
+  Keep source text literal, mark truncation, never keep hidden unbounded originals or infer
+  commands from output. No dashboard wiring, new worker, core event, I/O or dependency.
+  The next two pieces retain all original log/view/command acceptance; no scope is dropped.
+  Implementation verified: 44 focused cases on CPython 3.12/3.13, strict three-file Windows/
+  Linux typing, Ruff and all size/complexity budgets. Final hidden-tools gate: 3,176 passed /
+  6 existing skips (3,182 selected), three import contracts; developer tools restored.
+  All 30 isolated planted faults are assertion-caught, including a strengthened exact-limit
+  boundary test after the first campaign's survivor; checkout hashes unchanged. Independent
+  review approved the final snapshot: 44 focused + 232 existing tests, six adversarial probes
+  and six independent assertion-only mutants, with per-run import-origin/hash evidence.
+  Reference probes cover 16,383 retained-history events and 262,143 reverse-scanner comparisons.
+  Synthetic timings/allocation bounds are recorded in docs/dev/BENCHMARKS.md. Exact-commit
+  Windows/Ubuntu Check and documentation closeout remain; Integration is not applicable to
+  this GUI model/tests/docs-only change (no core/adapters or tool invocation changed).
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-06 `P5-T03e22` Connected dashboard builds and live part progress (`1616f99`,
@@ -933,6 +952,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- `P5-T03e3` split into `P5-T03e31` (bounded Qt log model), `P5-T03e32` (collapsible live
+  dashboard view) and `P5-T03e33` (trusted structured command entries and safe exact copying).
+  Existing LogLine events contain only step/text, not command provenance; ordinary output must
+  not be mistaken for a command. This session completes e31 only; e32/e33 retain the remaining
+  original acceptance, and the full existing disk log remains unchanged.
 - `P5-T03e2` split into `P5-T03e21` (signal-only controls/progress view) and `P5-T03e22`
   (AppServices wiring, lifecycle guards and live cards) to keep each review bounded. These
   two numbered IDs are pieces of e2 and run before e3; no original acceptance is removed.

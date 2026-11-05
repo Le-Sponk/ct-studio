@@ -150,10 +150,28 @@ Route the e21 controls through the e1 ownership boundary for the current writabl
 busy/read-only/navigation guards, cancel/startup-failure/retry, stale-project suppression,
 post-build refresh and integrated light/dark/minimum-size screenshots. No log scope (e3).
 
-##### [ ] P5-T03e3 — Bounded live build log
-Collapsible virtualised log with a bounded in-memory history and command copying; full log
-remains on disk. **Acceptance:** live fake-build lines, cap/eviction, exact command copying,
-keyboard access and light/dark screenshots; builds remain usable with the log collapsed.
+##### P5-T03e3 — Bounded live build log (split into e31/e32/e33)
+The retained-data model, collapsible dashboard view and trustworthy command provenance exceed
+one bounded task. Complete these in order; the full existing disk log remains unchanged.
+
+###### [ ] P5-T03e31 — Bounded virtual log model
+A Qt list model for existing LogLine events, with row/text/per-line/step-ID limits, newest-tail
+retention, explicit truncation and eviction counts. **Acceptance:** real Qt model data/signals,
+multiline/Unicode/oversized inputs, stable surviving indexes, clear/reset and bounded storage.
+No dashboard widget, command parsing/copying, disk I/O or new core event in this subtask.
+
+###### [ ] P5-T03e32 — Collapsible live log view and dashboard wiring
+Expose the virtual model through a collapsed-by-default list, keep collecting while collapsed,
+follow new output only when appropriate, and reuse current-run context guards and reset rules.
+**Acceptance:** live fake-build lines, history-cap feedback, keyboard access, usable build
+controls while collapsed, and light/dark/minimum-size/enlarged-font screenshots.
+
+###### [ ] P5-T03e33 — Trusted command entries and safe exact copying
+Existing LogLine text has no structured command provenance. Add the command-reporting boundary
+before offering Copy command; never guess commands from arbitrary tool output. Preserve argv
+boundaries/quoting and redact designated sensitive arguments. **Acceptance:** trusted synthetic
+commands copied exactly after documented redaction, non-command output cannot enable copying,
+keyboard/screenshot coverage, and the existing full disk-log behavior remains intact.
 
 Original combined scope:
 Header: project name, slot selector, source file + "Open in Blender". Component cards (status icon +

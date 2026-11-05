@@ -63,6 +63,7 @@ src/ctstudio/
     validation/  issues.py wszst_check.py kmp_rules.py
   cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py build.py
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
+                 build_controller.py dashboard_builds.py build_log_model.py
   blender_bridge/ run_job.py  exporters.py  preview_mesh.py
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
 tests/  unit/ contract/ integration/ gui/ e2e/ benchmarks/ fakes/ fixtures/
@@ -423,6 +424,16 @@ wrote, a timestamped backup is made — no exceptions.
   tool registry; views get what they need by injection, not globals.
 - Dev mode (`CTSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
 - Log view is virtualised and capped (e.g. last 20k lines in memory; full log on disk).
+  P5-T03e31 provides `gui/build_log_model.py`, a standalone Qt list model, not a dashboard
+  widget yet (e32 wires it in). It retains the newest 20,000 physical rows under a separate
+  2,000,000-message-character budget, caps each message at 4,096 characters and each step ID
+  at 128, and visibly marks truncated text. Limits count Unicode characters, not encoded
+  bytes; step IDs have their own per-row bound. CRLF/CR become LF; empty/trailing rows are
+  retained. Whole-row omissions increment an eviction counter; clear resets it. Standard
+  remove/insert notifications preserve surviving persistent indexes, without per-append
+  model resets. The GUI-thread model stores no hidden unbounded originals and does no I/O;
+  the existing complete core disk log is unchanged. Ordinary LogLine text stays literal,
+  not a source of commands; trusted command provenance/copying remains e33.
 
 P5-T01a: `gui/services.py` `AppServices` holds the current `Project` (opened, so locked, by this
 app; opening the same folder again keeps it, opening another closes the first only once the new
