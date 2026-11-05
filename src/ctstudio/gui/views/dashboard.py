@@ -11,7 +11,6 @@ from PySide6.QtWidgets import (
     QApplication,
     QFormLayout,
     QGridLayout,
-    QHBoxLayout,
     QLabel,
     QProgressBar,
     QPushButton,
@@ -157,30 +156,32 @@ class Dashboard(QWidget):
         self._layout.addLayout(self._controls())
         self._make_grid()
 
-    def _controls(self) -> QHBoxLayout:
+    def _controls(self) -> QGridLayout:
         self.refresh_button = QPushButton("Refresh statuses", self)
         self.refresh_button.setObjectName("refreshStatuses")
         self.refresh_button.setEnabled(False)
         self.refresh_button.clicked.connect(self.refresh)
-        controls = QHBoxLayout()
-        controls.addWidget(self.refresh_button)
+        # Two columns retain full native labels with wider desktop fonts at minimum width.
+        controls = QGridLayout()
+        controls.addWidget(self.refresh_button, 0, 0)
         self.copy_project = QPushButton("Copy project folder", self)
         self.copy_project.setObjectName("copyProjectFolder")
         self.copy_project.setEnabled(False)
         self.copy_project.clicked.connect(self._copy_project)
-        controls.addWidget(self.copy_project)
+        controls.addWidget(self.copy_project, 0, 1)
         self.edit_button = QPushButton("Project details…", self)
         self.edit_button.setObjectName("editProjectDetails")
         self.edit_button.setToolTip("Change the track to replace and the Blender source file.")
         self.edit_button.clicked.connect(self.edit_requested)
-        controls.addWidget(self.edit_button)
+        controls.addWidget(self.edit_button, 1, 0)
         self.open_blender = QPushButton("Open in Blender", self)
         self.open_blender.setObjectName("openInBlender")
         self.open_blender.setToolTip("Start Blender with this project's source file.")
         self.open_blender.setAccessibleDescription(self.open_blender.toolTip())
         self.open_blender.clicked.connect(self.blender_requested)
-        controls.addWidget(self.open_blender)
-        controls.addStretch()
+        controls.addWidget(self.open_blender, 1, 1)
+        controls.setColumnStretch(0, 1)
+        controls.setColumnStretch(1, 1)
         return controls
 
     def _make_grid(self) -> None:

@@ -470,7 +470,9 @@ and manifest captured before calling it (startup failure can be synchronous). Ma
 injects the welcome/history busy guard; eligibility uses explicit state, not a disabled
 ancestor's effective button state. Build events, notices and joined outcomes are rendered only
 while the service and displayed project still match that snapshot. Same-project navigation
-preserves progress; a new/changed binding clears the previous run's presentation.
+preserves progress; a new/changed binding clears the previous run's presentation. Project
+header actions use a two-column grid, preserving creation/tab order and complete native labels
+at minimum width even with wider desktop font metrics (Ubuntu's 150% case caught the old row).
 Known `stage:<component>` steps receive separate plain-text card overlays; assembly/validation
 remain overall progress. A step's done/unchanged/error/cancelled/not-run state never overwrites
 its last checked component status. The existing AppServices completion refresh is reused,

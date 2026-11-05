@@ -39,7 +39,9 @@ info copies the project manifest path. Copying remains available in read-only pr
 
 View → Recent projects (Ctrl+H) returns to the welcome list without closing the current project.
 View → Project dashboard (Ctrl+D) returns to it. Tab reaches the available mode, copy and More controls; the
-dashboard scrolls to focused controls in a small window. File → New/Open remain available while idle.
+dashboard scrolls to focused controls in a small window. The four project actions use two rows
+so their full button labels remain readable with larger desktop fonts. File → New/Open remain
+available while idle.
 Navigation errors and history-save problems stay visible on the welcome screen; a project that
 opened successfully remains open, and its dashboard is still available from View.
 

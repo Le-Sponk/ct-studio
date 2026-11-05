@@ -18,8 +18,8 @@
   integration/visual tests, architecture and user docs. Keep checked status text separate from
   transient build progress; never publish success before joined completion. No new worker,
   adapter, dependency or live-log scope. Preserve worker/project ownership on refused close.
-  Implementation and 57 new integration/visual tests pass on Python 3.12/3.13; eight readable
-  light/dark/native/minimum-size/150%-font screenshots inspected. Final hidden-tools full gate:
+  First implementation: 57 new integration/visual tests passed on Python 3.12/3.13; eight readable
+  light/dark/native/minimum-size/150%-font screenshots inspected. Its hidden-tools full gate:
   3,131 passed / 6 existing skips; 3,137 selected. All 38 isolated regressions assertion-caught
   against 53 nonvisual integration cases, with per-run origins/hashes and unchanged checkout.
   Main independent review passed 57 new and 302 existing cases plus two reentrant-worker probes;
@@ -28,6 +28,16 @@
   convention); lint and budgets clean.
   Integration is not applicable: GUI presentation/wiring only, no core/adapter/real-tool changes.
   Keep the task open until implementation and closeout commits pass exact Windows/Ubuntu CI.
+  CI correction after `1616f99`: Ubuntu's 150%-font light/dark cases exposed a real four-pixel
+  horizontal overflow (708-pixel page / 704-pixel viewport). A local wider-header regression
+  reproduced 744 / 704 and identified the four-button project-action row, not the build bar.
+  Keep full labels and assertions: project actions now use a two-row/two-column grid in the
+  original keyboard order. All 58 focused cases pass on Python 3.12/3.13; corrected hidden-tools
+  full gate: 3,132 passed / 6 existing skips (3,138 selected). All 39 isolated regressions are
+  assertion-caught against 54 nonvisual cases, including reversion to the original single row.
+  Source/test hashes remain intact. Corrective review passed 58 focused and 186 existing cases,
+  physical/native Tab order, ten-file strict Windows/Linux checks and all nine screenshots.
+  Corrective exact-commit CI pending; task remains open.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03e21` Tested standalone build-controls view (`7ddfbe2`). Signal-only
