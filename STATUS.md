@@ -4,27 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e21 — Tested build-controls view (then e22 wiring/cards, then e3 log)
+**Next task:** P5-T03e22 — Dashboard build wiring and live cards (then e3 log)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `87e6514` (P5-T03e1 closeout; Check, Windows + Ubuntu)
+**Last green commit:** `7ddfbe2` (P5-T03e21; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e21`: (1) tests first for signal-only build controls and deterministic event progress,
-  (2) test/release/cancel shortcuts, independent notices and accurate final outcomes,
-  (3) keyboard/light/dark/small/scaled-window checks, mutation controls and independent review,
-  (4) full gate, docs/progress, commit/push and exact-commit Windows/Ubuntu checks.
-  Expected files: build-controls view, focused GUI/visual tests, architecture and phase docs.
-  Risks: duplicate/unknown events, premature completion, cancellation mistaken for success,
-  disabled ancestors and long labels. No I/O, dependencies or dashboard wiring; e22 owns
-  AppServices/project lifecycle integration and live cards, then e3 owns the log.
-  Local proof: full hidden-tools gate 3,074 passed / 6 existing skips; all 887 GUI tests,
-  33 focused cases on CPython 3.12/3.13, 27/27 isolated assertion-caught regressions with
-  in-run import origins; strict Windows/Linux typing and budgets clean. Eight standalone
-  light/dark/native/150%-font screenshots inspected with readable fonts. Independent source
-  review and final test-only delta re-review passed; exact-commit CI is still pending. No real-tool
-  Integration job is required: only a signal-only view/tests/docs changed.
+None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-05 `P5-T03e21` Tested standalone build-controls view (`7ddfbe2`). Signal-only
+  test/release/cancel actions (Ctrl+B / Ctrl+Shift+B / Esc), planning/known-step progress,
+  deduplicated terminal events, accurate joined outcomes, persistent warnings, visible errors
+  and complete accessible diagnostics. No I/O, controller changes or dashboard integration:
+  the controls are tested but not yet available in the app; e22 owns wiring/live cards.
+  Eight light/dark/native/150%-font screenshots reviewed; Windows offscreen tests explicitly
+  register a local OS font when needed (no font binaries copied or uploaded). Full gate with
+  .tools hidden: 3,074 passed / 6 existing skips; all 887 GUI tests and 33 focused cases on
+  CPython 3.12/3.13 pass. Strict Windows/Linux typing, lint and budgets clean; independent
+  source and final test-delta reviews passed. All 27 isolated mutations assertion-caught with
+  in-run origin proofs and unchanged checkout hashes. Exact implementation Check passed:
+  Windows job 127213187751 (3,065 passed / 15 skips), Ubuntu 127213188073 (3,066 / 14),
+  both 3,080 selected as locally. Integration not applicable: signal-only GUI/tests/docs.
 - 2026-11-05 `P5-T03e1` Safe build requests and worker ownership (`98b0c66`). AppServices
   guards current-project builds using memory only (no project/read-only/checking/editing/
   launching/building refusals), preserving test/release/force/component options. Completion

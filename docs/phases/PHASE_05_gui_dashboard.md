@@ -137,7 +137,7 @@ lock lifetime, startup failure, queued delivery and interrupt tests; no new dash
 The view plus project-aware wiring/card updates exceed the task-size budget. Complete e21,
 then e22, before e3; these numbered IDs are two pieces of e2, not extra product scope.
 
-###### [ ] P5-T03e21 — Tested build-controls view
+###### [x] P5-T03e21 — Tested build-controls view (commit 7ddfbe2)
 Signal-only test/release/cancel controls, step-count progress, last result and independent
 warnings/errors. **Acceptance:** synthetic event/summary tests, safe cancellation and failure
 recovery, keyboard shortcuts (Ctrl+B / Ctrl+Shift+B / Esc), native light/dark/minimum-size and
