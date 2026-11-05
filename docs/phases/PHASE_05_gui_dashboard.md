@@ -122,10 +122,26 @@ timed-out shutdown keeps the lock), `AppServices.start_launch` in-memory guards,
 dashboard launch notice/progress and card More → Open folder. Read-only projects may open
 folders but not Blender; stale project/root/manifest results are ignored.
 
-#### [ ] P5-T03e — Build controls and live log
-Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with
-command copying, using BuildController. **Acceptance:** fake-build events update cards and log
-live; shortcuts, cancel/failure behavior and light/dark screenshots. TD-012 must be closed first.
+#### P5-T03e — Build controls and live log (split into e1–e3)
+The ownership boundary, live controls/cards and bounded log exceed the session budget together.
+Complete these in order; TD-012 is already closed by T03a. No original scope is removed.
+
+##### [ ] P5-T03e1 — Safe build requests and worker ownership
+Add an AppServices build-start boundary for the current project: refuse no-project, read-only,
+status-checking, editing, launching or already-building states without I/O. Pass test/release,
+force and component options unchanged. Join before publishing completion; report interrupts
+and thread-start failures without leaking running state. **Acceptance:** event-held worker,
+lock lifetime, startup failure, queued delivery and interrupt tests; no new dashboard widgets.
+
+##### [ ] P5-T03e2 — Dashboard build controls and live part progress
+Build test/release, cancel, progress and last result through the e1 ownership boundary.
+**Acceptance:** fake-build events update cards live; shortcuts, busy/read-only rules,
+cancel/failure recovery and light/dark/minimum-size screenshots. Keep last-good statuses.
+
+##### [ ] P5-T03e3 — Bounded live build log
+Collapsible virtualised log with a bounded in-memory history and command copying; full log
+remains on disk. **Acceptance:** live fake-build lines, cap/eviction, exact command copying,
+keyboard access and light/dark screenshots; builds remain usable with the log collapsed.
 
 Original combined scope:
 Header: project name, slot selector, source file + "Open in Blender". Component cards (status icon +

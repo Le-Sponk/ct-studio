@@ -145,6 +145,26 @@ class AppServices:
         self.close_project()
         return True
 
+    def start_build(
+        self, *, release: bool = False, force: bool = False, only: str | None = None
+    ) -> bool:
+        """Request a build of the current project; preparation stays on the build worker."""
+        project = self.project
+        if project is None:
+            raise ProjectError("No project is open.", hint="Open or create a project first.")
+        self._refuse_while_building()
+        if project.read_only:
+            raise ProjectError(
+                "Cannot build a read-only project.",
+                hint="Close it in the other CT Studio, then reopen it here for editing.",
+            )
+        if self.status.busy:
+            raise ProjectError(
+                "Component statuses are still being checked.",
+                hint="Wait for the check to finish, then build again.",
+            )
+        return self.build.start(project, release=release, force=force, only=only)
+
     def start_launch(self, component_id: str | None = None) -> bool:
         """Open the current project in Blender (None) or reveal one component's folder.
 

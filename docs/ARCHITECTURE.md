@@ -437,6 +437,20 @@ refused (`project_build.check_buildable`, shared with `ctstudio build`). Deletin
 cancels the build; `AppServices.shutdown` cancels, waits, then closes the project, and keeps it
 open (locked) if the build did not stop in time.
 
+P5-T03e1: the dashboard's future build actions go through `AppServices.start_build`, not a
+widget's enabled state. It validates the current project and rejects read-only, editing,
+launching, already-building and pending/running status-check states using memory only, then
+passes release/force/component options unchanged to the existing worker. Build completion
+joins that worker before releasing its running owner; interrupts and startup failures are
+reported without stranding ownership. Buttons/live part progress and the bounded log remain
+T03e2/T03e3; no tool adapter or core build semantics change in e1.
+For supported CPython 3.12/3.13, `threading.enumerate()` includes pending native bootstrap;
+classification snapshots it before reading `ident`, which remains set after a worker exits.
+An interrupted pending start stays cancelled/owned and shutdown returns False without waiting
+on unacknowledged bootstrap. Once it completes, normal joined delivery reports the original
+startup exception. Shutdown rechecks ownership after its synchronous idle notification, so a
+callback-started replacement worker cannot be reported as stopped or have its lock released.
+
 P5-T01b: `gui/status_service.py` `StatusService` works the part statuses out on a named thread
 (`ctstudio-status`): the user's settings, `availability.available_tools` (discovery only) and
 `components.status.evaluate`. `request(project)` restarts a 300 ms single-shot timer, so a burst

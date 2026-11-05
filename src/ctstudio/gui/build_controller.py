@@ -91,6 +91,7 @@ class BuildController(QObject):
         self._thread: threading.Thread | None = None
         self._generation = 0
         self._running = False
+        self._start_error: BaseException | None = None
 
     @property
     def running(self) -> bool:
@@ -105,7 +106,7 @@ class BuildController(QObject):
         force: bool = False,
         only: str | None = None,
     ) -> bool:
-        """Start a build of ``project``; False (and nothing started) when it cannot."""
+        """Request a build; False on refusal/startup failure (a worker may still be stopping)."""
         if self._running:
             return False
         try:
@@ -117,14 +118,27 @@ class BuildController(QObject):
         self._cancels.current = CancelToken()
         options = _Options("release" if release else "test", only, force)
         work = _Work(self._generation, self._relay, self._plan, self._build, self._settings_path)
-        self._thread = threading.Thread(
+        thread = threading.Thread(
             target=work.run,
             args=(project.root, project.manifest, options, self._cancels.current),
             name=THREAD_NAME,
             daemon=True,
         )
+        self._thread, self._start_error = thread, None
+        try:
+            thread.start()
+        except BaseException as exc:
+            if _may_have_started(thread):
+                # Cancellation and ownership include native bootstrap before ident is set.
+                self._start_error = exc
+                self.cancel()
+                self._set_running(True)
+            else:
+                self._thread = None
+                self._generation += 1
+                self.failed.emit(exc)
+            return False
         self._set_running(True)
-        self._thread.start()
         return True
 
     def cancel(self) -> None:
@@ -136,13 +150,17 @@ class BuildController(QObject):
         self.cancel()
         thread = self._thread
         if thread is not None:
+            if not thread.is_alive() and thread in threading.enumerate():
+                # CPython registers startup before bootstrap permits join(). Never wait
+                # indefinitely or release a native worker whose start is still pending.
+                return False
             thread.join(timeout)
             if thread.is_alive():
                 return False
         self._thread = None
         self._generation += 1  # what the ended build still has queued is not shown
         self._set_running(False)
-        return True
+        return self._thread is None  # an idle callback may have started another worker
 
     def _set_running(self, running: bool) -> None:
         if running != self._running:
@@ -160,12 +178,31 @@ class BuildController(QObject):
     def _on_done(self, generation: int, summary: object, error: object) -> None:
         if generation != self._generation:
             return
-        self._thread = None
+        thread = self._thread
+        if thread is not None:
+            thread.join()  # release ownership only after the matching worker has exited
+        if self._start_error is not None:
+            error = self._start_error
+        self._thread, self._start_error = None, None
         self._set_running(False)
+        if generation != self._generation:  # an idle listener may shut down or start again
+            return
         if error is not None:
             self.failed.emit(error)
         else:
             self.finished.emit(summary)
+
+
+def _may_have_started(thread: threading.Thread) -> bool:
+    """Include pending native startup, using only public threading APIs.
+
+    Supported CPython 3.12/3.13 enumerate() snapshots active AND pending-bootstrap
+    threads under its registry lock. Inspect ident afterwards: a worker that exited
+    before that snapshot still retains its ident. Reversing this order can miss it.
+    A pending registry entry is ambiguous even if native creation was interrupted:
+    retain ownership rather than assume a bounded wait proves no native worker exists.
+    """
+    return thread in threading.enumerate() or thread.ident is not None
 
 
 @dataclass(frozen=True)
@@ -180,7 +217,7 @@ class _Work:
 
     def run(self, root: Path, manifest: Manifest, options: _Options, cancel: CancelToken) -> None:
         summary: BuildSummary | None = None
-        error: Exception | None = None
+        error: BaseException | None = None
         try:
             user = self._user_settings()
             planned = self.plan(
@@ -194,7 +231,7 @@ class _Work:
             summary = self.build(planned, self._send, cancel=cancel, force=options.force)
         except CTStudioError as exc:
             error = exc
-        except Exception as exc:  # any crash must reach the window, not end with the thread
+        except BaseException as exc:  # interrupts must also release ownership on the UI thread
             _LOG.exception("The build crashed")
             error = exc
         self.relay.done.emit(self.generation, summary, error)

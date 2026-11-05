@@ -4,12 +4,34 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e — Build controls and live log (TD-012 already closed by P5-T03a)
+**Next task:** P5-T03e1 — Safe build requests and worker ownership
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `6f76373` (P5-T03i; Check, Windows + Ubuntu)
 
 ## In progress
-None.
+- `P5-T03e1`: (1) tests first for build-start eligibility and worker failure/lifetime boundaries,
+  (2) add an AppServices current-project build request, (3) join completion and recover startup/
+  interrupt failures without losing ownership, (4) mutation controls, review, full gate, docs,
+  commit/push and exact-commit Windows/Ubuntu checks. Expected files: services/build controller,
+  focused GUI service tests, architecture and phase docs. No widgets, adapters or dependencies.
+  Acceptance: guarded in-memory start, exact options, lock retained until joined, cancellation/
+  queued delivery safe, typed and interrupt errors preserved. Build buttons and live log follow
+  in e2/e3; TD-012 is already closed.
+  Baseline implementation: guarded service requests and joined completion; 69 focused tests,
+  3,029 full-gate tests / 6 existing skips; strict five-file typing Windows/Linux clean;
+  21/21 isolated controls caught. Independent review found two ownership races: native startup
+  may precede thread.ident, and an idle callback may restart work during shutdown. Fixing both
+  with deterministic bootstrap/callback regression tests before commit. A review copy was
+  mistakenly created under repo/scratch and contaminated one Ruff run; moved outside checkout.
+  Fresh fix agent reproduced five assertion failures then passed 78 focused cases: startup
+  classification snapshots enumerate() before ident, pending bootstrap keeps ownership/cancel,
+  and shutdown rechecks for a callback-created worker after notifying idle. Final gate 3,038
+  passed / 6 skips, six-file strict Windows/Linux typing clean; isolated controls 24/24 caught,
+  module origins verified and checkout hashes unchanged. Separate isolated CPython 3.13.15
+  runtime: all 78 focused cases passed (Windows), alongside 3.12.14. Focused re-review report
+  passed (`deleg_dc21ce84`): original seven probes pass; three independent mutants caught
+  by assertion with no errors; all reviewed hashes match (controller LF-normalized).
+  Commit/push/exact-commit CI remain.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03i` Dashboard launch ownership and controls (`6f76373`). Open in Blender and
@@ -888,6 +910,11 @@ None.
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-05: Split remaining T03e into T03e1 (safe build requests/worker ownership), T03e2
+  (dashboard controls and live part progress) and T03e3 (bounded live log/command copying).
+  Existing BuildController has no AppServices start guard, drops its thread before joining on
+  completion and misses interrupt/startup failures. Prove that boundary before exposing buttons;
+  the combined ownership/UI/log work exceeds one session. All original T03e scope is retained.
 - 2026-11-05: T03g's project/settings checks, portable folder adapter and GUI launch ownership/
   controls exceed the session budget together. Keep T03g as the project-aware Blender service;
   add T03h for component-folder reveal and T03i for dashboard launch ownership/controls, before
