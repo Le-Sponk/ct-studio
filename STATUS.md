@@ -4,42 +4,33 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e31 — Bounded virtual log model (then e32 view, e33 commands)
+**Next task:** P5-T03e32 — Collapsible live log view and dashboard wiring
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `5619032` (P5-T03e22 closeout; Check, Windows + Ubuntu)
+**Last green commit:** `a11067b` (P5-T03e31; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e31`: (1) tests first for bounded LogLine retention and real Qt model notifications,
-  (2) implement a virtual list model with row, total-text, per-row and step-ID limits,
-  (3) prove Unicode/multiline/oversized input handling, eviction counts and stable indexes,
-  (4) full gate, strict Windows/Linux checks, assertion-only isolated mutations and review,
-  (5) architecture/progress docs, commit/push, exact Windows/Ubuntu CI and task closeout.
-  Files: gui/build_log_model.py, focused GUI model tests, phase/STATUS/architecture/README.
-  Keep source text literal, mark truncation, never keep hidden unbounded originals or infer
-  commands from output. No dashboard wiring, new worker, core event, I/O or dependency.
-  The next two pieces retain all original log/view/command acceptance; no scope is dropped.
-  Implementation verified: 44 focused cases on CPython 3.12/3.13, strict three-file Windows/
-  Linux typing, Ruff and all size/complexity budgets. Final hidden-tools gate: 3,176 passed /
-  6 existing skips (3,182 selected), three import contracts; developer tools restored.
-  All 30 isolated planted faults are assertion-caught, including a strengthened exact-limit
-  boundary test after the first campaign's survivor; checkout hashes unchanged. Independent
-  review approved the final snapshot: 44 focused + 232 existing tests, six adversarial probes
-  and six independent assertion-only mutants, with per-run import-origin/hash evidence.
-  Reference probes cover 16,383 retained-history events and 262,143 reverse-scanner comparisons.
-  Synthetic timings/allocation bounds are recorded in docs/dev/BENCHMARKS.md.
-  Initial implementation `9ffbb9a` Check exposed an existing navigation-test race on Ubuntu:
-  runner entry was mistaken for queued BuildStarted delivery, so an injected NodeStarted could
-  correctly be ignored. Forced the same primary label AssertionError locally without sleeps;
-  changed only that test's wait to the known-step progress maximum, retaining all assertions.
-  Production hashes unchanged; forced-race GREEN and 84 model/dashboard cases pass, with strict
-  four-file Windows/Linux typing. Corrective hidden-tools full gate passed: 3,176 / 6 existing
-  skips, all checks; developer tools restored. Independent delta review approved: 84 focused +
-  85 relevant cases, strict four-file Windows/Linux checks; old wait fails the exact primary
-  assertion in 3/3 isolated runs and fixed wait passes 5/5, with all production hashes unchanged.
-  Exact corrective Check and closeout remain. Integration is not applicable: GUI model/tests/
-  docs only; no core, adapters or tool invocation changed.
+- None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-06 `P5-T03e31` Added the bounded virtual Qt log model (`9ffbb9a`, test-race
+  correction `a11067b`): newest 20,000 physical rows, 2,000,000 message characters, 4,096 per
+  message and 128 per step ID, visible truncation and exact whole-row omission counts. Literal
+  Unicode output, CRLF/CR/LF normalization, O(1) indexed storage, bounded temporary allocation,
+  coalesced Qt notifications, persistent selection and clear/reuse. Full disk log unchanged.
+  All 44 new cases pass on CPython 3.12/3.13; 84 model/dashboard cases after the test correction.
+  Strict four-file Windows/Linux typing, Ruff and file/function/complexity budgets clean;
+  model statement coverage 100%. Final hidden-tools gate: 3,176 passed / 6 existing skips.
+  All 30 isolated faults assertion-caught; strengthened exact-limit truncation coverage after
+  one initial survivor. Main review approved 44 + 232 existing cases, six adversarial probes
+  and six independent mutants; reference checks include 262,143 reverse-scanner comparisons.
+  Initial Ubuntu CI exposed a pre-existing test race: worker entry precedes queued build-plan
+  delivery. Only corrected the test wait; all overlay/navigation/reset assertions retained.
+  Independent delta review: 84 + 85 cases, original race assertion fails 3/3, fixed passes 5/5;
+  all production hashes unchanged. Local allocation/timing samples: docs/dev/BENCHMARKS.md.
+  Exact corrective Check: Windows job 127564745161 (3,167 passed / 15 skips), Ubuntu
+  127564745513 (3,168 / 14); 3,182 selected on both matches local, remote main verified.
+  No visible log panel or command API yet: e32 wires the view, e33 adds trusted command copying.
+  Integration not applicable: GUI model/tests/docs only; no core/adapters/dependency changes.
 - 2026-11-06 `P5-T03e22` Connected dashboard builds and live part progress (`1616f99`,
   font-layout correction `731fe93`). Test/release/cancel and shortcuts use the existing joined
   owner, captured project/root/manifest guards, live overlays separate from checked statuses,

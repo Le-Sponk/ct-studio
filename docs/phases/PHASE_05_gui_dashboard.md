@@ -154,11 +154,15 @@ post-build refresh and integrated light/dark/minimum-size screenshots. No log sc
 The retained-data model, collapsible dashboard view and trustworthy command provenance exceed
 one bounded task. Complete these in order; the full existing disk log remains unchanged.
 
-###### [ ] P5-T03e31 — Bounded virtual log model
+###### [x] P5-T03e31 — Bounded virtual log model (commit a11067b)
 A Qt list model for existing LogLine events, with row/text/per-line/step-ID limits, newest-tail
 retention, explicit truncation and eviction counts. **Acceptance:** real Qt model data/signals,
 multiline/Unicode/oversized inputs, stable surviving indexes, clear/reset and bounded storage.
 No dashboard widget, command parsing/copying, disk I/O or new core event in this subtask.
+Verified: 44 new cases on CPython 3.12/3.13, real list selection/model protocol, bounded allocation,
+strict Windows/Linux typing and budgets; 30 assertion-caught mutants and independent reviews.
+Final gate 3,176 passed / 6 existing skips; exact corrective Check Windows/Ubuntu green, 3,182
+selected on both. CI also exposed and verified a test-only queued-plan synchronization fix.
 
 ###### [ ] P5-T03e32 — Collapsible live log view and dashboard wiring
 Expose the virtual model through a collapsed-by-default list, keep collecting while collapsed,
