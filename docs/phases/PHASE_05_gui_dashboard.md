@@ -113,7 +113,7 @@ are errors, not created or replaced by an unrelated ancestor. Closed snapshots s
 root/manifest changes during preparation are refused. A dispatch receipt is not a guarantee
 that a desktop window displayed. Configurable editors remain T07; widgets/ownership remain T03i.
 
-#### [ ] P5-T03i — Dashboard launch ownership and controls
+#### [x] P5-T03i — Dashboard launch ownership and controls
 Wire Open in Blender and reveal-location actions through joined background work.
 **Acceptance:** off-thread discovery/launching, current-project/lock ownership through completion,
 busy/read-only rules, visible failures without clearing last-good cards, keyboard and screenshots.
