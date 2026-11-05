@@ -4,12 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03g — Blender and basic launch actions
+**Next task:** P5-T03g — Project-aware Blender launch service
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `c073c9e` (P5-T03f; Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03g` — Project-aware Blender launch service. Plan: tests first for the current source,
+  configured Blender and damaged settings; reuse the existing core detached editor adapter;
+  guard read-only/closed and preparation-time project changes; prove no writes and error/result
+  preservation; run fault probes, full gate, independent review and Windows/Ubuntu CI.
+  Acceptance: blocking service only, no dashboard launch controls yet; callers own the project
+  and worker lifetime. Files: new GUI service/tests, phase plan, architecture/navigation docs.
+  Risk: accidentally launching a fallback executable after damaged settings or losing warnings.
+  Implemented in 60 source lines, with 56 new cases including a real detached fake-executable
+  launch proving Unicode argv/cwd and unchanged files. Full hidden-tools gate passes: 2,795
+  passed / 6 existing skips / 175 deselected; all 686 GUI/service tests. Service statements
+  27/27 covered; strict Windows/Linux touched typing and scoped complexity/budgets pass.
+  Final isolated replay catches 24/24 faults with 56-case baseline/restored runs and unchanged
+  live hashes. No widget or core adapter change; no new native visual/tool contract required.
+  Independent service review passed: 320 regressions, 20 boundary probes and 10 isolated faults;
+  approved source/main-test hashes match. Supplemental process-test review also passed with
+  observed real runner/child dispatch and unchanged hashes; exact-commit CI remains before
+  closeout.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03f` Dashboard mode and component controls (`49eb132`; test fix `c073c9e`).
@@ -838,6 +854,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-05: T03g's project/settings checks, portable folder adapter and GUI launch ownership/
+  controls exceed the session budget together. Keep T03g as the project-aware Blender service;
+  add T03h for component-folder reveal and T03i for dashboard launch ownership/controls, before
+  T03e build/log. No feature is dropped. The user's add-on fork is already the pinned submodule;
+  its current upstream HEAD is the same `ffa905f`, so no dependency change is needed.
 - 2026-11-04: P5-T03d's persistence, card controls and launch lifecycles exceed the session size
   budget together. Keep T03d as component-mode persistence; add T03f for dashboard mode/overflow
   controls and T03g for Blender/basic launch actions, before the unchanged T03e build/log task.

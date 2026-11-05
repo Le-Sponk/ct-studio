@@ -506,6 +506,16 @@ close handling, invalidates status results and rebinds only after a successful s
 and errors retain last-good cards. Navigation also disables the dashboard during Open/history
 work. File assignment, launches and GUI build controls remain separate tasks.
 
+P5-T03g: `gui/blender_launch.py` provides a blocking project-aware Blender launch service.
+It uses the live project's chosen source and freshly loaded machine tool settings, refuses
+read-only/closed projects, missing source and preparation-time project changes, and fails closed
+on damaged settings rather than silently discovering another executable. The existing measured
+`core.tools.editors.open_in` adapter validates the document and starts the detached editor;
+its launch result and warnings pass through unchanged, never claiming the document loaded.
+The service writes nothing and does not install/enable add-ons. Its caller must hold project
+ownership and run it off the UI thread; folder opening and joined dashboard launch controls
+follow in T03h/T03i. The add-on remains the tested, pinned Le-Sponk fork, not a moving branch.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves

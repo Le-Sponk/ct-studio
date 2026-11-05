@@ -5,8 +5,8 @@
 > may still change without notice.
 
 <!-- progress:start (written by scripts/progress.py; do not edit by hand) -->
-**Progress:** `██████████░░░░░░░░░░` 50% — 81 of 160 planned tasks done.
-Now working on phase 5, GUI shell & dashboard (manual-mode MVP) (9 of 21 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
+**Progress:** `██████████░░░░░░░░░░` 50% — 81 of 162 planned tasks done.
+Now working on phase 5, GUI shell & dashboard (manual-mode MVP) (9 of 23 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
 <!-- progress:end -->
 
 CT Studio is an in-progress desktop app for building Mario Kart Wii custom tracks from Blender projects.
@@ -14,6 +14,8 @@ It targets Windows and Linux as first-class platforms; macOS is currently best-e
 The goal is to turn a `.blend` project into a finished `.szs` without hiding the underlying files.
 Beginners should see clear defaults, while experienced creators can keep using external editors.
 The planned pipeline coordinates Blender-MKW-Utilities, Wiimms SZS Tools and a BRRES backend.
+The Blender add-on is pinned from [Le-Sponk's compatibility fork](https://github.com/Le-Sponk/Blender-MKW-Utilities)
+in `vendor/blender-mkw-utilities`; its Linux and modern-Blender export support is part of the plan.
 Course models, collision, minimaps, KMP data and validation are planned dashboard components.
 Projects will remain ordinary directories with readable configuration and inspectable commands.
 User-authored files must be backed up before any automated replacement.

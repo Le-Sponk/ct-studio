@@ -95,10 +95,24 @@ Wire component mode/primary/overflow controls to the service layer; file assignm
 configurable editor framework remain T04/T07. **Acceptance:** joined background work, busy/
 read-only guards, cancellation/errors, last-good-state retention, keyboard and screenshots.
 
-#### [ ] P5-T03g — Blender and basic launch actions
-Open in Blender and reveal component locations using service-layer/core adapters; the full
-configurable editor framework remains P5-T07. **Acceptance:** off-thread discovery/launching,
-missing-tool/path errors, safe project ownership, read-only/busy rules, keyboard and screenshots.
+#### [ ] P5-T03g — Project-aware Blender launch service
+Split again for size: project/settings safety, platform folder opening and GUI worker/control
+lifetimes together exceed one session. This slice adds a blocking Blender launch service using
+the existing measured core editor adapter; it does not add dashboard buttons yet.
+**Acceptance:** current project source and configured executable, no-source/read-only/closed
+refusal, fail-closed damaged settings, preparation-time project changes refused, actionable
+errors and detached launch result/warnings preserved. No project/settings writes. Caller must
+hold project ownership and run it off the UI thread; T03i wires that lifecycle.
+
+#### [ ] P5-T03h — Component-folder reveal service
+Resolve current component locations and open their folders through a portable core adapter.
+**Acceptance:** measured Windows/Linux launch contracts, missing paths/tools, read-only-safe
+inspection and no document editing or user-file changes. Configurable editors remain T07.
+
+#### [ ] P5-T03i — Dashboard launch ownership and controls
+Wire Open in Blender and reveal-location actions through joined background work.
+**Acceptance:** off-thread discovery/launching, current-project/lock ownership through completion,
+busy/read-only rules, visible failures without clearing last-good cards, keyboard and screenshots.
 
 #### [ ] P5-T03e — Build controls and live log
 Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with
