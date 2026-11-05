@@ -107,7 +107,11 @@ hold project ownership and run it off the UI thread; T03i wires that lifecycle.
 #### [ ] P5-T03h — Component-folder reveal service
 Resolve current component locations and open their folders through a portable core adapter.
 **Acceptance:** measured Windows/Linux launch contracts, missing paths/tools, read-only-safe
-inspection and no document editing or user-file changes. Configurable editors remain T07.
+inspection and no document editing or user-file changes. File outputs open their containing
+folder even before the file exists; directory outputs open that directory. Missing directories
+are errors, not created or replaced by an unrelated ancestor. Closed snapshots stay readable;
+root/manifest changes during preparation are refused. A dispatch receipt is not a guarantee
+that a desktop window displayed. Configurable editors remain T07; widgets/ownership remain T03i.
 
 #### [ ] P5-T03i — Dashboard launch ownership and controls
 Wire Open in Blender and reveal-location actions through joined background work.

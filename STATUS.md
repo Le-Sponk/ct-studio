@@ -9,7 +9,30 @@
 **Last green commit:** `2b4110a` (P5-T03g; Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03h` Component-folder reveal service: (1) measure folder launch contracts, (2) tests
+  first for portable adapter and current registry/manifest locations, (3) implement read-only
+  inspection with typed missing-path/tool errors and no file writes, (4) run full checks,
+  mutation controls and independent review, (5) commit/push and verify Windows/Ubuntu CI.
+  Expected files: core/tools folder adapter, GUI blocking service, focused tests and docs.
+  No widgets or editing; T03i owns off-thread invocation/project lifetimes. Risks: missing
+  generated outputs and desktop hand-off receipts must not be reported as confirmed display.
+  Implemented 73-line portable adapter and 66-line registry-driven service; 150 new focused
+  cases pass, all 761 GUI/service regressions pass. Full gate with developer tools hidden:
+  2,945 passed / 6 existing skips / 176 deselected. Adapter/service statement coverage 40/40
+  and 39/39. Strict Windows/Linux typing checks all seven touched Python files; lint, core/
+  touched complexity, budgets, whitespace and security scans pass. Isolated controls 27/27
+  adapter/test and 12/12 service caught by assertion failures, no collection errors; original
+  hashes verified unchanged. Native Windows Explorer 10.0.26100.8875 opened the exact Unicode
+  scratch folder through the actual adapter with marker bytes unchanged. Only our new matching
+  window was closed. Linux real-dispatch integration test added with synthetic XFCE helper;
+  native measurement and exact-commit Check/Integration remain pending. Independent review
+  passed 150 focused tests, 395 regressions, 19 extra boundary probes and six assertion-caught
+  isolated faults with unchanged production hashes. No security/logic findings. Its test-only
+  timing suggestion is addressed by a longer native observation wrapper that still asserts
+  the production 0.4-second contract; full gate and strict checks remain green. Supplemental
+  review passed the actual test wrapper through a real synthetic runner, reproduced the old
+  narrow-watch failure and caught three negative controls; source/test hashes match. Exact-
+  commit CI remains before closeout; no widgets changed or screenshots required.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03g` Project-aware Blender launch service (`2b4110a`). Uses the selected
@@ -1181,6 +1204,11 @@
 
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
+- **P5-T03h Linux file-manager display.** Native Windows Explorer opened the exact scratch
+  folder through the adapter. Linux CI measures actual xdg-open dispatch to an isolated
+  synthetic XFCE helper, not a Mint/Cinnamon window, desktop association or late rejection.
+  A receipt only means dispatch. A future desktop spot-check can close the visible-window
+  gap when T03i adds the action; no user run is required for this blocking-service step.
 Updated by P1-T07. Automated P1-T01–T06 Linux parity passed in
 [Ubuntu CI run 36341555661](https://github.com/Le-Sponk/ct-studio/actions/runs/36341555661):
 `uv sync --locked`, seven-step `check.py` (including all three import contracts, GUI,

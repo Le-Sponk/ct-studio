@@ -513,8 +513,20 @@ on damaged settings rather than silently discovering another executable. The exi
 `core.tools.editors.open_in` adapter validates the document and starts the detached editor;
 its launch result and warnings pass through unchanged, never claiming the document loaded.
 The service writes nothing and does not install/enable add-ons. Its caller must hold project
-ownership and run it off the UI thread; folder opening and joined dashboard launch controls
-follow in T03h/T03i. The add-on remains the tested, pinned Le-Sponk fork, not a moving branch.
+ownership and run it off the UI thread; joined dashboard launch controls follow in T03i.
+The add-on remains the tested, pinned Le-Sponk fork, not a moving branch.
+
+P5-T03h: `gui/folder_reveal.py` resolves current registry/manifest component locations for
+inspection, using `core.tools.folders.open_folder` to dispatch an existing directory to the
+system file manager. File outputs use their containing folder, even before that file is
+built; folder outputs and supplied post-effect folders use the directory itself. Missing
+folders and components without one location are errors, not requests to create directories
+or open an unrelated ancestor. Read-only and closed project snapshots remain inspectable;
+preparation-time root/manifest changes are refused. No project/settings/lock writes or file
+editing occurs. The portable adapter launches only absolute directory arguments through the
+existing detached runner: Windows system Explorer, Linux `xdg-open` with an early-error watch.
+Its receipt proves dispatch, not that a desktop displayed the folder. T03i owns off-thread
+invocation, current-project lifetimes and dashboard controls; no widgets change in T03h.
 
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live

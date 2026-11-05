@@ -354,6 +354,32 @@ Wiimm tools need no workaround on Linux.
   ("Multiple files for single destination"). `info tex0 for *` lists textures; `info
   texture` is a parse error.
 
+## System file-manager folder dispatch (P5-T03h)
+- Windows 11 Explorer **[verified locally, 10.0.26100.8875]**: absolute
+  `%WINDIR%/explorer.exe` followed by one absolute directory argument, no switches and no shell.
+  Launched with the existing detached runner from a scratch directory containing spaces,
+  `café` and `日本`; Shell.Application reported the exact folder in its window list and a
+  synthetic marker stayed unchanged. Only the newly created, exactly matching probe window
+  was closed. Explorer can hand over to an existing shell, so a returned PID is not proof
+  that its process owns the window; no early-exit status is used as display confirmation.
+- Linux `xdg-open ABS_DIRECTORY` **[upstream manual/source; native CI measurement pending]**:
+  [manual](https://portland.freedesktop.org/doc/xdg-open.html) documents one path/URL and exit
+  codes 0 success, 1 syntax, 2 missing path, 3 missing helper, 4 action failure. Absolute
+  directories avoid leading-dash option and URL interpretation. The
+  [XFCE source branch](https://cgit.freedesktop.org/xdg/xdg-utils/tree/scripts/xdg-open.in)
+  probes `exo-open --help`, then passes the path as one argument to `exo-open`.
+  `tests/integration/test_folder_dispatch.py` measures the real installed Linux dispatcher
+  with an isolated synthetic XFCE helper, Unicode argv/cwd and success/failure exits. This
+  does not test a real Mint file-manager window or its desktop associations. The native
+  failure probe asserts the adapter requests its normal 0.4-second watch, then observes the
+  real process for up to five seconds to tolerate CI startup delays. Unit contracts pin the
+  production watch; the longer test observation does not extend it in the application.
+- `core.tools.folders` requires an existing directory and resolved executable, invokes only
+  `process.launch_detached`, and never opens documents through file associations. Linux uses
+  a 0.4-second early-error watch; late failures cannot be observed after dispatch. A receipt
+  means process dispatch only, never confirmed display. Missing folders/tools and early
+  failures are typed actionable errors; no directory or user file is created/changed.
+
 ## Blender + Blender-MKW-Utilities
 - Add-on: https://github.com/Le-Sponk/Blender-MKW-Utilities (fork of Gabriela-Orzechowska's), GPL-2.0-or-later,
   verified on Blender 4.0.2, 4.1.1, 4.2.9 LTS, 4.5.9 LTS, 5.2.1 LTS with Wiimms v2.42a and ABMatt v1.3.2 **[doc]**

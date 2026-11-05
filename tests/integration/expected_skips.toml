@@ -56,3 +56,9 @@ os = ["windows"]
 test = "tests.integration.test_linux_paths::*"
 reason = "Linux contract"
 why = "Linux path handling; Windows is measured by test_windows_paths."
+
+[[skip]]
+os = ["windows"]
+test = "tests.integration.test_folder_dispatch::*"
+reason = "Linux xdg-open contract"
+why = "Measures native Linux xdg-open, not available on Windows; Explorer was measured locally."
