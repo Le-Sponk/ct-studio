@@ -104,7 +104,7 @@ refusal, fail-closed damaged settings, preparation-time project changes refused,
 errors and detached launch result/warnings preserved. No project/settings writes. Caller must
 hold project ownership and run it off the UI thread; T03i wires that lifecycle.
 
-#### [ ] P5-T03h — Component-folder reveal service
+#### [x] P5-T03h — Component-folder reveal service (commit b57ff16)
 Resolve current component locations and open their folders through a portable core adapter.
 **Acceptance:** measured Windows/Linux launch contracts, missing paths/tools, read-only-safe
 inspection and no document editing or user-file changes. File outputs open their containing

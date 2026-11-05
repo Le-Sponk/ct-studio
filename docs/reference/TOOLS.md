@@ -362,14 +362,15 @@ Wiimm tools need no workaround on Linux.
   synthetic marker stayed unchanged. Only the newly created, exactly matching probe window
   was closed. Explorer can hand over to an existing shell, so a returned PID is not proof
   that its process owns the window; no early-exit status is used as display confirmation.
-- Linux `xdg-open ABS_DIRECTORY` **[upstream manual/source; native CI measurement pending]**:
+- Linux `xdg-open ABS_DIRECTORY` **[verified Ubuntu CI, xdg-open 1.1.3, commit b57ff16]**:
   [manual](https://portland.freedesktop.org/doc/xdg-open.html) documents one path/URL and exit
   codes 0 success, 1 syntax, 2 missing path, 3 missing helper, 4 action failure. Absolute
   directories avoid leading-dash option and URL interpretation. The
   [XFCE source branch](https://cgit.freedesktop.org/xdg/xdg-utils/tree/scripts/xdg-open.in)
   probes `exo-open --help`, then passes the path as one argument to `exo-open`.
-  `tests/integration/test_folder_dispatch.py` measures the real installed Linux dispatcher
-  with an isolated synthetic XFCE helper, Unicode argv/cwd and success/failure exits. This
+  `tests/integration/test_folder_dispatch.py` passed against the real installed Linux dispatcher
+  with an isolated synthetic XFCE helper, exact Unicode argv/cwd and success/failure exits
+  0/4 (Integration job 127028566065; JUnit records the native version). This
   does not test a real Mint file-manager window or its desktop associations. The native
   failure probe asserts the adapter requests its normal 0.4-second watch, then observes the
   real process for up to five seconds to tolerate CI startup delays. Unit contracts pin the
