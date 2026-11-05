@@ -4,30 +4,33 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03g — Project-aware Blender launch service
+**Next task:** P5-T03h — Component-folder reveal service
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `c073c9e` (P5-T03f; Check, Windows + Ubuntu)
+**Last green commit:** `2b4110a` (P5-T03g; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03g` — Project-aware Blender launch service. Plan: tests first for the current source,
-  configured Blender and damaged settings; reuse the existing core detached editor adapter;
-  guard read-only/closed and preparation-time project changes; prove no writes and error/result
-  preservation; run fault probes, full gate, independent review and Windows/Ubuntu CI.
-  Acceptance: blocking service only, no dashboard launch controls yet; callers own the project
-  and worker lifetime. Files: new GUI service/tests, phase plan, architecture/navigation docs.
-  Risk: accidentally launching a fallback executable after damaged settings or losing warnings.
-  Implemented in 60 source lines, with 56 new cases including a real detached fake-executable
-  launch proving Unicode argv/cwd and unchanged files. Full hidden-tools gate passes: 2,795
-  passed / 6 existing skips / 175 deselected; all 686 GUI/service tests. Service statements
-  27/27 covered; strict Windows/Linux touched typing and scoped complexity/budgets pass.
-  Final isolated replay catches 24/24 faults with 56-case baseline/restored runs and unchanged
-  live hashes. No widget or core adapter change; no new native visual/tool contract required.
-  Independent service review passed: 320 regressions, 20 boundary probes and 10 isolated faults;
-  approved source/main-test hashes match. Supplemental process-test review also passed with
-  observed real runner/child dispatch and unchanged hashes; exact-commit CI remains before
-  closeout.
+- None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-05 `P5-T03g` Project-aware Blender launch service (`2b4110a`). Uses the selected
+  project source and freshly loaded machine settings with the existing detached editor adapter.
+  Missing source, read-only/closed and preparation-time project changes are refused; damaged
+  settings never fall back to a different discovered executable. Exact launch receipts/warnings
+  and typed errors/causes/interrupts are preserved. No files/settings/locks are written or
+  changed. This is a blocking service only: caller ownership and dashboard buttons remain
+  T03i; component-folder reveal is next in T03h. No original feature is dropped by the split.
+  User's add-on fork already matches the tested submodule pin and remote HEAD `ffa905f`;
+  README documents that integration, including its Linux/modern-Blender export role.
+  Full hidden-tools gate: 2,795 passed / 6 existing skips / 175 deselected; all 686 GUI/service
+  tests, including 56 new cases. Real detached runner exercised with a synthetic executable,
+  Unicode/external argv/cwd and unchanged files; this does not prove Blender loaded a document.
+  Service statements 27/27; strict Windows/Linux touched typing, lint/complexity/budgets pass.
+  Final isolated faults 24/24 caught; 56-case baseline/restored copies green, live hashes match.
+  Independent service review passed 320 regressions, 20 boundary probes and 10 isolated fault
+  controls; supplemental review observed actual runner/child dispatch. All approved hashes match.
+  Exact-commit Check Windows 127003211654: 2,786 passed / 15 skipped; Ubuntu 127003212021:
+  2,787 / 14. Both selected totals 2,801 match local; remote main verified. No widget, core
+  adapter or pipeline behavior changed, so new screenshots/real-tool Integration not applicable.
 - 2026-11-05 `P5-T03f` Dashboard mode and component controls (`49eb132`; test fix `c073c9e`).
   Registry-driven mode buttons and native overflow menus open an explicit Save/Cancel dialog.
   Loading/saving use the existing joined worker and modal project ownership; only successful

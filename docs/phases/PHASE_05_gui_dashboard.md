@@ -95,7 +95,7 @@ Wire component mode/primary/overflow controls to the service layer; file assignm
 configurable editor framework remain T04/T07. **Acceptance:** joined background work, busy/
 read-only guards, cancellation/errors, last-good-state retention, keyboard and screenshots.
 
-#### [ ] P5-T03g — Project-aware Blender launch service
+#### [x] P5-T03g — Project-aware Blender launch service (commit 2b4110a)
 Split again for size: project/settings safety, platform folder opening and GUI worker/control
 lifetimes together exceed one session. This slice adds a blocking Blender launch service using
 the existing measured core editor adapter; it does not add dashboard buttons yet.
