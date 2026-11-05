@@ -4,12 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e2 — Dashboard build controls and live part progress
+**Next task:** P5-T03e21 — Tested build-controls view (then e22 wiring/cards, then e3 log)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `98b0c66` (P5-T03e1; Check, Windows + Ubuntu)
+**Last green commit:** `87e6514` (P5-T03e1 closeout; Check, Windows + Ubuntu)
 
 ## In progress
-None.
+- `P5-T03e21`: (1) tests first for signal-only build controls and deterministic event progress,
+  (2) test/release/cancel shortcuts, independent notices and accurate final outcomes,
+  (3) keyboard/light/dark/small/scaled-window checks, mutation controls and independent review,
+  (4) full gate, docs/progress, commit/push and exact-commit Windows/Ubuntu checks.
+  Expected files: build-controls view, focused GUI/visual tests, architecture and phase docs.
+  Risks: duplicate/unknown events, premature completion, cancellation mistaken for success,
+  disabled ancestors and long labels. No I/O, dependencies or dashboard wiring; e22 owns
+  AppServices/project lifecycle integration and live cards, then e3 owns the log.
+  Local proof: full hidden-tools gate 3,074 passed / 6 existing skips; all 887 GUI tests,
+  33 focused cases on CPython 3.12/3.13, 27/27 isolated assertion-caught regressions with
+  in-run import origins; strict Windows/Linux typing and budgets clean. Eight standalone
+  light/dark/native/150%-font screenshots inspected with readable fonts. Independent source
+  review and final test-only delta re-review passed; exact-commit CI is still pending. No real-tool
+  Integration job is required: only a signal-only view/tests/docs changed.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03e1` Safe build requests and worker ownership (`98b0c66`). AppServices
@@ -904,6 +917,10 @@ None.
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- `P5-T03e2` split into `P5-T03e21` (signal-only controls/progress view) and `P5-T03e22`
+  (AppServices wiring, lifecycle guards and live cards) to keep each review bounded. These
+  two numbered IDs are pieces of e2 and run before e3; no original acceptance is removed.
+  e21 is deliberately not connected to the dashboard. This session completes e21 only.
 - 2026-11-05: Split remaining T03e into T03e1 (safe build requests/worker ownership), T03e2
   (dashboard controls and live part progress) and T03e3 (bounded live log/command copying).
   Existing BuildController has no AppServices start guard, drops its thread before joining on

@@ -451,6 +451,19 @@ on unacknowledged bootstrap. Once it completes, normal joined delivery reports t
 startup exception. Shutdown rechecks ownership after its synchronous idle notification, so a
 callback-started replacement worker cannot be reported as stopped or have its lock released.
 
+P5-T03e21: `gui/views/build_controls.py` is a signal-only native-palette build bar, exercised
+in GUI tests but not yet embedded in the dashboard. `build_requested(bool)` distinguishes
+release from test, and `cancel_requested()` asks the owner to stop; neither signal performs
+I/O. Explicit `set_state(enabled=..., running=...)` avoids caching disabled ancestors. Known
+step IDs give deduplicated progress (unchanged/skipped steps count); unknown IDs are ignored.
+Planning is indeterminate, and `BuildFinished` alone never publishes a final result: only
+`show_summary`/`show_error` from the joined owner does so. Cancelling disables repeated cancel
+requests without presenting completion. Labels use plain text, wrap bounded summaries and
+keep complete notices in tooltips/accessibility text. Shortcuts are Ctrl+B test, Ctrl+Shift+B
+release and Esc cancel, active only for visible/enabled controls. T03e22 owns current-project
+routing, AppServices eligibility, live cards and dashboard/window integration; T03e3 owns the
+bounded log. No new core semantics or tool operations are introduced by e21.
+
 P5-T01b: `gui/status_service.py` `StatusService` works the part statuses out on a named thread
 (`ctstudio-status`): the user's settings, `availability.available_tools` (discovery only) and
 `components.status.evaluate`. `request(project)` restarts a 300 ms single-shot timer, so a burst

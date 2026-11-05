@@ -133,10 +133,22 @@ force and component options unchanged. Join before publishing completion; report
 and thread-start failures without leaking running state. **Acceptance:** event-held worker,
 lock lifetime, startup failure, queued delivery and interrupt tests; no new dashboard widgets.
 
-##### [ ] P5-T03e2 — Dashboard build controls and live part progress
-Build test/release, cancel, progress and last result through the e1 ownership boundary.
-**Acceptance:** fake-build events update cards live; shortcuts, busy/read-only rules,
-cancel/failure recovery and light/dark/minimum-size screenshots. Keep last-good statuses.
+##### P5-T03e2 — Dashboard build controls and live part progress (split into e21/e22)
+The view plus project-aware wiring/card updates exceed the task-size budget. Complete e21,
+then e22, before e3; these numbered IDs are two pieces of e2, not extra product scope.
+
+###### [ ] P5-T03e21 — Tested build-controls view
+Signal-only test/release/cancel controls, step-count progress, last result and independent
+warnings/errors. **Acceptance:** synthetic event/summary tests, safe cancellation and failure
+recovery, keyboard shortcuts (Ctrl+B / Ctrl+Shift+B / Esc), native light/dark/minimum-size and
+150%-font screenshots. No disk work or dashboard wiring yet; the controls are exercised in
+GUI tests but are not exposed in the app until e22.
+
+###### [ ] P5-T03e22 — Dashboard wiring and live part progress
+Route the e21 controls through the e1 ownership boundary for the current writable project.
+**Acceptance:** fake-build events update cards live while preserving last-good statuses;
+busy/read-only/navigation guards, cancel/startup-failure/retry, stale-project suppression,
+post-build refresh and integrated light/dark/minimum-size screenshots. No log scope (e3).
 
 ##### [ ] P5-T03e3 — Bounded live build log
 Collapsible virtualised log with a bounded in-memory history and command copying; full log

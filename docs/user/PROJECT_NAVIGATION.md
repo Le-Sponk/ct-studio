@@ -1,7 +1,9 @@
 # Creating and opening projects
 
-CT Studio is under development. Project navigation works; the dashboard Build button is not
-implemented yet. The command-line build remains available for projects with supplied parts.
+CT Studio is under development. Project navigation works; dashboard build controls are not
+connected yet. The controls/progress view is tested separately (P5-T03e21); P5-T03e22 will wire
+it into this screen with live card updates. The command-line build remains available for
+projects with supplied parts.
 
 ## New project
 
