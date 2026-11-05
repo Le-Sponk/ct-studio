@@ -24,6 +24,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.core.tools import editors
 from ctstudio.core.tools import folders as corefolders
+from ctstudio.gui.dashboard_builds import DashboardBuilds
 from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
@@ -97,6 +98,8 @@ class Dashboard(QWidget):
         form.addRow("Blender source", self.source_label)
         self._layout.addLayout(form)
         self._make_cards()
+        self.builds = DashboardBuilds(self)
+        self._layout.addWidget(self.builds.controls)
         self.services.status.updated.connect(self._updated)
         self.services.status.failed.connect(self._failed)
         self.services.build.running_changed.connect(self._sync)
@@ -110,6 +113,7 @@ class Dashboard(QWidget):
             self.refresh()  # retain last good results, including during an existing check/build
             return
         self._project = project
+        self.builds.clear()
         self._checking = False
         self.launch_notice.clear()
         self.launch_notice.hide()
@@ -243,6 +247,7 @@ class Dashboard(QWidget):
         return self._project is not None and self.services.project is self._project
 
     def _sync(self, _running: bool = False) -> None:
+        self.builds.sync()
         building = self.services.build.running
         self.work_label.setText(
             "Build running — showing last checked statuses." if building else ""

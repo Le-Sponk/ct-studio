@@ -6,10 +6,28 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T03e22 — Dashboard build wiring and live cards (then e3 log)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7ddfbe2` (P5-T03e21; Check, Windows + Ubuntu)
+**Last green commit:** `a9f246e` (P5-T03e21 closeout; Check, Windows + Ubuntu)
 
 ## In progress
-None.
+- `P5-T03e22`: (1) tests first for current-project build routing and live card overlays,
+  (2) integrate the tested controls with AppServices and capture project/root/manifest per run,
+  (3) cover busy/read-only/history guards, cancellation, failures/retry and post-build refresh,
+  (4) real-window shortcuts, repeated refused close and light/dark/small/scaled screenshots,
+  (5) full gate, isolated mutations, independent review, docs/progress and exact-commit CI.
+  Expected files: dashboard build coordinator, small dashboard/card/window wiring, focused
+  integration/visual tests, architecture and user docs. Keep checked status text separate from
+  transient build progress; never publish success before joined completion. No new worker,
+  adapter, dependency or live-log scope. Preserve worker/project ownership on refused close.
+  Implementation and 57 new integration/visual tests pass on Python 3.12/3.13; eight readable
+  light/dark/native/minimum-size/150%-font screenshots inspected. Final hidden-tools full gate:
+  3,131 passed / 6 existing skips; 3,137 selected. All 38 isolated regressions assertion-caught
+  against 53 nonvisual integration cases, with per-run origins/hashes and unchanged checkout.
+  Main independent review passed 57 new and 302 existing cases plus two reentrant-worker probes;
+  final screenshot and duplicate-cancel test-only reviews also passed, with approved source/test
+  hashes unchanged. Nine-file strict Windows/Linux checks pass (cohesive view/protected-test
+  convention); lint and budgets clean.
+  Integration is not applicable: GUI presentation/wiring only, no core/adapter/real-tool changes.
+  Keep the task open until implementation and closeout commits pass exact Windows/Ubuntu CI.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03e21` Tested standalone build-controls view (`7ddfbe2`). Signal-only

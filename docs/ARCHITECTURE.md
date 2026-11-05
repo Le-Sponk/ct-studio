@@ -451,8 +451,8 @@ on unacknowledged bootstrap. Once it completes, normal joined delivery reports t
 startup exception. Shutdown rechecks ownership after its synchronous idle notification, so a
 callback-started replacement worker cannot be reported as stopped or have its lock released.
 
-P5-T03e21: `gui/views/build_controls.py` is a signal-only native-palette build bar, exercised
-in GUI tests but not yet embedded in the dashboard. `build_requested(bool)` distinguishes
+P5-T03e21: `gui/views/build_controls.py` is a signal-only native-palette build bar, first
+exercised separately in GUI tests and embedded by T03e22. `build_requested(bool)` distinguishes
 release from test, and `cancel_requested()` asks the owner to stop; neither signal performs
 I/O. Explicit `set_state(enabled=..., running=...)` avoids caching disabled ancestors. Known
 step IDs give deduplicated progress (unchanged/skipped steps count); unknown IDs are ignored.
@@ -463,6 +463,21 @@ keep complete notices in tooltips/accessibility text. Shortcuts are Ctrl+B test,
 release and Esc cancel, active only for visible/enabled controls. T03e22 owns current-project
 routing, AppServices eligibility, live cards and dashboard/window integration; T03e3 owns the
 bounded log. No new core semantics or tool operations are introduced by e21.
+
+P5-T03e22: `gui/dashboard_builds.py` binds the build bar to the dashboard's current project.
+Requests go only through `AppServices.start_build`, with a run snapshot of the project, root
+and manifest captured before calling it (startup failure can be synchronous). MainWindow
+injects the welcome/history busy guard; eligibility uses explicit state, not a disabled
+ancestor's effective button state. Build events, notices and joined outcomes are rendered only
+while the service and displayed project still match that snapshot. Same-project navigation
+preserves progress; a new/changed binding clears the previous run's presentation.
+Known `stage:<component>` steps receive separate plain-text card overlays; assembly/validation
+remain overall progress. A step's done/unchanged/error/cancelled/not-run state never overwrites
+its last checked component status. The existing AppServices completion refresh is reused,
+not duplicated. Cancellation delegates to the existing worker and retains its project owner.
+Repeated refused closes show the dashboard and stopping notice without rebinding or requesting
+another status check. The bounded scrolling log remains T03e3; no new build adapter or worker
+is introduced here.
 
 P5-T01b: `gui/status_service.py` `StatusService` works the part statuses out on a named thread
 (`ctstudio-status`): the user's settings, `availability.available_tools` (discovery only) and

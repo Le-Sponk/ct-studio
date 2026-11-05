@@ -65,6 +65,9 @@ class ComponentCard(QWidget):
         self.status_label = self._label("Not checked", "State")
         status_row.addWidget(self.status_label, 1)
         layout.addLayout(status_row)
+        self.build_label = self._label("", "Build")
+        self.build_label.hide()
+        layout.addWidget(self.build_label)
         self.summary = self._label(spec.description, "Summary")
         self.summary.setWordWrap(True)
         self.summary.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
@@ -227,6 +230,13 @@ class ComponentCard(QWidget):
     def _copy_path(self) -> None:
         if self.path is not None:
             QApplication.clipboard().setText(str(self.path))
+
+    def show_build_state(self, text: str) -> None:
+        """A run overlay, never a replacement for last-good checked status/reasons."""
+        self.build_label.setText(text)
+        self.build_label.setToolTip(text)
+        self.build_label.setAccessibleDescription(text)
+        self.build_label.setVisible(bool(text))
 
     def _label(self, text: str, suffix: str) -> QLabel:
         label = QLabel(text, self)

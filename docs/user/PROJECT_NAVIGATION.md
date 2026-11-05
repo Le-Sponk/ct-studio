@@ -1,9 +1,9 @@
 # Creating and opening projects
 
-CT Studio is under development. Project navigation works; dashboard build controls are not
-connected yet. The controls/progress view is tested separately (P5-T03e21); P5-T03e22 will wire
-it into this screen with live card updates. The command-line build remains available for
-projects with supplied parts.
+CT Studio is under development. Project navigation and dashboard build controls are available
+for projects with supplied parts. Automatic generation and GUI file assignment are not ready
+yet; start with a project that already names its supplied files. The command-line build also
+remains available.
 
 ## New project
 
@@ -39,13 +39,41 @@ info copies the project manifest path. Copying remains available in read-only pr
 
 View → Recent projects (Ctrl+H) returns to the welcome list without closing the current project.
 View → Project dashboard (Ctrl+D) returns to it. Tab reaches the available mode, copy and More controls; the
-dashboard scrolls to focused controls in a small window. File → New/Open remain available.
+dashboard scrolls to focused controls in a small window. File → New/Open remain available while idle.
 Navigation errors and history-save problems stay visible on the welcome screen; a project that
 opened successfully remains open, and its dashboard is still available from View.
 
 Project details can edit the slot and source; component cards can change supported modes as
-described below. Open in Blender and Open folder are described below. File assignment and GUI
-build controls are still under development; the command-line build remains available.
+described below. Open in Blender, Open folder and building are described below. GUI file
+assignment and automatic generation are still under development.
+
+## Building from the dashboard
+
+At the bottom of a writable project's dashboard, choose Build test (Ctrl+B) or Build release
+(Ctrl+Shift+B). Release builds fail on validation errors; a successful test build is not proof
+that a track is playable. The existing manual-mode builder still needs the project's supplied
+files and required tools. Missing inputs or tools produce an explanation and a next step.
+
+The progress bar starts with planning, then counts processed steps; unchanged/skipped steps
+count too. A full bar is not a success message: the last result appears only after the build
+worker has finished. Each part's separate Build label reports working, done, unchanged, failed,
+cancelled or not run. Its checked status and explanation remain visible during the build;
+"done" describes that build step, not a new status check. Statuses are checked again afterwards.
+
+Cancel build (Esc while on the dashboard) requests cancellation. Wait for it to stop; pressing
+Cancel does not release the project lock or make another build safe to start. Starting another
+build, editing, opening a different project and launching Blender/folders are disabled while
+it runs. Read-only projects and projects being checked or edited cannot start builds.
+
+Build warnings/errors are separate from status-check and launch notices. The last result shows
+the actual outcome and duration; hover it for the full build-log path, or an explanation when
+no log was written. Screen readers receive these details too. After correcting a problem, wait
+for the status check to finish and choose Build again. A new build clears the previous run's
+messages and transient card progress. The live scrolling log is not implemented yet.
+
+You may view the recent-project list and return with View → Project dashboard without losing
+the running build. If closing must wait for a build, the dashboard stays visible with a stopping
+message; wait and close again. The project remains locked until its worker has stopped.
 
 ## Editing project details
 

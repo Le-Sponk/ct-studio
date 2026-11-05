@@ -281,6 +281,10 @@ class MainWindow(QMainWindow):
 
     def _still_stopping(self) -> None:
         text = "Work is still stopping. Wait a moment, then close again."
+        if self.services.build.running and self.services.project is not None:
+            self.pages.setCurrentIndex(1)
+            self.dashboard.builds.controls.show_notice(text)
+            return
         if self.services.launch.busy and self.services.project is not None:
             self.dashboard.show_launch_note(text)  # navigation is held: the dashboard is shown
             return
@@ -288,6 +292,7 @@ class MainWindow(QMainWindow):
         self.welcome.show_problem(text)
 
     def _route_dashboard(self) -> None:
+        self.dashboard.builds.can_start = lambda: not self.welcome.busy
         self.dashboard.edit_requested.connect(self._edit_project)
         self.dashboard.mode_requested.connect(self._edit_component)
         self.dashboard.blender_requested.connect(self._open_blender)
