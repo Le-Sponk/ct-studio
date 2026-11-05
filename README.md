@@ -1,12 +1,12 @@
 # CT Studio
 
 > **Under development — not ready to use yet.** This repository is public so the work can be
-> followed, but CT Studio cannot build a playable track yet, and files, commands and settings
+> followed, but automatic track creation from Blender is not yet ready. Files, commands and settings
 > may still change without notice.
 
 <!-- progress:start (written by scripts/progress.py; do not edit by hand) -->
-**Progress:** `██████████░░░░░░░░░░` 52% — 87 of 166 planned tasks done.
-Now working on phase 5, GUI shell & dashboard (manual-mode MVP) (14 of 26 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
+**Progress:** `██████████░░░░░░░░░░` 53% — 88 of 166 planned tasks done.
+Now working on phase 5, GUI shell & dashboard (manual-mode MVP) (15 of 26 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
 <!-- progress:end -->
 
 CT Studio is an in-progress desktop app for building Mario Kart Wii custom tracks from Blender projects.
@@ -24,13 +24,15 @@ The GUI can create and open projects, remember the ten most recent folders betwe
 and show a live dashboard of component statuses with refresh and path copying
 ([project navigation](docs/user/PROJECT_NAVIGATION.md)). Project details can change the original
 track slot and Blender source; component cards can change supported modes, with backed-up saves.
-Editor launching, file assignment and GUI builds are not yet implemented.
+The dashboard can launch Blender, request component folders, and run test/release builds from
+supplied component files, with cancellation and live part progress. GUI file assignment,
+automatic generation and the live build-log panel are still under development.
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
 On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
 still needs and open a file in its editor ([docs/dev/CLI.md](docs/dev/CLI.md)).
 `ctstudio build` turns a project whose parts are files you supply into a checked `.szs`;
-CT Studio cannot make those parts from a Blender scene yet, and the dashboard has no Build
-button yet.
+CT Studio cannot make those parts from a Blender scene yet; building still requires the
+project's supplied files and configured tools.
 Follow [STATUS.md](STATUS.md) for progress and [the project brief](docs/PROJECT_BRIEF.md) for the plan.
 
 ## Development quick start

@@ -144,7 +144,7 @@ recovery, keyboard shortcuts (Ctrl+B / Ctrl+Shift+B / Esc), native light/dark/mi
 150%-font screenshots. No disk work or dashboard wiring yet; the controls are exercised in
 GUI tests but are not exposed in the app until e22.
 
-###### [ ] P5-T03e22 — Dashboard wiring and live part progress
+###### [x] P5-T03e22 — Dashboard wiring and live part progress (commit 731fe93)
 Route the e21 controls through the e1 ownership boundary for the current writable project.
 **Acceptance:** fake-build events update cards live while preserving last-good statuses;
 busy/read-only/navigation guards, cancel/startup-failure/retry, stale-project suppression,
