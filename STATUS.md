@@ -4,44 +4,36 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03f — Dashboard mode and component controls
+**Next task:** P5-T03g — Blender and basic launch actions
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `47b70f6` (P5-T03d; Check, Windows + Ubuntu)
+**Last green commit:** `c073c9e` (P5-T03f; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03f` — Dashboard mode and component controls. Plan: tests-first card entry/overflow
-  controls and explicit Save/Cancel mode dialog; reuse joined-worker details lifecycle;
-  integrate dashboard/window ownership and refresh; cover busy/read-only/stale/cancel/error
-  paths, keyboard and visuals; full gate, deliberate faults, independent review and CI.
-  Acceptance: registry-supported modes only; no disk work on the UI thread; modal ownership
-  prevents switching/closing/releasing the project while working; only a joined successful
-  save publishes the manifest and rechecks statuses; failed/cancelled edits retain last-good
-  cards and all user files/settings. Existing path copying stays available read-only.
-  Files: card/dashboard/main window, details lifecycle hooks/new mode dialog, focused tests
-  and navigation/architecture docs. Risk: lifecycle reuse without a second worker owner.
-- Final local verification: full gate without checkout tools passes (2,739 passed / 6 existing
-  skips / 175 deselected); all 630 GUI/service tests, including 164 new cases, pass. No new
-  test needs local generated fixtures. Card/dialog/dashboard have 100% statement coverage.
-  Windows/Linux touched typing, scoped complexity/budgets and native/150% visual checks pass.
-  Final isolated campaigns caught window 27/27, overview 35/35, details lifecycle 25/25,
-  card actions 30/30, mode lifecycle 14/14, independent card/dialog 38/38 and history 3/3:
-  172/172 fault-injection runs. Baseline/restored copies green, source hashes unchanged.
-- Initial independent review FAILED R1: effective widget-enabled state cached during history
-  work left mode controls stuck off. Four RED history success/error and ancestor-copy tests
-  now pass after a third-context explicit-state fix; busy/read-only/navigation guards remain.
-  Final independent re-review passed: 14 acceptance probes, three reverted R1 faults caught,
-  native keyboard/accessibility and UI-thread I/O instrumentation; all five source hashes
-  verified unchanged. Implementation `49eb132` passed Ubuntu Check; Windows exposed an older
-  callback-cleanup test's global thread-count race (11 versus 12). An Event-gated unrelated
-  thread makes the old assertion fail deterministically (2 versus 3). The test now compares
-  only named build workers and verifies its ambient helper ends. The full gate again passes
-  (2,739 / 6 existing skips); all 12 cleanup tests pass five repeated runs. A planted named
-  worker is still caught by an assertion. Independent test-only review passed three negative
-  controls and the exact test hash; no production changes. Replacement exact-commit
-  Windows/Ubuntu Check remains before closeout.
-- No file assignment or editor launching here (T04/T07 and T03g); build/log remains T03e.
+- None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-05 `P5-T03f` Dashboard mode and component controls (`49eb132`; test fix `c073c9e`).
+  Registry-driven mode buttons and native overflow menus open an explicit Save/Cancel dialog.
+  Loading/saving use the existing joined worker and modal project ownership; only successful
+  saves publish the manifest and recheck statuses. Cancel/errors retain last-good cards and
+  user files/settings. Copy path remains available read-only. User/navigation docs updated;
+  file assignment remains T04/T07, editor launching T03g and build/log T03e.
+  Review caught history/status overlap caching ancestor-disabled widget state. Explicit app/
+  project/path eligibility fixes modes and Copy/More; four RED regressions now pass without
+  extra refreshes. Independent re-review passed 14 acceptance probes, three reverted R1 faults,
+  native keyboard/accessibility and UI-thread I/O instrumentation; all five source hashes match.
+  Full gate without checkout tools: 2,739 passed / 6 existing skips / 175 deselected; all 630
+  GUI/service tests, including 164 new cases. Card/dialog/dashboard 100% statements; Windows/
+  Linux typing, scoped complexity/budgets and native light/dark/error/saving/150% visuals pass.
+  Isolated faults caught: window 27/27, overview 35/35, details 25/25, card 30/30, mode 14/14,
+  independent 38/38 and history 3/3 (172/172 runs); restored baselines green, source unchanged.
+  Initial Windows CI exposed an older global thread-count assertion race. An Event-controlled
+  unrelated helper reproduces it; the test now checks only named build workers. Five 12-test
+  runs pass, a planted owned-worker leak still fails, and independent test-only review passed
+  all three negative controls with the exact test hash. No build implementation change.
+  Exact-commit `c073c9e` Check Windows 126947496445: 2,730 passed / 15 skipped; Ubuntu
+  126947495877: 2,731 / 14. Both selected totals 2,745 match local; remote main verified.
+  Integration not applicable: no adapter, pipeline or integration-fixture behavior changed.
 - 2026-11-04 `P5-T03d` Component-mode persistence (`47b70f6`). Added a blocking, registry-driven
   mode service: it changes only supported modes, preserves inactive file/template/custom and
   unknown settings, and never moves user/generated files or publishes the live manifest.

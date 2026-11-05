@@ -90,7 +90,7 @@ read-only/closed guards, final staging-window conflict protection, no worker-sid
 Reuse project-details commit safety without changing its behavior. Split again for size: the
 persistence, card controls and launch lifecycles each need independently proven failure tests.
 
-#### [ ] P5-T03f — Dashboard mode and component controls
+#### [x] P5-T03f — Dashboard mode and component controls (commits 49eb132, c073c9e)
 Wire component mode/primary/overflow controls to the service layer; file assignment and the
 configurable editor framework remain T04/T07. **Acceptance:** joined background work, busy/
 read-only guards, cancellation/errors, last-good-state retention, keyboard and screenshots.
