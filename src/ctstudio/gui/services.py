@@ -1,7 +1,8 @@
 """Services the GUI views get by injection (ARCHITECTURE §10).
 
 ``AppServices`` (P5-T01a/b) holds what the whole app shares: the current project (opened,
-so locked, by this app), the tools, the build controller and the part statuses.
+so locked, by this app), the tools, the build controller, the part statuses and the editor /
+folder launch owner (P5-T03i).
 ``ToolsService`` (P2-T07b) is what the Tools page needs: the user's settings file and the
 doctor check. Its methods block (disk, version probes), so views call them from a worker.
 """
@@ -12,6 +13,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.project import settings
 from ctstudio.core.project.project import Project
@@ -19,6 +21,7 @@ from ctstudio.core.project.settings import SettingsError
 from ctstudio.core.tools import doctor
 from ctstudio.core.tools.doctor import Report
 from ctstudio.gui.build_controller import BuildController
+from ctstudio.gui.launch_controller import LaunchController
 from ctstudio.gui.status_service import StatusService
 
 Diagnose = Callable[..., Report]
@@ -72,9 +75,9 @@ class AppServices:
     """The current project, the tools and the build, for every view (injected, not global).
 
     Opening a project takes its lock (``Project.open``) and closes the one open before; a
-    project being built is neither switched nor closed. The statuses are asked for when a
-    project opens and after every build (one that failed may have changed files too).
-    ``shutdown`` stops the build and the status work, then closes the project.
+    project being built, edited or launched is neither switched nor closed. The statuses are
+    asked for when a project opens and after every build (one that failed may have changed
+    files too). ``shutdown`` stops the build, status and launch work, then closes the project.
     """
 
     def __init__(
@@ -83,10 +86,12 @@ class AppServices:
         tools: ToolsService | None = None,
         build: BuildController | None = None,
         status: StatusService | None = None,
+        launch: LaunchController | None = None,
     ) -> None:
         self.tools = tools if tools is not None else ToolsService()
         self.build = build if build is not None else BuildController()
         self.status = status if status is not None else StatusService()
+        self.launch = launch if launch is not None else LaunchController()
         self.project: Project | None = None
         self.editing = False  # modal project-details owner; prevents switching/releasing its lock
         self.build.finished.connect(self._refresh)
@@ -108,7 +113,7 @@ class AppServices:
 
         Refused while a build runs; ``project`` is then closed, so its lock is not left behind.
         """
-        if self.build.running or self.editing:
+        if self.build.running or self.editing or self.launch.busy:
             if project is not self.project:
                 project.close()
             self._refuse_while_building()
@@ -124,17 +129,45 @@ class AppServices:
             self.project = None
 
     def shutdown(self, timeout: float) -> bool:
-        """Stop the build and the status work (each waited for up to ``timeout`` s), then
-        close the project.
+        """Stop the build, the status work and the launch (each waited for up to ``timeout``
+        s), then close the project.
 
-        False when either did not stop in time; the project then stays open (and locked).
+        False when any did not stop in time; the project then stays open (and locked).
         """
         if self.editing:
             return False  # the modal editor owns a worker and the project lock until it closes
-        if not self.build.shutdown(timeout) or not self.status.shutdown(timeout):
+        if (
+            not self.build.shutdown(timeout)
+            or not self.status.shutdown(timeout)
+            or not self.launch.shutdown(timeout)
+        ):
             return False
         self.close_project()
         return True
+
+    def start_launch(self, component_id: str | None = None) -> bool:
+        """Open the current project in Blender (None) or reveal one component's folder.
+
+        Checks only in-memory state (no disk); refusals raise an actionable ``ProjectError``.
+        Read-only projects may reveal folders but not launch Blender.
+        """
+        project = self.project
+        if project is None:
+            raise ProjectError("No project is open.", hint="Open or create a project first.")
+        self._refuse_while_building()
+        if self.status.busy:
+            raise ProjectError(
+                "Component statuses are still being checked.",
+                hint="Wait for the check to finish, then try again.",
+            )
+        if component_id is None:
+            _check_blender(project)
+        elif component_id not in COMPONENT_BY_ID:
+            raise ProjectError(
+                f"Cannot reveal unknown component '{component_id}'.",
+                hint="Choose a component card from the current project.",
+            )
+        return self.launch.start(project, component_id)
 
     def _refresh(self, _result: object) -> None:
         if self.project is not None:
@@ -151,3 +184,21 @@ class AppServices:
                 "The project is being built, so it stays open.",
                 hint="Wait for the build to finish, or cancel it, then try again.",
             )
+        if self.launch.busy:
+            raise ProjectError(
+                "A Blender launch or folder request is still finishing; the project stays open.",
+                hint="Wait a moment for it to finish, then try again.",
+            )
+
+
+def _check_blender(project: Project) -> None:
+    if project.read_only:
+        raise ProjectError(
+            "Cannot launch Blender for a read-only project.",
+            hint="Close it in the other CT Studio, then reopen it here for editing.",
+        )
+    if not project.manifest.project.blend:
+        raise ProjectError(
+            "This project has no Blender source.",
+            hint="Choose a .blend source in Project details first.",
+        )

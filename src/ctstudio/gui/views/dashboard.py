@@ -1,4 +1,8 @@
-"""The live, read-only project overview (P5-T03b); disk work belongs to StatusService."""
+"""The live project overview (P5-T03b) with launch requests (P5-T03i).
+
+Disk work belongs to StatusService and LaunchController; this view only emits requests and
+shows their results. Launch results have their own notice, so a status check never hides them.
+"""
 
 from __future__ import annotations
 
@@ -15,8 +19,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ctstudio.core.components.registry import COMPONENTS
+from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS
+from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
+from ctstudio.core.tools import editors
+from ctstudio.core.tools import folders as corefolders
+from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
@@ -31,9 +39,40 @@ def _label(name: str, parent: QWidget) -> QLabel:
     return label
 
 
+def _component_name(component_id: str | None) -> str:
+    spec = COMPONENT_BY_ID.get(component_id or "")
+    return spec.name if spec is not None else "this part"
+
+
+def describe_launch(result: LaunchResult) -> str:
+    """Plain words for a finished launch: dispatch only, never a claim that a file loaded."""
+    receipt, error = result.receipt, result.error
+    if isinstance(receipt, editors.Launched):
+        lines = [
+            f"Blender was started (process {receipt.pid}) with {receipt.document}.",
+            "CT Studio cannot tell whether Blender finished opening the file.",
+            *receipt.warnings,
+        ]
+        return "\n".join(lines)
+    if isinstance(receipt, corefolders.OpenedFolder):
+        return (
+            f"Asked the system to open {receipt.folder}. "
+            "If no window appears, open that folder in your file manager."
+        )
+    if isinstance(error, CTStudioError):
+        return str(error)  # already an explanation and a next step
+    subject = "open Blender" if result.component_id is None else "open the folder"
+    if error is not None and not isinstance(error, Exception):
+        return f"The request to {subject} was interrupted. Try again."
+    reason = str(error) or type(error).__name__
+    return f"Could not {subject}: {reason}. Try again; if it keeps failing, restart CT Studio."
+
+
 class Dashboard(QWidget):
     edit_requested = Signal()
     mode_requested = Signal(str, str)
+    blender_requested = Signal()
+    reveal_requested = Signal(str)
 
     def __init__(self, services: AppServices, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -63,6 +102,8 @@ class Dashboard(QWidget):
         self.services.build.running_changed.connect(self._sync)
         self.services.build.finished.connect(self._after_build)
         self.services.build.failed.connect(self._after_build)
+        self.services.launch.busy_changed.connect(self._sync)
+        self.services.launch.completed.connect(self._launched)
 
     def set_project(self, project: Project, *, changed: bool = False) -> None:
         if project is self._project and not changed:
@@ -70,6 +111,8 @@ class Dashboard(QWidget):
             return
         self._project = project
         self._checking = False
+        self.launch_notice.clear()
+        self.launch_notice.hide()
         info = project.manifest.project
         self.name_label.setText(info.name)
         self.folder_label.setText(str(project.root))
@@ -99,6 +142,18 @@ class Dashboard(QWidget):
         self.checking.setRange(0, 0)
         self.checking.hide()
         self._layout.addWidget(self.checking)
+        self.launch_notice = _label("dashboardLaunchNotice", self)
+        self.launch_notice.hide()
+        self._layout.addWidget(self.launch_notice)
+        self.launch_progress = QProgressBar(self)
+        self.launch_progress.setObjectName("dashboardLaunching")
+        self.launch_progress.setRange(0, 0)
+        self.launch_progress.hide()
+        self._layout.addWidget(self.launch_progress)
+        self._layout.addLayout(self._controls())
+        self._make_grid()
+
+    def _controls(self) -> QHBoxLayout:
         self.refresh_button = QPushButton("Refresh statuses", self)
         self.refresh_button.setObjectName("refreshStatuses")
         self.refresh_button.setEnabled(False)
@@ -115,13 +170,22 @@ class Dashboard(QWidget):
         self.edit_button.setToolTip("Change the track to replace and the Blender source file.")
         self.edit_button.clicked.connect(self.edit_requested)
         controls.addWidget(self.edit_button)
+        self.open_blender = QPushButton("Open in Blender", self)
+        self.open_blender.setObjectName("openInBlender")
+        self.open_blender.setToolTip("Start Blender with this project's source file.")
+        self.open_blender.setAccessibleDescription(self.open_blender.toolTip())
+        self.open_blender.clicked.connect(self.blender_requested)
+        controls.addWidget(self.open_blender)
         controls.addStretch()
-        self._layout.addLayout(controls)
+        return controls
+
+    def _make_grid(self) -> None:
         grid = QGridLayout()
         self.cards: dict[str, ComponentCard] = {}
         for index, spec in enumerate(COMPONENTS):
             card = ComponentCard(spec, self)
             card.mode_requested.connect(self.mode_requested)
+            card.reveal_requested.connect(self.reveal_requested)
             self.cards[spec.id] = card
             grid.addWidget(card, index // 2, index % 2)
         self._layout.addLayout(grid)
@@ -184,13 +248,57 @@ class Dashboard(QWidget):
             "Build running — showing last checked statuses." if building else ""
         )
         self.work_label.setVisible(building)
-        idle = self._current() and not self._checking and not building and not self.services.editing
+        self.launch_progress.setVisible(self.services.launch.busy and self._current())
+        idle = self._idle()
         self.refresh_button.setEnabled(idle)
         self.copy_project.setEnabled(self._current())
         mutable = idle and self._project is not None and not self._project.read_only
         self.edit_button.setEnabled(mutable)
+        has_source = self._project is not None and bool(self._project.manifest.project.blend)
+        self.open_blender.setEnabled(mutable and has_source)
         for card in self.cards.values():
             card.set_actions_enabled(mutable)
+            card.set_inspection_enabled(idle)
+
+    def _idle(self) -> bool:
+        """Explicit app state only: current project and no check, build, edit or launch."""
+        services = self.services
+        busy = services.build.running or services.launch.busy or services.editing
+        return self._current() and not self._checking and not busy
+
+    def show_launching(self, component_id: str | None) -> None:
+        """The request was accepted; nothing has opened yet."""
+        text = (
+            "Opening Blender…"
+            if component_id is None
+            else f"Opening the {_component_name(component_id)} folder…"
+        )
+        self._show_launch_text(text)
+
+    def show_launch_problem(self, error: CTStudioError) -> None:
+        """A request refused before it started (nothing was opened)."""
+        self._show_launch_text(str(error))
+
+    def show_launch_note(self, text: str) -> None:
+        """Window-level news about the launch owner, e.g. that closing must wait for it."""
+        self._show_launch_text(text)
+
+    def _launched(self, payload: object) -> None:
+        project = self._project
+        if (
+            isinstance(payload, LaunchResult)
+            and project is not None
+            and self._current()
+            and payload.project is project
+            and payload.root == project.root
+            and payload.manifest is project.manifest
+        ):
+            self._show_launch_text(describe_launch(payload))
+        self._sync()
+
+    def _show_launch_text(self, text: str) -> None:
+        self.launch_notice.setText(text)
+        self.launch_notice.setVisible(bool(text))
 
     def _after_build(self, _result: object) -> None:
         if self._current():

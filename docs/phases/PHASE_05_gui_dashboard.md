@@ -117,6 +117,10 @@ that a desktop window displayed. Configurable editors remain T07; widgets/owners
 Wire Open in Blender and reveal-location actions through joined background work.
 **Acceptance:** off-thread discovery/launching, current-project/lock ownership through completion,
 busy/read-only rules, visible failures without clearing last-good cards, keyboard and screenshots.
+Delivered as `gui/launch_controller.py` (one joined worker; typed/unexpected/interrupt results;
+timed-out shutdown keeps the lock), `AppServices.start_launch` in-memory guards, a separate
+dashboard launch notice/progress and card More → Open folder. Read-only projects may open
+folders but not Blender; stale project/root/manifest results are ignored.
 
 #### [ ] P5-T03e — Build controls and live log
 Build test/release, cancel, progress, last result and collapsible bounded/virtualised log with

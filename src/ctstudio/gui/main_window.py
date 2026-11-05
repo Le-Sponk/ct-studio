@@ -129,8 +129,7 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget(self)
         self.pages.addWidget(page)
         self.dashboard = Dashboard(self.services, self)
-        self.dashboard.edit_requested.connect(self._edit_project)
-        self.dashboard.mode_requested.connect(self._edit_component)
+        self._route_dashboard()
         scroll = QScrollArea(self.pages)
         scroll.setObjectName("dashboardScroll")
         scroll.setWidgetResizable(True)
@@ -157,6 +156,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(self.open_project_action)
         self.welcome.busy_changed.connect(self._navigation)
         self.services.build.running_changed.connect(self._navigation)
+        self.services.launch.busy_changed.connect(self._navigation)
 
         settings_menu = self.menuBar().addMenu("&Settings")
         self.tools_action = QAction("Tools…", self)
@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
         self.home_action = QAction("Recent projects", self)
         self.home_action.setObjectName("homeAction")
         self.home_action.setShortcut("Ctrl+H")
-        self.home_action.triggered.connect(self._home)
+        self.home_action.triggered.connect(self._go_home)
         menu.addAction(self.home_action)
         self.dashboard_action = QAction("Project dashboard", self)
         self.dashboard_action.setObjectName("dashboardAction")
@@ -193,15 +193,25 @@ class MainWindow(QMainWindow):
     def _home(self) -> None:
         self.pages.setCurrentIndex(0)
 
+    def _go_home(self) -> None:
+        """View → Recent projects; refused while a launch reports back to the dashboard."""
+        if not self.services.launch.busy:
+            self._home()
+
+    def _blocked(self) -> bool:
+        services = self.services
+        busy = services.build.running or services.editing or services.launch.busy
+        return self.welcome.busy or busy
+
     def _browse(self) -> None:
-        if self.welcome.busy or self.services.build.running or self.services.editing:
+        if self._blocked():
             return
         self._home()
         self.welcome.browse()
 
     def _new_project(self) -> None:
         """File → New project…: a fresh wizard each time; the new project becomes current."""
-        if self.welcome.busy or self.services.build.running or self.services.editing:
+        if self._blocked():
             return
         wizard = self._make_wizard(self)
         wizard.accepted.connect(lambda: self._created(wizard))
@@ -230,11 +240,12 @@ class MainWindow(QMainWindow):
 
     def _navigation(self, _busy: bool = False) -> None:
         building = self.services.build.running
-        navigating = not self.welcome.busy and not self.services.editing
+        launching = self.services.launch.busy
+        navigating = not self.welcome.busy and not self.services.editing and not launching
         available = navigating and not building
         self.new_project_action.setEnabled(available)
         self.open_project_action.setEnabled(available)
-        self.welcome.setEnabled(not building and not self.services.editing)
+        self.welcome.setEnabled(not building and not self.services.editing and not launching)
         self.dashboard.setEnabled(not self.welcome.busy)
         self.home_action.setEnabled(navigating)
         self.dashboard_action.setEnabled(self.services.project is not None and navigating)
@@ -263,11 +274,24 @@ class MainWindow(QMainWindow):
                 return
             self._details.reject()
         if not self.welcome.shutdown(_SHUTDOWN_WAIT) or not self.services.shutdown(_SHUTDOWN_WAIT):
-            self._home()
-            self.welcome.show_problem("Work is still stopping. Wait a moment, then close again.")
+            self._still_stopping()
             event.ignore()
             return
         super().closeEvent(event)
+
+    def _still_stopping(self) -> None:
+        text = "Work is still stopping. Wait a moment, then close again."
+        if self.services.launch.busy and self.services.project is not None:
+            self.dashboard.show_launch_note(text)  # navigation is held: the dashboard is shown
+            return
+        self._home()
+        self.welcome.show_problem(text)
+
+    def _route_dashboard(self) -> None:
+        self.dashboard.edit_requested.connect(self._edit_project)
+        self.dashboard.mode_requested.connect(self._edit_component)
+        self.dashboard.blender_requested.connect(self._open_blender)
+        self.dashboard.reveal_requested.connect(self._launch)
 
     def _edit_project(self) -> None:
         if not self._can_edit():
@@ -281,9 +305,25 @@ class MainWindow(QMainWindow):
             and not project.read_only
             and not self.services.editing
             and not self.services.build.running
+            and not self.services.launch.busy
             and not self.welcome.busy
             and not self.dashboard.busy
         )
+
+    def _open_blender(self) -> None:
+        self._launch(None)
+
+    def _launch(self, component: str | None = None) -> None:
+        """Ask the launch owner for Blender (None) or one component's folder."""
+        if self.welcome.busy or self.services.editing or self.dashboard.busy:
+            return
+        try:
+            started = self.services.start_launch(component)
+        except CTStudioError as exc:
+            self.dashboard.show_launch_problem(exc)
+            return
+        if started:
+            self.dashboard.show_launching(component)
 
     def _edit_component(self, component: str, mode: str = "") -> None:
         spec = COMPONENT_BY_ID.get(component)

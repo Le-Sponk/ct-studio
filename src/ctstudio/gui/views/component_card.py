@@ -40,6 +40,7 @@ class ComponentCard(QWidget):
     """Present component data; rendering never checks or changes project files."""
 
     mode_requested = Signal(str, str)
+    reveal_requested = Signal(str)
 
     def __init__(self, spec: ComponentSpec, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -47,6 +48,7 @@ class ComponentCard(QWidget):
         self._project: Project | None = None
         self._current_mode = spec.default_mode
         self._actions_enabled = False
+        self._inspection_enabled = False
         self.path: Path | None = None
         self.setObjectName(f"card_{spec.id}")
         layout = QVBoxLayout(self)
@@ -104,6 +106,10 @@ class ComponentCard(QWidget):
         menu = QMenu(self.more_button)
         self.copy_action = menu.addAction("Copy path")
         self.copy_action.triggered.connect(self._copy_path)
+        self.reveal_action = menu.addAction("Open folder")
+        self.reveal_action.setObjectName(f"{spec.id}OpenFolder")
+        self.reveal_action.setToolTip("Request this part's folder, even if the output is missing.")
+        self.reveal_action.triggered.connect(self._request_reveal)
         self._mode_menu = QMenu("Mode", menu)
         self._mode_menu.setObjectName(f"{spec.id}ModeMenu")
         self.mode_actions: dict[str, QAction] = {}
@@ -147,7 +153,17 @@ class ComponentCard(QWidget):
         self.copy_button.setEnabled(copyable)
         self.copy_action.setEnabled(copyable)
         self.copy_action.setToolTip(self.copy_button.toolTip())
+        self.reveal_action.setEnabled(self._inspection_enabled and copyable)
         self.more_button.setEnabled(copyable or mutable)
+
+    def set_inspection_enabled(self, enabled: bool) -> None:
+        """Gate folder dispatch separately from mutable modes and always-available copy."""
+        self._inspection_enabled = enabled
+        self._sync_actions()
+
+    def _request_reveal(self) -> None:
+        if self._inspection_enabled and self._project is not None and self.path is not None:
+            self.reveal_requested.emit(self._spec.id)
 
     def _request_current_mode(self) -> None:
         self._request_mode("")

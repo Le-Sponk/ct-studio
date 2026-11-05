@@ -70,7 +70,13 @@ class ProjectDetailsDialog(QDialog):
         self._make_fields()
         self.services.build.running_changed.connect(self._controls)
         project = self.project
-        if project is None or project.read_only or services.editing or services.build.running:
+        if (
+            project is None
+            or project.read_only
+            or services.editing
+            or services.build.running
+            or services.launch.busy
+        ):
             self.problem.setText(
                 f"{self.SUBJECT.capitalize()} cannot be edited now. "
                 "Close this window and try again with a writable project after other work finishes."
@@ -147,6 +153,7 @@ class ProjectDetailsDialog(QDialog):
             and not self.project.read_only
             and self.services.project is self.project
             and not self.services.build.running
+            and not self.services.launch.busy
         )
 
     def _controls(self) -> None:

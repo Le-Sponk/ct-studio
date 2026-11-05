@@ -42,8 +42,8 @@ Navigation errors and history-save problems stay visible on the welcome screen; 
 opened successfully remains open, and its dashboard is still available from View.
 
 Project details can edit the slot and source; component cards can change supported modes as
-described below. Editor launching, file assignment and GUI build controls are still under
-development; the command-line build remains available for supplied parts.
+described below. Open in Blender and Open folder are described below. File assignment and GUI
+build controls are still under development; the command-line build remains available.
 
 ## Editing project details
 
@@ -70,7 +70,23 @@ then, saving stops and leaves that edit in place. Other editors do not obey CT S
 there is still a very small gap between this final check and replacement that cannot be locked
 across unrelated apps. Avoid editing `ctstudio.toml` elsewhere while pressing Save.
 
-Open in Blender and editor launching are still under development.
+## Opening Blender and component folders
+
+Open in Blender starts Blender with the project's source file. It needs a writable project
+with a Blender source chosen in Project details, and uses the Blender path from Settings →
+Tools when one is set. CT Studio only knows that Blender was started (it shows the process
+number and any warning); it cannot tell whether Blender finished opening the file.
+
+Each card's More (…) menu → Open folder asks your system's file manager to show that part's
+folder. A generated part opens the folder it will be built into, even before the file exists;
+the folder itself must already exist, and CT Studio never creates it. Objects has no single
+folder. Open folder also works in read-only projects.
+
+Both run in the background. While one is starting, the dashboard shows a progress bar, other
+launch, edit and refresh controls are disabled, and switching or closing the project waits
+until it finishes; copying paths still works. The result, or an explanation with a next step,
+stays below the project details until the next launch, even after statuses are rechecked.
+If no window appears, open the folder shown in the message yourself.
 
 ## Changing a component mode
 

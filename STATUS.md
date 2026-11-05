@@ -9,7 +9,34 @@
 **Last green commit:** `b57ff16` (P5-T03h; Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03i` Dashboard launch ownership and controls: (1) tests first for joined launch work
+  and project lifetime guards, (2) wire Blender and per-component folder actions to the existing
+  blocking services, (3) show separate busy/results/errors without clearing last-good statuses,
+  (4) keyboard/native light-dark/scaled screenshots plus fault controls and independent review,
+  (5) full gate, docs/progress, commit/push and exact-commit Windows/Ubuntu checks.
+  Expected files: GUI launch controller, AppServices/dialog guards, main-window routing,
+  dashboard/card controls, focused GUI tests and navigation/architecture docs. No new core
+  adapter behavior, file editing or dependencies. Read-only allows folder inspection, not
+  Blender; busy launch blocks project switching/editing and shutdown retains ownership on timeout.
+  2026-11-05 progress: delegated build stopped at a provider usage limit (partial stub only);
+  implemented directly instead. Joined `LaunchController`, `AppServices.start_launch` guards,
+  details/window/navigation guards, dashboard Open in Blender + launch notice/progress, card
+  More → Open folder. 33 new focused cases (4 files); full GUI suite 798 passed; strict Pyright
+  Windows/Linux 0 errors on 11 touched files; light/dark/small-150% screenshots inspected.
+  Isolated mutation controls: 41/41 caught on assertion failures (first run exposed unguarded
+  `QSignalSpy.at()` native crashes and an untested join/stale-delivery path; tests and shutdown
+  generation handling fixed). Review 1 (`deleg_79ca5670`): no important/security defects; four
+  minor findings (gui `_sync` complexity C, `MainWindow.__init__` 63 lines, two unpinned guards)
+  plus suggestions (sleep-based checks, error-only mutants, empty error text, close-while-launch
+  view) all fixed. Re-review (`deleg_437c2968`) reproduced one important defect in that fix
+  (`_still_stopping` re-showing the same project queued a status check that a second refused
+  close then cleared, stranding the dashboard in "Checking"); fixed by not re-showing (navigation
+  is already held), with a two-refused-close regression test, and cleanup refusals made
+  assertion-shaped. Isolated mutation controls: 42/42 caught. Final hidden-tools gate
+  (PYTHONPATH cleared, checkout import verified): 2,987 passed / 6 existing skips / 176
+  deselected; strict Pyright Windows/Linux 0. Final re-review (`deleg_f9b2e6db`) passed: both
+  fixes verified by isolated mutants (9/9 by assertion, origin-proved); helper assert message
+  added per its note. Exact-commit CI remains.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-05 `P5-T03h` Component-folder reveal service (`b57ff16`). Current registry/manifest

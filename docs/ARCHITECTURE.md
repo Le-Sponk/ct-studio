@@ -528,6 +528,16 @@ existing detached runner: Windows system Explorer, Linux `xdg-open` with an earl
 Its receipt proves dispatch, not that a desktop displayed the folder. T03i owns off-thread
 invocation, current-project lifetimes and dashboard controls; no widgets change in T03h.
 
+P5-T03i: `gui/launch_controller.py` owns one joined `ctstudio-launch` worker that calls the
+T03g/T03h services, capturing project/root/manifest at start. Its relay is not a child, so a
+late emit cannot touch a deleted owner; `busy` stays true until the UI-thread delivery joins the
+worker, and typed errors, crashes and interrupts all arrive as one `LaunchResult`. A timed-out
+`shutdown` keeps ownership. `AppServices.start_launch` checks eligibility from memory only
+(Blender needs writable + source; folders allow read-only) and refuses switching, adopting,
+closing, details and shutdown while a launch is busy. The dashboard and cards only emit
+requests; `MainWindow` routes them, and the dashboard shows a separate launch notice that
+status checks never overwrite, ignoring results whose project, root or manifest are stale.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves
