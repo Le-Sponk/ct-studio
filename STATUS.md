@@ -4,36 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e1 — Safe build requests and worker ownership
+**Next task:** P5-T03e2 — Dashboard build controls and live part progress
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `6f76373` (P5-T03i; Check, Windows + Ubuntu)
+**Last green commit:** `98b0c66` (P5-T03e1; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e1`: (1) tests first for build-start eligibility and worker failure/lifetime boundaries,
-  (2) add an AppServices current-project build request, (3) join completion and recover startup/
-  interrupt failures without losing ownership, (4) mutation controls, review, full gate, docs,
-  commit/push and exact-commit Windows/Ubuntu checks. Expected files: services/build controller,
-  focused GUI service tests, architecture and phase docs. No widgets, adapters or dependencies.
-  Acceptance: guarded in-memory start, exact options, lock retained until joined, cancellation/
-  queued delivery safe, typed and interrupt errors preserved. Build buttons and live log follow
-  in e2/e3; TD-012 is already closed.
-  Baseline implementation: guarded service requests and joined completion; 69 focused tests,
-  3,029 full-gate tests / 6 existing skips; strict five-file typing Windows/Linux clean;
-  21/21 isolated controls caught. Independent review found two ownership races: native startup
-  may precede thread.ident, and an idle callback may restart work during shutdown. Fixing both
-  with deterministic bootstrap/callback regression tests before commit. A review copy was
-  mistakenly created under repo/scratch and contaminated one Ruff run; moved outside checkout.
-  Fresh fix agent reproduced five assertion failures then passed 78 focused cases: startup
-  classification snapshots enumerate() before ident, pending bootstrap keeps ownership/cancel,
-  and shutdown rechecks for a callback-created worker after notifying idle. Final gate 3,038
-  passed / 6 skips, six-file strict Windows/Linux typing clean; isolated controls 24/24 caught,
-  module origins verified and checkout hashes unchanged. Separate isolated CPython 3.13.15
-  runtime: all 78 focused cases passed (Windows), alongside 3.12.14. Focused re-review report
-  passed (`deleg_dc21ce84`): original seven probes pass; three independent mutants caught
-  by assertion with no errors; all reviewed hashes match (controller LF-normalized).
-  Commit/push/exact-commit CI remain.
+None.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-05 `P5-T03e1` Safe build requests and worker ownership (`98b0c66`). AppServices
+  guards current-project builds using memory only (no project/read-only/checking/editing/
+  launching/building refusals), preserving test/release/force/component options. Completion
+  joins before releasing ownership; startup failures and interrupts retain identity/cause.
+  Review reproduced native-bootstrap-before-ident and callback-restart shutdown races; both
+  fixed with real bootstrap/lock regression tests, final independent re-review passed.
+  24/24 isolated mutants caught by assertions; 78 focused cases passed on Windows Python
+  3.12.14 and 3.13.15; six-file strict typing clean on Windows/Linux. Final hidden-tools gate
+  3,038 passed / 6 existing skips; exact-commit Check Windows 3,029/15 and Ubuntu 3,030/14,
+  3,044 selected on both. No widgets or adapters changed; Integration not path-triggered.
+  Dashboard buttons/progress/cards follow in e2; bounded live log/command copying in e3.
+  Closeout also extends the progress counter to headings 5/6 and numbered subparts, so the
+  new e1/e2/e3 checklist is counted instead of silently omitted; three RED regression cases
+  now pass, including e1/e10 sibling separation. Independent counter review passed: 86/165
+  (also recovers an older completed Phase-2 numbered split), three isolated faults caught.
+  Closeout full gate: 3,041 passed / 6 existing skips; reviewed source hashes match.
 - 2026-11-05 `P5-T03i` Dashboard launch ownership and controls (`6f76373`). Open in Blender and
   card More → Open folder run on one joined background worker owned by AppServices; switching,
   editing and closing wait for it, and a timed-out shutdown keeps the project and lock. Read-only

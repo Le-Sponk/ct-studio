@@ -126,7 +126,7 @@ folders but not Blender; stale project/root/manifest results are ignored.
 The ownership boundary, live controls/cards and bounded log exceed the session budget together.
 Complete these in order; TD-012 is already closed by T03a. No original scope is removed.
 
-##### [ ] P5-T03e1 — Safe build requests and worker ownership
+##### [x] P5-T03e1 — Safe build requests and worker ownership (commit 98b0c66)
 Add an AppServices build-start boundary for the current project: refuse no-project, read-only,
 status-checking, editing, launching or already-building states without I/O. Pass test/release,
 force and component options unchanged. Join before publishing completion; report interrupts

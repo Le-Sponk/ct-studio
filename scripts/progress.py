@@ -24,7 +24,9 @@ START = "<!-- progress:start (written by scripts/progress.py; do not edit by han
 END = "<!-- progress:end -->"
 OPTIONAL_PHASES = frozenset({14})
 BAR_WIDTH = 20
-_TASK = re.compile(r"^\s*(?:#{2,4}|[-*])\s*\[([ xX])\]\s*(?:\*\*)?(P(\d+)-[A-Z]+\d*[a-z]?)\b")
+_TASK = re.compile(
+    r"^\s*(?:#{2,6}|[-*])\s*\[([ xX])\]\s*(?:\*\*)?(P(\d+)-[A-Z]+\d*(?:[a-z]\d*)?)\b"
+)
 _TITLE = re.compile(r"^# Phase (\d+) — (.+)$")
 
 
@@ -65,10 +67,17 @@ def count(phases_dir: Path) -> Progress:
         if number in OPTIONAL_PHASES:
             continue
         tasks = _tasks(path, lines, number)
-        counted = [t for t in tasks if not any(o != t and o[:-1] == t for o in tasks)]
+        counted = [t for t in tasks if not any(_is_part(o, t) for o in tasks)]
         done = sum(tasks[t] for t in counted)
         phases.append(Phase(number, title.group(2), done, len(counted)))
     return Progress(tuple(sorted(phases, key=lambda p: p.number)))
+
+
+def _is_part(task: str, parent: str) -> bool:
+    """Lettered splits or numbered subparts; e10 is a sibling of e1, not its child."""
+    suffix = task[len(parent) :] if task.startswith(parent) else ""
+    pattern = r"[a-z]\d*" if parent[-1].isdigit() else r"\d+"
+    return re.fullmatch(pattern, suffix) is not None
 
 
 def _tasks(path: Path, lines: list[str], number: int) -> dict[str, bool]:

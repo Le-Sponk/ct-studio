@@ -68,6 +68,26 @@ def test_render_rounds_down_so_100_means_finished() -> None:
     assert text.startswith(progress.START) and text.endswith(progress.END)
 
 
+@pytest.mark.parametrize("heading", ["####", "#####", "######"])
+def test_numbered_subparts_count_without_parent_or_sibling_prefix_collisions(
+    tmp_path: Path, heading: str
+) -> None:
+    phases = tmp_path / "phases"
+    write_phase(
+        phases,
+        5,
+        "Dashboard",
+        "### [ ] P5-T03 — Combined",
+        "#### [ ] P5-T03e — Build",
+        f"{heading} [x] P5-T03e1 — Ownership",
+        f"{heading} [ ] P5-T03e2 — Controls",
+        f"{heading} [ ] P5-T03e3 — Log",
+        f"{heading} [ ] P5-T03e10 — Independent sibling, not a child of e1",
+    )
+    counted = progress.count(phases)
+    assert (counted.done, counted.total) == (1, 4)
+
+
 def test_main_writes_the_readme_and_check_reports_staleness(tmp_path: Path) -> None:
     root = project(tmp_path)
     assert progress.main(["--check"], root) == 1
