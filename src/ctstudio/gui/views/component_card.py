@@ -87,10 +87,10 @@ class ComponentCard(QWidget):
         self.mode_button.setAccessibleDescription(self.mode_button.toolTip())
         self.mode_button.setVisible(self._supports_mode())
         self.mode_button.clicked.connect(self._request_current_mode)
-        mode_row = QHBoxLayout()
+        # Separate rows retain complete native labels with wider desktop fonts.
+        mode_row = QVBoxLayout()
         mode_row.addWidget(self.mode_label)
-        mode_row.addStretch()
-        mode_row.addWidget(self.mode_button)
+        mode_row.addWidget(self.mode_button, alignment=Qt.AlignmentFlag.AlignRight)
         layout.addLayout(mode_row)
         footer.addStretch()
         self.copy_button = QPushButton("Copy path", self)

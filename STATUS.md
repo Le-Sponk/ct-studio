@@ -38,7 +38,19 @@
   Full gate exposed one intermittent existing e22 footer screenshot (TD-015); all four cases
   passed five fresh-process reruns unchanged. Final hidden-tools gate PASS: 3,217 passed /
   6 existing skips (3,223 selected), all quality checks clean; no assertion weakened.
-  Local implementation complete and reviewed; exact-commit Windows/Ubuntu CI and closeout pending.
+  Initial implementation pushed `5455d53`; Ubuntu CI exposed actual 47px horizontal overflow
+  at full-app enlarged fonts. Reproduced with external DejaVu Sans (no font committed) and a
+  synthetic 150%/160%-stretch card regression (old layout range158). Component mode text and
+  Change mode button now use separate rows, full labels and original Tab order retained.
+  Corrective local focused run: 56 passed; 42 e32 cases on Python 3.13. Independent width
+  review approved production: 142 focused and 14 DejaVu visual cases pass; old-layout copies
+  fail primary width assertions with source-origin/hash proof. Its only finding (test CC15)
+  fixed by extracting a typed containment helper without removing assertions (now CC9).
+  Twelve-file strict Windows/Linux typing and budgets pass; final helper-extraction review
+  approved all 11 assertions retained (AST-equivalent after inlining), fixed regression green,
+  isolated old-layout assertion red. Final hidden-tools gate: 3,218 passed / 6 existing skips
+  (3,224 selected); all quality checks clean. Corrective commit/CI and closeout pending.
+  Task remains open pending corrective commit, exact Windows/Ubuntu CI and closeout.
   Integration is not applicable: GUI/tests/docs only; no core/tool/adapters/dependency changes.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
