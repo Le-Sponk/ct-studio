@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QProgressBar,
     QPushButton,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -35,6 +36,7 @@ def _label(name: str, parent: QWidget) -> QLabel:
     label.setObjectName(name)
     label.setTextFormat(Qt.TextFormat.PlainText)
     label.setWordWrap(True)
+    label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
     label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
     return label
 
@@ -98,6 +100,7 @@ class Dashboard(QWidget):
         self._layout.addLayout(form)
         self._make_cards()
         self.builds = DashboardBuilds(self)
+        self._layout.addWidget(self.builds.log)
         self._layout.addWidget(self.builds.controls)
         self.services.status.updated.connect(self._updated)
         self.services.status.failed.connect(self._failed)

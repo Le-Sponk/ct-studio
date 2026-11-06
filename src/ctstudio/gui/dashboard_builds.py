@@ -13,6 +13,7 @@ from ctstudio.core.build.events import (
     BuildEvent,
     BuildStarted,
     BuildSummary,
+    LogLine,
     NodeFailed,
     NodeFinished,
     NodeSkipped,
@@ -22,6 +23,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.project import Project
 from ctstudio.gui.views.build_controls import BuildControls
+from ctstudio.gui.views.build_log import BuildLogPanel
 
 if TYPE_CHECKING:
     from ctstudio.gui.views.dashboard import Dashboard
@@ -41,6 +43,7 @@ class DashboardBuilds(QObject):
         super().__init__(page)
         self.page = page
         self._services = page.services
+        self.log = BuildLogPanel(page)
         self.controls = BuildControls(page)
         self.can_start: Callable[[], bool] = lambda: True
         self._run: _Run | None = None
@@ -88,6 +91,7 @@ class DashboardBuilds(QObject):
         if not self._eligible() or project is None or not self.can_start():
             return
         self._run = _Run(project, project.root, project.manifest)
+        self.log.clear()
         self.controls.clear()
         self._clear_cards()
         self.controls.begin(release)
@@ -127,6 +131,8 @@ class DashboardBuilds(QObject):
         if self._matches():
             self.controls.show_event(cast(BuildEvent, payload))
             self._card_event(payload)
+            if isinstance(payload, LogLine):
+                self.log.append(payload)
 
     def _card_event(self, event: object) -> None:
         if isinstance(event, BuildStarted):
@@ -166,6 +172,7 @@ class DashboardBuilds(QObject):
     def clear(self) -> None:
         """Rebinding forgets presentation, never cancels/releases a build owner."""
         self._run = None
+        self.log.clear(collapse=True)
         self.controls.clear()
         self._clear_cards()
 

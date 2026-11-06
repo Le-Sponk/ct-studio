@@ -25,8 +25,8 @@ and show a live dashboard of component statuses with refresh and path copying
 ([project navigation](docs/user/PROJECT_NAVIGATION.md)). Project details can change the original
 track slot and Blender source; component cards can change supported modes, with backed-up saves.
 The dashboard can launch Blender, request component folders, and run test/release builds from
-supplied component files, with cancellation and live part progress. GUI file assignment,
-automatic generation and the live build-log panel are still under development.
+supplied component files, with cancellation, live part progress and a collapsible live build log.
+GUI file assignment, automatic generation and trusted command copying are still under development.
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
 On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
 still needs and open a file in its editor ([docs/dev/CLI.md](docs/dev/CLI.md)).

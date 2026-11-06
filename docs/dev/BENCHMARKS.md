@@ -100,6 +100,30 @@
   truncation. `test_build_log_model_protocol.py` checks a real list selection and Qt's model
   protocol against a separate retained-history reference. No machine-time threshold is set.
 
+## P5-T03e32 — native bounded log view (Windows)
+
+- Synthetic output only, Windows 11 build 26200, CPython 3.12.14, Qt offscreen with a locally
+  registered system font. Five local runs after the full-cap reader-anchor correction;
+  concurrent quality/mutation checks were active, so these are diagnostic samples, not a
+  before/after speed comparison or Linux/native desktop claim.
+- Append 20,000 individual `LogLine` events while collapsed, one middle row containing 4,000
+  `W` characters: **0.393–0.448 s** total. Open the panel and process native layout until
+  row 19,999 has valid geometry: **0.976–1.075 s**, across **78 event-loop turns** with largest
+  individual turn **16.92 ms**. The view follows the final tail and the middle wide row remains
+  horizontally reachable (44,394-pixel range with this font). Input/model retention is bounded;
+  these samples do not promise that an unlimited synchronous producer burst cannot stall.
+- Nonuniform native 256-row batches preserve variable-width tails; uniform item sizing clipped
+  a wide middle row. Whole-view layout is not forced per appended message. One owned single-shot
+  callback coalesces presentation and continues after native range changes. Geometry-driven
+  clamps do not change reader intent; full-cap tests retain persistent row/pixel anchors and
+  selection through appends, overlapping batches and head eviction, or show the oldest remaining
+  row if the reader's row was evicted. Bar, scrollTo, key, wheel and drag interruptions plus
+  immediate End/reappend are exercised after a real partial batch.
+- Reproduce the committed behavioral/heartbeat checks (no machine-time speed target):
+  `uv run pytest -q tests/gui/test_build_log_batches.py tests/gui/test_build_log_panel.py`.
+  The full-cap heartbeat regression requires yielding between native batches and no one-second
+  gap. It is a responsiveness guard, not a cross-machine throughput benchmark.
+
 ## Reproducing and comparing a baseline
 
 Run the command above from the repo root with `uv sync --locked` first. The test writes a fresh

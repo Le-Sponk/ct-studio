@@ -9,7 +9,37 @@
 **Last green commit:** `a11067b` (P5-T03e31; Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T03e32`: (1) tests first for a collapsed virtual log panel and current-run routing,
+  (2) build the signal-only native-palette view on the existing bounded model,
+  (3) connect matching LogLine events, clear on new run/rebind, retain on same-project navigation,
+  (4) verify keyboard access, non-disruptive following, cap feedback and themed/scaled screenshots,
+  (5) full gate, strict Windows/Linux checks, isolated assertion mutants, independent review,
+  docs/progress, commit/push, exact-commit Windows/Ubuntu CI and closeout.
+  Files: gui/views/build_log.py, dashboard_builds.py, views/dashboard.py, focused view/integration/
+  visual tests and architecture/user docs. No core event, disk I/O, worker, dependency or command
+  inference/copying (e33). Preserve existing build eligibility, ownership and stale-context guards.
+  Panel belongs above the build bar so existing build controls remain the final dashboard item.
+  Before interruption: 24 focused cases on Python 3.12/3.13, six-file strict Windows/Linux checks,
+  and hidden-tools full gate 3,200 passed / 6 skips. Added a sixth context-boundary case afterwards.
+  Interrupted independent review left a reproduced MUST FIX: native batched-layout scrollbar
+  reclamping wrongly resumes following at 20,000 rows, losing the reader's position. Correcting
+  with full-cap visible/hidden/evicted-anchor regressions before renewed review and final gate.
+  Full-cap fix delivered and exercised: 15 new native-batch cases plus 26 panel/integration/
+  navigation/visual cases pass on Python 3.12 and 3.13 (41 total). Ten-file strict Windows/Linux
+  checks and budgets pass. Native geometry clamps no longer change reader intent; bar/scrollTo/
+  key/wheel/drag interruptions, End/reappend, overlapping bursts and evicted-anchor fallback covered.
+  Integration-only review approved captured routing/reset/lifecycle and four assertion mutants;
+  its test-only expansion-layout sequencing correction applied with all viewport checks retained.
+  All 38 isolated faults assertion-caught with in-run source origins/hashes and unchanged checkout.
+  Final independent review APPROVED: 180 combined cases including nine adversarial and four
+  extra geometry/lifetime probes; three independent corrective faults assertion-caught with
+  exact import/hash proofs. Variable-height delegates retain pixel anchors; native guard restores
+  after injected exceptions. Ten-file strict checks and all 12 original-resolution images pass.
+  Full gate exposed one intermittent existing e22 footer screenshot (TD-015); all four cases
+  passed five fresh-process reruns unchanged. Final hidden-tools gate PASS: 3,217 passed /
+  6 existing skips (3,223 selected), all quality checks clean; no assertion weakened.
+  Local implementation complete and reviewed; exact-commit Windows/Ubuntu CI and closeout pending.
+  Integration is not applicable: GUI/tests/docs only; no core/tool/adapters/dependency changes.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-06 `P5-T03e31` Added the bounded virtual Qt log model (`9ffbb9a`, test-race
@@ -1290,6 +1320,10 @@
 
 ## Platform verification gaps (ADR-019)
 <!-- Fact · verified on · missing on · who closes it -->
+- **P5-T03e32 native desktop appearance.** Local readable light/dark/native/150%-font log
+  screenshots and full-cap native Qt behavior tested offscreen on Windows; actual visible Mint
+  desktop, native theme and OS-DPI rendering remain unverified. Ubuntu runtime CI is required
+  before closeout but does not establish desktop pixels. Nonblocking; no user run requested.
 - **P5-T03e22 native desktop appearance.** Windows/Ubuntu headless tests and local readable
   light/dark/150%-font screenshots pass, including the Ubuntu-width regression. These do not
   establish a visible Mint desktop, native theme or actual OS-DPI scaling. This is nonblocking;
@@ -1540,6 +1574,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   manifest is refused by the live-snapshot guard. It fails closed and retains all disk data;
   not introduced by this refactor. Add nested NaN/positive-negative NaN comparison regressions
   before choosing a NaN-aware snapshot equivalence rule; do not drop other stale-state guards.
+- **TD-015 · Phase 5 review · footer screenshot intermittently scrolls before final layout.**
+  In e32's full gate, existing e22 `test_integrated_build_dashboard_screenshots[font150-dark]`
+  reported result bottom y=546 outside a 449px viewport after `_reveal_footer`. All four cases
+  passed five fresh-process reruns (20 passes), without source/test edits. Measure deferred
+  status/layout delivery under full-suite load before changing synchronization. Keep exact
+  result/notice containment assertions; a missing screenshot target is not valid visual proof.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

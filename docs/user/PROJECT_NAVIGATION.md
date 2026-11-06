@@ -71,11 +71,33 @@ Build warnings/errors are separate from status-check and launch notices. The las
 the actual outcome and duration; hover it for the full build-log path, or an explanation when
 no log was written. Screen readers receive these details too. After correcting a problem, wait
 for the status check to finish and choose Build again. A new build clears the previous run's
-messages and transient card progress. The live scrolling log is not implemented yet.
+messages and transient card progress; it keeps your choice to show or hide the live log.
 
 You may view the recent-project list and return with View → Project dashboard without losing
 the running build. If closing must wait for a build, the dashboard stays visible with a stopping
 message; wait and close again. The project remains locked until its worker has stopped.
+
+## Reading live build output
+
+Show build log, just above the build buttons, reveals the current build's messages. The panel
+starts collapsed and keeps collecting while hidden; hiding it never stops a build. Tab reaches
+the toggle, Space opens/closes it, and the next Tab reaches the populated output list. Use the
+arrow keys, Home and End to read the list; Tab continues to the available build/cancel buttons.
+The dashboard scrolls to keyboard-focused controls in a small window.
+
+New output follows the bottom only while you are at the end. Scroll upwards to read older
+messages without being pulled back; return to the end to follow again. The view retains at
+most the newest 20,000 physical lines and 2,000,000 message characters. Messages are capped at
+4,096 characters and step names at 128, with an ellipsis marking shortened text. The caption
+reports earlier lines omitted from this view. Scroll horizontally inside the list for wide
+retained lines; the dashboard itself does not widen. The existing full on-disk log is unchanged
+and its location remains in the build result's details (or the result explains why none exists).
+
+Finishing, failing, cancelling or returning from Recent projects keeps the output available.
+An accepted new build starts a fresh log but keeps your expanded/collapsed choice; a changed
+project binding clears and collapses it. Messages from an old or mismatched run are ignored.
+Output is literal text, not a terminal or a source of executable commands. Command copying is
+not available yet; it needs trusted command entries rather than guesses from arbitrary output.
 
 ## Editing project details
 

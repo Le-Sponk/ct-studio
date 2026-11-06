@@ -167,6 +167,8 @@ selected on both. CI also exposed and verified a test-only queued-plan synchroni
 ###### [ ] P5-T03e32 — Collapsible live log view and dashboard wiring
 Expose the virtual model through a collapsed-by-default list, keep collecting while collapsed,
 follow new output only when appropriate, and reuse current-run context guards and reset rules.
+Keep expansion on a new accepted run, collapse on rebind, retain on same-project navigation
+and completion; a refused request must not erase the last output. No command inference/copying.
 **Acceptance:** live fake-build lines, history-cap feedback, keyboard access, usable build
 controls while collapsed, and light/dark/minimum-size/enlarged-font screenshots.
 

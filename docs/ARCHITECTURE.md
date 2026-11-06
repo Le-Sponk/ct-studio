@@ -424,8 +424,8 @@ wrote, a timestamped backup is made — no exceptions.
   tool registry; views get what they need by injection, not globals.
 - Dev mode (`CTSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
 - Log view is virtualised and capped (e.g. last 20k lines in memory; full log on disk).
-  P5-T03e31 provides `gui/build_log_model.py`, a standalone Qt list model, not a dashboard
-  widget yet (e32 wires it in). It retains the newest 20,000 physical rows under a separate
+  P5-T03e31 provides `gui/build_log_model.py`, a Qt list model used by the dashboard log
+  panel (e32). It retains the newest 20,000 physical rows under a separate
   2,000,000-message-character budget, caps each message at 4,096 characters and each step ID
   at 128, and visibly marks truncated text. Limits count Unicode characters, not encoded
   bytes; step IDs have their own per-row bound. CRLF/CR become LF; empty/trailing rows are
@@ -489,8 +489,21 @@ remain overall progress. A step's done/unchanged/error/cancelled/not-run state n
 its last checked component status. The existing AppServices completion refresh is reused,
 not duplicated. Cancellation delegates to the existing worker and retains its project owner.
 Repeated refused closes show the dashboard and stopping notice without rebinding or requesting
-another status check. The bounded scrolling log remains T03e3; no new build adapter or worker
-is introduced here.
+another status check. No new build adapter or worker is introduced here.
+
+P5-T03e32: `gui/views/build_log.py` presents that bounded model in a collapsed-by-default
+`QListView` above the build bar. Matching `LogLine` events use the same captured-run guards;
+collecting is independent of expansion. A new accepted request clears the old messages while
+preserving expansion, rebinding also collapses, and same-project navigation/outcomes retain
+the log. Native list selection/keyboard and internal scrolling keep long output out of the
+outer dashboard's width. A caption reports retained/omitted history. Deferred following is
+coalesced through one owned single-shot timer, stops when the reader scrolls back, and resumes
+at the end. A private list subclass distinguishes native layout range clamping from reader
+scrolls. Persistent top-row/pixel anchors remain authoritative through all native batches;
+incomplete native hit-testing uses a logarithmic lookup of measured geometry, not a uniform
+row-size assumption. If that row was evicted, the oldest retained row is shown. End explicitly
+resumes following, including an immediately appended burst. It does no I/O. Ordinary output
+stays literal; trusted command provenance/copying is deliberately e33.
 
 P5-T01b: `gui/status_service.py` `StatusService` works the part statuses out on a named thread
 (`ctstudio-status`): the user's settings, `availability.available_tools` (discovery only) and
