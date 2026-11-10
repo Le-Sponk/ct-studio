@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from build_fakes import FakeBuilds, summary
-from build_window_helpers import build_window, finished, started
+from build_window_helpers import build_window, eventually, finished, started
 from PySide6.QtGui import QColor, QFont, QPalette
 from PySide6.QtWidgets import QApplication, QScrollArea
 from pytestqt.qtbot import QtBot
@@ -59,7 +59,7 @@ def test_integrated_build_dashboard_screenshots(
         with build_window(qtbot, tmp_path) as (view, project, fake):
             view.resize(720, 480) if scaled else view.resize(1280, 1200)
             _busy(qtbot, view, project, fake)
-            _check_layout(view)
+            _check_layout(qtbot, view)
             name = f"{'dark' if dark else 'light'}-{'small-150' if scaled else 'native'}"
             shot(view, f"p5-t03e22-build-working-{name}.png")
             fake.events[-1] = BuildFinished(
@@ -80,12 +80,36 @@ def test_integrated_build_dashboard_screenshots(
                 )
             )
             finished(qtbot, view, fake)
-            _check_result_visible(view)
+            _check_result_visible(qtbot, view)
             shot(view, f"p5-t03e22-build-failed-{name}.png")
             assert "Check the chosen file" in view.dashboard.builds.controls.notice.text()
             assert "failed" in view.dashboard.builds.controls.last_result.text()
     finally:
         app.setPalette(old_palette)
+        app.setFont(old_font)
+
+
+def test_result_reveal_waits_for_queued_footer_growth(qtbot: QtBot, tmp_path: Path) -> None:
+    """A late multi-line notice reaches the scroll range only after several layout passes."""
+    app = QApplication.instance()
+    assert isinstance(app, QApplication)
+    old_font = app.font()
+    font = QFont(old_font)
+    font.setPointSizeF(old_font.pointSizeF() * 1.5)
+    app.setFont(font)
+    try:
+        with build_window(qtbot, tmp_path) as (view, _project, fake):
+            view.resize(720, 480)
+            view.dashboard.builds.controls.test_button.click()
+            started(qtbot, view, fake)
+            finished(qtbot, view, fake)
+            _reveal_footer(qtbot, view)
+            controls = view.dashboard.builds.controls
+            controls.show_error(RuntimeError("Cannot read the collision source.\nCheck the file."))
+            QApplication.processEvents()
+            _check_result_visible(qtbot, view)
+            assert controls.notice.height() > controls.last_result.height()
+    finally:
         app.setFont(old_font)
 
 
@@ -111,8 +135,8 @@ def _busy(qtbot: QtBot, view: MainWindow, project: Project, fake: FakeBuilds) ->
     assert view.dashboard.cards["kcl"].status_label.text() == "ready"
 
 
-def _check_result_visible(view: MainWindow) -> None:
-    viewport = _reveal_footer(view).viewport()
+def _check_result_visible(qtbot: QtBot, view: MainWindow) -> None:
+    viewport = _reveal_footer(qtbot, view).viewport()
     controls = view.dashboard.builds.controls
     notice_top = controls.notice.mapTo(viewport, controls.notice.rect().topLeft())
     result_bottom = controls.last_result.mapTo(viewport, controls.last_result.rect().bottomLeft())
@@ -120,17 +144,31 @@ def _check_result_visible(view: MainWindow) -> None:
     assert viewport.rect().contains(result_bottom)
 
 
-def _reveal_footer(view: MainWindow) -> QScrollArea:
-    QApplication.processEvents()
+def _layout_settled(view: MainWindow, scroll: QScrollArea) -> bool:
+    """Footer text changes take several queued layout passes to reach the scroll range."""
+    controls, page = view.dashboard.builds.controls, view.dashboard
+    layout = page.layout()
+    assert layout is not None
+    labels_sized = all(
+        not label.text()
+        or label.height() == min(label.maximumHeight(), label.heightForWidth(label.width()))
+        for label in (controls.activity, controls.notice, controls.last_result)
+    )
+    wanted = max(layout.totalHeightForWidth(page.width()), scroll.viewport().height())
+    return labels_sized and page.height() == wanted
+
+
+def _reveal_footer(qtbot: QtBot, view: MainWindow) -> QScrollArea:
     scroll = view.findChild(QScrollArea, "dashboardScroll")
     assert scroll is not None
+    eventually(qtbot, lambda: _layout_settled(view, scroll), "dashboard layout did not settle")
     scroll.ensureWidgetVisible(view.dashboard.builds.controls)
     QApplication.processEvents()
     return scroll
 
 
-def _check_layout(view: MainWindow) -> None:
-    scroll = _reveal_footer(view)
+def _check_layout(qtbot: QtBot, view: MainWindow) -> None:
+    scroll = _reveal_footer(qtbot, view)
     controls = view.dashboard.builds.controls
     assert view.dashboard.width() <= scroll.viewport().width()
     assert controls.geometry().right() <= view.dashboard.width()

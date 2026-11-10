@@ -50,7 +50,19 @@
   approved all 11 assertions retained (AST-equivalent after inlining), fixed regression green,
   isolated old-layout assertion red. Final hidden-tools gate: 3,218 passed / 6 existing skips
   (3,224 selected); all quality checks clean. Corrective commit/CI and closeout pending.
-  Task remains open pending corrective commit, exact Windows/Ubuntu CI and closeout.
+  Width correction pushed `62a1745`: exact Ubuntu Check job 127910404126 passed (3,210 /
+  14 existing skips; 3,224 selected matches local). Windows Check failed the
+  existing TD-015 footer screenshot at enlarged fonts (result bottom y=530 vs 449px viewport).
+  Root cause (test synchronization, TD-015): a footer label's growth needs about three queued
+  layout passes (label, build bar, dashboard, scroll range); the old reveal could scroll
+  mid-chain, so the later resize pushed the result below the viewport. The reveal helper now
+  waits for geometry-settled labels and dashboard height before scrolling; every containment
+  assertion unchanged. New mid-chain regression: old helper fails a primary assertion 3/3
+  (isolated copy, in-run origin/hash), fixed passes 3/3; visual file 25/25 over five fresh
+  processes; strict Windows/Linux typing and budgets pass. Independent review APPROVED (15/15
+  fresh reruns, old helper primary assertion 3/3, real 25-line overflow still fails, no
+  production scrolling bug). Full hidden-tools gate: 3,219 passed / 6 existing skips (3,225
+  selected). Task remains open pending exact Windows/Ubuntu CI and closeout.
   Integration is not applicable: GUI/tests/docs only; no core/tool/adapters/dependency changes.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1587,6 +1599,8 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   not introduced by this refactor. Add nested NaN/positive-negative NaN comparison regressions
   before choosing a NaN-aware snapshot equivalence rule; do not drop other stale-state guards.
 - **TD-015 · Phase 5 review · footer screenshot intermittently scrolls before final layout.**
+  Being closed in P5-T03e32: cause reproduced deterministically (reveal between queued layout
+  passes) and fixed in the test helper; see In progress.
   In e32's full gate, existing e22 `test_integrated_build_dashboard_screenshots[font150-dark]`
   reported result bottom y=546 outside a 449px viewport after `_reveal_footer`. All four cases
   passed five fresh-process reruns (20 passes), without source/test edits. Measure deferred
