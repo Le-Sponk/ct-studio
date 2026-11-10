@@ -21,11 +21,12 @@ def test_literal_roles_and_index_contract() -> None:
     assert model.rowCount() == 1
     assert model.rowCount(index) == 0
     assert model.rowCount(QPersistentModelIndex(index)) == 0
-    assert [int(role) for role in LogRole] == [257, 258, 259]
+    assert [int(role) for role in LogRole] == [257, 258, 259, 260]  # e33b added Command
     assert model.roleNames() == {
         int(LogRole.NodeId): b"nodeId",
         int(LogRole.Text): b"text",
         int(LogRole.Truncated): b"truncated",
+        int(LogRole.Command): b"command",
     }
     for role in (
         Qt.ItemDataRole.DisplayRole,
@@ -42,6 +43,7 @@ def test_custom_roles_and_valid_flags() -> None:
     assert model.data(QPersistentModelIndex(index), LogRole.Text) == "$ <b>😀 & literal</b>"
     assert model.data(index, LogRole.NodeId) == "step"
     assert model.data(index, LogRole.Truncated) is False
+    assert model.data(index, LogRole.Command) is None  # tool output is never a command
     assert model.flags(index) == (Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
     assert model.data(index, Qt.ItemDataRole.EditRole) is None
     assert model.retained_chars == len("$ <b>😀 & literal</b>")

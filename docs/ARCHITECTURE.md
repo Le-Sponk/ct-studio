@@ -446,7 +446,16 @@ wrote, a timestamped backup is made — no exceptions.
   remove/insert notifications preserve surviving persistent indexes, without per-append
   model resets. The GUI-thread model stores no hidden unbounded originals and does no I/O;
   the existing complete core disk log is unchanged. Ordinary LogLine text stays literal,
-  not a source of commands; trusted command provenance/copying remains e33.
+  not a source of commands. P5-T03e33b: a core `CommandRun` (e33a) becomes one bold "Ran:"
+  row whose `LogRole.Command` holds the exact command text (line breaks shown as ↵ on the
+  row only); it counts against the character budget and leaves with its row. A command that
+  exceeds the line cap (shown cut) or whose row plus copy text exceeds the character budget
+  (shown whole) keeps no copy text (tooltip: use the disk log).
+  `BuildLogPanel.copy_command` (Ctrl+Shift+C, widget-scoped, plus the right-click menu)
+  copies only `LogRole.Command` of the current row and is enabled only on such a row; while
+  the menu is open it acts only on the row it opened on (a `QPersistentModelIndex`; none
+  below the rows), so eviction never redirects it to a newer command. Qt's own Ctrl+C keeps
+  copying the displayed line.
 
 P5-T01a: `gui/services.py` `AppServices` holds the current `Project` (opened, so locked, by this
 app; opening the same folder again keeps it, opening another closes the first only once the new

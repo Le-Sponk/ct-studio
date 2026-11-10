@@ -100,8 +100,20 @@ and its location remains in the build result's details (or the result explains w
 Finishing, failing, cancelling or returning from Recent projects keeps the output available.
 An accepted new build starts a fresh log but keeps your expanded/collapsed choice; a changed
 project binding clears and collapses it. Messages from an old or mismatched run are ignored.
-Output is literal text, not a terminal or a source of executable commands. Command copying is
-not available yet; it needs trusted command entries rather than guesses from arbitrary output.
+Output is literal text, not a terminal or a source of executable commands.
+
+Each tool a build step starts gets its own bold "Ran:" line, written by CT Studio when it
+starts the tool (never read from the tool's output). With that line selected in the log list,
+Copy command copies the exact command: press Ctrl+Shift+C while the list has keyboard focus
+(click the list or Tab to it first), or right-click the line → Copy command. Ctrl+C still copies
+the line as shown. If newer output pushes the line you right-clicked out of the log while the
+menu is open, Copy command turns off rather than copying a different command.
+Ordinary output never offers Copy command, even when it looks like a command. On Windows the
+copied text is a command line for PowerShell (type `& ` before pasting) or for programs that
+start tools directly; it is not escaped for the old Command Prompt (cmd.exe), where `%` and
+unquoted `& ^ | < >` change its meaning. On Linux and macOS it is POSIX shell quoting. Values a
+step marks sensitive read `<redacted>`. A command too long for the list cannot be copied there;
+its tooltip points to the full build log on disk.
 
 ## Editing project details
 

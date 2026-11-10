@@ -1,5 +1,6 @@
 """Bounded, literal build output for a virtual Qt list view."""
 
+import sys
 from collections.abc import Iterator
 from enum import IntEnum
 
@@ -11,17 +12,48 @@ from PySide6.QtCore import (
     QPersistentModelIndex,
     Qt,
 )
+from PySide6.QtGui import QFont
 
-from ctstudio.core.build.events import LogLine
+from ctstudio.core.build.events import CommandRun, LogLine
 
 _ROOT_INDEX = QModelIndex()
-type _Row = tuple[str, str, bool]
+# node, shown text, shortened, and for a trusted CommandRun only: its exact text when the row
+# shows it whole, else "" (a command too long to copy here). None marks ordinary output.
+type _Row = tuple[str, str, bool, str | None]
+COPY_SHORTCUT = "Ctrl+Shift+C"
+_RAN = "Ran: "
 
 
 class LogRole(IntEnum):
     NodeId = Qt.ItemDataRole.UserRole + 1
     Text = Qt.ItemDataRole.UserRole + 2
     Truncated = Qt.ItemDataRole.UserRole + 3
+    Command = Qt.ItemDataRole.UserRole + 4  # exact copy text; None unless a trusted command
+
+
+def _command_form() -> str:
+    if sys.platform == "win32":
+        return (
+            "A Windows command line for PowerShell (type & and a space first) or CreateProcess;"
+            " not for cmd.exe, where % and unquoted & ^ | < > change its meaning."
+        )
+    return "A command line for a POSIX shell (sh, bash)."
+
+
+def _command_tip(command: str) -> str:
+    if not command:
+        return (
+            "This command is too long to copy from this list. The build log on disk has it in full."
+        )
+    return f"{_command_form()} Copy it with {COPY_SHORTCUT} or the right-click menu."
+
+
+def _one_line(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "↵").replace("\n", "↵")
+
+
+def _size(row: _Row) -> int:
+    return len(row[1]) + len(row[3] or "")
 
 
 def _limit(value: object) -> int:
@@ -54,7 +86,8 @@ class BuildLogModel(QAbstractListModel):
     """Newest physical rows; character budgets count Python Unicode code points.
 
     Message caps include the visible truncation marker, but exclude the separately
-    capped node ID. No source event or hidden original text is retained.
+    capped node ID. No source event or hidden original text is retained, except the exact
+    text of a trusted command shown whole, which counts against the character budget too.
     """
 
     def __init__(
@@ -88,6 +121,7 @@ class BuildLogModel(QAbstractListModel):
             LogRole.NodeId: QByteArray(b"nodeId"),
             LogRole.Text: QByteArray(b"text"),
             LogRole.Truncated: QByteArray(b"truncated"),
+            LogRole.Command: QByteArray(b"command"),
         }
 
     def rowCount(self, parent: QModelIndex | QPersistentModelIndex = _ROOT_INDEX) -> int:
@@ -103,20 +137,30 @@ class BuildLogModel(QAbstractListModel):
 
     def data(
         self, index: QModelIndex | QPersistentModelIndex, role: int = Qt.ItemDataRole.DisplayRole
-    ) -> str | bool | None:
+    ) -> str | bool | QFont | None:
         if not self._valid(index):
             return None
-        node, text, truncated = self._rows[self._head + index.row()]
+        node, text, truncated, command = self._rows[self._head + index.row()]
+        shown = f"[{node}] {text}"
+        if command is not None and role == Qt.ItemDataRole.FontRole:
+            bold = QFont()
+            bold.setBold(True)  # only trusted rows; output that copies the "Ran:" wording is not
+            return bold
+        if command is not None and role == Qt.ItemDataRole.ToolTipRole:
+            return f"{shown}\n\n{_command_tip(command)}"
+        if command is not None and role == Qt.ItemDataRole.AccessibleTextRole:
+            return f"Command run by {node}: {text.removeprefix(_RAN)}"
         if role in (
             Qt.ItemDataRole.DisplayRole,
             Qt.ItemDataRole.ToolTipRole,
             Qt.ItemDataRole.AccessibleTextRole,
         ):
-            return f"[{node}] {text}"
-        values: dict[int, str | bool] = {
+            return shown
+        values: dict[int, str | bool | None] = {
             LogRole.NodeId: node,
             LogRole.Text: text,
             LogRole.Truncated: truncated,
+            LogRole.Command: command or None,
         }
         return values.get(role)
 
@@ -133,7 +177,7 @@ class BuildLogModel(QAbstractListModel):
             or count + incoming_rows > self._max_rows
             or chars + incoming_chars > self._max_chars
         ):
-            chars -= len(self._rows[self._head + removed][1])
+            chars -= _size(self._rows[self._head + removed])
             removed += 1
             count -= 1
         if removed:
@@ -159,14 +203,28 @@ class BuildLogModel(QAbstractListModel):
             text = ("…" if truncated else "") + event.text[start:end]
             if chars + len(text) > self._max_chars:
                 break
-            rows.append((node, text, truncated or len(event.node_id) > 128))
+            rows.append((node, text, truncated or len(event.node_id) > 128, None))
             chars += len(text)
         rows.reverse()
         return rows, total - len(rows)
 
-    def append(self, event: LogLine) -> None:
-        rows, omitted = self._prepare(event)
-        chars = sum(len(row[1]) for row in rows)
+    def _command(self, event: CommandRun) -> _Row:
+        """One row for a trusted command; copyable only when shown whole within the budgets."""
+        node = _tail(event.node_id, 128)
+        text = _RAN + _one_line(event.text)
+        fits = len(text) <= self._line_chars
+        if not fits:
+            text = text[: self._line_chars - 1] + "…"
+        copyable = fits and len(text) + len(event.text) <= self._max_chars
+        named = len(event.node_id) > 128
+        return node, text, not fits or named, event.text if copyable else ""
+
+    def append(self, event: LogLine | CommandRun) -> None:
+        if isinstance(event, CommandRun):
+            rows, omitted = [self._command(event)], 0
+        else:
+            rows, omitted = self._prepare(event)
+        chars = sum(map(_size, rows))
         # An omitted incoming row also separates all old rows from the newest suffix.
         self._evict(len(rows), chars, bool(omitted))
         count = len(self._rows)

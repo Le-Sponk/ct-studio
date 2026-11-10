@@ -1,19 +1,21 @@
 """Native, collapsible presentation of bounded build output (no disk I/O)."""
 
 from PySide6.QtCore import QEvent, QObject, QPersistentModelIndex, QPoint, Qt, QTimer, Signal
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtGui import QAction, QKeyEvent, QKeySequence
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QLabel,
     QListView,
+    QMenu,
     QSizePolicy,
     QToolButton,
     QVBoxLayout,
     QWidget,
 )
 
-from ctstudio.core.build.events import LogLine
-from ctstudio.gui.build_log_model import BuildLogModel
+from ctstudio.core.build.events import CommandRun, LogLine
+from ctstudio.gui.build_log_model import COPY_SHORTCUT, BuildLogModel, LogRole
 
 _EMPTY = "No output yet. Start a build below, or wait for its next message."
 
@@ -83,6 +85,7 @@ class BuildLogPanel(QWidget):
         self.view.verticalScrollBar().rangeChanged.connect(self._range_changed)
         self.view.endRequested.connect(self._follow)
         self.view.installEventFilter(self)
+        self._copy_actions()
         self._height()
         self.view.hide()
         body = QVBoxLayout(self.body)
@@ -95,6 +98,58 @@ class BuildLogPanel(QWidget):
         layout.addWidget(self.body)
         self.body.hide()
         self.toggle.toggled.connect(self._expanded)
+
+    def _copy_actions(self) -> None:
+        """Copy command acts only on a trusted command row; ordinary output never enables it."""
+        self.copy_command = QAction("Copy command", self)
+        self.copy_command.setObjectName("build_log_copy_command")
+        self.copy_command.setShortcut(QKeySequence(COPY_SHORTCUT))
+        self.copy_command.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+        self.copy_command.setEnabled(False)
+        self._menu_open = False
+        self.copy_command.triggered.connect(self._copy)
+        self.view.addAction(self.copy_command)
+        self.menu = QMenu(self)
+        self.menu.setObjectName("build_log_menu")
+        self.menu.addAction(self.copy_command)
+        self.view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self._show_menu)
+        # Evicting the current row moves Qt's current index (currentChanged); a reset does not.
+        self.view.selectionModel().currentChanged.connect(self._sync_copy)
+        self.model.modelReset.connect(self._sync_copy)
+        # An open menu acts only on the row it was opened on, never a newer command that
+        # becomes current when that row is evicted; below the rows it offers no copy.
+        self._menu_row: QPersistentModelIndex | None = None
+        self.model.rowsRemoved.connect(self._sync_copy)
+        self.menu.aboutToHide.connect(self._menu_closed)
+
+    def _command(self) -> str | None:
+        index = self._menu_row if self._menu_open else self.view.currentIndex()
+        command = index.data(LogRole.Command) if index is not None else None
+        return command if isinstance(command, str) and command else None
+
+    def _menu_closed(self) -> None:
+        self._menu_open = False
+        self._sync_copy()
+
+    def _sync_copy(self) -> None:
+        self.copy_command.setEnabled(self._command() is not None)
+
+    def _copy(self) -> None:
+        # A menu click arrives after Qt hides the menu, so this reads the current row; that is
+        # the menu row whenever the action was enabled, and a disabled action never triggers.
+        command = self._command()
+        if command is not None:
+            QApplication.clipboard().setText(command)
+
+    def _show_menu(self, position: QPoint) -> None:
+        index = self.view.indexAt(position)
+        self._menu_row = QPersistentModelIndex(index) if index.isValid() else None
+        self._menu_open = True
+        if index.isValid():
+            self.view.setCurrentIndex(index)
+        self._sync_copy()
+        self.menu.popup(self.view.viewport().mapToGlobal(position))
 
     def _height(self) -> None:
         self.view.setFixedHeight(
@@ -152,7 +207,7 @@ class BuildLogPanel(QWidget):
         if not self._timer.isActive():
             self._timer.start(0)
 
-    def append(self, event: LogLine) -> None:
+    def append(self, event: LogLine | CommandRun) -> None:
         self._updating = True
         self.model.append(event)
         self._updating = False

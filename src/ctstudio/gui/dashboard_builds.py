@@ -13,6 +13,7 @@ from ctstudio.core.build.events import (
     BuildEvent,
     BuildStarted,
     BuildSummary,
+    CommandRun,
     LogLine,
     NodeFailed,
     NodeFinished,
@@ -134,7 +135,7 @@ class DashboardBuilds(QObject):
         if self._matches():
             self.controls.show_event(cast(BuildEvent, payload))
             self._card_event(payload)
-            if isinstance(payload, LogLine):
+            if isinstance(payload, (LogLine, CommandRun)):
                 self.log.append(payload)
 
     def _card_event(self, event: object) -> None:

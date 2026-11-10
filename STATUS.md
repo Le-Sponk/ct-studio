@@ -9,7 +9,16 @@
 **Last green commit:** `928d4d7` (Check and Integration, Windows + Ubuntu)
 
 ## In progress
-- (none)
+- `P5-T03e33b` Copy command in the live log (GUI). (1) Tests first: CommandRun becomes one
+  distinct command row ("Ran:" prefix, accessible text, tooltip naming the Windows
+  PowerShell/CreateProcess form, not cmd.exe); a "Copy command" action (context menu and
+  Ctrl+Shift+C on the log list) copies `CommandRun.text` exactly, and is disabled and inert on
+  ordinary output, even command-looking; a command row shortened by the line cap cannot be
+  copied (it says to use the disk log); eviction/clear/rebind leave no stale copy; native
+  Ctrl+C line copy unchanged; light/dark screenshots. (2) Model `LogRole.Command`, panel
+  `append_command` + action, dashboard routing. (3) Docs, gate, review, commit/CI, closeout.
+  Risks: Qt's built-in Ctrl+C on item views copies the display text, so Copy command needs its
+  own shortcut; context menus are popups, absent from window grabs.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
