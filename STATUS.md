@@ -4,33 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e33a — Trusted command events (core)
+**Next task:** P5-T03e33b — Copy command in the live log (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `3f7c31a` (P5-T03e34; Check, Windows + Ubuntu)
+**Last green commit:** `928d4d7` (Check and Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e33a` Trusted command events (core). (1) Tests first: process-level redaction and
-  reporting, exact command text round-tripping through the real OS parser, runner `CommandRun`
-  events only from the spawning boundary, no reports outside a build, secrets absent from every
-  sink, build log/JSON event output. (2) `core/tools/commands.py` (marker, redaction, text,
-  thread-local reporter), `process.run(sensitive=...)`, `events.CommandRun`, runner reporter,
-  build log line, JSON event + schema. (3) Docs, gate, review, commit/CI, closeout.
-  Risks: process.py is near its 400-line budget; exhaustive event matches in CLI/GUI.
-  Evidence: RED collection failures before the code; 23/23 isolated assertion-only mutants
-  caught (reviewer re-run 26/26); focused tests 126 x3; strict Windows/Linux typing; budgets
-  (process.py 393 lines, run 59 lines, CC 10). Review 1 found 3 must-fixes (trailing
-  backslash+newline quoting, output lines not redacted, progress ignoring e33a/b IDs), all
-  fixed; re-review APPROVED (20,031 quoting cases and 137 real CreateProcess round-trips
-  exact). Full hidden-tools gate: 3,243 passed / 6 existing skips (3,249 selected).
-  CI 61eeba4: Check green on both OSes (Windows 3234/15, Ubuntu 3235/14); Integration
-  (ubuntu-latest) red, as every nightly since 2026-11-06: the runner moved to Ubuntu 26.04,
-  whose Wine 10 has no /usr/bin/wineserver (it lives in /usr/lib/x86_64-linux-gnu/wine/).
-  Fix: rszst_wine looks for wineserver on PATH, beside wine, then in the library folder, and
-  says plainly when it is missing (3 RED tests first; reviewer 9/9 mutants; APPROVED). The
-  `--dry-run` text still prints a bare `wineserver -w` (cosmetic).
+- (none)
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-10 `P5-T03e33a` Trusted command events in core (`61eeba4`). `process.run` reports
+  the argv it actually starts to the build step on that thread; the runner turns reports into
+  `CommandRun` events with exact command text (C runtime quoting on Windows, documented as
+  PowerShell/CreateProcess and not cmd.exe; POSIX shell quoting elsewhere), written to the
+  build log and `--json-events`. Values a caller marks sensitive read `<redacted>` in the argv,
+  the tool's output lines, the tool log and errors. Tool output never becomes a command. Text
+  round-trips through the real OS parser; 23/23 assertion-only mutants caught (reviewer 26/26);
+  first review's 3 must-fixes fixed, re-review APPROVED. `progress.py` now counts multi-part
+  IDs (plan 91/170). Exact CI `61eeba4`: Windows 3,234 / 15 skipped, Ubuntu 3,235 / 14
+  skipped. Integration (ubuntu-latest) had been red nightly since 2026-11-06 because
+  GitHub's Ubuntu 26.04 image ships Wine 10's wineserver only in
+  /usr/lib/x86_64-linux-gnu/wine/; `928d4d7` finds it there (3 RED tests first, reviewer 9/9
+  mutants, APPROVED). Exact CI `928d4d7`: Check Windows 3,237 / 15, Ubuntu 3,238 / 14;
+  Integration Windows 126 passed / 21 expected skips, Ubuntu 130 / 17. The first Ubuntu Check
+  attempt aborted the Python process ("Fatal Python error: Aborted" during garbage collection
+  in an unrelated GUI service test); the job re-run passed (TD-016).
 - 2026-11-10 `P5-T03e34` The dashboard now follows the newest build output (`3f7c31a`), per
   the user's decision that it should scroll automatically to show the most recent logs. From an
   eligible build request the dashboard stays at its end as queued layout grows, so the newest
@@ -1591,6 +1589,14 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   manifest is refused by the live-snapshot guard. It fails closed and retains all disk data;
   not introduced by this refactor. Add nested NaN/positive-negative NaN comparison regressions
   before choosing a NaN-aware snapshot equivalence rule; do not drop other stale-state guards.
+- **TD-016 · Deep Clean #1 · one Ubuntu 26.04 CI test process aborted during garbage collection.**
+  `928d4d7` Check (ubuntu-latest) attempt 1 (job 129709015756) died at ~27% with "Fatal
+  Python error: Aborted" while collecting garbage inside
+  `test_save_backs_up_and_preserves_all_other_settings_without_publishing` (a TOML read; the
+  loaded extensions were PySide6 and yaml). No assertion failed; the re-run (job 129711998985)
+  passed 3,238 / 14. First seen on the new Ubuntu 26.04 runner image. Likely a Qt object
+  freed off its thread by a cyclic collection; if it recurs, run the GUI suite with
+  faulthandler and `gc.collect()` after each test to find the owning test.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

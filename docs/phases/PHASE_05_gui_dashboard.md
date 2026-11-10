@@ -190,7 +190,7 @@ boundaries/quoting and redact designated sensitive arguments. **Acceptance:** tr
 commands copied exactly after documented redaction, non-command output cannot enable copying,
 keyboard/screenshot coverage, and the existing full disk-log behavior remains intact.
 
-###### [ ] P5-T03e33a — Trusted command events (core)
+###### [x] P5-T03e33a — Trusted command events (core)
 The one process-spawning boundary (`core/tools/process.run`) reports the argv it actually
 starts, with caller-designated sensitive arguments replaced by a documented marker, to the
 build step running on that thread; the runner turns reports into a structured `CommandRun`
