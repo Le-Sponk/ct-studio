@@ -4,12 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T04 — Manual file assignment
+**Next task:** P5-T04a — Assign a supplied file (core)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `4ea9b40` (Check, Windows + Ubuntu)
 
 ## In progress
-- (none)
+- `P5-T04a` Assign a supplied file (core). (1) Tests first: wrong type, missing source, inside
+  `.ctstudio/`, folder into itself, part without manual mode and read-only project are refused
+  with an explanation and change nothing; default copy into `files/<game name>` (post-effects
+  as a folder); replacing a different copy backs it up to `.ctstudio/backups/<time>/files/`,
+  an identical file is left alone; reference in place copies nothing and records a project-
+  relative or absolute path; manifest mode+file saved with a backup and reloads equal; a copy
+  or save failure keeps the old file/manifest; on-disk manifest change refused. (2) Share the
+  stage step's atomic file/folder copy via `fsutil`, add `backups.backup_folder`. (3) Docs,
+  gate, review, commit/CI, closeout. Risks: Windows file locks during a folder swap; a manifest
+  save failing after the copy leaves the new copy in `files/` (the old one is backed up).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1005,6 +1014,8 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-10: P5-T04 split into P5-T04a (core assignment: checks, copy or reference,
+  backups, manifest) and P5-T04b (card drop and Choose file… UI). Progress total grows by 2.
 - `P5-T03e33` split into `P5-T03e33a` (trusted command events in core) and `P5-T03e33b` (Copy
   command in the live log); total planned tasks becomes 170.
 - `P5-T03e34` added (user decision after e32): the dashboard follows the newest build output

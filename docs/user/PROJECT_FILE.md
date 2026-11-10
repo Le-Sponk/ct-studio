@@ -49,7 +49,7 @@ default, so a missing setting means "use the default".
 | `[build]` `extra_wszst_args` | Reserved; not passed to Wiimms SZS Tools yet (P7-T06). | a list, such as `["--a", "--b"]` |
 | `[blender.collections]` `course`, `kcl`, `skybox`, `minimap` | Which Blender collection holds each part. | collection names (`Course`, `KCL`, `Skybox`, empty minimap = make it from the KCL) |
 | `[components.<part>]` `mode` | Whether CT Studio makes the part, copies it from an original track (`template`), or you supply it. | `auto` or `manual`; skybox: `auto`, `template` or `manual`; KMP: `manual` only; post effects: `template` or `manual` |
-| `[components.<part>]` `file` | Your own file, when the mode is `manual`. | a path, such as `files/course.kmp` |
+| `[components.<part>]` `file` | Your own file, when the mode is `manual`. CT Studio's own file assignment (from P5-T04b, on a component card) copies it to `files/` under the name the game uses for that part, such as `files/course.kmp` (post-effects: the `files/posteffect/` folder), after checking its type; a different file already there is backed up to `.ctstudio/backups/` first. With "reference in place" it records your file where it is instead. | a path, such as `files/course.kmp` |
 | `[components.course_model]` `backend` | Which tool turns the model into a BRRES. | `default`, `rszst`, `abmatt` |
 | `[components.course_model.textures."<name>.png"]` `format`, `mipmaps` | Your choice for one texture, instead of CT Studio's. | `CMPR`, `RGB5A3`, `RGBA32`, `RGB565`, `IA8`, `IA4`, `I8`, `I4`, `C4`, `C8`, `C14X2`; mipmaps `0` to `10` |
 | `[components.course_model.materials."<name>"]` `transparency`, `cull` | Your choice for one material. | `auto`, `opaque`, `cutout`, `translucent`; cull `front`, `back`, `none` |

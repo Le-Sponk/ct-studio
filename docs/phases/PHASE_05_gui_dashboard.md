@@ -224,6 +224,28 @@ prove a failed UI event callback cannot leave cached outputs with missing part-s
 Drag & drop onto a card or "Choose file…". Validate type (magic). Copy into `files/` by default, or
 "reference in place" option. Replacing an existing manual file backs up the old one.
 **Acceptance:** tests: wrong type rejected with explanation; backup created; manifest updated.
+Split (2026-11-10, size check: the core file work and the card's drop/chooser UI together
+exceed one session; no original scope is removed):
+
+#### [ ] P5-T04a — Assign a supplied file (core)
+`core/components/assign.py` `assign_file(project, part, source, *, reference=False)`. Before
+touching anything it refuses: a read-only project, a part without a manual mode, a missing
+source, a source inside `.ctstudio/`, a folder copy into itself, and the wrong type (the same
+check status and build use), each with a plain explanation and hint. By default the file (a
+folder for post-effects) is copied into `files/<game name>`; "reference in place" records the
+source path instead (project-relative when inside the project) and copies nothing. Replacing a
+different existing copy backs it up first into `.ctstudio/backups/<UTC time>/files/…`. The
+part's mode becomes manual with that file, saved to ctstudio.toml with its usual backup and a
+check that the file was not changed on disk meanwhile.
+**Acceptance:** tests: wrong type rejected with explanation and nothing changed; backup created
+when replacing (an identical file is left alone); manifest updated and reloads equal; reference
+in place copies nothing; failed copies and saves leave the old file and manifest intact.
+
+#### [ ] P5-T04b — Drop a file on a card or Choose file… (GUI)
+A component card accepts one dropped file or folder and offers "Choose file…" with a "Reference
+in place" option; assignment runs on a worker, a refusal shows its reason, and status refreshes.
+**Acceptance:** GUI tests with synthetic drops and the keyboard chooser path, read-only and busy
+projects refused, wrong type explained on the card, light/dark screenshots.
 
 ### [ ] P5-T05 — Issues panel
 Grouped by component and severity; hint text; wiki link; "Copy report". Clicking an issue focuses

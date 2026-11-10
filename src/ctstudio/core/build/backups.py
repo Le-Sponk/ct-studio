@@ -3,7 +3,8 @@
 ARCHITECTURE §8: before any overwrite of a file whose hash differs from what the app last
 wrote, a timestamped backup is made — no exceptions. The build cache names such files
 (``Lookup.edited``); they are copied to ``.ctstudio/backups/<UTC time>/<project path>``.
-Backups are never deleted by CT Studio.
+Complete backups are never deleted by CT Studio; only a backup that failed part-way is
+removed again.
 """
 
 from __future__ import annotations
@@ -34,6 +35,32 @@ def back_up(root: Path, files: Sequence[Path], step: str) -> Path:
         except OSError as exc:
             raise _failed(root, file, step, exc) from exc
     return folder
+
+
+def save_copies(root: Path, paths: Sequence[Path]) -> Path:
+    """Copy files or whole folders into a new backup folder and return it.
+
+    On any failure the incomplete backup folder is removed again and the error re-raised
+    (an ``OSError`` naming the file that could not be copied).
+    """
+    folder = _new_folder(root / BACKUP_DIR, _stamp())
+    try:
+        for path in paths:
+            copy = folder / _relative(root, path)
+            for item in [path, *sorted(path.rglob("*"))] if path.is_dir() else [path]:
+                _copy_item(item, copy / item.relative_to(path))
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+    return folder
+
+
+def _copy_item(item: Path, copy: Path) -> None:
+    if item.is_dir():
+        copy.mkdir(parents=True, exist_ok=True)
+    else:
+        copy.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(item, copy)
 
 
 def _new_folder(parent: Path, stamp: str) -> Path:

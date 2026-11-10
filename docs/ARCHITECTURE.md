@@ -305,6 +305,24 @@ template/manual ─────────────────────�
   `Issue` (`STAGE_*` code, hint, file, wiki) raised as `node.StepFailed` and carried in
   `NodeFailed.issues` and `BuildSummary.issues`. Unchanged file → skipped (cache).
   Hard links are not used (see STATUS Plan changes).
+- **Assigning a supplied file** (P5-T04a, `components/assign.py`): `assign_file(project,
+  part, source, *, reference=False)` → `Assigned(manifest, file, backup, manifest_backup)`.
+  Before it touches anything it refuses, with a `ProjectError` and hint: a read-only project,
+  ctstudio.toml no longer matching the open project, a part without its own manual mode, a
+  missing source, a source inside `.ctstudio/` or containing it, a source overlapping the copy
+  target, and the wrong type (`status.type_problem`, as status and the build use). By default
+  the file, or the post-effects folder, is copied to `files/<game name>` (`course.kcl`,
+  `posteffect/`); `reference=True` records the source instead (project-relative with `/` when
+  inside the project) and copies nothing. An identical existing copy (byte-compared, folders
+  entry by entry: same names, files vs folders, bytes) is left alone. Paths that cannot be
+  resolved or read become a `ProjectError` too. Otherwise the copy is staged in a hidden folder beside the
+  target and type-checked again; a different existing copy is backed up with
+  `backups.save_copies` to `.ctstudio/backups/<UTC time>/files/…` (an incomplete backup
+  folder is removed again) and set aside; the copy is
+  moved in; ctstudio.toml is saved with `replace_with_backup(..., expected=raw)` (mode manual
+  and file). If that save fails the new copy is taken out and the previous one put back; a
+  previous copy that cannot be put back is kept and named in the error, never deleted. The
+  caller publishes the returned manifest; the call blocks (GUI: run it on a worker).
 - **Assemble** (P4-T05a, `build/assemble.py`): `assemble_step(root, manifest, profile)` reads
   the whole `.ctstudio/stage/` folder (so it waits for every stage step) and writes
   `build/<slot>.szs`, plus the identical `build/<slot>_d.szs` when `make_d_variant`.
