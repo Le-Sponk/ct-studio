@@ -4,68 +4,29 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e32 — Collapsible live log view and dashboard wiring
+**Next task:** P5-T03e33 — Trusted command entries and safe exact copying
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `a11067b` (P5-T03e31; Check, Windows + Ubuntu)
+**Last green commit:** `f47420d` (P5-T03e32; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e32`: (1) tests first for a collapsed virtual log panel and current-run routing,
-  (2) build the signal-only native-palette view on the existing bounded model,
-  (3) connect matching LogLine events, clear on new run/rebind, retain on same-project navigation,
-  (4) verify keyboard access, non-disruptive following, cap feedback and themed/scaled screenshots,
-  (5) full gate, strict Windows/Linux checks, isolated assertion mutants, independent review,
-  docs/progress, commit/push, exact-commit Windows/Ubuntu CI and closeout.
-  Files: gui/views/build_log.py, dashboard_builds.py, views/dashboard.py, focused view/integration/
-  visual tests and architecture/user docs. No core event, disk I/O, worker, dependency or command
-  inference/copying (e33). Preserve existing build eligibility, ownership and stale-context guards.
-  Panel belongs above the build bar so existing build controls remain the final dashboard item.
-  Before interruption: 24 focused cases on Python 3.12/3.13, six-file strict Windows/Linux checks,
-  and hidden-tools full gate 3,200 passed / 6 skips. Added a sixth context-boundary case afterwards.
-  Interrupted independent review left a reproduced MUST FIX: native batched-layout scrollbar
-  reclamping wrongly resumes following at 20,000 rows, losing the reader's position. Correcting
-  with full-cap visible/hidden/evicted-anchor regressions before renewed review and final gate.
-  Full-cap fix delivered and exercised: 15 new native-batch cases plus 26 panel/integration/
-  navigation/visual cases pass on Python 3.12 and 3.13 (41 total). Ten-file strict Windows/Linux
-  checks and budgets pass. Native geometry clamps no longer change reader intent; bar/scrollTo/
-  key/wheel/drag interruptions, End/reappend, overlapping bursts and evicted-anchor fallback covered.
-  Integration-only review approved captured routing/reset/lifecycle and four assertion mutants;
-  its test-only expansion-layout sequencing correction applied with all viewport checks retained.
-  All 38 isolated faults assertion-caught with in-run source origins/hashes and unchanged checkout.
-  Final independent review APPROVED: 180 combined cases including nine adversarial and four
-  extra geometry/lifetime probes; three independent corrective faults assertion-caught with
-  exact import/hash proofs. Variable-height delegates retain pixel anchors; native guard restores
-  after injected exceptions. Ten-file strict checks and all 12 original-resolution images pass.
-  Full gate exposed one intermittent existing e22 footer screenshot (TD-015); all four cases
-  passed five fresh-process reruns unchanged. Final hidden-tools gate PASS: 3,217 passed /
-  6 existing skips (3,223 selected), all quality checks clean; no assertion weakened.
-  Initial implementation pushed `5455d53`; Ubuntu CI exposed actual 47px horizontal overflow
-  at full-app enlarged fonts. Reproduced with external DejaVu Sans (no font committed) and a
-  synthetic 150%/160%-stretch card regression (old layout range158). Component mode text and
-  Change mode button now use separate rows, full labels and original Tab order retained.
-  Corrective local focused run: 56 passed; 42 e32 cases on Python 3.13. Independent width
-  review approved production: 142 focused and 14 DejaVu visual cases pass; old-layout copies
-  fail primary width assertions with source-origin/hash proof. Its only finding (test CC15)
-  fixed by extracting a typed containment helper without removing assertions (now CC9).
-  Twelve-file strict Windows/Linux typing and budgets pass; final helper-extraction review
-  approved all 11 assertions retained (AST-equivalent after inlining), fixed regression green,
-  isolated old-layout assertion red. Final hidden-tools gate: 3,218 passed / 6 existing skips
-  (3,224 selected); all quality checks clean. Corrective commit/CI and closeout pending.
-  Width correction pushed `62a1745`: exact Ubuntu Check job 127910404126 passed (3,210 /
-  14 existing skips; 3,224 selected matches local). Windows Check failed the
-  existing TD-015 footer screenshot at enlarged fonts (result bottom y=530 vs 449px viewport).
-  Root cause (test synchronization, TD-015): a footer label's growth needs about three queued
-  layout passes (label, build bar, dashboard, scroll range); the old reveal could scroll
-  mid-chain, so the later resize pushed the result below the viewport. The reveal helper now
-  waits for geometry-settled labels and dashboard height before scrolling; every containment
-  assertion unchanged. New mid-chain regression: old helper fails a primary assertion 3/3
-  (isolated copy, in-run origin/hash), fixed passes 3/3; visual file 25/25 over five fresh
-  processes; strict Windows/Linux typing and budgets pass. Independent review APPROVED (15/15
-  fresh reruns, old helper primary assertion 3/3, real 25-line overflow still fails, no
-  production scrolling bug). Full hidden-tools gate: 3,219 passed / 6 existing skips (3,225
-  selected). Task remains open pending exact Windows/Ubuntu CI and closeout.
-  Integration is not applicable: GUI/tests/docs only; no core/tool/adapters/dependency changes.
+_none_
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-10 `P5-T03e32` Added the collapsible live build log to the dashboard (`5455d53`,
+  enlarged-font card width fix `62a1745`, footer screenshot sync fix `f47420d`). Native
+  virtual list on the e31 bounded model, collapsed by default, collecting while hidden,
+  literal output with plain history/truncation captions; follows new output only while the
+  reader is at the end, and End resumes following. Native 256-row batched layout with
+  persistent anchors: geometry clamps at the 20,000-row cap no longer move a reader.
+  Current-run lines only, through existing project/context guards; cleared on new run or
+  rebind, kept on same-project navigation and completion. Panel sits above the build bar in
+  matching Tab order. Ubuntu CI found a 47px overflow at enlarged fonts, fixed by stacking
+  each card's mode text above its Change button. Windows CI found TD-015, a test reveal
+  between queued layout passes; the helper now waits for settled geometry (closed).
+  42 new cases; 38 parent and 3+4 reviewer assertion mutants caught; independent reviews
+  approved. Final gate 3,219 passed / 6 existing skips. Exact Check on `f47420d`: Windows
+  job 129621211654 (3,210 / 15 skips), Ubuntu 129621211824 (3,211 / 14); 3,225 selected on
+  both, remote main verified. Native Linux desktop look not verified; no command copying (e33).
 - 2026-11-06 `P5-T03e31` Added the bounded virtual Qt log model (`9ffbb9a`, test-race
   correction `a11067b`): newest 20,000 physical rows, 2,000,000 message characters, 4,096 per
   message and 128 per step ID, visible truncation and exact whole-row omission counts. Literal
@@ -1598,14 +1559,6 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   manifest is refused by the live-snapshot guard. It fails closed and retains all disk data;
   not introduced by this refactor. Add nested NaN/positive-negative NaN comparison regressions
   before choosing a NaN-aware snapshot equivalence rule; do not drop other stale-state guards.
-- **TD-015 · Phase 5 review · footer screenshot intermittently scrolls before final layout.**
-  Being closed in P5-T03e32: cause reproduced deterministically (reveal between queued layout
-  passes) and fixed in the test helper; see In progress.
-  In e32's full gate, existing e22 `test_integrated_build_dashboard_screenshots[font150-dark]`
-  reported result bottom y=546 outside a 449px viewport after `_reveal_footer`. All four cases
-  passed five fresh-process reruns (20 passes), without source/test edits. Measure deferred
-  status/layout delivery under full-suite load before changing synchronization. Keep exact
-  result/notice containment assertions; a missing screenshot target is not valid visual proof.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

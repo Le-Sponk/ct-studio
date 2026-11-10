@@ -5,8 +5,8 @@
 > may still change without notice.
 
 <!-- progress:start (written by scripts/progress.py; do not edit by hand) -->
-**Progress:** `██████████░░░░░░░░░░` 52% — 89 of 168 planned tasks done.
-Now working on phase 5, GUI shell & dashboard (manual-mode MVP) (16 of 28 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
+**Progress:** `██████████░░░░░░░░░░` 53% — 90 of 168 planned tasks done.
+Now working on phase 5, GUI shell & dashboard (manual-mode MVP) (17 of 28 done). Counted from the phase plans; see the [roadmap](docs/ROADMAP.md).
 <!-- progress:end -->
 
 CT Studio is an in-progress desktop app for building Mario Kart Wii custom tracks from Blender projects.
