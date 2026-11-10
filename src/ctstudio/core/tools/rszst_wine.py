@@ -39,6 +39,9 @@ from ctstudio.core.tools.wine import WineError, prefix_arch
 PREFIX_TIMEOUT = 600.0
 INSTALL_WINE = "sudo apt install -y wine"
 _WINE_BROKE = (ToolFailed, ToolTimedOut, ToolNotFound)
+# Where distributions put wineserver relative to the prefix that holds bin/wine: beside wine
+# (Ubuntu 24.04, WineHQ), or only in the library folder (Ubuntu 26.04 / Debian, Wine 10).
+_SERVER_PLACES = ("bin", "lib/x86_64-linux-gnu/wine", "lib/wine")
 
 
 def install_wine(
@@ -76,13 +79,28 @@ def install_wine(
     return exe
 
 
+def _wineserver(wine: Path, which: Which) -> Path:
+    """The ``wineserver`` that goes with ``wine``: on PATH, else where its package put it."""
+    found = which("wineserver")
+    if found:
+        return Path(found)
+    for place in _SERVER_PLACES:
+        server = wine.parent.parent / place / "wineserver"
+        if server.is_file():
+            return server
+    raise SetupFailed(
+        f"Wine's wineserver program was not found next to {wine} or in its library folder.",
+        hint=f"Reinstall Wine with:\n  {INSTALL_WINE}",
+    )
+
+
 def _prepare_prefix(root: Path, wine: Path, runner: Runner, which: Which) -> None:
     prefix = root / "prefix"
     if not (prefix / "system.reg").is_file():
         env = {**wine_environment(root), "WINEARCH": "win64"}
-        server = which("wineserver") or str(wine.parent / "wineserver")
+        server = _wineserver(wine, which)
         try:
-            for argv in ([wine, "wineboot", "-u"], [Path(server), "-w"]):
+            for argv in ([wine, "wineboot", "-u"], [server, "-w"]):
                 runner(argv, cwd=root, env=env, timeout=PREFIX_TIMEOUT, check=False)
         except _WINE_BROKE as exc:
             raise _no_prefix(exc.details) from exc

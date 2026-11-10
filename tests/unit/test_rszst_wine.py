@@ -217,3 +217,38 @@ def test_wine_that_hangs_on_the_banner_installs_nothing(tmp_path: Path) -> None:
             return super().__call__(cmd, **kwargs)
 
     _refused(tmp_path, BannerHangs(), "not RiiStudio 5.11.5")
+
+
+def _bare_wine(tmp_path: Path) -> Path:
+    """``/usr/bin/wine`` with no ``wineserver`` beside it, as Ubuntu 26.04 (Wine 10) ships it."""
+    wine = tmp_path / "usr" / "bin" / "wine"
+    wine.parent.mkdir(parents=True)
+    wine.write_text("#!/bin/sh\n", encoding="utf-8")
+    return wine
+
+
+@pytest.mark.parametrize(
+    "packaged", ["lib/x86_64-linux-gnu/wine/wineserver", "lib/wine/wineserver"]
+)
+def test_wineserver_is_found_where_the_distribution_packages_it(
+    tmp_path: Path, packaged: str
+) -> None:
+    wine = _bare_wine(tmp_path)
+    server = tmp_path / "usr" / packaged
+    server.parent.mkdir(parents=True)
+    server.write_text("#!/bin/sh\n", encoding="utf-8")
+    runner = Wine()
+    root = wine_root(tmp_path / "d")
+    install_wine(root, wine=wine, runner=runner, opener=_opener, which=_no_which)
+    assert runner.calls[1]["argv"] == [str(server), "-w"]
+
+
+def test_without_a_wineserver_setup_says_so_before_running_wine(tmp_path: Path) -> None:
+    runner = Wine()
+    root = wine_root(tmp_path / "d")
+    with pytest.raises(SetupFailed) as caught:
+        install_wine(
+            root, wine=_bare_wine(tmp_path), runner=runner, opener=_opener, which=_no_which
+        )
+    assert "wineserver" in str(caught.value) and "sudo apt install -y wine" in str(caught.value)
+    assert runner.calls == [] and read_record(root) is None

@@ -22,6 +22,12 @@
   backslash+newline quoting, output lines not redacted, progress ignoring e33a/b IDs), all
   fixed; re-review APPROVED (20,031 quoting cases and 137 real CreateProcess round-trips
   exact). Full hidden-tools gate: 3,243 passed / 6 existing skips (3,249 selected).
+  CI 61eeba4: Check green on both OSes (Windows 3234/15, Ubuntu 3235/14); Integration
+  (ubuntu-latest) red, as every nightly since 2026-11-06: the runner moved to Ubuntu 26.04,
+  whose Wine 10 has no /usr/bin/wineserver (it lives in /usr/lib/x86_64-linux-gnu/wine/).
+  Fix: rszst_wine looks for wineserver on PATH, beside wine, then in the library folder, and
+  says plainly when it is missing (3 RED tests first; reviewer 9/9 mutants; APPROVED). The
+  `--dry-run` text still prints a bare `wineserver -w` (cosmetic).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
