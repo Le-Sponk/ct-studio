@@ -220,7 +220,7 @@ Cancel, progress, last result. Collapsible virtualised log panel with "Copy comm
 screenshots in light and dark themes. Before the Build page uses the core runner, close TD-012:
 prove a failed UI event callback cannot leave cached outputs with missing part-state records.
 
-### [ ] P5-T04 — Manual file assignment
+### [x] P5-T04 — Manual file assignment
 Drag & drop onto a card or "Choose file…". Validate type (magic). Copy into `files/` by default, or
 "reference in place" option. Replacing an existing manual file backs up the old one.
 **Acceptance:** tests: wrong type rejected with explanation; backup created; manifest updated.
@@ -241,7 +241,7 @@ check that the file was not changed on disk meanwhile.
 when replacing (an identical file is left alone); manifest updated and reloads equal; reference
 in place copies nothing; failed copies and saves leave the old file and manifest intact.
 
-#### [ ] P5-T04b — Drop a file on a card or Choose file… (GUI)
+#### [x] P5-T04b — Drop a file on a card or Choose file… (GUI)
 A component card accepts one dropped file or folder and offers "Choose file…" with a "Reference
 in place" option; assignment runs on a worker, a refusal shows its reason, and status refreshes.
 **Acceptance:** GUI tests with synthetic drops and the keyboard chooser path, read-only and busy

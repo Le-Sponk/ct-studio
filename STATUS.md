@@ -4,21 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T04b — Drop a file on a card or Choose file… (GUI)
+**Next task:** P5-T05 — Issues panel
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `913a888` (Check + Integration, Windows + Ubuntu)
+**Last green commit:** `36745a6` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T04b` Drop a file on a card or Choose file… (GUI). Cards of parts with a manual mode
-  and their own table accept one dropped local file/folder (always as a copy) and offer More →
-  Choose file… / Reference file in place…; `AppServices.start_assign` refuses from memory and
-  `LaunchController.assign` runs `assign_file` on the single joined launch worker, so every
-  launch guard (switching, closing, editors, shutdown) covers it; the dashboard publishes the
-  manifest on the UI thread after the join, rebinds cards and rechecks statuses; the result or
-  refusal is a per-card note. Remaining: gate, commit/CI, closeout.
+_(none)_
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-11 `P5-T04b` Drop a file on a card or Choose file… (GUI) (`36745a6`). Cards of parts
+  with a manual mode and their own table accept one dropped local file or folder (always as a
+  copy, so a Shift-drag never moves the original; several files, web links or plain text are
+  explained or ignored) and offer More → Choose file… / Reference file in place… (keyboard
+  reachable; the chooser result is re-checked). `AppServices.start_assign` refuses from memory
+  (read-only, editing, build, launch or status check busy); `LaunchController.assign` runs
+  `assign_file` on the single joined launch worker, so closing and project switching wait. The
+  dashboard publishes the saved manifest on the UI thread, rebinds cards and rechecks statuses;
+  a stale result never overwrites. Plain per-card notes (`gui/assign_text.py`; long paths
+  shortened, full path in tooltip and accessible description). Core: a `files` entry that is not
+  a folder is explained. Evidence: 3,385 local tests; 52/52 mutants assertion-caught; three
+  independent reviews (final APPROVE); light/dark screenshots; CI Check green on Windows and
+  Ubuntu (Integration not triggered: no `core/tools`/`core/build` change). P5-T04 complete.
 - 2026-11-10 `P5-T04a` Assign a supplied file (core) (`913a888`). `components/assign.py`
   `assign_file(project, part, source, *, reference=False)` refuses, before touching anything and
   with a plain reason and hint: read-only project, ctstudio.toml changed on disk, a part without
