@@ -4,24 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e33b — Copy command in the live log (GUI)
+**Next task:** P5-T04 — Manual file assignment
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `928d4d7` (Check and Integration, Windows + Ubuntu)
+**Last green commit:** `4ea9b40` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e33b` Copy command in the live log (GUI). (1) Tests first: CommandRun becomes one
-  distinct command row ("Ran:" prefix, accessible text, tooltip naming the Windows
-  PowerShell/CreateProcess form, not cmd.exe); a "Copy command" action (context menu and
-  Ctrl+Shift+C on the log list) copies `CommandRun.text` exactly, and is disabled and inert on
-  ordinary output, even command-looking; a command row shortened by the line cap cannot be
-  copied (it says to use the disk log); eviction/clear/rebind leave no stale copy; native
-  Ctrl+C line copy unchanged; light/dark screenshots. (2) Model `LogRole.Command`, panel
-  `append_command` + action, dashboard routing. (3) Docs, gate, review, commit/CI, closeout.
-  Risks: Qt's built-in Ctrl+C on item views copies the display text, so Copy command needs its
-  own shortcut; context menus are popups, absent from window grabs.
+- (none)
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-10 `P5-T03e33b` Copy command in the live log (`4ea9b40`); this completes P5-T03.
+  Each tool a build step starts shows as one bold "Ran:" row (accessible text and tooltip say
+  it is a Windows PowerShell/CreateProcess command line, not cmd.exe; POSIX shell elsewhere).
+  Copy command (Ctrl+Shift+C on the focused list, or right-click) copies the core command text
+  exactly and is disabled and inert on ordinary output, even command-looking; Ctrl+C still
+  copies the shown line. A command too long for the list is not copyable (tooltip: disk log);
+  an open menu never copies a different command after its row is evicted, and offers nothing
+  below the rows. RED 21 + 3 new cases first; 23/23 assertion-only mutants caught; review
+  APPROVED with 6 should-fix items, all fixed, re-review APPROVED (8/9 extra mutants, the
+  survivor closed by an exact tooltip assertion). Light/dark screenshots inspected. Full gate
+  3,271 passed / 6 existing skips. Exact CI `4ea9b40`: Windows 3,262 / 15 skipped, Ubuntu
+  3,263 / 14 skipped.
 - 2026-11-10 `P5-T03e33a` Trusted command events in core (`61eeba4`). `process.run` reports
   the argv it actually starts to the build step on that thread; the runner turns reports into
   `CommandRun` events with exact command text (C runtime quoting on Windows, documented as

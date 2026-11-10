@@ -58,7 +58,7 @@ silently dropped). Folder checks run off the UI thread. **Acceptance:** recent l
 settings across restarts (with backup, unknown keys kept); missing-folder handling; opening from
 the list; screenshots light and dark.
 
-### [ ] P5-T03 — Dashboard
+### [x] P5-T03 — Dashboard (all parts done; last commit 4ea9b40)
 Split (2026-11-04: header/cards, build controls and log together exceed one session):
 
 #### [x] P5-T03a — Build callback failure safety (TD-012) (commit bb2f4eb)
@@ -190,7 +190,7 @@ boundaries/quoting and redact designated sensitive arguments. **Acceptance:** tr
 commands copied exactly after documented redaction, non-command output cannot enable copying,
 keyboard/screenshot coverage, and the existing full disk-log behavior remains intact.
 
-###### [x] P5-T03e33a — Trusted command events (core)
+###### [x] P5-T03e33a — Trusted command events (core) (commits 61eeba4, 928d4d7)
 The one process-spawning boundary (`core/tools/process.run`) reports the argv it actually
 starts, with caller-designated sensitive arguments replaced by a documented marker, to the
 build step running on that thread; the runner turns reports into a structured `CommandRun`
@@ -204,7 +204,7 @@ events, the tool's output lines, the tool log, the build log, JSON events or
 environment); the
 disk build log gains one `command:` line per run, and JSON events document a `command` event.
 
-###### [ ] P5-T03e33b — Copy command in the live log (GUI)
+###### [x] P5-T03e33b — Copy command in the live log (GUI) (commit 4ea9b40)
 Show `CommandRun` entries as distinct command rows in the live log and offer Copy command only
 for them, copying the core command text exactly; say plainly that on Windows it is a
 PowerShell/CreateProcess command line, not cmd.exe. **Acceptance:** keyboard and context-menu copy
