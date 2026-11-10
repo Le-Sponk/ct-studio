@@ -227,7 +227,7 @@ Drag & drop onto a card or "Choose file…". Validate type (magic). Copy into `f
 Split (2026-11-10, size check: the core file work and the card's drop/chooser UI together
 exceed one session; no original scope is removed):
 
-#### [ ] P5-T04a — Assign a supplied file (core)
+#### [x] P5-T04a — Assign a supplied file (core)
 `core/components/assign.py` `assign_file(project, part, source, *, reference=False)`. Before
 touching anything it refuses: a read-only project, a part without a manual mode, a missing
 source, a source inside `.ctstudio/`, a folder copy into itself, and the wrong type (the same

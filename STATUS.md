@@ -4,24 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T04a — Assign a supplied file (core)
+**Next task:** P5-T04b — Drop a file on a card or Choose file… (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `4ea9b40` (Check, Windows + Ubuntu)
+**Last green commit:** `913a888` (Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T04a` Assign a supplied file (core). (1) Tests first: wrong type, missing source, inside
-  `.ctstudio/`, folder into itself, part without manual mode and read-only project are refused
-  with an explanation and change nothing; default copy into `files/<game name>` (post-effects
-  as a folder); replacing a different copy backs it up to `.ctstudio/backups/<time>/files/`,
-  an identical file is left alone; reference in place copies nothing and records a project-
-  relative or absolute path; manifest mode+file saved with a backup and reloads equal; a copy
-  or save failure keeps the old file/manifest; on-disk manifest change refused. (2) Share the
-  stage step's atomic file/folder copy via `fsutil`, add `backups.backup_folder`. (3) Docs,
-  gate, review, commit/CI, closeout. Risks: Windows file locks during a folder swap; a manifest
-  save failing after the copy leaves the new copy in `files/` (the old one is backed up).
+_(none)_
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-10 `P5-T04a` Assign a supplied file (core) (`913a888`). `components/assign.py`
+  `assign_file(project, part, source, *, reference=False)` refuses, before touching anything and
+  with a plain reason and hint: read-only project, ctstudio.toml changed on disk, a part without
+  its own manual mode, a missing or unusable path, anything inside or containing `.ctstudio/`,
+  a source overlapping the copy target, and the wrong type (same check as status and build).
+  Default copies into `files/<game name>` (post-effects as a folder, staged and type-checked
+  again); a different existing copy is backed up first (`backups.save_copies`, which removes an
+  incomplete backup), an identical one is left alone; reference in place copies nothing. A
+  failed copy, swap or save (also Ctrl+C) puts the old copy back or keeps it and names where.
+  Tests 49 (RED first); 34/34 assertion-only mutants caught; review: 1 must-fix (raw folder
+  backup message) + 7 should-fix, all fixed tests-first, re-review APPROVED. Gate 3,320 passed /
+  6 skips. Exact CI `913a888`: Check Windows 3,311 / 15 skipped, Ubuntu 3,312 / 14; Integration
+  Windows 126 / 21, Ubuntu 130 / 17. One local gate run failed in `test_cli_project` when a
+  Windows Application Control policy blocked the fake blender.exe; it passed 3/3 alone and in
+  the next gate (environment, not code).
 - 2026-11-10 `P5-T03e33b` Copy command in the live log (`4ea9b40`); this completes P5-T03.
   Each tool a build step starts shows as one bold "Ran:" row (accessible text and tooltip say
   it is a Windows PowerShell/CreateProcess command line, not cmd.exe; POSIX shell elsewhere).
