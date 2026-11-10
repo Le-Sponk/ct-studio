@@ -272,7 +272,8 @@ template/manual ─────────────────────�
   when changed). Thread-safe for the runner.
 - **Runner** (P4-T03a): `build/runner.py` `run_build(graph, cache, request, on_event, *, cancel,
   jobs)`. The calling thread schedules and delivers events (`build/events.py`: `BuildStarted`,
-  `NodeStarted`, `LogLine`, `NodeSkipped`, `NodeFinished`, `NodeFailed`, `BuildFinished`) one
+  `NodeStarted`, `LogLine`, `CommandRun`, `NodeSkipped`, `NodeFinished`, `NodeFailed`,
+  `BuildFinished`) one
   at a time; steps run in a `ThreadPoolExecutor` of `jobs` threads (default `min(4, CPUs)`),
   closed before return. A step starts when every step it needs ran or was skipped and none
   of its `resources` is held; a waiting step does not hold up later ready ones. Fresh in the
@@ -381,6 +382,17 @@ wrote, a timestamped backup is made — no exceptions.
   P2-T03 implements `run()` (absolute argv only, inherited env plus additions, bounded 50-line
   tails, optional appended UTF-8 log, typed `ToolNotFound`/`ToolFailed`/`ToolTimedOut`/
   `Cancelled`) and `launch_detached()`. Callbacks run on the caller's thread in arrival order.
+  P5-T03e33a: `run(..., sensitive=[...])` replaces each listed value with `<redacted>` (one
+  pass, longest first) in every shown argv (command report, tool log, `ToolFailed`/
+  `ToolTimedOut`) and in the tool's output lines (callback, log, tails); the tool gets the
+  real argv. Executable path, working folder and environment are not covered. After a
+  successful start it reports the shown argv through `core/tools/commands.py` to the reporter
+  that `reporting()` installed on the same thread. The runner installs one around each step's
+  `run`, turning reports into `CommandRun` events (redacted argv plus `command_text`:
+  Microsoft C runtime quoting on Windows, not cmd.exe escaping; `shlex.join` elsewhere;
+  round-trip tested through the real OS parser). Tool output and step log text never become
+  commands; runs outside a step, or on other threads, report nothing. The disk build log gets
+  one `command:` line per run; `--json-events` gets a `command` event.
 - Cancellation/timeout kills the whole process tree (POSIX sessions + `killpg`; Windows
   kill-on-close job objects, assigned while the tool is suspended — ADR-024). Helpers left
   behind after a clean exit are also stopped.

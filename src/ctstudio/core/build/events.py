@@ -32,6 +32,17 @@ class LogLine:
 
 
 @dataclass(frozen=True)
+class CommandRun:
+    """A step started a tool. Reported only by the process boundary (never parsed from output);
+    sensitive values are already replaced. ``text`` parses back into ``argv`` on this platform.
+    """
+
+    node_id: str
+    argv: tuple[str, ...]
+    text: str
+
+
+@dataclass(frozen=True)
 class NodeSkipped:
     """Nothing the step depends on changed since it last ran, so its files were kept."""
 
@@ -77,5 +88,12 @@ class BuildFinished:
 
 
 type BuildEvent = (
-    BuildStarted | NodeStarted | LogLine | NodeSkipped | NodeFinished | NodeFailed | BuildFinished
+    BuildStarted
+    | NodeStarted
+    | LogLine
+    | CommandRun
+    | NodeSkipped
+    | NodeFinished
+    | NodeFailed
+    | BuildFinished
 )

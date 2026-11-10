@@ -27,6 +27,7 @@ from queue import Empty, Queue
 from typing import IO, Literal, TextIO
 
 from ctstudio.core.errors import Cancelled, ProjectError, ToolFailed, ToolTimedOut
+from ctstudio.core.tools.commands import Redactor, redact, redactor, report
 from ctstudio.core.tools.process_errors import start_error
 from ctstudio.core.tools.process_tree import ProcessTree
 
@@ -76,6 +77,7 @@ class _Session:
     events: Queue[_Event]
     log: TextIO | None
     on_line: LineCallback | None
+    hide: Redactor
     tails: dict[Stream, deque[str]] = field(default_factory=_empty_tails)
     open_streams: int = 2
 
@@ -91,6 +93,7 @@ class _Session:
         if lines is None:
             self.open_streams -= 1
             return True
+        lines = [self.hide(line) for line in lines]
         self.tails[stream].extend(lines)
         if self.log is not None:
             tag = _LOG_TAGS[stream]
@@ -114,6 +117,7 @@ def run(
     cancel: CancelToken | None = None,
     log_path: Path | None = None,
     check: bool = True,
+    sensitive: Sequence[str] = (),
 ) -> RunResult:
     """Run a CLI tool to completion without a console window.
 
@@ -122,19 +126,24 @@ def run(
     Raises ``ToolNotFound`` (also for a file that is not a program), ``ToolFailedToStart``
     (the OS refused for another reason), ``ToolTimedOut``, ``Cancelled``, and with ``check``
     a non-zero exit raises ``ToolFailed`` carrying the stderr tail (stdout's when stderr is
-    empty).
+    empty). Each ``sensitive`` value is replaced by ``commands.REDACTED`` wherever the argv is
+    shown (the command report, the log and those errors) and in the tool's output lines (the
+    callback, the log and the tails); the tool itself gets the real argv.
     """
     argv = _argv(cmd)
+    hide = redactor(sensitive)
+    shown = redact(argv, sensitive)
     _require_folder(cwd)
     if cancel is not None and cancel.cancelled:
         raise Cancelled(Path(argv[0]).name)
     limit = math.inf if timeout is None else timeout
     with ExitStack() as stack:
-        log = _open_log(stack, log_path, argv, cwd)
+        log = _open_log(stack, log_path, shown, cwd)
         started = time.monotonic()
-        session = _start(argv, cwd, env, log, on_line)
+        session = _start(argv, cwd, env, log, on_line, hide)
         stack.callback(session.tree.close)
         try:
+            report(shown)
             stopped = _pump(session, started + limit, cancel)
         except BaseException as exc:
             _stop(session, f"# stopped: {type(exc).__name__}")
@@ -144,7 +153,7 @@ def run(
             _stop(session, f"# stopped: {stopped} after {duration:.2f} s")
             if stopped == "cancelled":
                 raise Cancelled(Path(argv[0]).name)
-            raise ToolTimedOut(argv, limit, log_path)
+            raise ToolTimedOut(shown, limit, log_path)
         _note(log, f"# exit {session.proc.returncode} after {duration:.2f} s")
         result = RunResult(
             session.proc.returncode,
@@ -155,7 +164,7 @@ def run(
         )
     if check and result.exit_code != 0:
         tail = result.stderr_tail or result.stdout_tail
-        raise ToolFailed(argv, result.exit_code, tail, log_path)
+        raise ToolFailed(shown, result.exit_code, tail, log_path)
     return result
 
 
@@ -277,6 +286,7 @@ def _start(
     env: Mapping[str, str] | None,
     log: TextIO | None,
     on_line: LineCallback | None,
+    hide: Redactor,
 ) -> _Session:
     proc = _popen(argv, cwd, _environment(env), detached=False)
     try:
@@ -294,7 +304,7 @@ def _start(
             target=_read, args=(pipe, stream, events), name=f"{stream}-{proc.pid}", daemon=True
         )
         reader.start()
-    return _Session(proc, tree, events, log, on_line)
+    return _Session(proc, tree, events, log, on_line, hide)
 
 
 def _read(pipe: IO[bytes], stream: Stream, events: Queue[_Event]) -> None:
@@ -366,13 +376,15 @@ def _stop(session: _Session, note: str) -> None:
     _note(session.log, note)
 
 
-def _open_log(stack: ExitStack, log_path: Path | None, argv: list[str], cwd: Path) -> TextIO | None:
+def _open_log(
+    stack: ExitStack, log_path: Path | None, argv: Sequence[str], cwd: Path
+) -> TextIO | None:
     if log_path is None:
         return None
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log = stack.enter_context(log_path.open("a", encoding="utf-8", newline="\n"))
     stamp = datetime.now(UTC).isoformat(timespec="seconds")
-    log.write(f"# run {stamp} cwd={cwd} argv={argv!r}\n")
+    log.write(f"# run {stamp} cwd={cwd} argv={list(argv)!r}\n")
     return log
 
 

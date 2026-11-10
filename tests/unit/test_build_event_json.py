@@ -19,6 +19,7 @@ from ctstudio.core.build.events import (
     BuildFinished,
     BuildStarted,
     BuildSummary,
+    CommandRun,
     LogLine,
     NodeFailed,
     NodeFinished,
@@ -54,6 +55,7 @@ EVERY_EVENT: list[BuildEvent] = [
     BuildStarted(("stage:kcl", "stage:kmp", "assemble", "validate")),
     NodeStarted("stage:kcl"),
     LogLine("assemble", "castle_course.szs: 2 files"),
+    CommandRun("assemble", ("C:/T/wszst.exe", "create", "a b"), 'C:/T/wszst.exe create "a b"'),
     NodeSkipped("stage:kmp", (FOUND,)),
     NodeSkipped("stage:kmp"),
     NodeFinished("stage:kcl", 0.0204, ()),
@@ -128,6 +130,17 @@ def test_the_fields_of_each_event() -> None:
     assert skipped["event"] == "step_skipped" and len(skipped["issues"]) == 1  # type: ignore[arg-type]
     started = event_to_json(BuildStarted(("a", "b")), ROOT)
     assert started == {"format": 1, "event": "build_started", "steps": ["a", "b"]}
+
+
+def test_a_command_event_keeps_the_argv_and_its_text() -> None:
+    command = CommandRun("s", ("/t/wszst", "x y", "<redacted>"), "/t/wszst 'x y' '<redacted>'")
+    assert event_to_json(command, ROOT) == {
+        "format": 1,
+        "event": "command",
+        "step": "s",
+        "argv": ["/t/wszst", "x y", "<redacted>"],
+        "text": "/t/wszst 'x y' '<redacted>'",
+    }
 
 
 BAD: list[tuple[str, dict[str, Any]]] = [

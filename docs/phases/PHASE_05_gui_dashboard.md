@@ -183,12 +183,33 @@ scrolling up stops following until they return to the end or start another build
 respected, no scrolling before a build or after rebind, focus unchanged, light/dark screenshots.
 Done in `3f7c31a`; exact Windows/Ubuntu Check green.
 
-###### [ ] P5-T03e33 — Trusted command entries and safe exact copying
+##### P5-T03e33 — Trusted command entries and safe exact copying (split into e33a/e33b)
 Existing LogLine text has no structured command provenance. Add the command-reporting boundary
 before offering Copy command; never guess commands from arbitrary tool output. Preserve argv
 boundaries/quoting and redact designated sensitive arguments. **Acceptance:** trusted synthetic
 commands copied exactly after documented redaction, non-command output cannot enable copying,
 keyboard/screenshot coverage, and the existing full disk-log behavior remains intact.
+
+###### [ ] P5-T03e33a — Trusted command events (core)
+The one process-spawning boundary (`core/tools/process.run`) reports the argv it actually
+starts, with caller-designated sensitive arguments replaced by a documented marker, to the
+build step running on that thread; the runner turns reports into a structured `CommandRun`
+event. Exact platform command text (CreateProcess quoting on Windows, POSIX shell quoting
+elsewhere) is a core function. **Acceptance:** synthetic tools run by a build step produce
+`CommandRun` events with exact redacted argv; command text round-trips through the real OS
+parser (spaces, quotes, backslashes, empty and Unicode arguments); tool output that looks like a
+command stays a `LogLine`; runs outside a build report nothing; sensitive values never reach
+events, the tool's output lines, the tool log, the build log, JSON events or
+`ToolFailed`/`ToolTimedOut` details (argument values; not the executable path, folder or
+environment); the
+disk build log gains one `command:` line per run, and JSON events document a `command` event.
+
+###### [ ] P5-T03e33b — Copy command in the live log (GUI)
+Show `CommandRun` entries as distinct command rows in the live log and offer Copy command only
+for them, copying the core command text exactly; say plainly that on Windows it is a
+PowerShell/CreateProcess command line, not cmd.exe. **Acceptance:** keyboard and context-menu copy
+of a trusted synthetic command, ordinary output (even command-looking) cannot enable copying,
+light/dark screenshots, existing log behaviour unchanged.
 
 Original combined scope:
 Header: project name, slot selector, source file + "Open in Blender". Component cards (status icon +

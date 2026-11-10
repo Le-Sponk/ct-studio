@@ -28,6 +28,7 @@ from ctstudio.core.build.events import (
     BuildFinished,
     BuildStarted,
     BuildSummary,
+    CommandRun,
     LogLine,
     NodeFailed,
     NodeFinished,
@@ -166,6 +167,7 @@ def test_the_human_output(root: Path, builds: Builds, capsys: pytest.CaptureFixt
         BuildStarted(("stage:kcl", "stage:kmp", "assemble", "validate")),
         NodeStarted("stage:kcl"),
         LogLine("assemble", "castle_course.szs: 2 files (fast compression), and the _d copy"),
+        CommandRun("assemble", ("/t/wszst", "create"), "/t/wszst create"),  # disk log/JSON only
         NodeSkipped("stage:kmp", (WARN,)),
         NodeFinished("stage:kcl", 0.0204, ()),
         NodeFinished("assemble", 0.31, ()),
@@ -271,6 +273,7 @@ def test_json_events_prints_one_valid_line_per_event(
         BuildStarted(("stage:kcl",)),
         NodeStarted("stage:kcl"),
         LogLine("stage:kcl", "Pistë 日本"),
+        CommandRun("stage:kcl", ("/t/wszst", "Pistë 日本"), "/t/wszst 'Pistë 日本'"),
         NodeFinished("stage:kcl", 0.02, (WARN,)),
         BuildFinished(summary(root=root, issues=(WARN,))),
     ]
@@ -280,6 +283,7 @@ def test_json_events_prints_one_valid_line_per_event(
         "build_started",
         "step_started",
         "log",
+        "command",
         "step_finished",
         "build_finished",
     ]

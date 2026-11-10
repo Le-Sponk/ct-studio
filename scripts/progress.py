@@ -25,7 +25,7 @@ END = "<!-- progress:end -->"
 OPTIONAL_PHASES = frozenset({14})
 BAR_WIDTH = 20
 _TASK = re.compile(
-    r"^\s*(?:#{2,6}|[-*])\s*\[([ xX])\]\s*(?:\*\*)?(P(\d+)-[A-Z]+\d*(?:[a-z]\d*)?)\b"
+    r"^\s*(?:#{2,6}|[-*])\s*\[([ xX])\]\s*(?:\*\*)?(P(\d+)-[A-Z]+\d*(?:[a-z]\d*)*)\b"
 )
 _TITLE = re.compile(r"^# Phase (\d+) — (.+)$")
 

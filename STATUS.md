@@ -4,12 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e33 — Trusted command entries and safe exact copying
+**Next task:** P5-T03e33a — Trusted command events (core)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `3f7c31a` (P5-T03e34; Check, Windows + Ubuntu)
 
 ## In progress
-_none_
+- `P5-T03e33a` Trusted command events (core). (1) Tests first: process-level redaction and
+  reporting, exact command text round-tripping through the real OS parser, runner `CommandRun`
+  events only from the spawning boundary, no reports outside a build, secrets absent from every
+  sink, build log/JSON event output. (2) `core/tools/commands.py` (marker, redaction, text,
+  thread-local reporter), `process.run(sensitive=...)`, `events.CommandRun`, runner reporter,
+  build log line, JSON event + schema. (3) Docs, gate, review, commit/CI, closeout.
+  Risks: process.py is near its 400-line budget; exhaustive event matches in CLI/GUI.
+  Evidence: RED collection failures before the code; 23/23 isolated assertion-only mutants
+  caught (reviewer re-run 26/26); focused tests 126 x3; strict Windows/Linux typing; budgets
+  (process.py 393 lines, run 59 lines, CC 10). Review 1 found 3 must-fixes (trailing
+  backslash+newline quoting, output lines not redacted, progress ignoring e33a/b IDs), all
+  fixed; re-review APPROVED (20,031 quoting cases and 137 real CreateProcess round-trips
+  exact). Full hidden-tools gate: 3,243 passed / 6 existing skips (3,249 selected).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -977,6 +989,8 @@ _none_
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- `P5-T03e33` split into `P5-T03e33a` (trusted command events in core) and `P5-T03e33b` (Copy
+  command in the live log); total planned tasks becomes 170.
 - `P5-T03e34` added (user decision after e32): the dashboard follows the newest build output
   while the reader stays at its end. Done before e33; total planned tasks becomes 169.
 - `P5-T03e3` split into `P5-T03e31` (bounded Qt log model), `P5-T03e32` (collapsible live

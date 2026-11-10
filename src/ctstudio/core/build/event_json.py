@@ -14,6 +14,7 @@ from ctstudio.core.build.events import (
     BuildEvent,
     BuildFinished,
     BuildStarted,
+    CommandRun,
     LogLine,
     NodeFailed,
     NodeFinished,
@@ -38,6 +39,8 @@ def _fields(event: BuildEvent, root: Path) -> dict[str, object]:
             return {"event": "step_started", "step": step}
         case LogLine(step, text):
             return {"event": "log", "step": step, "text": text}
+        case CommandRun(step, argv, text):
+            return {"event": "command", "step": step, "argv": list(argv), "text": text}
         case NodeSkipped(step, issues):
             return {"event": "step_skipped", "step": step, "issues": _issues(issues, root)}
         case NodeFinished(step, duration, issues):

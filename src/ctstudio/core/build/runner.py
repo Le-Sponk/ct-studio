@@ -29,6 +29,7 @@ from ctstudio.core.build.events import (
     BuildFinished,
     BuildStarted,
     BuildSummary,
+    CommandRun,
     LogLine,
     NodeFailed,
     NodeFinished,
@@ -41,6 +42,7 @@ from ctstudio.core.build.node import BuildContext, Node, Profile, StepFailed
 from ctstudio.core.build.part_state import PartRecorder
 from ctstudio.core.errors import BuildError, Cancelled, CTStudioError
 from ctstudio.core.project.manifest import Manifest
+from ctstudio.core.tools.commands import command_text, reporting
 from ctstudio.core.tools.discovery import ToolLocation
 from ctstudio.core.tools.process import CancelToken
 from ctstudio.core.validation.issues import Issue
@@ -224,7 +226,8 @@ class _Build:
         if lookup.edited:
             self._back_up(node, lookup.edited)
         started = time.monotonic()
-        result = node.run(self._context(node))
+        with reporting(lambda argv: self._queue.put(CommandRun(node.id, argv, command_text(argv)))):
+            result = node.run(self._context(node))
         self.cache.store(node, lookup, result.issues)
         finished = NodeFinished(node.id, time.monotonic() - started, result.issues)
         return _Done(node.id, "ran", finished, result.issues)

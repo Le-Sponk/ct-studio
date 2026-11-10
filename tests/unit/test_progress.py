@@ -88,6 +88,23 @@ def test_numbered_subparts_count_without_parent_or_sibling_prefix_collisions(
     assert (counted.done, counted.total) == (1, 4)
 
 
+def test_lettered_splits_of_numbered_subparts_are_counted(tmp_path: Path) -> None:
+    phases = tmp_path / "phases"
+    write_phase(
+        phases,
+        5,
+        "Dashboard",
+        "##### P5-T03e3 — Log (split into e31/e33)",
+        "###### [x] P5-T03e31 — Model",
+        "##### P5-T03e33 — Commands (split into e33a/e33b)",
+        "###### [x] P5-T03e33a — Core",
+        "###### [ ] P5-T03e33b — GUI",
+        "###### [ ] P5-T03e34 — Follow",
+    )
+    counted = progress.count(phases)
+    assert (counted.done, counted.total) == (2, 4)
+
+
 def test_main_writes_the_readme_and_check_reports_staleness(tmp_path: Path) -> None:
     root = project(tmp_path)
     assert progress.main(["--check"], root) == 1

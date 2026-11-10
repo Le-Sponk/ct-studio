@@ -155,13 +155,20 @@ Log: .ctstudio/logs/build-2026-11-03T08-11-23.488115Z.log
 ```
 
 - Events, in order: one `build_started` (every step, in build order); per step that runs,
-  `step_started`, any `log` lines, then `step_finished` or `step_failed`; per unchanged
+  `step_started`, any `log` and `command` lines, then `step_finished` or `step_failed`; per unchanged
   step, `step_skipped` with what it found when it last ran; one `build_finished` last.
   Steps run in parallel, so lines of different steps interleave.
 - Step ids: `stage:<part>` (copy your file), `assemble` (pack), `validate` (check).
 - `issues`: as in `.ctstudio/issues.json`; `file` is relative to the project (with "/")
   when inside it, otherwise absolute. `severity` is `error`, `warning`, `hint` or `info`.
 - `step_failed.cancelled`: true when the step stopped because the build was cancelled.
+- `command`: a tool the step started. Only CT Studio's process runner reports these, never
+  tool output. `argv` is exactly what was started, except that sensitive argument values
+  (none in the current steps) read `<redacted>`, as they do in that tool's output lines;
+  `text` is one command line that parses back into `argv`. On Windows it follows the
+  CreateProcess / C runtime rules (paste it into PowerShell after `& `); it is not escaped for
+  cmd.exe, where `%VAR%` and unquoted `& ^ | < >` keep their meaning. Elsewhere it is POSIX
+  shell quoting.
 - `build_finished.log`: this build's log, relative to the project; null if it could not
   be written.
 - `format` rises only when a field is renamed or removed or its meaning changes; new
@@ -174,12 +181,13 @@ Every line matches this JSON Schema (the tests check it):
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "title": "ctstudio build --json-events line (format 1)",
- "oneOf": [{"$ref": "#/$defs/build_started"}, {"$ref": "#/$defs/step_started"}, {"$ref": "#/$defs/log"}, {"$ref": "#/$defs/step_skipped"}, {"$ref": "#/$defs/step_finished"}, {"$ref": "#/$defs/step_failed"}, {"$ref": "#/$defs/build_finished"}],
+ "oneOf": [{"$ref": "#/$defs/build_started"}, {"$ref": "#/$defs/step_started"}, {"$ref": "#/$defs/log"}, {"$ref": "#/$defs/command"}, {"$ref": "#/$defs/step_skipped"}, {"$ref": "#/$defs/step_finished"}, {"$ref": "#/$defs/step_failed"}, {"$ref": "#/$defs/build_finished"}],
  "$defs": {
   "issue": {"type": "object", "additionalProperties": false, "required": ["severity", "component", "code", "message", "hint", "source", "file", "wiki"], "properties": {"severity": {"enum": ["error", "warning", "hint", "info"]}, "component": {"type": "string"}, "code": {"type": "string"}, "message": {"type": "string"}, "hint": {"type": ["string", "null"]}, "source": {"type": "string"}, "file": {"type": ["string", "null"]}, "wiki": {"type": ["string", "null"]}}},
   "build_started": {"type": "object", "additionalProperties": false, "required": ["format", "event", "steps"], "properties": {"format": {"const": 1}, "event": {"const": "build_started"}, "steps": {"type": "array", "items": {"type": "string"}}}},
   "step_started": {"type": "object", "additionalProperties": false, "required": ["format", "event", "step"], "properties": {"format": {"const": 1}, "event": {"const": "step_started"}, "step": {"type": "string"}}},
   "log": {"type": "object", "additionalProperties": false, "required": ["format", "event", "step", "text"], "properties": {"format": {"const": 1}, "event": {"const": "log"}, "step": {"type": "string"}, "text": {"type": "string"}}},
+  "command": {"type": "object", "additionalProperties": false, "required": ["format", "event", "step", "argv", "text"], "properties": {"format": {"const": 1}, "event": {"const": "command"}, "step": {"type": "string"}, "argv": {"type": "array", "items": {"type": "string"}}, "text": {"type": "string"}}},
   "step_skipped": {"type": "object", "additionalProperties": false, "required": ["format", "event", "step", "issues"], "properties": {"format": {"const": 1}, "event": {"const": "step_skipped"}, "step": {"type": "string"}, "issues": {"type": "array", "items": {"$ref": "#/$defs/issue"}}}},
   "step_finished": {"type": "object", "additionalProperties": false, "required": ["format", "event", "step", "duration", "issues"], "properties": {"format": {"const": 1}, "event": {"const": "step_finished"}, "step": {"type": "string"}, "duration": {"type": "number", "minimum": 0}, "issues": {"type": "array", "items": {"$ref": "#/$defs/issue"}}}},
   "step_failed": {"type": "object", "additionalProperties": false, "required": ["format", "event", "step", "message", "hint", "cancelled", "issues"], "properties": {"format": {"const": 1}, "event": {"const": "step_failed"}, "step": {"type": "string"}, "message": {"type": "string"}, "hint": {"type": ["string", "null"]}, "cancelled": {"type": "boolean"}, "issues": {"type": "array", "items": {"$ref": "#/$defs/issue"}}}},

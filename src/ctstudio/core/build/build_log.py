@@ -17,6 +17,7 @@ from ctstudio.core.build.events import (
     BuildFinished,
     BuildStarted,
     BuildSummary,
+    CommandRun,
     LogLine,
     NodeFailed,
     NodeFinished,
@@ -97,13 +98,15 @@ def _lines(event: BuildEvent) -> list[str]:
 
 
 def _step_lines(
-    event: NodeStarted | LogLine | NodeSkipped | NodeFinished | NodeFailed,
+    event: NodeStarted | LogLine | CommandRun | NodeSkipped | NodeFinished | NodeFailed,
 ) -> list[str]:
     match event:
         case NodeStarted():
             return ["started"]
         case LogLine(_, text):
             return text.splitlines() or [""]
+        case CommandRun(_, _, text):
+            return [f"command: {text}"]
         case NodeSkipped(_, issues):
             notes = [f"{i.severity}: {_join(i.message, i.hint)} (found before)" for i in issues]
             return ["skipped: nothing it uses changed", *notes]
