@@ -84,7 +84,10 @@ Show build log, just above the build buttons, reveals the current build's messag
 starts collapsed and keeps collecting while hidden; hiding it never stops a build. Tab reaches
 the toggle, Space opens/closes it, and the next Tab reaches the populated output list. Use the
 arrow keys, Home and End to read the list; Tab continues to the available build/cancel buttons.
-The dashboard scrolls to keyboard-focused controls in a small window.
+The dashboard scrolls to keyboard-focused controls in a small window. While a build runs, a
+small window also scrolls the dashboard down to keep the newest output, the build bar and the
+final result in view. Scroll the dashboard up to read the cards without being pulled back;
+scroll back to the bottom (or start another build) to follow again.
 
 New output follows the bottom only while you are at the end. Scroll upwards to read older
 messages without being pulled back; return to the end to follow again. The view retains at

@@ -24,6 +24,7 @@ from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.project import Project
 from ctstudio.gui.views.build_controls import BuildControls
 from ctstudio.gui.views.build_log import BuildLogPanel
+from ctstudio.gui.views.dashboard_follow import DashboardFollower
 
 if TYPE_CHECKING:
     from ctstudio.gui.views.dashboard import Dashboard
@@ -45,6 +46,7 @@ class DashboardBuilds(QObject):
         self._services = page.services
         self.log = BuildLogPanel(page)
         self.controls = BuildControls(page)
+        self.follow = DashboardFollower(self)
         self.can_start: Callable[[], bool] = lambda: True
         self._run: _Run | None = None
         self._steps: set[str] = set()
@@ -95,6 +97,7 @@ class DashboardBuilds(QObject):
         self.controls.clear()
         self._clear_cards()
         self.controls.begin(release)
+        self.follow.start()
         try:
             started = self.page.services.start_build(release=release)
         except CTStudioError as exc:
@@ -172,6 +175,7 @@ class DashboardBuilds(QObject):
     def clear(self) -> None:
         """Rebinding forgets presentation, never cancels/releases a build owner."""
         self._run = None
+        self.follow.stop()
         self.log.clear(collapse=True)
         self.controls.clear()
         self._clear_cards()

@@ -129,12 +129,7 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget(self)
         self.pages.addWidget(page)
         self.dashboard = Dashboard(self.services, self)
-        self._route_dashboard()
-        scroll = QScrollArea(self.pages)
-        scroll.setObjectName("dashboardScroll")
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(self.dashboard)
-        self.pages.addWidget(scroll)
+        self.pages.addWidget(self._route_dashboard())
         self.setCentralWidget(self.pages)
 
         self._build_menus()
@@ -291,12 +286,18 @@ class MainWindow(QMainWindow):
         self._home()
         self.welcome.show_problem(text)
 
-    def _route_dashboard(self) -> None:
+    def _route_dashboard(self) -> QScrollArea:
+        scroll = QScrollArea(self.pages)
+        scroll.setObjectName("dashboardScroll")
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.dashboard)
+        self.dashboard.builds.follow.attach(scroll)
         self.dashboard.builds.can_start = lambda: not self.welcome.busy
         self.dashboard.edit_requested.connect(self._edit_project)
         self.dashboard.mode_requested.connect(self._edit_component)
         self.dashboard.blender_requested.connect(self._open_blender)
         self.dashboard.reveal_requested.connect(self._launch)
+        return scroll
 
     def _edit_project(self) -> None:
         if not self._can_edit():

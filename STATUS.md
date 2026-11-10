@@ -4,12 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e33 — Trusted command entries and safe exact copying
+**Next task:** P5-T03e34 — Dashboard follows the newest build output
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `f47420d` (P5-T03e32; Check, Windows + Ubuntu)
 
 ## In progress
-_none_
+- `P5-T03e34` (user decision 2026-11-10: the dashboard should scroll automatically to show the
+  most recent logs). (1) Tests first: an accepted build scrolls the dashboard to its end so the
+  newest log output, build bar and late result/error stay visible as layout grows; a reader who
+  scrolls the dashboard up is not pulled back until they return to the end or start a build;
+  nothing scrolls before a build or after a project rebind; keyboard focus is never moved.
+  (2) Small follower owned by the build coordinator, driven by the scroll range, no new worker.
+  (3) Docs, screenshots, gate, review, commit/CI, closeout. Files: gui/views/dashboard_follow.py,
+  gui/dashboard_builds.py, tests/gui/test_dashboard_follow.py, user/architecture docs.
+  Evidence: RED 5/5 primary assertion failures before the follower; GREEN 6/6 (3 local
+  fresh runs, 5 reviewer runs); 9/9 isolated assertion-only mutants caught with origin/hash
+  proof; tests/gui 1,038 passed; strict Windows/Linux typing and budgets clean; light/dark
+  screenshots show the newest lines and build bar. Full hidden-tools gate: 3,225 passed / 6
+  existing skips (3,231 selected). Independent review APPROVED (Tab-to-card pauses following,
+  resize/zero-range/start-failure/reentrancy probes clean). Pending exact CI and closeout.
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
 - 2026-11-10 `P5-T03e32` Added the collapsible live build log to the dashboard (`5455d53`,
@@ -967,6 +980,8 @@ _none_
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- `P5-T03e34` added (user decision after e32): the dashboard follows the newest build output
+  while the reader stays at its end. Done before e33; total planned tasks becomes 169.
 - `P5-T03e3` split into `P5-T03e31` (bounded Qt log model), `P5-T03e32` (collapsible live
   dashboard view) and `P5-T03e33` (trusted structured command entries and safe exact copying).
   Existing LogLine events contain only step/text, not command provenance; ordinary output must

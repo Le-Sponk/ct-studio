@@ -64,6 +64,7 @@ src/ctstudio/
   cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py build.py
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
                  build_controller.py dashboard_builds.py build_log_model.py
+                 views/dashboard_follow.py
   blender_bridge/ run_job.py  exporters.py  preview_mesh.py
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
 tests/  unit/ contract/ integration/ gui/ e2e/ benchmarks/ fakes/ fixtures/
@@ -507,6 +508,14 @@ incomplete native hit-testing uses a logarithmic lookup of measured geometry, no
 row-size assumption. If that row was evicted, the oldest retained row is shown. End explicitly
 resumes following, including an immediately appended burst. It does no I/O. Ordinary output
 stays literal; trusted command provenance/copying is deliberately e33.
+
+P5-T03e34: `gui/views/dashboard_follow.py` keeps the outer dashboard scroll area at its end
+while a build presentation is current, so the newest log lines, build bar and a late
+result/error stay visible in small windows. `DashboardBuilds` starts it for an eligible request
+(so a start failure shown at the bottom is revealed too) and stops it on rebinding; MainWindow attaches it to `dashboardScroll`. It reacts to the
+scroll bar's range changes (each queued layout pass), not to build events, so it never scrolls
+to a stale range. A reader scrolling the dashboard up pauses it until they return to the end.
+It never moves keyboard focus, owns no timer or thread and does no I/O.
 
 P5-T01b: `gui/status_service.py` `StatusService` works the part statuses out on a named thread
 (`ctstudio-status`): the user's settings, `availability.available_tools` (discovery only) and

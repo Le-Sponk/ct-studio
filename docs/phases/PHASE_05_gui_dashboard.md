@@ -175,6 +175,13 @@ Verified: 42 new cases, full-cap reader-anchor regressions, keyboard and themed/
 fixes `62a1745` (enlarged-font card width) and `f47420d` (footer screenshot sync, TD-015).
 Final gate 3,219 passed / 6 skips; exact Check Windows/Ubuntu green, 3,225 selected on both.
 
+###### [ ] P5-T03e34 — Dashboard follows the newest build output
+User decision after e32: in a small window the newest log lines, build bar and a late result or
+error must not end up below the visible dashboard. Follow the end while the reader stays there;
+scrolling up stops following until they return to the end or start another build. Done before e33.
+**Acceptance:** auto-reveal during and after a fake build as queued layout grows, reader scroll
+respected, no scrolling before a build or after rebind, focus unchanged, light/dark screenshots.
+
 ###### [ ] P5-T03e33 — Trusted command entries and safe exact copying
 Existing LogLine text has no structured command provenance. Add the command-reporting boundary
 before offering Copy command; never guess commands from arbitrary tool output. Preserve argv
