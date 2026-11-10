@@ -17,7 +17,7 @@ from pytestqt.qtbot import QtBot
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS, ComponentSpec
 from ctstudio.core.components.status import STATE_LABELS, ComponentStatus, State
 from ctstudio.core.project.project import Project
-from ctstudio.gui.views.component_card import ComponentCard
+from ctstudio.gui.views.component_card import ComponentCard, takes_a_file
 
 pytestmark = pytest.mark.gui
 EDITABLE = tuple(spec for spec in COMPONENTS if len(spec.modes) > 1)
@@ -234,7 +234,9 @@ def test_bound_registry_gate_leaves_copy_independent(
     assert card.copy_button.isEnabled() == copyable
     assert card.copy_action.isEnabled() == copyable
     assert card.copy_action.toolTip() == card.copy_button.toolTip()
-    assert card.more_button.isEnabled() == (copyable or editable)
+    # P5-T04b: parts that take a supplied file offer Choose file… in the same menu.
+    assignable = enabled and takes_a_file(spec)  # the exact parts: test_component_card_assign
+    assert card.more_button.isEnabled() == (copyable or editable or assignable)
     spy = QSignalSpy(card.mode_requested)
     card.mode_button.clicked.emit()
     assert spy.count() == int(editable)

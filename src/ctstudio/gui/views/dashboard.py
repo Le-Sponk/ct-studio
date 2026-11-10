@@ -6,6 +6,8 @@ shows their results. Launch results have their own notice, so a status check nev
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
@@ -19,11 +21,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ctstudio.core.components.assign import Assigned
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.core.tools import editors
 from ctstudio.core.tools import folders as corefolders
+from ctstudio.gui.assign_text import STALE_ASSIGNMENT, assignment_detail, describe_assignment
 from ctstudio.gui.dashboard_builds import DashboardBuilds
 from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.services import AppServices
@@ -194,6 +198,7 @@ class Dashboard(QWidget):
             card = ComponentCard(spec, self)
             card.mode_requested.connect(self.mode_requested)
             card.reveal_requested.connect(self.reveal_requested)
+            card.assign_requested.connect(self._assign)
             self.cards[spec.id] = card
             grid.addWidget(card, index // 2, index % 2)
         self._layout.addLayout(grid)
@@ -292,6 +297,21 @@ class Dashboard(QWidget):
         """Window-level news about the launch owner, e.g. that closing must wait for it."""
         self._show_launch_text(text)
 
+    def _assign(self, part: str, source: Path, reference: bool) -> None:
+        """A card asked to use ``source``; the launch owner runs it, ``_assigned`` reports."""
+        card = self.cards.get(part)
+        if card is None or not self._current():
+            return
+        try:
+            started = self.services.start_assign(part, source, reference=reference)
+        except CTStudioError as exc:
+            card.show_assign_note(str(exc))
+            return
+        if started:
+            doing = "Recording" if reference else "Copying"
+            where = "" if reference else " into the project"
+            card.show_assign_note(f"{doing} {source.name or source}{where}…")
+
     def _launched(self, payload: object) -> None:
         project = self._project
         if (
@@ -300,10 +320,30 @@ class Dashboard(QWidget):
             and self._current()
             and payload.project is project
             and payload.root == project.root
-            and payload.manifest is project.manifest
         ):
-            self._show_launch_text(describe_launch(payload))
+            if payload.source is not None:
+                self._assigned(project, payload)
+            elif payload.manifest is project.manifest:
+                self._show_launch_text(describe_launch(payload))
         self._sync()
+
+    def _assigned(self, project: Project, result: LaunchResult) -> None:
+        """Publish a saved assignment (UI thread, worker joined), then check statuses again."""
+        card = self.cards.get(result.component_id or "")
+        saved = isinstance(result.receipt, Assigned)
+        if saved and result.manifest is not project.manifest:  # changed meanwhile: keep it
+            if card is not None:
+                card.show_assign_note(STALE_ASSIGNMENT)
+            return
+        if isinstance(result.receipt, Assigned):  # (saved; pyright needs the narrowing)
+            project.manifest = result.receipt.manifest
+            for each in self.cards.values():
+                each.bind(project)
+            self.services.status.clear()
+            self.refresh()
+        self._show_launch_text("")
+        if card is not None:
+            card.show_assign_note(describe_assignment(result), assignment_detail(result))
 
     def _show_launch_text(self, text: str) -> None:
         self.launch_notice.setText(text)

@@ -189,6 +189,33 @@ class AppServices:
             )
         return self.launch.start(project, component_id)
 
+    def start_assign(self, part: str, source: Path, *, reference: bool = False) -> bool:
+        """Assign ``source`` to ``part`` of the current project on the launch worker (P5-T04b).
+
+        Checks only in-memory state (no disk); ``assign_file`` checks the rest on the worker.
+        The caller publishes the returned manifest; refusals raise an actionable ``ProjectError``.
+        """
+        project = self.project
+        if project is None:
+            raise ProjectError("No project is open.", hint="Open or create a project first.")
+        self._refuse_while_building()
+        if project.read_only:
+            raise ProjectError(
+                "Cannot assign a file in a read-only project.",
+                hint="Close it in the other CT Studio, then reopen it here for editing.",
+            )
+        if self.status.busy:
+            raise ProjectError(
+                "Component statuses are still being checked.",
+                hint="Wait for the check to finish, then try again.",
+            )
+        if part not in COMPONENT_BY_ID:
+            raise ProjectError(
+                f"Cannot assign a file to unknown part '{part}'.",
+                hint="Choose a component card from the current project.",
+            )
+        return self.launch.assign(project, part, source, reference=reference)
+
     def _refresh(self, _result: object) -> None:
         if self.project is not None:
             self.status.request(self.project)
@@ -206,7 +233,8 @@ class AppServices:
             )
         if self.launch.busy:
             raise ProjectError(
-                "A Blender launch or folder request is still finishing; the project stays open.",
+                "A Blender launch, folder or file request is still finishing; "
+                "the project stays open.",
                 hint="Wait a moment for it to finish, then try again.",
             )
 

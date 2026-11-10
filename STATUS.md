@@ -9,7 +9,13 @@
 **Last green commit:** `913a888` (Check + Integration, Windows + Ubuntu)
 
 ## In progress
-_(none)_
+- `P5-T04b` Drop a file on a card or Choose file… (GUI). Cards of parts with a manual mode
+  and their own table accept one dropped local file/folder (always as a copy) and offer More →
+  Choose file… / Reference file in place…; `AppServices.start_assign` refuses from memory and
+  `LaunchController.assign` runs `assign_file` on the single joined launch worker, so every
+  launch guard (switching, closing, editors, shutdown) covers it; the dashboard publishes the
+  manifest on the UI thread after the join, rebinds cards and rechecks statuses; the result or
+  refusal is a per-card note. Remaining: gate, commit/CI, closeout.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

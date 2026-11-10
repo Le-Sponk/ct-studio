@@ -47,8 +47,8 @@ Navigation errors and history-save problems stay visible on the welcome screen; 
 opened successfully remains open, and its dashboard is still available from View.
 
 Project details can edit the slot and source; component cards can change supported modes as
-described below. Open in Blender, Open folder and building are described below. GUI file
-assignment and automatic generation are still under development.
+described below. Open in Blender, Open folder, building and using your own file for a part are
+described below. Automatic generation is still under development.
 
 ## Building from the dashboard
 
@@ -171,8 +171,8 @@ The mode checkmark and card stay at the last saved choice until Save succeeds.
 
 Changing a mode never chooses, copies or deletes a file, nor clears inactive settings. Existing
 manual references and template choices are retained when switching away and back. Switching to
-manual without a supplied file will show that the part is missing; GUI file assignment is not
-ready yet, so use projects that already name their supplied files.
+manual without a supplied file will show that the part is missing until you give it one (see
+"Using your own file for a part").
 
 Loading and saving run in the background with the same backups and external-edit protection
 as project details. Read-only, checking and building projects cannot change modes. While a
@@ -182,6 +182,32 @@ card statuses visible with an explanation. A successful save refreshes modes, pa
 
 More → Copy path is another way to use the existing lexical path copy: it does not open or
 validate the target, which may not exist yet, and remains available in read-only projects.
+
+## Using your own file for a part
+
+Course model, Collision, Minimap, Skybox, Course data and Post-effects can use a file you
+supply (a folder for Post-effects). Drag one file or folder from your file manager onto the
+part's card, or use the card's More (…) menu:
+
+- Choose file… (Choose folder… for Post-effects) copies it into the project's `files` folder
+  under the name the game uses (such as `files/course.kcl`) and uses that copy.
+- Reference file in place… uses it where it is and copies nothing, so keep it there. For a file
+  outside the project the card shows its name; hover over the note for the full path.
+
+A drop is always a copy: holding Shift (move) in your file manager does not move or delete the
+original. CT Studio first checks that it is the right kind of file for that part; a wrong file is
+refused with an explanation on the card and nothing changes. A different copy already in `files`
+is backed up to `.ctstudio/backups/` first; the card names that backup (hover for the full path,
+and the note's text can be selected and copied). An identical copy is left alone.
+The part's mode becomes manual and ctstudio.toml is saved with its usual backup; statuses are
+then checked again. Dropping several files, a web link or anything that is not a file on this
+computer is explained on the card and does nothing.
+
+It runs in the background like Open folder: while it runs the card says so, other edit, launch,
+refresh and build controls wait, and switching or closing the project waits until it finishes.
+It is not available in read-only projects or while statuses are checked, a build runs, or a
+dialog is open. The result stays on that card until the next assignment or the next time the
+project's cards are shown again.
 
 ## Recent projects
 

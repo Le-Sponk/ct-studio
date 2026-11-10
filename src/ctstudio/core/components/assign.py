@@ -216,8 +216,11 @@ def _undo(target: Path, aside: Path, text: str) -> str:
 
 
 def _staged_copy(chosen: Path, target: Path) -> Path:
-    target.parent.mkdir(parents=True, exist_ok=True)
-    staged = Path(tempfile.mkdtemp(dir=target.parent, prefix=f".{target.name}."))
+    try:  # e.g. files/ is a plain file, or the project folder cannot be written to
+        target.parent.mkdir(parents=True, exist_ok=True)
+        staged = Path(tempfile.mkdtemp(dir=target.parent, prefix=f".{target.name}."))
+    except OSError as exc:
+        raise _copy_error(chosen, exc) from exc
     copy = staged / target.name
     try:
         if chosen.is_dir():
@@ -230,12 +233,16 @@ def _staged_copy(chosen: Path, target: Path) -> Path:
         shutil.rmtree(staged, ignore_errors=True)
         if not isinstance(exc, OSError):
             raise
-        raise ProjectError(
-            f"Could not copy {_shown(chosen)} into the project: {exc.strerror or exc}.",
-            hint="Close programs using the file and free some disk space, then try again.",
-            details=str(exc),
-        ) from exc
+        raise _copy_error(chosen, exc) from exc
     return copy
+
+
+def _copy_error(chosen: Path, exc: OSError) -> ProjectError:
+    return ProjectError(
+        f"Could not copy {_shown(chosen)} into the project: {exc.strerror or exc}.",
+        hint="Close programs using the file and free some disk space, then try again.",
+        details=str(exc),
+    )
 
 
 def _copy_one(path: Path, copy: Path) -> None:

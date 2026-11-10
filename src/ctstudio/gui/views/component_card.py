@@ -1,13 +1,20 @@
-"""Native-palette component data and signal-only editing entry points."""
+"""Native-palette component data and signal-only editing entry points.
+
+Cards of parts that can use a file you supply (a manual mode with its own settings) also take
+one dropped file or folder and offer "Choose file…" / "Reference file in place…" (P5-T04b).
+They only emit ``assign_requested``; the dashboard runs the assignment and reports back here.
+"""
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction
+from PySide6.QtCore import QMimeData, Qt, Signal
+from PySide6.QtGui import QAction, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
     QApplication,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMenu,
@@ -34,6 +41,39 @@ _STATUS_ICONS = {
     State.MANUAL: QStyle.StandardPixmap.SP_FileIcon,
     State.EDITED_EXTERNALLY: QStyle.StandardPixmap.SP_FileDialogDetailedView,
 }
+DROP_ONE = "Drop one file or folder from this computer. Nothing was changed."
+ChooseSource = Callable[[QWidget, ComponentSpec, Path], Path | None]  # None: cancelled
+
+
+def choose_source(parent: QWidget, spec: ComponentSpec, start: Path) -> Path | None:
+    """The native chooser: a folder for post-effects, otherwise one file."""
+    if spec.kind is None:
+        chosen = QFileDialog.getExistingDirectory(
+            parent, f"Choose the {spec.name} folder", str(start)
+        )
+    else:
+        chosen, _filter = QFileDialog.getOpenFileName(
+            parent, f"Choose the {spec.name} file", str(start)
+        )
+    return Path(chosen) if chosen else None
+
+
+def takes_a_file(spec: ComponentSpec) -> bool:
+    """A part whose modes include manual and that has its own settings table."""
+    return "manual" in spec.modes and spec.manifest_table not in (None, "project")
+
+
+def _copyable(event: QDropEvent) -> bool:
+    copy = Qt.DropAction.CopyAction
+    return event.mimeData().hasUrls() and event.possibleActions() & copy == copy
+
+
+def dropped_path(data: QMimeData) -> Path | None:
+    """The one local file or folder in a drop, or None for anything else."""
+    urls = data.urls() if data.hasUrls() else []
+    if len(urls) != 1 or not urls[0].isLocalFile() or not urls[0].toLocalFile():
+        return None
+    return Path(urls[0].toLocalFile())
 
 
 class ComponentCard(QWidget):
@@ -41,6 +81,7 @@ class ComponentCard(QWidget):
 
     mode_requested = Signal(str, str)
     reveal_requested = Signal(str)
+    assign_requested = Signal(str, object, bool)  # part, source Path, reference in place
 
     def __init__(self, spec: ComponentSpec, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -50,6 +91,7 @@ class ComponentCard(QWidget):
         self._actions_enabled = False
         self._inspection_enabled = False
         self.path: Path | None = None
+        self.choose: ChooseSource = choose_source
         self.setObjectName(f"card_{spec.id}")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -74,6 +116,13 @@ class ComponentCard(QWidget):
         self.summary.setMaximumHeight(self.summary.fontMetrics().lineSpacing() * 3)
         layout.addWidget(self.summary)
         self.mode_label = self._label(f"Mode: {spec.default_mode}", "Mode")
+        self.assign_note = self._label("", "AssignNote")
+        self.assign_note.setWordWrap(True)
+        self.assign_note.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        self.assign_note.setMaximumHeight(self.assign_note.fontMetrics().lineSpacing() * 4)
+        self.assign_note.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.assign_note.hide()
+        layout.addWidget(self.assign_note)
         self._add_actions(layout)
         self.show_status(None)
 
@@ -113,6 +162,7 @@ class ComponentCard(QWidget):
         self.reveal_action.setObjectName(f"{spec.id}OpenFolder")
         self.reveal_action.setToolTip("Request this part's folder, even if the output is missing.")
         self.reveal_action.triggered.connect(self._request_reveal)
+        self._add_file_actions(menu)
         self._mode_menu = QMenu("Mode", menu)
         self._mode_menu.setObjectName(f"{spec.id}ModeMenu")
         self.mode_actions: dict[str, QAction] = {}
@@ -128,6 +178,74 @@ class ComponentCard(QWidget):
         footer.addWidget(self.more_button)
         layout.addLayout(footer)
         self._sync_actions()
+
+    def _add_file_actions(self, menu: QMenu) -> None:
+        spec = self._spec
+        noun = "folder" if spec.kind is None else "file"
+        self.choose_action = QAction(f"Choose {noun}…", self)
+        self.choose_action.setObjectName(f"{spec.id}ChooseFile")
+        self.choose_action.setToolTip(
+            f"Copy a {noun} into the project's files folder and use it for this part. "
+            "A different copy already there is backed up first."
+        )
+        self.choose_action.triggered.connect(lambda: self._choose(reference=False))
+        self.reference_action = QAction(f"Reference {noun} in place…", self)
+        self.reference_action.setObjectName(f"{spec.id}ReferenceFile")
+        self.reference_action.setToolTip(
+            f"Use a {noun} where it is; nothing is copied, so keep it there."
+        )
+        self.reference_action.triggered.connect(lambda: self._choose(reference=True))
+        if takes_a_file(spec):
+            menu.addAction(self.choose_action)
+            menu.addAction(self.reference_action)
+
+    def _can_assign(self) -> bool:
+        return (
+            takes_a_file(self._spec)
+            and self._actions_enabled
+            and self._project is not None
+            and not self._project.read_only
+        )
+
+    def _choose(self, *, reference: bool) -> None:
+        project = self._project
+        if not self._can_assign() or project is None:
+            return
+        chosen = self.choose(self, self._spec, project.root)
+        # The chooser is modal: the card may have been disabled or rebound meanwhile.
+        if chosen is not None and self._can_assign() and self._project is project:
+            self.assign_requested.emit(self._spec.id, chosen, reference)
+
+    # acceptDrops() follows _can_assign(), so Qt only offers drags while it holds; a drag can
+    # outlive a gate change, so the drop checks again.
+    # Always a copy: a move (Shift in Explorer) would let the file manager delete the original.
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+        if _copyable(event):
+            event.setDropAction(Qt.DropAction.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event: QDropEvent) -> None:
+        if not self._can_assign() or not _copyable(event):
+            event.ignore()
+            return
+        source = dropped_path(event.mimeData())
+        if source is None:
+            event.ignore()
+            self.show_assign_note(DROP_ONE)
+            return
+        event.setDropAction(Qt.DropAction.CopyAction)
+        event.accept()
+        self.assign_requested.emit(self._spec.id, source, False)
+
+    def show_assign_note(self, text: str, detail: str = "") -> None:
+        """The latest file assignment news for this card (``detail`` adds to the tooltip)."""
+        self.assign_note.setText(text)
+        full = f"{text}\n{detail}" if detail else text
+        self.assign_note.setToolTip(full)
+        self.assign_note.setAccessibleDescription(full)  # screen readers get the full path too
+        self.assign_note.setVisible(bool(text))
 
     def _supports_mode(self) -> bool:
         return self._spec.manifest_table not in (None, "project") and len(self._spec.modes) > 1
@@ -157,7 +275,11 @@ class ComponentCard(QWidget):
         self.copy_action.setEnabled(copyable)
         self.copy_action.setToolTip(self.copy_button.toolTip())
         self.reveal_action.setEnabled(self._inspection_enabled and copyable)
-        self.more_button.setEnabled(copyable or mutable)
+        assignable = self._can_assign()
+        self.choose_action.setEnabled(assignable)
+        self.reference_action.setEnabled(assignable)
+        self.setAcceptDrops(assignable)
+        self.more_button.setEnabled(copyable or mutable or assignable)
 
     def set_inspection_enabled(self, enabled: bool) -> None:
         """Gate folder dispatch separately from mutable modes and always-available copy."""
@@ -208,6 +330,7 @@ class ComponentCard(QWidget):
         self.copy_button.setAccessibleDescription(tip)
         self._sync_actions()
         self.show_status(None)
+        self.show_assign_note("")
 
     def show_status(self, status: ComponentStatus | None) -> None:
         """Render an already evaluated status; None is explicitly not checked."""

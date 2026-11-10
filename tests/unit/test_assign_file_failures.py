@@ -308,3 +308,14 @@ def test_a_file_that_cannot_be_compared_is_explained(
     error = refused(project, "kcl", write(tmp_path / "new.kcl", kcl(size=0x800)))
     assert error.user_message == "Could not read new.kcl or files/course.kcl: Permission denied."
     assert error.hint == "Close programs using the files, then try again."
+
+
+def test_a_files_entry_that_is_not_a_folder_is_explained(project: Project, tmp_path: Path) -> None:
+    shutil.rmtree(project.root / "files", ignore_errors=True)
+    write(project.root / "files", b"not a folder")
+    before = tree(project.root)
+    error = refused(project, "kcl", write(tmp_path / "new.kcl", kcl()))
+    assert error.user_message.startswith("Could not copy new.kcl into the project: ")
+    assert "WinError" not in error.user_message and "\\\\" not in error.user_message
+    assert error.hint == "Close programs using the file and free some disk space, then try again."
+    assert tree(project.root) == before

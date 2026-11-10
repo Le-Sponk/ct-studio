@@ -657,6 +657,19 @@ closing, details and shutdown while a launch is busy. The dashboard and cards on
 requests; `MainWindow` routes them, and the dashboard shows a separate launch notice that
 status checks never overwrite, ignoring results whose project, root or manifest are stale.
 
+P5-T04b: the same owner runs one `assign_file` call (`LaunchController.assign`, injectable
+`assign=`), so a file assignment, a Blender launch and a folder reveal never overlap and every
+existing launch guard (switching, adopting, closing, editors, shutdown) also covers it.
+`AppServices.start_assign` refuses from memory only (no project, read-only, editing, build,
+launch or status check busy, unknown part); `assign_file` checks the rest on the worker. Cards
+of parts with a manual mode and their own table accept one local dropped file or folder and
+offer Choose file… / Reference file in place… (injected `choose`); a drop is always accepted
+as a copy (never a move, so a file manager cannot delete the original) and only when the drag
+allows copying. Cards only emit `assign_requested` and show the outcome in a per-card note
+(wording in `gui/assign_text.py`; long paths are shortened there, full ones go in the tooltip). On a fresh `LaunchResult` (source
+set) the dashboard publishes `Assigned.manifest` on the UI thread after the join, rebinds the
+cards and rechecks statuses; a refusal, crash or interrupt publishes nothing.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves
