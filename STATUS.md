@@ -4,27 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T03e34 — Dashboard follows the newest build output
+**Next task:** P5-T03e33 — Trusted command entries and safe exact copying
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `f47420d` (P5-T03e32; Check, Windows + Ubuntu)
+**Last green commit:** `3f7c31a` (P5-T03e34; Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T03e34` (user decision 2026-11-10: the dashboard should scroll automatically to show the
-  most recent logs). (1) Tests first: an accepted build scrolls the dashboard to its end so the
-  newest log output, build bar and late result/error stay visible as layout grows; a reader who
-  scrolls the dashboard up is not pulled back until they return to the end or start a build;
-  nothing scrolls before a build or after a project rebind; keyboard focus is never moved.
-  (2) Small follower owned by the build coordinator, driven by the scroll range, no new worker.
-  (3) Docs, screenshots, gate, review, commit/CI, closeout. Files: gui/views/dashboard_follow.py,
-  gui/dashboard_builds.py, tests/gui/test_dashboard_follow.py, user/architecture docs.
-  Evidence: RED 5/5 primary assertion failures before the follower; GREEN 6/6 (3 local
-  fresh runs, 5 reviewer runs); 9/9 isolated assertion-only mutants caught with origin/hash
-  proof; tests/gui 1,038 passed; strict Windows/Linux typing and budgets clean; light/dark
-  screenshots show the newest lines and build bar. Full hidden-tools gate: 3,225 passed / 6
-  existing skips (3,231 selected). Independent review APPROVED (Tab-to-card pauses following,
-  resize/zero-range/start-failure/reentrancy probes clean). Pending exact CI and closeout.
+_none_
+
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-10 `P5-T03e34` The dashboard now follows the newest build output (`3f7c31a`), per
+  the user's decision that it should scroll automatically to show the most recent logs. From an
+  eligible build request the dashboard stays at its end as queued layout grows, so the newest
+  log lines, build bar and late result/error stay visible in small windows. Scrolling the
+  dashboard up (or Tab to a card) pauses following until the reader returns to the end or
+  starts another build; rebinding stops it; focus is never moved. RED 5/5 primary assertion
+  failures; 6 tests green; 9/9 assertion-only mutants caught; gate 3,225 passed / 6 skipped
+  (3,231 selected); independent review APPROVED. Exact CI: Windows 3,216 / 15 skipped,
+  Ubuntu 3,217 / 14 skipped (3,231 selected each).
 - 2026-11-10 `P5-T03e32` Added the collapsible live build log to the dashboard (`5455d53`,
   enlarged-font card width fix `62a1745`, footer screenshot sync fix `f47420d`). Native
   virtual list on the e31 bounded model, collapsed by default, collecting while hidden,
