@@ -4,27 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06a — Project watcher and live status refresh
+**Next task:** P5-T06b — Lock as manual and Discard with backup (core)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7bc350c` (Check + Integration, Windows + Ubuntu)
+**Last green commit:** `097a204` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06a` Project watcher and live status refresh. `core/project/watch.py` (watchfiles
-  1.3.0) watches the project folder and the folders of outside `.blend`/supplied files on two
-  daemon threads; output, `.ctstudio/` state and Blender backups are ignored; an outside folder
-  that goes and comes back is a change and is watched again; a gone project folder or an
-  unasked end is reported, and any end stops the whole watcher so Refresh starts a whole one.
-  `gui/watcher_bridge.py` moves changes and failures to the UI thread; AppServices follows on
-  open/Refresh, stops on close and waits on exit; a change starts a status check (not during
-  a build) and the dashboard shows its own notice when watching stops. Review found a
-  half-dead watcher kept, outside folders never re-watched, and a check left waiting forever
-  after a published assignment; all fixed tests-first (`Dashboard.recheck`), re-review: no
-  blockers. 73/73 assertion-only mutants caught; strict 13-file Windows/Linux typing clean;
-  light/dark screenshots inspected; hidden-tools gate 3,608 passed / 6 skipped / 176
-  deselected. Ready for commit and exact-SHA CI.
+_(none)_
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-12 `P5-T06a` Project watcher and live status refresh (`097a204`). P5-T06 split
+  into T06a/T06b/T06c (174 tasks). `core/project/watch.py` watches the project folder and the
+  folders of outside `.blend`/supplied files (watchfiles, two daemon threads); output,
+  `.ctstudio/` state and Blender backups ignored; an outside folder that goes and returns is
+  re-watched; a gone project folder or unasked end is reported and stops the whole watcher.
+  `gui/watcher_bridge.py` brings changes to the UI thread; a change starts a status check (not
+  during a build), so an edited generated file shows "edited outside CT Studio" within 2 s;
+  the dashboard has its own watching notice; Refresh retries. Review found a half-dead
+  watcher kept, outside folders never re-watched and a stuck check; fixed tests-first,
+  re-review no blockers. 73/73 assertion-only mutants; strict 13-file Windows/Linux typing;
+  light/dark screenshots inspected. Gate: 3,608 passed / 6 skipped. Exact CI Check: Windows
+  3,599/15, Ubuntu 3,600/14 (3,614 selected). Integration not triggered (no tool, build or
+  validation files changed). User/architecture docs updated; no copyrighted data committed.
 - 2026-11-11 `P5-T05b` Issues panel (GUI) (`7bc350c`), completing P5-T05. The status worker
   reads the saved check report on open, Refresh and after builds; no UI-thread file work.
   Groups show severity counts; selected findings show next step, file and part, with trusted

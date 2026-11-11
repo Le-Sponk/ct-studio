@@ -286,7 +286,7 @@ Discard-with-backup).
 Split (2026-11-11, size check: the watcher and its Qt bridge, the two core actions and the card
 banner each need their own failure tests; together well over one session; no scope removed):
 
-#### [ ] P5-T06a — Project watcher and live status refresh
+#### [x] P5-T06a — Project watcher and live status refresh (commit 097a204)
 `core/project/watch.py`: a watchfiles watcher on named background threads for the project folder
 (recursive) and the `.blend` and supplied files outside it (their folder, not their inode, so
 atomic saves are seen). Ignored: CT Studio's own `.ctstudio/` files except the generated stage,
