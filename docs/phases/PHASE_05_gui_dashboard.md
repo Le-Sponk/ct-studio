@@ -247,7 +247,7 @@ in place" option; assignment runs on a worker, a refusal shows its reason, and s
 **Acceptance:** GUI tests with synthetic drops and the keyboard chooser path, read-only and busy
 projects refused, wrong type explained on the card, light/dark screenshots.
 
-### [ ] P5-T05 — Issues panel
+### [x] P5-T05 — Issues panel (commit 7bc350c)
 Grouped by component and severity; hint text; wiki link; "Copy report". Clicking an issue focuses
 the component card.
 **Acceptance:** populated from recorded `wszst check` outputs in tests.
@@ -269,7 +269,7 @@ track, counts, one section per part with hints, files and wiki links).
 the validate step: every finding lands under its part's card, ordered by severity; counts and
 report text exact; damaged or missing files handled.
 
-#### [ ] P5-T05b — Issues panel (GUI)
+#### [x] P5-T05b — Issues panel (GUI) (commit 7bc350c)
 A dashboard panel shows the report (loaded off the UI thread on open and after each build),
 grouped by part with severity counts, hint text and a wiki link; "Copy report"; clicking an
 issue scrolls to and focuses that part's card.

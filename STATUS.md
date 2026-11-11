@@ -4,30 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T05b — Issues panel (GUI)
+**Next task:** P5-T06 — File watching & external-edit detection
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `ca5d4f3` (Check, Windows + Ubuntu)
+**Last green commit:** `7bc350c` (Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T05b` Issues panel (GUI). (1) The report is read with each status check on the existing
-  `ctstudio-status` thread (`StatusResult.issues` / `issues_problem`; loader injected), so it
-  loads off the UI thread on open, on Refresh and after every build. (2) Tests first:
-  `tests/gui/test_issues_panel.py` (+ helpers) from the recorded `wszst check` output written
-  as `issues.json`. (3) `gui/views/issues_panel.py`: groups by part with severity counts, the
-  selected finding's hint/file, "Open help page", "Copy report"; Enter or a click on a finding
-  scrolls to and focuses that part's card (`Dashboard.focus_card`). (4) States: not checked
-  yet, damaged file, no issues, last report kept when a check fails. (5) Keyboard path;
-  light/dark screenshots; docs; gate; review; commit/CI; closeout. Risks: dashboard.py at 358
-  lines (budget 400); wrapping long messages in a tree. First gate: 3,492 passed / 6 skipped;
-  32/32 assertion mutants caught. Review found an unsafe saved help URL; fixed with
-  HTTPS wiki-only validation and fallback, rejection tests RED first. Extra strict typing
-  now checks all 9 files on Windows/Linux (the helper had ignored absolute include paths).
-  Final review APPROVE (53 submitted tests, 52 independent probes); 40/40 assertion mutants
-  caught; hidden-tools gate 3,526 passed / 6 skipped / 176 deselected, all checks clean.
-  Real Wiimm validation: 2 synthetic integration tests pass. Ready for commit and exact-SHA CI.
+_(none)_
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-11 `P5-T05b` Issues panel (GUI) (`7bc350c`), completing P5-T05. The status worker
+  reads the saved check report on open, Refresh and after builds; no UI-thread file work.
+  Groups show severity counts; selected findings show next step, file and part, with trusted
+  wiki help and Copy report. Click or Enter scrolls to the card and focuses its first usable
+  control. Missing/damaged reports explained, last results kept on check failure, cleared on
+  project switch. Review found unsafe saved help links; HTTPS wiki-only validation/fallback
+  fixed tests-first, re-review APPROVE (53 submitted cases + 52 independent probes).
+  40/40 assertion-only mutants caught; strict nine-file Windows/Linux typing and budgets clean;
+  light/dark screenshots inspected. Gate: 3,526 passed / 6 skipped; 2 real Wiimm synthetic
+  validation tests passed. Exact CI: Check Windows 3,517/15, Ubuntu 3,518/14 (3,532 selected);
+  Integration Windows 126/21, Ubuntu 130/17, all expected skips. User/architecture docs updated;
+  no copyrighted data committed. Native Linux desktop appearance remains unverified.
 - 2026-11-11 `P5-T05a` Issue report (core) (`996be87`). P5-T05 split into T05a and T05b (172
   tasks). `core/validation/issue_parts.py` `part_of(issue, root)` names the card a finding is
   about: its part id; the model a check section names (incl. `course_d_model`, the model of
