@@ -49,6 +49,7 @@ src/ctstudio/
   core/
     errors.py  logging.py  platform.py  fsutil.py  events.py
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
+                 watch.py
                  slots.py slots.json  settings.py (user-level)
     components/  registry.py  state.py  status.py  (one module per component type if large)
     build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
@@ -65,6 +66,7 @@ src/ctstudio/
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
                  build_controller.py dashboard_builds.py build_log_model.py
                  views/dashboard_follow.py views/issues_panel.py
+                 watcher_bridge.py views/dashboard_watch.py
   blender_bridge/ run_job.py  exporters.py  preview_mesh.py
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
 tests/  unit/ contract/ integration/ gui/ e2e/ benchmarks/ fakes/ fixtures/
@@ -731,6 +733,48 @@ watchfiles in a background thread watches the project folder, the `.blend`, and 
 external files. Events are debounced (≈500 ms), coalesced, and turned into status re-evaluation.
 Blender's `.blend1` backups and temp files are ignored. Atomic-save patterns (write temp + rename)
 must be handled — watch directories, not individual inodes.
+
+Implemented in P5-T06a. `core/project/watch.py` `watch_plan(root, manifest)` lists what to
+watch: the project folder recursively, plus each folder outside it that holds the `.blend` or a
+supplied part's file (flat, for those names only; an outside post-effects folder is watched
+itself). `ProjectWatcher` runs one named thread for the project folder (`ctstudio-watch`) and,
+when needed, one for outside folders (`ctstudio-watch-outside`), with watchfiles' default filter
+off and `ChangeFilter` instead: `.ctstudio/` except the made files in `.ctstudio/stage/`, the
+finished tracks in `build/`, `.git/`, and `.blendN`/`.blend@` are ignored; outside folders count
+only the watched names (case per the system's rule; links and Windows short names resolved).
+A burst arrives once (`DEBOUNCE_MS` 500). The stop event is checked every `STEP_MS` 50 ms and
+the system call wakes every `TICK_MS` 250 ms, so `stop()` ends both threads in well under 1 s.
+A folder that cannot be watched, a project folder that goes away, a watch that ends without
+being asked, or a crash is reported as a `ProjectError` through `on_error`, and the whole
+watcher then stops: `intact` turns False, so the next follow of the same plan (Refresh) starts
+a new one instead of keeping half a watcher. Outside folders may come and go (a drive): a
+missing one is not an error, as status already reports the file missing; the outside thread
+checks which are present every tick, reports a folder going away or coming back as a change,
+and watches the present ones again. Inside/outside is decided on the path text, so a supplied
+file reached through a link inside the project is watched as inside (its real folder is not).
+Accepted trade-offs: a failure while watching an outside folder (for example a network share
+without change notices) stops project-folder watching too, so the notice shows and Refresh
+retries the whole watcher; the presence check (`is_dir()` per outside folder each tick) runs
+on the outside thread, so a hanging network path can delay that thread's stop past
+`STOP_GRACE_S` (a no-wait close then asks the user to close again; threads are daemons).
+Measured on Windows 11 with watchfiles 1.3.0: watching does not lock the folder (rename/delete
+still work), deleting the watched project folder ends the loop without an exception (now
+reported as "the folder is gone"), deleting a watched outside folder silently stops its
+reports (hence the presence check), and an edit reaches the dashboard in about 0.6–0.8 s.
+
+`gui/watcher_bridge.py` `WatcherBridge` re-emits on the UI thread (`changed(root)`,
+`failed(error)`) and drops news from a replaced or stopped watcher by generation number.
+Following the same plan keeps the running watcher while it is `intact`; a changed plan (a
+saved `.blend` or supplied file elsewhere) or a failed watcher starts a new one.
+`shutdown(timeout)` waits at least
+`STOP_GRACE_S` (0.6 s), because the threads end that quickly; the window's no-wait close tests
+rely on it. `AppServices` follows the plan on open/adopt, stops on close and asks for statuses on
+a change to the current root unless a build runs (its own refresh follows). The dashboard
+(`views/dashboard_watch.py`) shows that check as running and keeps a separate notice when
+watching stopped; Refresh statuses re-follows, which retries. `Dashboard.recheck()` drops a
+status check on its way and checks again (a published assignment uses it, so a check started
+by the assignment's own file copy cannot leave the dashboard waiting). The banner with
+Keep/Lock/Discard actions is P5-T06c.
 
 ## 12. Blender bridge
 `blender -b <file.blend> --factory-startup --python run_job.py -- <job.json>` (pattern already used

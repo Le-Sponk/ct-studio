@@ -1,8 +1,8 @@
 """Services the GUI views get by injection (ARCHITECTURE §10).
 
 ``AppServices`` (P5-T01a/b) holds what the whole app shares: the current project (opened,
-so locked, by this app), the tools, the build controller, the part statuses and the editor /
-folder launch owner (P5-T03i).
+so locked, by this app), the tools, the build controller, the part statuses, the editor /
+folder launch owner (P5-T03i) and the file watcher (P5-T06a).
 ``ToolsService`` (P2-T07b) is what the Tools page needs: the user's settings file and the
 doctor check. Its methods block (disk, version probes), so views call them from a worker.
 """
@@ -23,6 +23,7 @@ from ctstudio.core.tools.doctor import Report
 from ctstudio.gui.build_controller import BuildController
 from ctstudio.gui.launch_controller import LaunchController
 from ctstudio.gui.status_service import StatusService
+from ctstudio.gui.watcher_bridge import WatcherBridge
 
 Diagnose = Callable[..., Report]
 
@@ -77,7 +78,9 @@ class AppServices:
     Opening a project takes its lock (``Project.open``) and closes the one open before; a
     project being built, edited or launched is neither switched nor closed. The statuses are
     asked for when a project opens and after every build (one that failed may have changed
-    files too). ``shutdown`` stops the build, status and launch work, then closes the project.
+    files too). The current project's files are watched (``follow_files``): a change asks
+    for statuses too, except during a build, whose own refresh follows. ``shutdown`` stops
+    the build, status, launch and watching, then closes the project.
     """
 
     def __init__(
@@ -87,15 +90,18 @@ class AppServices:
         build: BuildController | None = None,
         status: StatusService | None = None,
         launch: LaunchController | None = None,
+        watcher: WatcherBridge | None = None,
     ) -> None:
         self.tools = tools if tools is not None else ToolsService()
         self.build = build if build is not None else BuildController()
         self.status = status if status is not None else StatusService()
         self.launch = launch if launch is not None else LaunchController()
+        self.watcher = watcher if watcher is not None else WatcherBridge()
         self.project: Project | None = None
         self.editing = False  # modal project-details owner; prevents switching/releasing its lock
         self.build.finished.connect(self._refresh)
         self.build.failed.connect(self._refresh)
+        self.watcher.changed.connect(self._files_changed)
 
     def open_project(self, root: Path) -> Project:
         """Open ``root`` (read-only when another CT Studio has it) and make it current."""
@@ -106,6 +112,7 @@ class AppServices:
         self.close_project()
         self.project = opened
         self.status.request(opened)
+        self.follow_files()
         return opened
 
     def adopt(self, project: Project) -> None:
@@ -120,17 +127,30 @@ class AppServices:
         self.close_project()
         self.project = project
         self.status.request(project)
+        self.follow_files()
+
+    def follow_files(self) -> bool:
+        """Watch the current project's files as its manifest now says (P5-T06a).
+
+        No disk work here; True when a new watcher started (a changed plan, or a retry after
+        watching failed), False when the running one already covers it or nothing is open.
+        """
+        project = self.project
+        if project is None:  # (closing already stopped the watcher)
+            return False
+        return self.watcher.follow(project.root, project.manifest)
 
     def close_project(self) -> None:
         self._refuse_while_building()
         self.status.clear()
+        self.watcher.stop()
         if self.project is not None:
             self.project.close()
             self.project = None
 
     def shutdown(self, timeout: float) -> bool:
-        """Stop the build, the status work and the launch (each waited for up to ``timeout``
-        s), then close the project.
+        """Stop the build, the status work, the launch and the watcher (each waited for up to
+        ``timeout`` s), then close the project.
 
         False when any did not stop in time; the project then stays open (and locked).
         """
@@ -140,6 +160,7 @@ class AppServices:
             not self.build.shutdown(timeout)
             or not self.status.shutdown(timeout)
             or not self.launch.shutdown(timeout)
+            or not self.watcher.shutdown(timeout)
         ):
             return False
         self.close_project()
@@ -219,6 +240,11 @@ class AppServices:
     def _refresh(self, _result: object) -> None:
         if self.project is not None:
             self.status.request(self.project)
+
+    def _files_changed(self, root: object) -> None:
+        project = self.project
+        if project is not None and root == project.root and not self.build.running:
+            self.status.request(project)
 
     def _refuse_while_building(self) -> None:
         if self.editing:

@@ -34,6 +34,7 @@ from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
+from ctstudio.gui.views.dashboard_watch import DashboardWatch
 from ctstudio.gui.views.issues_panel import IssuesPanel
 
 
@@ -105,6 +106,8 @@ class Dashboard(QWidget):
         form.addRow("Blender source", self.source_label)
         self._layout.addLayout(form)
         self._make_cards()
+        self.watch = DashboardWatch(services, self._shown, self._begin_check, self)
+        self._layout.insertWidget(self._layout.indexOf(self.notice) + 1, self.watch.notice)
         self.issues = IssuesPanel(self)
         self.issues.part_requested.connect(self.focus_card)
         self._layout.addWidget(self.issues)
@@ -126,6 +129,7 @@ class Dashboard(QWidget):
         self._project = project
         self.builds.clear()
         self.issues.clear()
+        self.watch.clear()
         self._checking = False
         self.launch_notice.clear()
         self.launch_notice.hide()
@@ -217,6 +221,7 @@ class Dashboard(QWidget):
 
     def refresh(self) -> None:
         project = self._project
+        self.watch.follow()  # the manifest may name other outside files now; retries too
         if (
             project is None
             or not self._current()
@@ -227,6 +232,13 @@ class Dashboard(QWidget):
             return
         self._begin_check()
         self.services.status.request(project)
+
+    def recheck(self) -> None:
+        """Drop any status check on its way (it may predate a change) and check again."""
+        self.services.status.clear()
+        if self._checking:
+            self._checked()  # no answer is coming for the dropped check
+        self.refresh()
 
     def _begin_check(self) -> None:
         self._checking = True
@@ -278,6 +290,9 @@ class Dashboard(QWidget):
 
     def _current(self) -> bool:
         return self._project is not None and self.services.project is self._project
+
+    def _shown(self) -> Project | None:
+        return self._project if self._current() else None
 
     def _sync(self, _running: bool = False) -> None:
         self.builds.sync()
@@ -363,8 +378,7 @@ class Dashboard(QWidget):
             project.manifest = result.receipt.manifest
             for each in self.cards.values():
                 each.bind(project)
-            self.services.status.clear()
-            self.refresh()
+            self.recheck()
         self._show_launch_text("")
         if card is not None:
             card.show_assign_note(describe_assignment(result), assignment_detail(result))

@@ -4,12 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06 — File watching & external-edit detection
+**Next task:** P5-T06a — Project watcher and live status refresh
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `7bc350c` (Check + Integration, Windows + Ubuntu)
 
 ## In progress
-_(none)_
+- `P5-T06a` Project watcher and live status refresh. `core/project/watch.py` (watchfiles
+  1.3.0) watches the project folder and the folders of outside `.blend`/supplied files on two
+  daemon threads; output, `.ctstudio/` state and Blender backups are ignored; an outside folder
+  that goes and comes back is a change and is watched again; a gone project folder or an
+  unasked end is reported, and any end stops the whole watcher so Refresh starts a whole one.
+  `gui/watcher_bridge.py` moves changes and failures to the UI thread; AppServices follows on
+  open/Refresh, stops on close and waits on exit; a change starts a status check (not during
+  a build) and the dashboard shows its own notice when watching stops. Review found a
+  half-dead watcher kept, outside folders never re-watched, and a check left waiting forever
+  after a published assignment; all fixed tests-first (`Dashboard.recheck`), re-review: no
+  blockers. 73/73 assertion-only mutants caught; strict 13-file Windows/Linux typing clean;
+  light/dark screenshots inspected; hidden-tools gate 3,608 passed / 6 skipped / 176
+  deselected. Ready for commit and exact-SHA CI.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1058,6 +1070,8 @@ _(none)_
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-11: P5-T06 split into P5-T06a (project watcher and live status refresh), P5-T06b
+  (core Lock as manual / Discard with backup) and P5-T06c (the card banner). 174 tasks.
 - 2026-11-11: P5-T05 split into P5-T05a (core issue report: grouping by part and severity,
   counts, issues.json loading, Copy report text) and P5-T05b (the dashboard panel). 172 tasks.
 - 2026-11-10: P5-T04 split into P5-T04a (core assignment: checks, copy or reference,

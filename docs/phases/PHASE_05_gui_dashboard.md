@@ -283,6 +283,34 @@ ARCHITECTURE §8 (the capture mechanism itself arrives in P7; here implement Loc
 Discard-with-backup).
 **Acceptance:** test modifies a generated file → banner appears within 2 s → Lock-as-manual copies to
 `files/` and switches mode.
+Split (2026-11-11, size check: the watcher and its Qt bridge, the two core actions and the card
+banner each need their own failure tests; together well over one session; no scope removed):
+
+#### [ ] P5-T06a — Project watcher and live status refresh
+`core/project/watch.py`: a watchfiles watcher on named background threads for the project folder
+(recursive) and the `.blend` and supplied files outside it (their folder, not their inode, so
+atomic saves are seen). Ignored: CT Studio's own `.ctstudio/` files except the generated stage,
+`build/`, `.git/`, Blender's `.blend1…` backups and `.blend@` save files. `gui/watcher_bridge.py`
+`WatcherBridge` brings changes to the UI thread (stale watchers' changes dropped) and follows
+the current project; `AppServices` asks for a status check on a change (not while building:
+the build's own refresh follows), so an outside edit of a generated file shows as "edited
+outside CT Studio" on its card. **Acceptance:** real-watcher tests: an edited stage file shows
+EditedExternally within 2 s; atomic save and an outside `.blend` noticed; ignored files trigger
+nothing; switching/closing projects stops the old watcher and drops its late changes; shutdown
+leaves no watcher thread; a folder that cannot be watched is reported, not raised on the UI thread.
+
+#### [ ] P5-T06b — Lock as manual and Discard with backup (core)
+Core actions for a part whose generated file was edited outside CT Studio: Lock as manual copies
+the edited file into `files/` (reusing `assign_file`) and switches the part to manual; Discard
+backs the edited file up into `.ctstudio/backups/<UTC time>/` and removes it so the next build
+makes it again. **Acceptance:** tests: both actions, backups made, manifest saved, refusals
+(read-only, part not edited, file gone) change nothing.
+
+#### [ ] P5-T06c — Edited-outside banner on the card (GUI)
+The card of an EditedExternally part shows a banner with Lock as manual and Discard (the capture
+choice arrives in P7), run on the joined launch worker. **Acceptance:** the original P5-T06
+acceptance (edit → banner within 2 s → Lock-as-manual copies to `files/` and switches mode);
+keyboard path; light/dark screenshots.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP

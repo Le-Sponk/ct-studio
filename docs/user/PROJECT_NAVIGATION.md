@@ -32,6 +32,17 @@ in the background. Refresh statuses checks again without changing project files.
 keeps the last checked statuses visible, so they may be out of date until a refresh succeeds.
 During a build the last checked statuses stay visible and refresh is disabled until it ends.
 
+CT Studio notices when files of an open project change outside it, for example a made part
+edited in BrawlCrate or the Blender file saved: the statuses are checked again on their own
+within about two seconds, and a part CT Studio made that was changed elsewhere shows "edited
+outside CT Studio". CT Studio's own working files, finished tracks and Blender's backup copies
+(`.blend1`) do not trigger a check. A Blender file or supplied file kept outside the project
+folder is watched too, and if its drive is unplugged and plugged back in, the statuses are
+checked each time and watching carries on. Changes made during a build show when the build's
+own check runs. If changes can no longer be noticed (for example the project folder was
+deleted or moved), a message under the status line says so; press Refresh statuses after
+changing files, which also tries watching again.
+
 Copy project folder and each available Copy path button copy a path without opening or
 changing it. An automatically generated part's path is its planned output and may not exist
 until built. A supplied part uses the chosen file. Objects has no single file to copy; Track
