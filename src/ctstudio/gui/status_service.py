@@ -3,7 +3,9 @@
 ``StatusService.request(project)`` (re)starts a short delay; when it ends, one evaluation
 runs on its own named thread (``ctstudio-status``): the user's settings, which tools are
 there (discovery only) and ``components.status.evaluate``. Asking again while one runs gives
-exactly one more run, of the newest project, after it. ``updated`` carries a ``StatusResult``
+exactly one more run, of the newest project, after it. The same run reads the last check's
+issue report (``.ctstudio/issues.json``, P5-T05b), so it is fresh on open, on Refresh and
+after every build. ``updated`` carries a ``StatusResult``
 and ``failed`` the exception; both arrive on the UI thread. ``clear`` drops what was asked
 and what is running (a closed project); ``shutdown`` also waits for the thread.
 """
@@ -20,10 +22,12 @@ from PySide6.QtCore import QObject, QTimer, Signal
 
 from ctstudio.core.components import status
 from ctstudio.core.components.status import ComponentStatus, ProjectLike
+from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project import settings
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.settings import SettingsError
 from ctstudio.core.tools.availability import available_tools
+from ctstudio.core.validation.report import IssueReport, load_report
 
 _LOG = logging.getLogger(__name__)
 STATUS_THREAD = "ctstudio-status"
@@ -31,6 +35,7 @@ DELAY_MS = 300  # file changes come in bursts (a save writes several files)
 
 Evaluate = Callable[[ProjectLike, Collection[str]], Mapping[str, ComponentStatus]]
 FindTools = Callable[..., Collection[str]]
+LoadIssues = Callable[[Path], IssueReport | None]
 
 
 @dataclass(frozen=True)
@@ -38,6 +43,8 @@ class StatusResult:
     root: Path
     statuses: Mapping[str, ComponentStatus]
     settings_problem: str | None = None  # the settings file could not be used
+    issues: IssueReport | None = None  # the last check's findings; None: none saved yet
+    issues_problem: str | None = None  # the saved findings could not be read
 
 
 @dataclass(frozen=True)
@@ -63,12 +70,13 @@ class StatusService(QObject):
         *,
         evaluate: Evaluate = status.evaluate,
         find_tools: FindTools = available_tools,
+        load_issues: LoadIssues = load_report,
         settings_path: Path | None = None,
         delay_ms: int = DELAY_MS,
         parent: QObject | None = None,
     ) -> None:
         super().__init__(parent)
-        self._evaluate, self._find_tools = evaluate, find_tools
+        self._evaluate, self._find_tools, self._load_issues = evaluate, find_tools, load_issues
         self._settings_path = settings_path
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
@@ -123,7 +131,9 @@ class StatusService(QObject):
         project = self._project
         if project is None:  # for the type checker: a run is only ever asked after a request
             return
-        work = _Work(self._generation, self._relay, self._evaluate, self._find_tools)
+        work = _Work(
+            self._generation, self._relay, self._evaluate, self._find_tools, self._load_issues
+        )
         snapshot = _Snapshot(project.root, project.manifest)
         self._thread = threading.Thread(
             target=work.run, args=(snapshot, self._settings_path), name=STATUS_THREAD, daemon=True
@@ -151,6 +161,7 @@ class _Work:
     relay: _Relay
     evaluate: Evaluate
     find_tools: FindTools
+    load_issues: LoadIssues
 
     def run(self, project: _Snapshot, settings_path: Path | None) -> None:
         payload: StatusResult | Exception
@@ -160,8 +171,20 @@ class _Work:
             except SettingsError as exc:
                 configured, problem = {}, exc.user_message
             tools = self.find_tools(configured=configured)
-            payload = StatusResult(project.root, dict(self.evaluate(project, tools)), problem)
+            statuses = dict(self.evaluate(project, tools))
+            issues, issues_problem = self._issues(project.root)
+            payload = StatusResult(project.root, statuses, problem, issues, issues_problem)
         except Exception as exc:  # any failure must reach the window, not end with the thread
             _LOG.exception("Working out the part statuses failed")
             payload = exc
         self.relay.done.emit(self.generation, payload)
+
+    def _issues(self, root: Path) -> tuple[IssueReport | None, str | None]:
+        """The saved findings, or why they could not be read; never hides the statuses."""
+        try:
+            return self.load_issues(root), None
+        except CTStudioError as exc:
+            return None, str(exc)
+        except Exception as exc:
+            _LOG.exception("Reading the saved check results failed")
+            return None, f"The saved check results could not be read: {exc or type(exc).__name__}"

@@ -69,6 +69,11 @@ def _group(part: str | None, issues: list[Issue]) -> IssueGroup:
     return IssueGroup(part, spec.name, spec.wiki, ranked)
 
 
+def severity_word(severity: Severity) -> str:
+    """ "Error", "Warning", "Hint" or "Note": how the report names a severity."""
+    return _LABEL[severity][0]
+
+
 def counts_text(report: IssueReport) -> str:
     """``"1 error, 5 warnings and 2 notes"``; ``"no issues"`` when there are none."""
     counts = Counter(issue.severity for group in report.groups for issue in group.issues)
@@ -99,7 +104,7 @@ def report_text(report: IssueReport, project_name: str) -> str:
 
 
 def _item(issue: Issue, group: IssueGroup, root: Path | None) -> str:
-    parts = [f"- **{_LABEL[issue.severity][0]}:** {_escape(issue.message)}"]
+    parts = [f"- **{severity_word(issue.severity)}:** {_escape(issue.message)}"]
     if issue.hint:
         parts.append(f"  Next: {_escape(issue.hint)}")
     if issue.file is not None:

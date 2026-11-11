@@ -6,10 +6,25 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T05b — Issues panel (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `36745a6` (Check, Windows + Ubuntu)
+**Last green commit:** `ca5d4f3` (Check, Windows + Ubuntu)
 
 ## In progress
-_(none)_
+- `P5-T05b` Issues panel (GUI). (1) The report is read with each status check on the existing
+  `ctstudio-status` thread (`StatusResult.issues` / `issues_problem`; loader injected), so it
+  loads off the UI thread on open, on Refresh and after every build. (2) Tests first:
+  `tests/gui/test_issues_panel.py` (+ helpers) from the recorded `wszst check` output written
+  as `issues.json`. (3) `gui/views/issues_panel.py`: groups by part with severity counts, the
+  selected finding's hint/file, "Open help page", "Copy report"; Enter or a click on a finding
+  scrolls to and focuses that part's card (`Dashboard.focus_card`). (4) States: not checked
+  yet, damaged file, no issues, last report kept when a check fails. (5) Keyboard path;
+  light/dark screenshots; docs; gate; review; commit/CI; closeout. Risks: dashboard.py at 358
+  lines (budget 400); wrapping long messages in a tree. First gate: 3,492 passed / 6 skipped;
+  32/32 assertion mutants caught. Review found an unsafe saved help URL; fixed with
+  HTTPS wiki-only validation and fallback, rejection tests RED first. Extra strict typing
+  now checks all 9 files on Windows/Linux (the helper had ignored absolute include paths).
+  Final review APPROVE (53 submitted tests, 52 independent probes); 40/40 assertion mutants
+  caught; hidden-tools gate 3,526 passed / 6 skipped / 176 deselected, all checks clean.
+  Real Wiimm validation: 2 synthetic integration tests pass. Ready for commit and exact-SHA CI.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

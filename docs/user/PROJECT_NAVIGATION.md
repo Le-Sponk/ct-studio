@@ -209,6 +209,27 @@ It is not available in read-only projects or while statuses are checked, a build
 dialog is open. The result stays on that card until the next assignment or the next time the
 project's cards are shown again.
 
+## Finding and fixing issues
+
+Every build checks the finished track (Wiimm's `wszst check`, plus CT Studio's own checks) and
+keeps the results in `.ctstudio/issues.json`. The Issues panel below the cards shows the last
+check's results whenever the project opens, after Refresh and after every build. Findings are
+grouped by the part they are about, in card order, with "Whole track" last for anything about
+the track as a whole; each group says how many errors, warnings, hints and notes it has, and
+within it errors come first.
+
+Select a finding to see, below the list, its next step, the file it is about and which part it
+belongs to. "Open help page" opens that part's page on the Custom Mario Kart wiki in your
+browser. Saved links are limited to HTTPS pages on `mkwiiki.org`; an invalid link falls back
+to the part's known help page, or disables the button if there is none. Click a finding, or
+press Enter on it, to scroll to that part's card and put the keyboard focus on it. "Copy
+report" copies every finding, with next steps, files and help
+pages, as text you can paste into a forum post or bug report.
+
+Before the first build the panel says the track has not been checked yet. If the saved results
+cannot be read it says so; build again to check the track afresh. If a status check fails, the
+last results stay on screen.
+
 ## Recent projects
 
 Successfully created or opened folders are saved in this computer's `settings.json`, newest

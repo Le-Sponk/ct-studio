@@ -1,4 +1,4 @@
-"""The live project overview (P5-T03b) with launch requests (P5-T03i).
+"""The live project overview (P5-T03b) with launch requests (P5-T03i) and issues (P5-T05b).
 
 Disk work belongs to StatusService and LaunchController; this view only emits requests and
 shows their results. Launch results have their own notice, so a status check never hides them.
@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QProgressBar,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
@@ -33,6 +34,7 @@ from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
+from ctstudio.gui.views.issues_panel import IssuesPanel
 
 
 def _label(name: str, parent: QWidget) -> QLabel:
@@ -103,6 +105,9 @@ class Dashboard(QWidget):
         form.addRow("Blender source", self.source_label)
         self._layout.addLayout(form)
         self._make_cards()
+        self.issues = IssuesPanel(self)
+        self.issues.part_requested.connect(self.focus_card)
+        self._layout.addWidget(self.issues)
         self.builds = DashboardBuilds(self)
         self._layout.addWidget(self.builds.log)
         self._layout.addWidget(self.builds.controls)
@@ -120,6 +125,7 @@ class Dashboard(QWidget):
             return
         self._project = project
         self.builds.clear()
+        self.issues.clear()
         self._checking = False
         self.launch_notice.clear()
         self.launch_notice.hide()
@@ -199,6 +205,8 @@ class Dashboard(QWidget):
             card.mode_requested.connect(self.mode_requested)
             card.reveal_requested.connect(self.reveal_requested)
             card.assign_requested.connect(self._assign)
+            card.setFocusPolicy(Qt.FocusPolicy.ClickFocus)  # the Issues panel can go to it
+            card.setAccessibleName(spec.name)
             self.cards[spec.id] = card
             grid.addWidget(card, index // 2, index % 2)
         self._layout.addLayout(grid)
@@ -242,6 +250,8 @@ class Dashboard(QWidget):
         self._checked()
         for name, card in self.cards.items():
             card.show_status(payload.statuses.get(name))
+        title = self._project.manifest.project.name
+        self.issues.show_report(payload.issues, payload.issues_problem, title)
         incomplete = any(name not in payload.statuses for name in self.cards)
         message = "Some parts were not checked; try Refresh." if incomplete else "Statuses checked."
         self.notice.setText(payload.settings_problem or message)
@@ -251,6 +261,20 @@ class Dashboard(QWidget):
             return
         self._checked()
         self.notice.setText(f"Could not check component statuses. {error} Try Refresh.")
+
+    def focus_card(self, part: str) -> None:
+        """Scroll to a part's card and put the focus on its first usable control (or on it)."""
+        card = self.cards.get(part)
+        if card is None:
+            return
+        area = self.parentWidget()
+        while area is not None and not isinstance(area, QScrollArea):
+            area = area.parentWidget()
+        if area is not None:
+            area.ensureWidgetVisible(card)
+        buttons = (card.mode_button, card.copy_button, card.more_button)
+        usable = [button for button in buttons if button.isVisible() and button.isEnabled()]
+        (usable[0] if usable else card).setFocus(Qt.FocusReason.OtherFocusReason)
 
     def _current(self) -> bool:
         return self._project is not None and self.services.project is self._project

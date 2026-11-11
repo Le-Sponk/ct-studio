@@ -64,7 +64,7 @@ src/ctstudio/
   cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py build.py
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
                  build_controller.py dashboard_builds.py build_log_model.py
-                 views/dashboard_follow.py
+                 views/dashboard_follow.py views/issues_panel.py
   blender_bridge/ run_job.py  exporters.py  preview_mesh.py
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
 tests/  unit/ contract/ integration/ gui/ e2e/ benchmarks/ fakes/ fixtures/
@@ -366,6 +366,16 @@ template/manual ─────────────────────�
   that reads back as the same path; project files relative with "/"); text is escaped and
   folded to one line so a message, help link or project name cannot add headings or lists.
   A saved file whose text UTF-8 cannot hold, or with a NUL in a path, is refused too.
+- **Issues panel** (P5-T05b, `gui/views/issues_panel.py`): the status thread reads the report
+  with each status check (`StatusResult.issues`/`issues_problem`; an unreadable report never
+  hides the statuses), so it is fresh on open, Refresh and after every build and the UI thread
+  never reads it. The panel only displays: groups with counts, the selected finding's next
+  step, file, part and help page, and "Copy report". A click or Enter on a finding emits
+  `part_requested`; `Dashboard.focus_card` scrolls the enclosing scroll area to that card and
+  focuses its first usable button (cards are click-focusable, named for screen readers).
+  Switching project clears it at once; a failed check keeps the last report. Saved help links
+  are restricted to HTTPS `mkwiiki.org/wiki/` URLs (no credentials or nonstandard port); an
+  invalid issue link falls back to the registry page, or disables help for a whole-track issue.
 - **Build a project** (P4-T07a, `build/project_build.py`, shared by `ctstudio build` and the
   Build page): `plan_build(root, manifest, profile, only=, configured=, library=)` gives the
   steps (a stage step per manual part, then assemble and validate; `only=PART` = that part's
