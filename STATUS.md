@@ -4,12 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T05 — Issues panel
+**Next task:** P5-T05a — Issue report (core)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `36745a6` (Check, Windows + Ubuntu)
 
 ## In progress
-_(none)_
+- `P5-T05a` Issue report (core). (1) Split P5-T05 into a (core report) and b (panel GUI).
+  (2) Tests first in `tests/unit/test_issue_report.py` from the recorded `wszst check` output
+  and a validate-step `issues.json`. (3) `core/validation/issue_parts.py`: `part_of(issue, root)`;
+  `core/validation/report.py`: `group_issues` → `IssueReport(groups, track, root)`,
+  `counts_text`, `load_report(root)`, `report_text`. Review 1 fixes (tests first): `_d`
+  models are `course_d_model`; folders judged inside the project; findings about the whole
+  SZS go to the part their wording names (retail: Whole track 530 → 77 of 1,048); report
+  paths as code spans and names escaped; deep JSON and odd `format` refused. Review 2
+  fixes: every wszst "Track will/may ... run at slot" wording; wording read only for
+  whole-SZS findings; code spans keep a path exactly; help links one line; lone surrogates
+  and NUL paths refused. Mutants 74/74.
+  (4) ARCHITECTURE note; gate; review; commit/CI; closeout. Risks: wszst names some parts by
+  file (`map_model`) rather than by part id; xenon A average for a new core module.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1033,6 +1045,8 @@ _(none)_
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-11: P5-T05 split into P5-T05a (core issue report: grouping by part and severity,
+  counts, issues.json loading, Copy report text) and P5-T05b (the dashboard panel). 172 tasks.
 - 2026-11-10: P5-T04 split into P5-T04a (core assignment: checks, copy or reference,
   backups, manifest) and P5-T04b (card drop and Choose file… UI). Progress total grows by 2.
 - `P5-T03e33` split into `P5-T03e33a` (trusted command events in core) and `P5-T03e33b` (Copy

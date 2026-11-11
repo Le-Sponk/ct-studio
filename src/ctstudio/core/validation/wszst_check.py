@@ -25,6 +25,7 @@ _SEVERITY: dict[str, Severity] = {
     "SUGGESTION": "hint",
 }
 _UNCOUNTED = "WSZST_SUGGESTION"
+ARCHIVE = "archive"  # the component of a finding about the whole SZS, not one file in it
 _MISSING = re.compile(r"^Missing file:\s+\./(.+?)(?: \(or .+\))?$")
 # "=> 5 warnings, 2 hints and 1 info for", "=> no warnings and 13 hints for", "=> 1 warning for":
 # the kinds present, in this order, joined by ", " and a final " and " (all measured, P4-T08).
@@ -56,7 +57,7 @@ def _component(section: re.Match[str]) -> str:
     name = section.group(1)
     if name == "BRRES":  # "* CHECK BRRES:course_model.brres": that model
         return Path(section.group(2).strip()).stem
-    return name.lower() if name in {"KCL", "KMP"} else "archive"
+    return name.lower() if name in {"KCL", "KMP"} else ARCHIVE
 
 
 def _counts(summary: re.Match[str]) -> tuple[int, int, int] | None:
@@ -80,7 +81,7 @@ def _sentence(parts: list[str]) -> str:
 
 def _read_report(stdout: str) -> tuple[list[Issue], tuple[int, int, int] | None]:
     issues: list[Issue] = []
-    component = "archive"
+    component = ARCHIVE
     counts: tuple[int, int, int] | None = None
     for line in stdout.splitlines():
         if section := _SECTION.match(line):

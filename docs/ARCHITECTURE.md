@@ -60,7 +60,7 @@ src/ctstudio/
                  wiimm.py rszst.py abmatt.py blender.py editors.py wine.py dolphin.py
     formats/     magic.py kcl.py kmp.py            # read-only parsers
     textures/    analyze.py recommend.py
-    validation/  issues.py wszst_check.py kmp_rules.py
+    validation/  issues.py wszst_check.py kmp_rules.py report.py issue_parts.py
   cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py build.py
   gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
                  build_controller.py dashboard_builds.py build_log_model.py
@@ -348,6 +348,24 @@ template/manual ─────────────────────�
   "Missing file" lines for those parts. Test builds never fail on findings; strict (release
   by default, or the caller's choice) fails on any error with `VALIDATE_STRICT`, reporting
   every finding (`StepFailed(issue, also=...)`).
+- **Issue report** (P5-T05a, `validation/report.py` + `validation/issue_parts.py`, read by
+  the Issues panel; runs no tool): `load_report(root)` reads `issues.json` (None before the
+  first check; a damaged, unreadable or absurdly nested file is a plain `ProjectError`).
+  `part_of(issue, root)` names the card a finding is about: its part id; the model a check
+  section names (`vrcorn_model`, or `course_d_model`, the model Wiimm's `_d` tracks carry);
+  one of the part's files or a folder part (`posteffect/`), judged only inside the project
+  so a project kept in a folder called "posteffect" is not one; or, only for a finding about
+  the whole SZS (`archive`; CT Studio's own steps name their part), the part its measured
+  wording names ("Optional file: ./posteffect/...", "File 'vrcorn_model.brres' has N
+  vertices", "minimap MDL", "Track will|may|most likely (only|also|not) run at slot N").
+  Extra files, effects, object models and totals stay under "Whole track", which comes last
+  (on the 99 retail tracks: 77 of 1,048 findings). Parts follow dashboard order; within one,
+  errors, warnings, hints, then notes, otherwise as found. `counts_text` ("1 error, 5
+  warnings and 2 notes") and `report_text`, the "Copy report" Markdown: track, counts, a
+  section per part with its help page, each finding with its hint and file (a code span
+  that reads back as the same path; project files relative with "/"); text is escaped and
+  folded to one line so a message, help link or project name cannot add headings or lists.
+  A saved file whose text UTF-8 cannot hold, or with a NUL in a path, is refused too.
 - **Build a project** (P4-T07a, `build/project_build.py`, shared by `ctstudio build` and the
   Build page): `plan_build(root, manifest, profile, only=, configured=, library=)` gives the
   steps (a stage step per manual part, then assemble and validate; `only=PART` = that part's

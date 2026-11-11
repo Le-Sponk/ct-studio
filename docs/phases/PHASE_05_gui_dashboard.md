@@ -251,6 +251,30 @@ projects refused, wrong type explained on the card, light/dark screenshots.
 Grouped by component and severity; hint text; wiki link; "Copy report". Clicking an issue focuses
 the component card.
 **Acceptance:** populated from recorded `wszst check` outputs in tests.
+Split (2026-11-11, size check: the report model and the panel widget together exceed one
+session; no original scope is removed):
+
+#### [ ] P5-T05a — Issue report (core)
+`core/validation/report.py`: group issues by the track part they belong to (its card), in
+dashboard order with the whole-track ones last; within a part, errors first, then warnings,
+hints and notes, otherwise as found. A finding names its part by the part's id, by one of its
+files (`map_model.brres` → Minimap; files inside a folder part, judged inside the project), by
+the model a check section names (including `course_d_model` of Wiimm's `_d` tracks), or by
+the part its measured wszst wording names. Extra files, effects and object models stay under
+the whole track. Each group carries the part's wiki page. Severity counts in
+plain words. `load_report(root)` reads `.ctstudio/issues.json` (None before the first check; a
+damaged file is a plain `ProjectError`). `report_text` is the "Copy report" text (Markdown:
+track, counts, one section per part with hints, files and wiki links).
+**Acceptance:** tests from the recorded `wszst check` output and an `issues.json` written by
+the validate step: every finding lands under its part's card, ordered by severity; counts and
+report text exact; damaged or missing files handled.
+
+#### [ ] P5-T05b — Issues panel (GUI)
+A dashboard panel shows the report (loaded off the UI thread on open and after each build),
+grouped by part with severity counts, hint text and a wiki link; "Copy report"; clicking an
+issue scrolls to and focuses that part's card.
+**Acceptance:** GUI tests populated from recorded `wszst check` output; keyboard path; light
+and dark screenshots.
 
 ### [ ] P5-T06 — File watching & external-edit detection
 WatcherBridge wraps core watcher (watchfiles thread) → debounced status refresh. When a generated
