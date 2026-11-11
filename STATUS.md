@@ -4,27 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T05a — Issue report (core)
+**Next task:** P5-T05b — Issues panel (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `36745a6` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T05a` Issue report (core). (1) Split P5-T05 into a (core report) and b (panel GUI).
-  (2) Tests first in `tests/unit/test_issue_report.py` from the recorded `wszst check` output
-  and a validate-step `issues.json`. (3) `core/validation/issue_parts.py`: `part_of(issue, root)`;
-  `core/validation/report.py`: `group_issues` → `IssueReport(groups, track, root)`,
-  `counts_text`, `load_report(root)`, `report_text`. Review 1 fixes (tests first): `_d`
-  models are `course_d_model`; folders judged inside the project; findings about the whole
-  SZS go to the part their wording names (retail: Whole track 530 → 77 of 1,048); report
-  paths as code spans and names escaped; deep JSON and odd `format` refused. Review 2
-  fixes: every wszst "Track will/may ... run at slot" wording; wording read only for
-  whole-SZS findings; code spans keep a path exactly; help links one line; lone surrogates
-  and NUL paths refused. Mutants 74/74.
-  (4) ARCHITECTURE note; gate; review; commit/CI; closeout. Risks: wszst names some parts by
-  file (`map_model`) rather than by part id; xenon A average for a new core module.
+_(none)_
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-11 `P5-T05a` Issue report (core) (`996be87`). P5-T05 split into T05a and T05b (172
+  tasks). `core/validation/issue_parts.py` `part_of(issue, root)` names the card a finding is
+  about: its part id; the model a check section names (incl. `course_d_model`, the model of
+  Wiimm's `_d` tracks); one of the part's files or a folder part, judged inside the project;
+  or, for whole-SZS findings only, the part its measured wszst wording names. On the 99
+  retail tracks 77 of 1,048 findings stay under Whole track (extra files, effects, object
+  models). `core/validation/report.py`: `group_issues` (dashboard order, whole track last,
+  errors → notes, stable), `counts_text`, `report_text` (Copy report Markdown; files as exact
+  code spans; text escaped, one line), `load_report(root)` (None before the first check; any
+  damaged file is a plain ProjectError). Tests from recorded and measured wszst 2.42a output;
+  mutants 78/78; three reviews (1: `_d` name, wording, folders, Markdown; 2: slot wordings,
+  code spans; 3: approve). Local 3,473 passed; CI all green (Check win 3464/15, ubuntu
+  3465/14; Integration win 126/21, ubuntu 130/17).
 - 2026-11-11 `P5-T04b` Drop a file on a card or Choose file… (GUI) (`36745a6`). Cards of parts
   with a manual mode and their own table accept one dropped local file or folder (always as a
   copy, so a Shift-drag never moves the original; several files, web links or plain text are

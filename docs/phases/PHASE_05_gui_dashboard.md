@@ -254,7 +254,7 @@ the component card.
 Split (2026-11-11, size check: the report model and the panel widget together exceed one
 session; no original scope is removed):
 
-#### [ ] P5-T05a — Issue report (core)
+#### [x] P5-T05a — Issue report (core)
 `core/validation/report.py`: group issues by the track part they belong to (its card), in
 dashboard order with the whole-track ones last; within a part, errors first, then warnings,
 hints and notes, otherwise as found. A finding names its part by the part's id, by one of its
