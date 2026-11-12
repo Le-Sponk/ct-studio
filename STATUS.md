@@ -4,23 +4,37 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c1 — Whole-dashboard outside-edit presentation and guide
+**Next task:** P5-T06c2b2c2 — Final outside-edit watcher failure acceptance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `d70a533` (Check, Windows + Ubuntu)
+**Last green commit:** `5d5a443` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2c1` — Whole-dashboard outside-edit presentation and guide.
-  1. Audit original criteria and add populated minimum-size/font/keyboard geometry checks.
-  2. Inspect actual joined working/result states in local light/dark enlarged-font windows.
-  3. Fix only proven presentation gaps tests-first; preserve real-action and rendering boundaries.
-  4. Update the user guide and start/False wording; retain the unverified Linux desktop gap.
-  5. Independent review, assertion-caught fault controls, fresh install, full gates and exact CI.
-  Files: cohesive GUI acceptance tests/helpers, necessary layout fixes, user guide/architecture.
-  Final real-watcher failure matrix is c2b2c2; all parents and original criteria remain open.
-  No screenshots/fonts/game files committed or uploaded.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-13 `P5-T06c2b2c1` Whole-dashboard outside-edit presentation and guide (`5d5a443`).
+  Sixteen actual MainWindow Lock/native-confirmed Discard cases cover 720x480 and 1280x1000,
+  light/dark proxy palettes, normal and 150%-font/120%-stretch layouts; populated cards,
+  header/footer, zero horizontal scrolling, complete button labels and Tab reachability.
+  Real gated worker, busy sibling guards, joined publication and exact saved files/backups
+  checked; working and requested-card outcomes captured and locally inspected. Long backup
+  paths intentionally bounded with complete tooltip/accessibility details. User guide explains
+  native choices, Cancel, backups, keyboard access, uncertainty and read-only recovery;
+  start()/False docstring clarified, behavior AST unchanged. No production geometry fix needed.
+  A no-wrap source control exposed a vacuous negative height requirement; exactly two added
+  assertions independently reviewed, retaining every original geometry condition.
+  Independent APPROVE: 156 focused cases, four assertion-caught controls, immutable 565 files.
+  Parent 136 focused cases; 5/5 source controls assertion-caught by the new visual tests;
+  strict Windows/Linux each checks all four touched Python files with passing budgets.
+  Fresh locked Unicode-path environment: 58 cases pass, including final reviewed assertions.
+  Full tool-free gate: 3,980 passed / 6 existing skips / 176 deselected. Exact Check Windows
+  3971/15, Ubuntu 3972/14 (3,986 selected).
+  Integration not triggered: docs/tests and a docstring only; no adapter/build behavior change.
+  Exact remote workflow and both actual ZIPs coverage.xml only. No screenshots/fonts/game
+  data committed or uploaded. Local offscreen visual proxies are not Linux desktop proof;
+  Linux desktop appearance remains unverified. Next c2b2c2 retains final real-watcher failure,
+  recovery/stale matrix and every original parent criterion; all P5-T06 parents remain open.
 - 2026-11-13 `P5-T06c2b2b` Mount and route outside-edit controls (`d70a533`).
   Mounted signal-only native Lock/confirmed Discard choices on edited generated cards;
   explicit read-only/check/status/build/edit/launch/pending eligibility, per-card activity and

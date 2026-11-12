@@ -393,7 +393,7 @@ desktop gap. Completes c2b2, c2b, c2, c and P5-T06 only after every original cri
 Split after sizing the populated-window/font matrix, local inspection, user guide and real-
 watcher failure matrix: together these exceed one small acceptance leaf; no criteria removed.
 
-###### [ ] P5-T06c2b2c1 — Whole-dashboard outside-edit presentation and guide
+###### [x] P5-T06c2b2c1 — Whole-dashboard outside-edit presentation and guide (commit 5d5a443)
 Minimum-window and enlarged-font geometry, light/dark local images of actual joined actions,
 readable complete controls and outcomes, user guide and start()/False wording. Keep render,
 real-action, hosted Linux runtime and unverified Linux desktop appearance claims separate.
