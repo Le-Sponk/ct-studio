@@ -347,6 +347,24 @@ refresh saved state after uncertain startup, and preserve all original c2 accept
 real watcher edit → banner within 2 s → Lock copies/switches mode; confirmed Discard backs up
 and refreshes status; stale/error/refusal behavior, keyboard path, whole-dashboard minimum width
 and enlarged fonts, light/dark screenshots and user guide. Completes c2, c and P5-T06.
+Split (size check: safely recovering a saved manifest after ambiguous native startup needs
+joined-worker failure tests of its own; combining it with dashboard routing, card layout and
+end-to-end visual acceptance exceeds 400 changed lines; no original acceptance removed):
+
+###### [ ] P5-T06c2b1 — Joined saved-state recovery
+After each Lock/Discard attempt, read the saved manifest on the same worker, retaining exact
+bytes and any separate read error even when startup acknowledgement was interrupted. Return
+this snapshot only after joining, without changing the live project. **Acceptance:** real core
+Lock/Discard, post-write failure and native-start interruption; off-UI reads, unchanged original
+error identity, read failure reported separately, no disk read for requests that never ran or
+for assignment/editor/folder requests; invalidated completion remains suppressed.
+
+###### [ ] P5-T06c2b2 — Dashboard wiring and full outside-edit acceptance
+Mount the banner, route requests and fresh joined results (including b1 recovery), refresh
+statuses/watch plans, and retain all c2b acceptance above: real watcher → banner → Lock copies
+and changes mode; confirmed Discard backup; safe recovery/read failure/refusal/stale results;
+keyboard, whole-dashboard minimum width/enlarged fonts, local light/dark screenshots and user
+guide. Completes c2b, c2, c and P5-T06; b1 alone exposes no new application controls.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP

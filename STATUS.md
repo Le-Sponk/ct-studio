@@ -4,12 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b — Mount banner and present joined results
+**Next task:** P5-T06c2b1 — Joined saved-state recovery
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `99268e8` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b1` Joined saved-state recovery. Plan: (1) RED tests for real Lock/Discard saved
+  snapshots; (2) read exact saved bytes on the existing joined worker, preserving primary and
+  read errors separately; (3) cover native-start/post-write faults, no-read and stale delivery;
+  (4) independent review, assertion-only mutations, full local gate and exact Windows/Ubuntu CI.
+  Files: launch_controller.py, focused GUI tests, architecture/phase/STATUS/README. Risks:
+  interrupted startup is not rollback; no worker may publish to the live project or do UI-thread
+  reads; a failed recovery must stay explicit. No new controls in this leaf; c2b2 owns mounting
+  and all original full GUI acceptance.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1113,6 +1120,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-12: P5-T06c2b split into c2b1 (joined saved-state recovery) and c2b2 (dashboard
+  wiring plus all original end-to-end/visual/user-guide acceptance). Native-start uncertainty
+  can leave saved changes without a success receipt; its failure tests plus dashboard/card
+  wiring exceed one 400-line leaf. Nothing removed; c2b1 alone does not mount controls.
 - P5-T06c2 split into c2a (signal-only banner presentation) and c2b (mounting, joined results,
   uncertain-start recovery and full original GUI acceptance). Existing card/dashboard files
   are 368/396 lines; the remaining work exceeds one small task. No acceptance removed.

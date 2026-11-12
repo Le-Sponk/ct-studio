@@ -29,6 +29,7 @@ from ctstudio.core.tools import editors
 from ctstudio.core.tools import folders as corefolders
 from ctstudio.gui.blender_launch import BlenderLaunchService
 from ctstudio.gui.folder_reveal import FolderRevealService
+from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
 
 _LOG = logging.getLogger(__name__)
 THREAD_NAME = "ctstudio-launch"
@@ -54,6 +55,15 @@ class LaunchResult:
     source: Path | None = None  # set for a file assignment (component_id is then its part)
     reference: bool = False
     edit_action: str | None = None  # lock/discard; None for assignment or editor/folder dispatch
+    saved: DetailsSnapshot | None = None  # post-attempt disk state, not the captured input
+    recovery_error: BaseException | None = None  # separate from the original action/start error
+
+
+@dataclass(frozen=True)
+class _Recovered:
+    receipt: Receipt | None
+    snapshot: DetailsSnapshot | None = None
+    error: BaseException | None = None
 
 
 class _Relay(QObject):
@@ -73,16 +83,21 @@ class _Context:
     edit_action: str | None = None  # lock/discard; None for assignment or editor/folder dispatch
 
     def result(self, receipt: object = None, error: object = None) -> LaunchResult:
+        recovered = receipt if isinstance(receipt, _Recovered) else None
+        if recovered is not None:
+            receipt = recovered.receipt
         return LaunchResult(
             self.project,
             self.root,
             self.manifest,
             self.component_id,
-            receipt=receipt if isinstance(receipt, Receipt) else None,
+            receipt=receipt if isinstance(receipt, Receipt) and error is None else None,
             error=error if isinstance(error, BaseException) else None,
             source=self.source,
             reference=self.reference,
             edit_action=self.edit_action,
+            saved=recovered.snapshot if recovered is not None else None,
+            recovery_error=recovered.error if recovered is not None else None,
         )
 
 
@@ -212,7 +227,7 @@ class LaunchController(QObject):
         if thread is not None:
             thread.join()  # the worker's last statement was this signal's emit
         if self._start_error is not None:
-            receipt, error = None, self._start_error
+            error = self._start_error
         self._start_error = None
         self._thread, self._context = None, None
         self._set_busy(False)
@@ -253,4 +268,12 @@ class _Work:
         except BaseException as exc:  # crashes and interrupts must reach the window
             _LOG.exception("The launch request crashed")
             error = exc
-        self.relay.done.emit(self.generation, receipt, error)
+        outgoing = self._recover(project, receipt) if context.edit_action is not None else receipt
+        self.relay.done.emit(self.generation, outgoing, error)
+
+    @staticmethod
+    def _recover(project: Project, receipt: Receipt | None) -> _Recovered:
+        try:
+            return _Recovered(receipt, ProjectDetailsService().load(project))
+        except BaseException as exc:  # a separate, explicit outcome; never replace the action error
+            return _Recovered(receipt, error=exc)

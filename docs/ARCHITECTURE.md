@@ -754,6 +754,19 @@ top-aligned notices. Local-only widget contact sheets exercise light/dark, norma
 or Linux-desktop evidence; c2b retains the original full acceptance, result ownership and saved-
 state recovery. No new user-facing controls are published by c2a.
 
+P5-T06c2b1: each Lock/Discard attempt finishes by reading `ProjectDetailsService.load` on
+that same worker: `LaunchResult.saved` is a `DetailsSnapshot` of the saved manifest and exact
+bytes, not the captured input. `recovery_error` is a separate explicit read fault (including
+interrupts), never a replacement for the original action/start error. A failed action may
+already have written files; a failed native-start acknowledgement may still have dispatched
+it. Both retain the post-attempt snapshot/read fault through joining, even when the normal
+success receipt is suppressed. No read runs for a never-started request or a non-reconcile
+request. Neither reading nor delivery updates `project.manifest`; stale generations/shutdown
+still suppress completion. C2b2 must validate current project/root/captured manifest before
+publishing `saved.manifest` on the UI thread, refresh statuses from disk and rebind watching;
+if recovery failed, it must explain uncertainty and prevent further edits against stale state
+until reopened. This leaf adds no application controls; c2b2 retains full GUI acceptance.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves
