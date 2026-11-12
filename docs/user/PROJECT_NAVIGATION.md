@@ -1,8 +1,8 @@
 # Creating and opening projects
 
-CT Studio is under development. Project navigation and dashboard build controls are available
-for projects with supplied parts. Automatic generation and GUI file assignment are not ready
-yet; start with a project that already names its supplied files. The command-line build also
+CT Studio is under development. Project navigation, dashboard build controls and GUI file
+assignment are available for projects with supplied parts. Automatic generation is not ready
+yet; supply the required parts using the cards as described below. The command-line build also
 remains available.
 
 ## New project
@@ -219,6 +219,63 @@ refresh and build controls wait, and switching or closing the project waits unti
 It is not available in read-only projects or while statuses are checked, a build runs, or a
 dialog is open. The result stays on that card until the next assignment or the next time the
 project's cards are shown again.
+
+## Keeping or discarding an outside edit
+
+When a generated part's file changes in another program, its card shows "Edited outside
+CT Studio" with Lock as manual and Discard… choices. This normally appears within about two
+seconds while the project is open and its folders can be watched; wait for the status check
+to finish before choosing. These choices are for generated outputs, not for parts already
+using manual mode. If watching reports a problem, press Refresh statuses after changing files;
+this checks the cards and tries watching again. Automatic generation is still not ready yet:
+these controls handle existing generated outputs, not a promise that generators are available.
+
+To keep the change, choose Lock as manual. CT Studio makes an exact copy of the changed file
+(or folder) in `files/` under the game's filename, switches this part to manual and saves
+`ctstudio.toml`. Later builds use that supplied copy rather than regenerating the part.
+A different copy already in `files/` is backed up in `.ctstudio/backups/` before replacement;
+an identical copy is kept. The manifest save has its usual timestamped backup too.
+The card reports "Locked as manual" and the file now used, plus any previous-copy backup.
+
+To stop using the outside edit, choose Discard…. A native confirmation titled "Discard outside
+edit?" asks whether to move the changed file or folder to a backup. Cancel is the default;
+confirm with Discard only if you want the next build to remake the part. CT Studio moves the
+changed output into `.ctstudio/backups/<UTC time>/`, keeping its project-relative path, and
+removes it from `.ctstudio/stage/`. The backup keeps your edit; the card then reports the
+missing output. Discard does not start a build or regenerate anything immediately. The next
+build will remake the output when its generator is available and its inputs are ready.
+Cancel changes nothing: no file is moved, no backup is made and no setting changes.
+
+Use Tab to reach Lock as manual or Discard… and Space to activate the focused button.
+In the Discard confirmation, Escape chooses Cancel; Enter also keeps the default Cancel
+unless you explicitly select Discard. The dashboard scrolls to keyboard-focused controls.
+There is no Capture button yet; capturing edits back into the source is planned for P7.
+
+The choices are disabled in a read-only project, while statuses are being checked, during a
+build, while an edit dialog is open, or while another launch or file request is running.
+During your request the card says "Locking as manual…" or "Backing up outside edit…" and
+shows progress; other edit, launch, refresh and build controls are disabled. Switching or
+closing the project must wait. CT Studio keeps the project lock until the worker has
+finished and been joined, not merely until a button returns or an error appears.
+Each card has its own activity and outcome; a result for one part is not a result for another.
+The outcome stays visible after the edited warning disappears. Hover it for the full text
+and backup paths; screen readers receive those details too.
+
+An action or startup failure does not mean rollback: the request may already have changed
+files. CT Studio reloads the actual saved project after the worker finishes, rather than
+assuming the old settings are still correct. If it reports "Saved project reloaded; changes
+may have finished", check this card before trying again. If the file or project changed
+before the choice could run, the request can be refused; refresh, or reopen as instructed.
+Choices approved for an old project or an out-of-date card are not applied to a new one.
+
+If "The saved project could not be read" appears, or changed project settings cannot safely
+be shown, CT Studio protects the project as read-only while keeping its lock. Do not keep
+retrying writes from this view. Follow "Close CT Studio and reopen this project before
+editing" to load fresh saved state; check its cards and any backup before trying again.
+Closing may still ask you to wait if background work has not stopped.
+
+Linux desktop appearance is not verified; automated checks and local Windows screenshots
+do not establish how these controls look on a Linux desktop.
 
 ## Finding and fixing issues
 

@@ -139,8 +139,11 @@ class LaunchController(QObject):
     def start(self, project: Project, component_id: str | None = None) -> bool:
         """Start Blender (None) or reveal ``component_id``.
 
-        False is not rollback: native startup acknowledgement can fail after dispatch.
-        Respect busy ownership and joined completion even when this returns False.
+        False is not cancellation or rollback: native startup acknowledgement can fail
+        after dispatch, even though the worker may already have performed the request.
+        Respect ``busy`` ownership and the joined ``completed`` result, not this return
+        value, to decide when dispatched work has finished. A successful ``shutdown``
+        also joins the worker, but drops its result.
         """
         return self._begin(_Context(project, project.root, project.manifest, component_id))
 

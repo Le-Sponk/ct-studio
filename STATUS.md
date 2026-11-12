@@ -4,12 +4,20 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c — Complete outside-edit dashboard acceptance
+**Next task:** P5-T06c2b2c1 — Whole-dashboard outside-edit presentation and guide
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `d70a533` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b2c1` — Whole-dashboard outside-edit presentation and guide.
+  1. Audit original criteria and add populated minimum-size/font/keyboard geometry checks.
+  2. Inspect actual joined working/result states in local light/dark enlarged-font windows.
+  3. Fix only proven presentation gaps tests-first; preserve real-action and rendering boundaries.
+  4. Update the user guide and start/False wording; retain the unverified Linux desktop gap.
+  5. Independent review, assertion-caught fault controls, fresh install, full gates and exact CI.
+  Files: cohesive GUI acceptance tests/helpers, necessary layout fixes, user guide/architecture.
+  Final real-watcher failure matrix is c2b2c2; all parents and original criteria remain open.
+  No screenshots/fonts/game files committed or uploaded.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1182,6 +1190,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-13: P5-T06c2b2c split after sizing into c1 (populated dashboard presentation,
+  local light/dark/font checks, user guide and start/False clarification) and c2 (final real-
+  watcher failure/recovery/stale acceptance and original parent closure). No criteria removed;
+  P5-T06 and every parent remain open until the final original acceptance audit.
 - 2026-11-12: P5-T06c2b2 split into b2a (safe joined-result publication), b2b (mounted
   controls and watcher/action flow), b2c (whole-dashboard visuals and final original acceptance).
   The live dashboard is already 396 lines; publication-failure write protection and full GUI

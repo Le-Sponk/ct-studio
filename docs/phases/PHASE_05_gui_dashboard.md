@@ -390,6 +390,22 @@ nothing, keyboard access and no UI disk work. Keep the original acceptance above
 Whole-dashboard minimum-width/enlarged-font light/dark local screenshots and geometry checks,
 full watcher-to-action recovery/refusal/stale regression coverage, user guide and honest Linux
 desktop gap. Completes c2b2, c2b, c2, c and P5-T06 only after every original criterion passes.
+Split after sizing the populated-window/font matrix, local inspection, user guide and real-
+watcher failure matrix: together these exceed one small acceptance leaf; no criteria removed.
+
+###### [ ] P5-T06c2b2c1 — Whole-dashboard outside-edit presentation and guide
+Minimum-window and enlarged-font geometry, light/dark local images of actual joined actions,
+readable complete controls and outcomes, user guide and start()/False wording. Keep render,
+real-action, hosted Linux runtime and unverified Linux desktop appearance claims separate.
+**Acceptance:** populated dashboard width/label/scroll/keyboard checks; actual working and
+joined-result screenshots in both themes/font sizes; guide matches native choices and recovery.
+All parents remain open until c2b2c2 checks every original criterion.
+
+###### [ ] P5-T06c2b2c2 — Final outside-edit watcher failure acceptance
+Real watcher-to-action recovery, refusal and stale-result matrix, including native-start
+uncertainty and post-write rebind, using actual saved files and writer-lock protection.
+Combine with prior timing/Lock/Discard/Cancel/keyboard and c1 whole-dashboard evidence;
+complete c2b2c and all P5-T06 parents only after every original criterion passes.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP
