@@ -175,7 +175,8 @@ or commit them.
 ## 5. GUI testing
 - `QT_QPA_PLATFORM=offscreen`, pytest-qt `qtbot`, wait on signals (`qtbot.waitSignal`) — never sleep.
 - Every GUI test that shows a new screen state saves a screenshot to `tests/artifacts/screens/`
-  (`widget.grab().save(...)`), uploaded as a CI artefact. Screens are reviewed at gates (§5 of
+  (`widget.grab().save(...)`), kept local and never committed or uploaded. Screens are
+  reviewed at gates (§5 of
   REVIEW_CHECKLIST) by the agent if it can view images, otherwise listed for the human at HCs.
   P1-T06 saves the dashboard (light, dark and 150% scale) and About (light/dark), reviewed locally.
   Windows Qt offscreen can report zero system fonts; `MainWindow` loads the installed Segoe UI
@@ -192,7 +193,8 @@ or commit them.
 ## 6. CI matrix
 - `ci.yml` (every push/PR): ubuntu-latest + windows-latest · locked `uv sync`,
   `check.py` (unit, contract, gui) and an uploaded per-OS artifact containing coverage XML
-  and GUI screenshots. Linux installs Qt runtime libraries plus DejaVu fonts.
+  only. Generated GUI screenshots stay local and are not uploaded. Linux installs Qt runtime
+  libraries plus DejaVu fonts.
 - `integration.yml` (nightly UTC, manual, and pushes that change the workflow, reporter,
   bootstrap catalogue or skip list; P2-T08a): both OSes bootstrap the real tools with
   `scripts/bootstrap_tools.py` (downloads cached by the catalogue's hash; Windows also the

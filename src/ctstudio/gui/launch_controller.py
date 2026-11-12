@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -20,6 +21,7 @@ from typing import Protocol
 from PySide6.QtCore import QObject, Signal
 
 from ctstudio.core.components.assign import Assigned, assign_file
+from ctstudio.core.components.edited import discard_edit, lock_as_manual
 from ctstudio.core.errors import CTStudioError, ProjectError
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.project import Project
@@ -30,7 +32,7 @@ from ctstudio.gui.folder_reveal import FolderRevealService
 
 _LOG = logging.getLogger(__name__)
 THREAD_NAME = "ctstudio-launch"
-Receipt = editors.Launched | corefolders.OpenedFolder | Assigned
+Receipt = editors.Launched | corefolders.OpenedFolder | Assigned | Path
 
 
 class Assign(Protocol):
@@ -51,6 +53,7 @@ class LaunchResult:
     error: BaseException | None = None
     source: Path | None = None  # set for a file assignment (component_id is then its part)
     reference: bool = False
+    edit_action: str | None = None  # lock/discard; None for assignment or editor/folder dispatch
 
 
 class _Relay(QObject):
@@ -67,6 +70,7 @@ class _Context:
     component_id: str | None
     source: Path | None = None
     reference: bool = False
+    edit_action: str | None = None  # lock/discard; None for assignment or editor/folder dispatch
 
     def result(self, receipt: object = None, error: object = None) -> LaunchResult:
         return LaunchResult(
@@ -78,6 +82,7 @@ class _Context:
             error=error if isinstance(error, BaseException) else None,
             source=self.source,
             reference=self.reference,
+            edit_action=self.edit_action,
         )
 
 
@@ -91,18 +96,22 @@ class LaunchController(QObject):
         blender: BlenderLaunchService | None = None,
         folders: FolderRevealService | None = None,
         assign: Assign = assign_file,
+        lock: Callable[[Project, str], Assigned] = lock_as_manual,
+        discard: Callable[[Project, str], Path] = discard_edit,
         parent: QObject | None = None,
     ) -> None:
         super().__init__(parent)
         self._blender = blender if blender is not None else BlenderLaunchService()
         self._folders = folders if folders is not None else FolderRevealService()
         self._assign = assign
+        self._lock, self._discard = lock, discard
         self._relay = _Relay()
         self._relay.done.connect(self._on_done)
         self._thread: threading.Thread | None = None
         self._context: _Context | None = None
         self._generation = 0
         self._busy = False
+        self._start_error: BaseException | None = None
 
     @property
     def busy(self) -> bool:
@@ -118,39 +127,77 @@ class LaunchController(QObject):
         context = _Context(project, project.root, project.manifest, part, source, reference)
         return self._begin(context)
 
+    def reconcile(self, project: Project, part: str, action: str) -> bool:
+        """Run Lock or Discard; the receiver alone publishes a saved manifest after joining."""
+        if action not in ("lock", "discard"):
+            raise ProjectError(
+                f"Unknown outside-edit action '{action}'.",
+                hint="Choose Lock as manual or Discard on the part's card.",
+            )
+        return self._begin(
+            _Context(project, project.root, project.manifest, part, edit_action=action)
+        )
+
     def _begin(self, context: _Context) -> bool:
         if self._busy:
             return False
         self._generation += 1
-        work = _Work(self._generation, self._relay, self._blender, self._folders, self._assign)
+        work = _Work(
+            self._generation,
+            self._relay,
+            self._blender,
+            self._folders,
+            self._assign,
+            self._lock,
+            self._discard,
+        )
         thread = threading.Thread(target=work.run, args=(context,), name=THREAD_NAME, daemon=True)
         self._thread, self._context = thread, context
         self._set_busy(True)
         try:
             thread.start()
-        except RuntimeError as exc:  # the system refused another thread
-            self._thread, self._context = None, None
-            self._set_busy(False)
+        except BaseException as exc:  # start can be interrupted after native creation
+            if thread in threading.enumerate() or thread.ident is not None:
+                # Enumeration must precede ident: pending bootstrap has no ident yet.
+                self._start_error = exc
+            else:
+                self._start_failed(context, exc)
+            return False
+        return True
+
+    def _start_failed(self, context: _Context, exc: BaseException) -> None:
+        self._thread, self._context = None, None
+        generation = self._generation
+        self._set_busy(False)
+        error = exc
+        if isinstance(exc, RuntimeError):
             error = ProjectError(
                 "Could not start the request in the background.",
                 hint="Close other programs or restart CT Studio, then try again.",
                 details=str(exc),
             )
             error.__cause__ = exc
+        if generation == self._generation:
             self.completed.emit(context.result(error=error))
-            return False
-        return True
 
     def shutdown(self, timeout: float) -> bool:
         """Wait up to ``timeout`` s; True when no worker is left (its result is then dropped)."""
         thread = self._thread
         if thread is not None:
+            # A busy callback can run before start(); native bootstrap can also be
+            # in threading's registry before its acknowledgement makes join legal.
+            if not thread.is_alive() and thread in threading.enumerate():
+                return False
+            if thread.ident is None:
+                return False
             thread.join(timeout)
             if thread.is_alive():
                 return False
         self._thread, self._context = None, None  # a queued delivery now finds no context
+        self._start_error = None
+        self._generation += 1
         self._set_busy(False)
-        return True
+        return self._thread is None  # an idle callback may have started another request
 
     def _set_busy(self, busy: bool) -> None:
         if busy != self._busy:
@@ -164,9 +211,13 @@ class LaunchController(QObject):
         thread = self._thread
         if thread is not None:
             thread.join()  # the worker's last statement was this signal's emit
+        if self._start_error is not None:
+            receipt, error = None, self._start_error
+        self._start_error = None
         self._thread, self._context = None, None
         self._set_busy(False)
-        self.completed.emit(context.result(receipt, error))
+        if generation == self._generation:
+            self.completed.emit(context.result(receipt, error))
 
 
 @dataclass(frozen=True)
@@ -178,13 +229,18 @@ class _Work:
     blender: BlenderLaunchService
     folders: FolderRevealService
     assign: Assign
+    lock: Callable[[Project, str], Assigned]
+    discard: Callable[[Project, str], Path]
 
     def run(self, context: _Context) -> None:
         receipt: Receipt | None = None
         error: BaseException | None = None
         project, component_id = context.project, context.component_id
         try:
-            if context.source is not None and component_id is not None:
+            if context.edit_action is not None and component_id is not None:
+                action = self.lock if context.edit_action == "lock" else self.discard
+                receipt = action(project, component_id)
+            elif context.source is not None and component_id is not None:
                 receipt = self.assign(
                     project, component_id, context.source, reference=context.reference
                 )

@@ -721,6 +721,22 @@ allows copying. Cards only emit `assign_requested` and show the outcome in a per
 set) the dashboard publishes `Assigned.manifest` on the UI thread after the join, rebinds the
 cards and rechecks statuses; a refusal, crash or interrupt publishes nothing.
 
+P5-T06c1: `AppServices.start_reconcile(part, action)` runs `lock_as_manual` or `discard_edit`
+on that same joined launch worker (`LaunchController.reconcile`, injectable `lock`/`discard`).
+Eligibility uses memory only: an editable current project, no build/status/launch/editor work,
+a generated-capable part not already manual, and an explicit `lock` or `discard` action.
+Core rechecks files on the worker. `LaunchResult.edit_action` distinguishes these results from
+folder/editor dispatch and assignment; its receipt is `Assigned` for Lock or the backup `Path`
+for Discard, with the captured project/root/manifest/part and unchanged error identity. Neither
+service nor worker publishes the saved manifest. Interrupted native startup retains the worker
+and writer lock until join (public threading enumeration checked before ident); an unstarted
+or pending-bootstrap thread cannot be joined by a busy callback. Shutdown rechecks ownership
+after idle callbacks, invalidates queued delivery, and completion rechecks generation after
+those callbacks. A startup interrupt is reported unchanged after join; already-dispatched work
+is not rolled back, so the UI must recheck rather than assume it did not run. P5-T06c2 owns card controls, confirmation,
+result presentation, stale-result rejection, rechecking and the full watcher-to-banner GUI test;
+there are no new user-facing controls in c1.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves

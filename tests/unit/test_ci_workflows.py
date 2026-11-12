@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml  # Dev dependency via xenon, present in the locked environment.
 
 WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 
 
-def _workflow(name: str) -> dict:
-    data = yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))
+def _workflow(name: str) -> dict[str, Any]:
+    data: dict[Any, Any] = yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))
     assert isinstance(data, dict)
     # PyYAML's YAML 1.1 resolver turns GitHub's `on:` key into a boolean.
     if True in data:
@@ -36,12 +37,12 @@ def test_local_gate_runs_on_both_oses_and_uploads_evidence() -> None:
     uploads = [
         step for step in steps if step.get("uses", "").startswith("actions/upload-artifact@")
     ]
-    assert uploads and uploads[0].get("if") == "always()"
-    assert "tests/artifacts/screens/*.png" in uploads[0]["with"]["path"]
-    assert "coverage.xml" in uploads[0]["with"]["path"]
+    assert len(uploads) == 1 and uploads[0].get("if") == "always()"
+    # Generated images stay local; only coverage is allowed off this machine.
+    assert uploads[0]["with"]["path"].splitlines() == ["tests/artifacts/coverage.xml"]
 
 
-def _steps_running(steps: list[dict], text: str) -> list[dict]:
+def _steps_running(steps: list[dict[str, Any]], text: str) -> list[dict[str, Any]]:
     return [step for step in steps if text in step.get("run", "")]
 
 
@@ -96,7 +97,7 @@ def test_nightly_integration_bootstraps_real_tools_and_explains_every_skip() -> 
     assert "--expected tests/integration/expected_skips.toml" in reporters[0]["run"]
     assert "--os ${{ runner.os == 'Windows' && 'windows' || 'linux' }}" in reporters[0]["run"]
     uploads = [s for s in steps if s.get("uses", "").startswith("actions/upload-artifact@")]
-    assert uploads and uploads[0].get("if") == "always()"
+    assert len(uploads) == 1 and uploads[0].get("if") == "always()"
     assert "tests/artifacts/integration.xml" in uploads[0]["with"]["path"]
 
 

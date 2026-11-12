@@ -311,6 +311,25 @@ The card of an EditedExternally part shows a banner with Lock as manual and Disc
 choice arrives in P7), run on the joined launch worker. **Acceptance:** the original P5-T06
 acceptance (edit → banner within 2 s → Lock-as-manual copies to `files/` and switches mode);
 keyboard path; light/dark screenshots.
+Split (size check: worker/service ownership, result routing, card layout, keyboard and real-watcher
+GUI tests together exceed 400 changed lines; no original acceptance removed):
+
+##### [ ] P5-T06c1 — Joined outside-edit requests
+`AppServices.start_reconcile` checks current-project eligibility using memory only;
+`LaunchController.reconcile` runs Lock or Discard on the existing joined launch worker.
+Receipts identify the action, part and captured project/root/manifest; only the later UI
+receiver publishes a saved manifest. **Acceptance:** real core actions on synthetic edited
+files; off-UI execution, joined completion, error/interrupt identity, one-at-a-time requests,
+read-only/busy/invalid refusals without disk work; switching/closing retain the project lock.
+No new buttons in this leaf.
+
+##### [ ] P5-T06c2 — Card banner and joined-result presentation
+Wire those requests to the EditedExternally banner with Lock as manual / Discard controls,
+confirmation for Discard, per-card progress/results and stale-result guards. Retain all original
+P5-T06c acceptance: real edit → banner within 2 s → Lock copies to `files/` and switches mode;
+Discard backup and refreshed status; re-read saved state after interrupted startup rather than
+assuming the action did not run; keyboard path, minimum width/enlarged fonts, light/dark
+screenshots, user guide. Completing c2 completes P5-T06c and P5-T06.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP

@@ -45,12 +45,11 @@ jobs:
       - name: Export coverage XML
         if: success()
         run: uv run coverage xml -o tests/artifacts/coverage.xml
-      - name: Upload coverage and GUI screenshots
+      - name: Upload coverage only (screenshots stay local)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ci-${{ matrix.os }}
           path: |
             tests/artifacts/coverage.xml
-            tests/artifacts/screens/*.png
           if-no-files-found: warn

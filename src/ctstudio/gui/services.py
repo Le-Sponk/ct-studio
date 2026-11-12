@@ -237,6 +237,39 @@ class AppServices:
             )
         return self.launch.assign(project, part, source, reference=reference)
 
+    def start_reconcile(self, part: str, action: str) -> bool:
+        """Lock or Discard an outside edit on the joined launch worker (P5-T06c1).
+
+        Memory-only eligibility; core checks the edited file on the worker. A saved manifest
+        belongs to the result receiver, never published here.
+        """
+        project = self.project
+        if project is None:
+            raise ProjectError("No project is open.", hint="Open or create a project first.")
+        self._refuse_while_building()
+        if project.read_only:
+            raise ProjectError(
+                "Cannot change an outside edit in a read-only project.",
+                hint="Reopen the project for editing, then try again.",
+            )
+        if self.status.busy:
+            raise ProjectError(
+                "Component statuses are still being checked.",
+                hint="Wait for the check to finish, then try again.",
+            )
+        spec = COMPONENT_BY_ID.get(part)
+        if spec is None or not spec.outputs:
+            raise ProjectError(
+                f"Cannot change an outside edit for part '{part}'.",
+                hint="Choose a part CT Studio makes from the current project.",
+            )
+        if getattr(project.manifest.components, part).mode == "manual":
+            raise ProjectError(
+                f"The {spec.name} already uses your own file.",
+                hint="Press Refresh statuses to see its current state.",
+            )
+        return self.launch.reconcile(project, part, action)
+
     def _refresh(self, _result: object) -> None:
         if self.project is not None:
             self.status.request(self.project)

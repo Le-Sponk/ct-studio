@@ -4,12 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c — Edited-outside banner on the card (GUI)
+**Next task:** P5-T06c1 — Joined outside-edit requests
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `c4e0488` (Check, Windows + Ubuntu)
 
 ## In progress
-_(none)_
+- `P5-T06c1` Joined outside-edit requests: implementation and ownership fixes in place;
+  not complete until final safety gate, Windows/Ubuntu CI and closeout. Lock/Discard run
+  on the existing joined launch worker; action/part/project/root/manifest and original errors
+  are captured; AppServices eligibility uses memory only, with core file checks off the UI.
+  Review found three inherited lifecycle faults (ambiguous native start, replacement work
+  during idle callbacks, invalidated completion); fixed tests-first, re-review APPROVE:
+  original 20 probes and 154 focused tests pass. 32/32 assertion-only routing/ownership
+  mutants; strict Windows/Linux typing passes for all 10 touched Python files. Full gate
+  before CI-upload safety correction: 3,733 passed / 6 skipped, all other checks green.
+  CI safety: remove automatic screenshot upload to respect the local-only rule; keep coverage
+  XML, both Check jobs and the complete gate; RED then 4 passing workflow tests, 2/2 upload
+  mutants caught. Final workflow review and gate pending. No new user-facing controls or
+  screenshots in c1; banner, confirmation, uncertain-start state refresh, full watcher-to-card
+  acceptance, keyboard checks, screenshots and user guide remain P5-T06c2.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1083,6 +1096,8 @@ _(none)_
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T06c split into c1 (joined requests) and c2 (card banner and results), preserving the
+  full original watcher → card → Lock/Discard acceptance and screenshots in c2.
 - 2026-11-11: P5-T06 split into P5-T06a (project watcher and live status refresh), P5-T06b
   (core Lock as manual / Discard with backup) and P5-T06c (the card banner). 174 tasks.
 - 2026-11-11: P5-T05 split into P5-T05a (core issue report: grouping by part and severity,
