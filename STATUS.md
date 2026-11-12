@@ -4,22 +4,36 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2a — Publish joined outside-edit saved state
+**Next task:** P5-T06c2b2b — Mount and route outside-edit controls
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7919540` (Check, Windows + Ubuntu)
+**Last green commit:** `a5e1b26` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2a` — Publish joined outside-edit saved state.
-  1. Tests first: real Lock/Discard publication and post-attempt recovery faults.
-  2. Route joined results, rebind/recheck/watch, retain honest action/error outcomes.
-  3. Keep stale state; block writes but retain ownership when recovery is unsafe.
-  4. Independent review, assertion-caught mutations, strict two-platform typing, full gates/CI.
-  Files: dashboard, focused result helper, Project read-only contract, GUI/unit tests, docs.
-  Risks: startup False is not rollback; no UI filesystem calls; no stale publication or
-  write-lock release on recovery failure. No controls mounted until b2b; parents remain open.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-13 `P5-T06c2b2a` Publish joined outside-edit saved state (`a5e1b26`).
+  Joined Lock/Discard results publish the actual worker-read snapshot, including after native
+  startup/action faults; current project/root/captured identity guards retain stale live state.
+  Rebind header/cards/watch plans, invalidate obsolete status checks, retain honest outcomes.
+  Unsafe recovery makes all writers read-only without releasing the real project lock; close
+  and reopen reads fresh state. Requests that never ran are not unnecessarily made read-only.
+  Review found relative roots falsely quarantined: behavioral RED/GREEN and worker-only
+  independent canonical provenance fix preserve raw ownership guards and foreign-root refusal.
+  33 focused dashboard cases; strict Windows/Linux typing checks all 5 Python files,
+  all budgets pass. Independent re-review: 198 passed (7 unchanged original probes and
+  50 new thread/fault cases), 3 assertion-caught source controls. Final test-only refusal
+  assertion rewrite preserves error type/message acceptance; exact delta reviewed and full
+  campaign rerun. Parent campaign 26/26 assertion-caught, no error-node catches.
+  Fresh locked space/non-ASCII install: real joined
+  Lock/Discard and read-failure write protection; local light/dark outcome screenshots inspected.
+  Full gate 3,864 passed / 6 existing skips; exact Check Windows
+  3855/15, Ubuntu 3856/14 (3,870 selected).
+  Integration not triggered: no adapter/build/validation change. Exact remote workflow and
+  both actual ZIPs coverage.xml only. No game data, screenshots or fonts committed/uploaded.
+  No new controls mounted yet: c2b2b next, c2b2c retains full dashboard visuals/user guide and
+  original end-to-end acceptance. All P5-T06 parents remain open; Linux desktop unverified.
 - 2026-11-12 `P5-T06c2b1` Joined saved-state recovery (`7919540`).
   Every Lock/Discard attempt reads a stable saved-manifest snapshot on the same joined worker;
   saved bytes and a separate recovery error survive action/native-start faults without changing

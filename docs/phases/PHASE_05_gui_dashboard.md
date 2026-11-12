@@ -370,7 +370,7 @@ routing must respect busy ownership and joined completion, not assume rollback.
 Split after reading the live dashboard (396 lines) and recovery matrix: publication, controls,
 and complete visual/end-to-end coverage exceed one 400-line leaf. All acceptance above stays open.
 
-###### [ ] P5-T06c2b2a — Publish joined outside-edit saved state
+###### [x] P5-T06c2b2a — Publish joined outside-edit saved state (commit a5e1b26)
 Route fresh joined Lock/Discard results separately from folder launches; publish the worker's
 saved snapshot even after action/startup faults, never a receipt's guessed state. Rebind cards,
 refresh statuses/watch plans, and show honest outcomes. Keep a stale live manifest unchanged;
