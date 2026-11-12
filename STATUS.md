@@ -4,22 +4,44 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2b — Mount and route outside-edit controls
+**Next task:** P5-T06c2b2c — Complete outside-edit dashboard acceptance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `a5e1b26` (Check, Windows + Ubuntu)
+**Last green commit:** `d70a533` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2b` — Mount and route outside-edit controls.
-  1. Tests first: card mounting, explicit eligibility and real Lock/confirmed Discard/Cancel.
-  2. Reuse the joined launch owner and b2a publication; per-card working/results and refusals.
-  3. Invalidate modal approvals on rebind/state changes; retain ownership after uncertain start.
-  4. Real watcher-to-banner and keyboard checks, independent review, fault controls and full CI.
-  Files: ComponentCard, Dashboard and cohesive outside-edit presenter, GUI tests, architecture.
-  Risks: no UI disk calls; False does not imply rollback; no stale modal dispatch or result.
-  Full-dashboard visual/user-guide acceptance stays in c2b2c; all parents remain open.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-13 `P5-T06c2b2b` Mount and route outside-edit controls (`d70a533`).
+  Mounted signal-only native Lock/confirmed Discard choices on edited generated cards;
+  explicit read-only/check/status/build/edit/launch/pending eligibility, per-card activity and
+  honest results through the existing joined owner. Revalidate captured root/manifest after
+  modal approval, refresh context after assignment, reject foreign completions and synchronous
+  duplicate dispatch. False native-start acknowledgement is not cancellation or rollback.
+  Behavioral RED found rebind dropping mandatory saved-state recovery: joined results now
+  publish the actual snapshot or protect stale live state read-only while retaining its lock.
+  Real synthetic watcher-to-button Lock/Discard/Cancel and offscreen Tab/Space paths pass;
+  keyboard fixture now proves the target starts offscreen, rather than demanding needless
+  scrolling. Older card height/button-count contracts explicitly include the new panel while
+  retaining width/path-copy/status-fit and disabled-edit focus checks. Full local gate
+  3,922 passed / 6 existing skips; strict Windows/Linux each
+  checks all 11 touched Python files, all budgets pass.
+  Independent APPROVE: 349 focused and
+  18 adversarial cases, 3 assertion-caught controls,
+  immutable 562 files. Separately reviewed assertion-only layout-mount delta:
+  14 cases pass. Initial unmount control survived; the strengthened Qt layout
+  assertion catches it. Invalid-action control first raised KeyError rather than an assertion:
+  a later parent-audited test-only outcome assertion preserves every original refusal check;
+  approved/final hashes stay distinct, source unchanged. Final full parent campaign
+  33/33 is assertion-caught; 91 final focused cases pass.
+  Fresh locked space/non-ASCII install: 6 real button/keyboard/rebind recovery cases pass.
+  Local light/dark mounted-card render samples inspected, not whole-dashboard or Linux evidence.
+  Exact Check Windows 3913/15, Ubuntu
+  3914/14 (3,928 selected); Integration not triggered for GUI-only changes.
+  Exact remote workflow and both actual ZIPs coverage.xml only. No game data/screenshots/fonts
+  committed or uploaded. P5-T06c2b2c retains full-dashboard visuals, user guide and original
+  acceptance; every P5-T06 parent remains open. Linux desktop appearance remains unverified.
 - 2026-11-13 `P5-T06c2b2a` Publish joined outside-edit saved state (`a5e1b26`).
   Joined Lock/Discard results publish the actual worker-read snapshot, including after native
   startup/action faults; current project/root/captured identity guards retain stale live state.

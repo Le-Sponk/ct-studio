@@ -379,7 +379,7 @@ until closed/reopened. **Acceptance:** real Lock/Discard and failure recovery, j
 publication, exact saved state, stale/project/root guards, actionable plain-text results,
 read-failure/stale write refusal and lock retention. No new controls exposed in this leaf.
 
-###### [ ] P5-T06c2b2b — Mount and route outside-edit controls
+###### [x] P5-T06c2b2b — Mount and route outside-edit controls (commit d70a533)
 Mount the c2a banner on eligible cards; route Lock and confirmed Discard through the joined owner
 and b2a publication. Explicit status/read-only/check/build/edit/launch eligibility, busy/results,
 modal invalidation, refusal and rebind behavior. **Acceptance:** real watcher edit to visible
