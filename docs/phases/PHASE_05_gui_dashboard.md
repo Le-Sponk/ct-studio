@@ -351,7 +351,7 @@ Split (size check: safely recovering a saved manifest after ambiguous native sta
 joined-worker failure tests of its own; combining it with dashboard routing, card layout and
 end-to-end visual acceptance exceeds 400 changed lines; no original acceptance removed):
 
-###### [ ] P5-T06c2b1 — Joined saved-state recovery
+###### [x] P5-T06c2b1 — Joined saved-state recovery (commit 7919540)
 After each Lock/Discard attempt, read the saved manifest on the same worker, retaining exact
 bytes and any separate read error even when startup acknowledgement was interrupted. Return
 this snapshot only after joining, without changing the live project. **Acceptance:** real core
@@ -365,6 +365,8 @@ statuses/watch plans, and retain all c2b acceptance above: real watcher → bann
 and changes mode; confirmed Discard backup; safe recovery/read failure/refusal/stale results;
 keyboard, whole-dashboard minimum width/enlarged fonts, local light/dark screenshots and user
 guide. Completes c2b, c2, c and P5-T06; b1 alone exposes no new application controls.
+Also clarify the inherited start() docstring: False can follow already-dispatched work;
+routing must respect busy ownership and joined completion, not assume rollback.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP

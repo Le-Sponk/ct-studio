@@ -4,26 +4,34 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b1 — Joined saved-state recovery
+**Next task:** P5-T06c2b2 — Dashboard wiring and full outside-edit acceptance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `99268e8` (Check, Windows + Ubuntu)
+**Last green commit:** `7919540` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b1` Joined saved-state recovery. Plan: (1) RED tests for real Lock/Discard saved
-  snapshots; (2) read exact saved bytes on the existing joined worker, preserving primary and
-  read errors separately; (3) cover native-start/post-write faults, no-read and stale delivery;
-  (4) independent review, assertion-only mutations, full local gate and exact Windows/Ubuntu CI.
-  Files: launch_controller.py, focused GUI tests, architecture/phase/STATUS/README. Risks:
-  interrupted startup is not rollback; no worker may publish to the live project or do UI-thread
-  reads; a failed recovery must stay explicit. No new controls in this leaf; c2b2 owns mounting
-  and all original full GUI acceptance. Implementation d6b1a60 passed the local gate, but
-  Ubuntu Check failed in the inherited watcher-ignore test: only a newly created files/
-  directory was reported. A forced registration-order probe reproduces its exact assertion;
-  pre-create the sentinel directory before watching, without weakening either assertion.
-  Re-review this fixture-only repair and repeat full local/exact-SHA hosted checks.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-12 `P5-T06c2b1` Joined saved-state recovery (`7919540`).
+  Every Lock/Discard attempt reads a stable saved-manifest snapshot on the same joined worker;
+  saved bytes and a separate recovery error survive action/native-start faults without changing
+  the live project. Original error identity, ownership and stale-delivery guards are retained.
+  RED/GREEN: real actions, native bootstrap faults and read interrupts. 206 focused tests;
+  independent APPROVE: 20 new adversarial cases plus origin assertion, 59 focused and 3
+  assertion-caught controls. Parent campaign: 15/15 assertion-caught, no error-node catches.
+  Initial Ubuntu CI exposed an inherited watcher-test registration race. A forced-order
+  RED/GREEN probe and independent review fixed only directory setup, preserving both original
+  assertions; 3 repair/filter controls are assertion-caught, production watcher unchanged.
+  Strict Windows/Linux typing checks all 3 touched Python files; budgets pass. Fresh locked
+  space/non-ASCII install: real joined Lock/Discard, exact saved bytes, no live publication.
+  Full gate: 3,831 passed / 6 existing skips. Exact Check: Windows 3822/15, Ubuntu
+  3823/14 (3,837 selected). Integration not triggered: GUI-only data plumbing, no tool change.
+  Exact remote workflow and both actual artifact ZIPs verified coverage.xml only. No game data,
+  screenshots or fonts committed/uploaded. No layout changes or new application controls;
+  c2b2 retains mounting, recovery-failure gating and all original full GUI/user-guide acceptance.
+  Review's inherited start()/False documentation clarification is carried into c2b2; Linux
+  desktop pixels remain unverified, not established by hosted checks.
 - 2026-11-12 `P5-T06c2a` Outside-edit banner presentation (`99268e8`). Signal-only native
   Lock/Discard widget: explicit eligibility, Cancel-default/escape/close confirmation, modal
   re-entry and generation guards, owner-driven progress, bounded plain-text outcomes with full
