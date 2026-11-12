@@ -4,23 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06b — Lock as manual and Discard with backup (core)
+**Next task:** P5-T06c — Edited-outside banner on the card (GUI)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `097a204` (Check, Windows + Ubuntu)
+**Last green commit:** `c4e0488` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06b` Lock as manual and Discard with backup (core). Implemented, reviewed and gate
-  green; awaiting commit and CI. `core/components/edited.py`: `edited_files`,
-  `lock_as_manual` (copies the edited output into `files/` through
-  `assign.copy_into_files`), `discard_edit` (one rename into
-  `.ctstudio/backups/<UTC time>/.ctstudio/stage/…`). Shared pieces made public:
-  `status.output_changes`, `assign.unchanged_manifest`/`copy_into_files`,
-  `backups.new_backup_folder`. Tests: `tests/unit/test_edited_{lock,discard,refusals,failures}.py`
-  plus `edited_helpers.py`; a build-cache test proves a discarded part is remade without a
-  second backup. GUI is P5-T06c.
+_(none)_
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-12 `P5-T06b` Lock as manual and Discard with backup, core (`c4e0488`).
+  `core/components/edited.py`: `lock_as_manual` copies the edited output into `files/`
+  (through `assign.copy_into_files`, backing up a different copy) and switches the part to
+  manual; `discard_edit` moves it in one rename into `.ctstudio/backups/<UTC time>/`, so the
+  next build remakes it without a second backup. Both refuse, changing nothing, unless the
+  project is editable, the part is made by CT Studio and not manual, ctstudio.toml is
+  unchanged and the output really was edited; each message says what was not done. Review:
+  4 minor findings (unclear messages, empty folders left after a failed discard), fixed
+  tests-first. 44/44 assertion-only mutants; strict 10-file Windows/Linux typing. Gate:
+  3,671 passed / 6 skipped. Exact CI Check: Windows 3,662/15, Ubuntu 3,663/14 (3,677
+  selected). Integration not triggered. Core only (no screens): GUI and user guide are
+  P5-T06c. No copyrighted data committed.
 - 2026-11-12 `P5-T06a` Project watcher and live status refresh (`097a204`). P5-T06 split
   into T06a/T06b/T06c (174 tasks). `core/project/watch.py` watches the project folder and the
   folders of outside `.blend`/supplied files (watchfiles, two daemon threads); output,

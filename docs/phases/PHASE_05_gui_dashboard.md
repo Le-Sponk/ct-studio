@@ -299,7 +299,7 @@ EditedExternally within 2 s; atomic save and an outside `.blend` noticed; ignore
 nothing; switching/closing projects stops the old watcher and drops its late changes; shutdown
 leaves no watcher thread; a folder that cannot be watched is reported, not raised on the UI thread.
 
-#### [ ] P5-T06b — Lock as manual and Discard with backup (core)
+#### [x] P5-T06b — Lock as manual and Discard with backup (core) (commit c4e0488)
 Core actions for a part whose generated file was edited outside CT Studio: Lock as manual copies
 the edited file into `files/` (reusing `assign_file`) and switches the part to manual; Discard
 backs the edited file up into `.ctstudio/backups/<UTC time>/` and removes it so the next build
