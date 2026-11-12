@@ -16,7 +16,11 @@
   Files: launch_controller.py, focused GUI tests, architecture/phase/STATUS/README. Risks:
   interrupted startup is not rollback; no worker may publish to the live project or do UI-thread
   reads; a failed recovery must stay explicit. No new controls in this leaf; c2b2 owns mounting
-  and all original full GUI acceptance.
+  and all original full GUI acceptance. Implementation d6b1a60 passed the local gate, but
+  Ubuntu Check failed in the inherited watcher-ignore test: only a newly created files/
+  directory was reported. A forced registration-order probe reproduces its exact assertion;
+  pre-create the sentinel directory before watching, without weakening either assertion.
+  Re-review this fixture-only repair and repeat full local/exact-SHA hosted checks.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

@@ -112,6 +112,8 @@ def test_an_atomic_save_is_reported_under_the_files_own_name(root: Path, seen: S
 
 def test_ignored_changes_are_never_reported(root: Path, seen: Seen) -> None:
     sentinel = root / "files" / "course.kmp"
+    # Register the directory before creating its child (Linux may report only a new directory).
+    sentinel.parent.mkdir()
     ignored = [
         root / ".ctstudio" / "state.json",
         root / ".ctstudio" / "logs" / "build.log",
