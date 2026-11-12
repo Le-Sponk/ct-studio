@@ -23,15 +23,15 @@ from PySide6.QtWidgets import (
 )
 
 from ctstudio.core.components.assign import Assigned
-from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS
+from ctstudio.core.components.registry import COMPONENTS
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
-from ctstudio.core.tools import editors
-from ctstudio.core.tools import folders as corefolders
 from ctstudio.gui.assign_text import STALE_ASSIGNMENT, assignment_detail, describe_assignment
 from ctstudio.gui.dashboard_builds import DashboardBuilds
-from ctstudio.gui.dashboard_reconcile import present_reconcile
+from ctstudio.gui.dashboard_outside import DashboardOutside
 from ctstudio.gui.launch_controller import LaunchResult
+from ctstudio.gui.launch_text import component_name
+from ctstudio.gui.launch_text import describe_launch as describe_launch
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
@@ -49,35 +49,6 @@ def _label(name: str, parent: QWidget) -> QLabel:
     return label
 
 
-def _component_name(component_id: str | None) -> str:
-    spec = COMPONENT_BY_ID.get(component_id or "")
-    return spec.name if spec is not None else "this part"
-
-
-def describe_launch(result: LaunchResult) -> str:
-    """Plain words for a finished launch: dispatch only, never a claim that a file loaded."""
-    receipt, error = result.receipt, result.error
-    if isinstance(receipt, editors.Launched):
-        lines = [
-            f"Blender was started (process {receipt.pid}) with {receipt.document}.",
-            "CT Studio cannot tell whether Blender finished opening the file.",
-            *receipt.warnings,
-        ]
-        return "\n".join(lines)
-    if isinstance(receipt, corefolders.OpenedFolder):
-        return (
-            f"Asked the system to open {receipt.folder}. "
-            "If no window appears, open that folder in your file manager."
-        )
-    if isinstance(error, CTStudioError):
-        return str(error)  # already an explanation and a next step
-    subject = "open Blender" if result.component_id is None else "open the folder"
-    if error is not None and not isinstance(error, Exception):
-        return f"The request to {subject} was interrupted. Try again."
-    reason = str(error) or type(error).__name__
-    return f"Could not {subject}: {reason}. Try again; if it keeps failing, restart CT Studio."
-
-
 class Dashboard(QWidget):
     edit_requested = Signal()
     mode_requested = Signal(str, str)
@@ -89,6 +60,7 @@ class Dashboard(QWidget):
         self.services = services
         self._project: Project | None = None
         self._checking = False
+        self.outside_edits = DashboardOutside(self)
         self.setObjectName("dashboard")
         self._layout = QVBoxLayout(self)
         self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -127,6 +99,7 @@ class Dashboard(QWidget):
         if project is self._project and not changed:
             self.refresh()  # retain last good results, including during an existing check/build
             return
+        self.outside_edits.bind(project)
         self._project = project
         self.builds.clear()
         self.issues.clear()
@@ -210,6 +183,7 @@ class Dashboard(QWidget):
             card.mode_requested.connect(self.mode_requested)
             card.reveal_requested.connect(self.reveal_requested)
             card.assign_requested.connect(self._assign)
+            card.reconcile_requested.connect(self.outside_edits.request)
             card.setFocusPolicy(Qt.FocusPolicy.ClickFocus)  # the Issues panel can go to it
             card.setAccessibleName(spec.name)
             self.cards[spec.id] = card
@@ -306,7 +280,7 @@ class Dashboard(QWidget):
         idle = self._idle()
         self.refresh_button.setEnabled(idle)
         self.copy_project.setEnabled(self._current())
-        mutable = idle and self._project is not None and not self._project.read_only
+        mutable = self.mutable
         self.edit_button.setEnabled(mutable)
         has_source = self._project is not None and bool(self._project.manifest.project.blend)
         self.open_blender.setEnabled(mutable and has_source)
@@ -314,10 +288,21 @@ class Dashboard(QWidget):
             card.set_actions_enabled(mutable)
             card.set_inspection_enabled(idle)
 
+    @property
+    def mutable(self) -> bool:
+        """Current explicit editable ownership, independent of ancestor enablement."""
+        return (
+            self._idle()
+            and not self.services.status.busy
+            and self._project is not None
+            and not self._project.read_only
+        )
+
     def _idle(self) -> bool:
         """Explicit app state only: current project and no check, build, edit or launch."""
         services = self.services
         busy = services.build.running or services.launch.busy or services.editing
+        busy = busy or self.outside_edits.pending
         return self._current() and not self._checking and not busy
 
     def show_launching(self, component_id: str | None) -> None:
@@ -325,7 +310,7 @@ class Dashboard(QWidget):
         text = (
             "Opening Blender…"
             if component_id is None
-            else f"Opening the {_component_name(component_id)} folder…"
+            else f"Opening the {component_name(component_id)} folder…"
         )
         self._show_launch_text(text)
 
@@ -362,7 +347,7 @@ class Dashboard(QWidget):
             and payload.root == project.root
         ):
             if payload.edit_action is not None:
-                present_reconcile(self, payload)
+                self.outside_edits.completed(payload)
             elif payload.source is not None:
                 self._assigned(project, payload)
             elif payload.manifest is project.manifest:
@@ -379,6 +364,7 @@ class Dashboard(QWidget):
             return
         if isinstance(result.receipt, Assigned):  # (saved; pyright needs the narrowing)
             project.manifest = result.receipt.manifest
+            self.outside_edits.bind(project)
             for each in self.cards.values():
                 each.bind(project)
             self.recheck()

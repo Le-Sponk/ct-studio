@@ -319,9 +319,13 @@ def test_two_column_layout_fits_720_and_keyboard_tab_order(qtbot: QtBot, project
     host.resize(720, 720)
     host.show()
     assert host.width() == 720
+    panel_height = max(card.outside.sizeHint().height() for card in cards)
     for card in cards:
         assert card.width() <= host.width() // 2
-        assert card.height() < 190
+        # Grid rows share height; retain the old content limit plus the largest new panel.
+        assert card.height() < 190 + panel_height
+        assert not card.outside.lock_button.isEnabled()  # editing is not enabled in this fixture
+        assert not card.outside.discard_button.isEnabled()
         assert card.copy_button.geometry().right() <= card.width()
         assert card.status_label.width() >= card.status_label.fontMetrics().horizontalAdvance(
             card.status_label.text()
@@ -332,7 +336,8 @@ def test_two_column_layout_fits_720_and_keyboard_tab_order(qtbot: QtBot, project
     qtbot.waitUntil(cards[0].more_button.hasFocus)
     QTest.keyClick(cards[0].more_button, Qt.Key.Key_Tab)
     qtbot.waitUntil(cards[1].copy_button.hasFocus)
-    assert len(host.findChildren(QPushButton)) == 2 * len(COMPONENTS)
+    # Change mode / Copy path plus mounted Lock / Discard (More is a QToolButton).
+    assert len(host.findChildren(QPushButton)) == 4 * len(COMPONENTS)
 
 
 def test_long_reason_does_not_make_an_enormous_card(qtbot: QtBot, project: Project) -> None:

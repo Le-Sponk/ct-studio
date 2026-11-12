@@ -783,6 +783,20 @@ but close CT Studio and reopen the project to read fresh state before editing ag
 project closure still releases the held lock. No new controls are exposed yet; mounting and
 full end-to-end/visual acceptance remain c2b2b/c2b2c.
 
+P5-T06c2b2b: `ComponentCard` mounts `OutsideEditBanner` and emits part/action requests;
+only checked generated, non-manual parts expose the choices. Explicit editable app state
+controls eligibility, independently of widget ancestor enablement. `gui/dashboard_outside.py`
+retains presentation context before dispatch through the existing joined launch owner, rejects
+stale modal/root/manifest approval and keeps working state even when native startup reports
+False after dispatch. Joined results still use b2a saved-state publication, then place the
+honest outcome on the requested card; status updates cannot erase it. Rebinding clears old
+activity/approval, not mandatory recovery: a current project's joined result must either publish
+its real saved snapshot or make stale live memory read-only, retaining its writer lock.
+The extracted `gui/launch_text.py` retains existing launch wording and the dashboard re-export.
+Real synthetic watcher/button/confirmation and offscreen-to-visible Tab/Space paths are covered;
+whole-dashboard visual acceptance and the full user guide remain c2b2c, including the honest
+Linux-desktop verification gap. Local render samples are not real-action or Linux evidence.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves

@@ -9,7 +9,14 @@
 **Last green commit:** `a5e1b26` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b2b` — Mount and route outside-edit controls.
+  1. Tests first: card mounting, explicit eligibility and real Lock/confirmed Discard/Cancel.
+  2. Reuse the joined launch owner and b2a publication; per-card working/results and refusals.
+  3. Invalidate modal approvals on rebind/state changes; retain ownership after uncertain start.
+  4. Real watcher-to-banner and keyboard checks, independent review, fault controls and full CI.
+  Files: ComponentCard, Dashboard and cohesive outside-edit presenter, GUI tests, architecture.
+  Risks: no UI disk calls; False does not imply rollback; no stale modal dispatch or result.
+  Full-dashboard visual/user-guide acceptance stays in c2b2c; all parents remain open.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

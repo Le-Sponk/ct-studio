@@ -31,6 +31,7 @@ from ctstudio.core.components.state import GENERATED_DIR
 from ctstudio.core.components.status import STATE_LABELS, ComponentStatus, State
 from ctstudio.core.project.manifest_io import FILE_NAME
 from ctstudio.core.project.project import Project
+from ctstudio.gui.views.outside_edit_banner import OutsideEditBanner
 
 _STATUS_ICONS = {
     State.MISSING: QStyle.StandardPixmap.SP_MessageBoxQuestion,
@@ -82,6 +83,7 @@ class ComponentCard(QWidget):
     mode_requested = Signal(str, str)
     reveal_requested = Signal(str)
     assign_requested = Signal(str, object, bool)  # part, source Path, reference in place
+    reconcile_requested = Signal(str, str)  # part, outside-edit action
 
     def __init__(self, spec: ComponentSpec, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -90,6 +92,7 @@ class ComponentCard(QWidget):
         self._current_mode = spec.default_mode
         self._actions_enabled = False
         self._inspection_enabled = False
+        self._edited = False
         self.path: Path | None = None
         self.choose: ChooseSource = choose_source
         self.setObjectName(f"card_{spec.id}")
@@ -123,6 +126,9 @@ class ComponentCard(QWidget):
         self.assign_note.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.assign_note.hide()
         layout.addWidget(self.assign_note)
+        self.outside = OutsideEditBanner(self)
+        self.outside.requested.connect(self._request_outside)
+        layout.addWidget(self.outside)
         self._add_actions(layout)
         self.show_status(None)
 
@@ -263,7 +269,16 @@ class ComponentCard(QWidget):
         self._actions_enabled = enabled
         self._sync_actions()
 
+    def can_reconcile(self) -> bool:
+        """Explicit checked/editable state only, independent of widget ancestor enablement."""
+        return self._edited and self._can_assign()
+
+    def _request_outside(self, action: str) -> None:
+        if self.can_reconcile() and action in ("lock", "discard"):
+            self.reconcile_requested.emit(self._spec.id, action)
+
     def _sync_actions(self) -> None:
+        self.outside.set_state(edited=self._edited, eligible=self.can_reconcile())
         mutable = self._can_change_mode()
         self.mode_button.setEnabled(mutable)
         self._mode_menu.setEnabled(mutable)
@@ -305,6 +320,8 @@ class ComponentCard(QWidget):
     def bind(self, project: Project) -> None:
         """Use only the in-memory manifest and lexical paths, including missing outputs."""
         self._project = project
+        self.outside.clear()
+        self._edited = False
         self.path = None
         if self._spec.manifest_table == "project":
             mode = self._spec.default_mode
@@ -334,6 +351,13 @@ class ComponentCard(QWidget):
 
     def show_status(self, status: ComponentStatus | None) -> None:
         """Render an already evaluated status; None is explicitly not checked."""
+        self._edited = (
+            status is not None
+            and status.state == State.EDITED_EXTERNALLY
+            and self._current_mode != "manual"
+            and bool(self._spec.outputs)
+        )
+        self._sync_actions()
         text = "Not checked" if status is None else STATE_LABELS[status.state]
         reasons = () if status is None else status.reasons
         summary = reasons[0] if reasons else self._spec.description
