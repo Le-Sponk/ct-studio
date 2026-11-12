@@ -102,3 +102,15 @@ def test_a_backup_that_fails_stops_the_step_and_keeps_the_edit(
     )
     assert failed.hint == "Free some disk space, then build again. Your edit was not touched."
     assert made(root).read_text(encoding="utf-8") == "my hand edit"
+
+
+def test_an_edited_output_moved_away_is_not_backed_up_again(root: Path) -> None:
+    # Discard (P5-T06b) moves an edited output into the backups; the next build must then
+    # simply make it again, without a second backup of a file that is no longer there.
+    build(root, [step(root, "a")])
+    made(root).write_text("my hand edit", encoding="utf-8")
+    made(root).rename(root / "kept elsewhere")
+    summary, _rec = build(root, [step(root, "a")])
+    assert summary.ran == ("a",)
+    assert kept(root) == []
+    assert made(root).read_text(encoding="utf-8") == "a"

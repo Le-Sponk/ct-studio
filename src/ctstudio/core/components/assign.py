@@ -50,7 +50,7 @@ class Assigned:
 def assign_file(project: Project, part: str, source: Path, *, reference: bool = False) -> Assigned:
     """Make ``part`` use ``source`` (manual mode); ProjectError, with nothing changed, if not."""
     spec = _editable(project, part)
-    raw = _unchanged_manifest(project)
+    raw = unchanged_manifest(project, "assign the file again")
     root = project.root.resolve()
     chosen = _existing_source(root, source)
     target = root / FILES_DIR / spec.outputs[0].rstrip("/")
@@ -62,9 +62,31 @@ def assign_file(project: Project, part: str, source: Path, *, reference: bool = 
     if reference:
         text = chosen.relative_to(root).as_posix() if chosen.is_relative_to(root) else str(chosen)
         return _save(project, spec, raw, text, None)
-    if chosen == target or (target.exists() and _same(chosen, target, text)):
+    if chosen == target:
         return _save(project, spec, raw, text, None)
-    return _copy_in(project, spec, raw, chosen, target)
+    return copy_into_files(project, spec, raw, chosen)
+
+
+def copy_into_files(
+    project: Project,
+    spec: ComponentSpec,
+    raw: bytes,
+    chosen: Path,
+    not_done: str = "no file was assigned",
+) -> Assigned:
+    """Copy ``chosen`` into ``files/<game name>`` and make it the part's file (manual mode).
+
+    ``chosen`` is already checked (it exists, is the right type and does not overlap the
+    target); ``raw`` is ctstudio.toml as ``unchanged_manifest`` read it. An identical copy
+    already there is kept; a different one is backed up first. ``not_done`` ends a failed
+    save's message ("Could not save ctstudio.toml, so <not_done>.").
+    """
+    root = project.root.resolve()
+    target = root / FILES_DIR / spec.outputs[0].rstrip("/")
+    text = target.relative_to(root).as_posix()
+    if target.exists() and _same(chosen, target, text):
+        return _save(project, spec, raw, text, None, not_done)
+    return _copy_in(project, spec, raw, chosen, target, not_done)
 
 
 def _shown(path: Path) -> str:
@@ -88,22 +110,25 @@ def _editable(project: Project, part: str) -> ComponentSpec:
     return spec
 
 
-def _unchanged_manifest(project: Project) -> bytes:
-    """ctstudio.toml's bytes, provided they still say what the open project says."""
+def unchanged_manifest(project: Project, again: str) -> bytes:
+    """ctstudio.toml's bytes, provided they still say what the open project says.
+
+    ``again`` finishes the hint when they do not ("Reopen the project, then <again>.").
+    """
     try:
         raw = project.manifest_path.read_bytes()
         same = manifest_io.load(project.manifest_path) == project.manifest
     except (OSError, ProjectError) as exc:
-        raise _changed(str(exc)) from exc
+        raise _changed(again, str(exc)) from exc
     if not same:
-        raise _changed(None)
+        raise _changed(again, None)
     return raw
 
 
-def _changed(details: str | None) -> ProjectError:
+def _changed(again: str, details: str | None) -> ProjectError:
     return ProjectError(
         "ctstudio.toml changed since the project was opened.",
-        hint="Reopen the project, then assign the file again.",
+        hint=f"Reopen the project, then {again}.",
         details=details,
     )
 
@@ -170,7 +195,12 @@ def _same_folder(a: Path, b: Path) -> bool:
 
 
 def _copy_in(
-    project: Project, spec: ComponentSpec, raw: bytes, chosen: Path, target: Path
+    project: Project,
+    spec: ComponentSpec,
+    raw: bytes,
+    chosen: Path,
+    target: Path,
+    not_done: str,
 ) -> Assigned:
     """Stage and re-check the copy, back up and set aside the old one, save, then commit."""
     root = project.root.resolve()
@@ -185,7 +215,7 @@ def _copy_in(
         backup = _backup(root, target, text) if target.exists() else None
         _swap_in(staged, target, aside)
         try:
-            assigned = _save(project, spec, raw, text, backup)
+            assigned = _save(project, spec, raw, text, backup, not_done)
         except BaseException as exc:  # also Ctrl+C: never leave a copy ctstudio.toml does not name
             undone = _undo(target, aside, text)
             if not isinstance(exc, ProjectError):
@@ -288,7 +318,12 @@ def _swap_in(copy: Path, target: Path, aside: Path) -> None:
 
 
 def _save(
-    project: Project, spec: ComponentSpec, raw: bytes, text: str, backup: Path | None
+    project: Project,
+    spec: ComponentSpec,
+    raw: bytes,
+    text: str,
+    backup: Path | None,
+    not_done: str = "no file was assigned",
 ) -> Assigned:
     table = cast(str, spec.manifest_table)  # _editable allows only parts with their own table
     parts = project.manifest.components
@@ -299,7 +334,7 @@ def _save(
         manifest_backup = replace_with_backup(project.manifest_path, data, expected=raw)
     except ProjectError as exc:
         raise ProjectError(
-            "Could not save ctstudio.toml, so no file was assigned.",
+            f"Could not save ctstudio.toml, so {not_done}.",
             hint=exc.hint or "Check the project folder and try again.",
             details=f"{exc.user_message} {exc.details or ''}".strip(),
         ) from exc

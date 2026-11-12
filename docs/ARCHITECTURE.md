@@ -51,7 +51,8 @@ src/ctstudio/
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
                  watch.py
                  slots.py slots.json  settings.py (user-level)
-    components/  registry.py  state.py  status.py  (one module per component type if large)
+    components/  registry.py  state.py  status.py  assign.py  edited.py
+                 (one module per component type if large)
     build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
                  stage.py  assemble.py  objects.py  validate.py  project_build.py
                  event_json.py
@@ -422,6 +423,26 @@ unmatched preset is skipped silently, so the regenerate step must diff captured 
 names against the regenerated material list and warn the user about orphans — no tool
 reports this. Before any overwrite of a file whose hash differs from what the app last
 wrote, a timestamped backup is made — no exceptions.
+
+*As built (P5-T06b, `core/components/edited.py`):* choices 2 and 3 are core functions; their
+GUI (the card banner) is P5-T06c, and choice 1 is a later phase. `edited_files(project, part)`
+lists the outputs changed, or added to an output folder, since they were made
+(`status.output_changes`, the same comparison the status uses; a gone output is not an edit).
+`lock_as_manual(project, part) → Assigned` type-checks the edited output, then copies it to
+`files/<game name>` and saves ctstudio.toml with `assign.copy_into_files` (an identical copy
+already there is kept, a different one is backed up first). `discard_edit(project, part) →
+Path` moves the edited output, in one rename, to `.ctstudio/backups/<UTC time>/.ctstudio/stage/
+<game name>` (`backups.new_backup_folder`), so the part reports Missing and the next build makes
+it again without a second backup (a missing output is not edited, see the build cache); nothing
+is deleted. If the move fails, only the empty folders that discard made are removed (a
+folder holding anything is left alone). Both refuse
+with a `ProjectError`, changing nothing, unless the project is editable, the part is one CT
+Studio makes and set to be made, ctstudio.toml is unchanged on disk
+(`assign.unchanged_manifest`) and `edited_files` is not empty. Every refusal or failure says
+what was not done ("…, so the Collision was not discarded."), including a failed ctstudio.toml
+save during Lock (`copy_into_files(…, not_done)`), an edited file the editing program still
+holds, and an unreadable state.json. Both block: the GUI runs them on a
+worker thread, never during a build.
 
 ## 9. Running external tools
 - `core/tools/process.py` is the only place that spawns processes. Arguments are lists. Output is

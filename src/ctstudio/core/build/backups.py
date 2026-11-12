@@ -43,7 +43,7 @@ def save_copies(root: Path, paths: Sequence[Path]) -> Path:
     On any failure the incomplete backup folder is removed again and the error re-raised
     (an ``OSError`` naming the file that could not be copied).
     """
-    folder = _new_folder(root / BACKUP_DIR, _stamp())
+    folder = new_backup_folder(root)
     try:
         for path in paths:
             copy = folder / _relative(root, path)
@@ -61,6 +61,11 @@ def _copy_item(item: Path, copy: Path) -> None:
     else:
         copy.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(item, copy)
+
+
+def new_backup_folder(root: Path) -> Path:
+    """A new, empty ``.ctstudio/backups/<UTC time>`` folder (``-1``, ``-2``… when taken)."""
+    return _new_folder(root / BACKUP_DIR, _stamp())
 
 
 def _new_folder(parent: Path, stamp: str) -> Path:

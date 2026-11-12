@@ -25,7 +25,7 @@ from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS, ComponentSpec
 from ctstudio.core.components.state import (
@@ -47,6 +47,8 @@ POSTEFFECT_KINDS: Mapping[str, FileKind] = {
     ".blmap": FileKind.BLMAP,
 }  # .bfg (fog) has no magic, so any .bfg is accepted
 _NOT_FOUND = "which was not found (see the Tools page)"
+
+type OutputChange = Literal["changed", "added", "missing"]
 
 
 class State(StrEnum):
@@ -131,8 +133,17 @@ def _compare(
     name = spec.outputs[0]
     if made is None:
         return ComponentStatus(State.MISSING, (f"{name} has not been made yet",))
-    stage = project.root / GENERATED_DIR
-    edited, gone = _output_changes(spec, stage, made)
+    changes = output_changes(spec, project.root / GENERATED_DIR, made)
+    edited = tuple(
+        f"{rel} was {'added' if change == 'added' else 'changed'} outside CT Studio"
+        for rel, change in changes.items()
+        if change != "missing"
+    )
+    gone = tuple(
+        f"{rel} is gone; it will be made again"
+        for rel, change in changes.items()
+        if change == "missing"
+    )
     stale = _stale(spec, project, made)
     if edited:
         return ComponentStatus(State.EDITED_EXTERNALLY, (*edited, *stale))
@@ -141,23 +152,22 @@ def _compare(
     return ComponentStatus(State.STALE, stale) if stale else ComponentStatus(State.READY)
 
 
-def _output_changes(
+def output_changes(
     spec: ComponentSpec, stage: Path, made: ComponentRecord
-) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    edited: list[str] = []
-    gone: list[str] = []
+) -> dict[str, OutputChange]:
+    """Each output that differs from what was made, by its path inside the stage folder:
+    changed or gone (in the record's order), then files added to an output folder (sorted)."""
+    changes: dict[str, OutputChange] = {}
     for rel, file in made.outputs.items():
         change = file.compare(stage / rel)
-        if change == "changed":
-            edited.append(f"{rel} was changed outside CT Studio")
-        elif change == "missing":
-            gone.append(f"{rel} is gone; it will be made again")
+        if change != "same":
+            changes[rel] = change
     for folder in (out for out in spec.outputs if out.endswith("/")):
         for path in sorted((stage / folder).rglob("*")):
             rel = path.relative_to(stage).as_posix()
             if path.is_file() and rel not in made.outputs:
-                edited.append(f"{rel} was added outside CT Studio")
-    return tuple(edited), tuple(gone)
+                changes[rel] = "added"
+    return changes
 
 
 def _stale(spec: ComponentSpec, project: ProjectLike, made: ComponentRecord) -> tuple[str, ...]:

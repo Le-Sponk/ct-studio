@@ -9,7 +9,15 @@
 **Last green commit:** `097a204` (Check, Windows + Ubuntu)
 
 ## In progress
-_(none)_
+- `P5-T06b` Lock as manual and Discard with backup (core). Implemented, reviewed and gate
+  green; awaiting commit and CI. `core/components/edited.py`: `edited_files`,
+  `lock_as_manual` (copies the edited output into `files/` through
+  `assign.copy_into_files`), `discard_edit` (one rename into
+  `.ctstudio/backups/<UTC time>/.ctstudio/stage/…`). Shared pieces made public:
+  `status.output_changes`, `assign.unchanged_manifest`/`copy_into_files`,
+  `backups.new_backup_folder`. Tests: `tests/unit/test_edited_{lock,discard,refusals,failures}.py`
+  plus `edited_helpers.py`; a build-cache test proves a discarded part is remade without a
+  second backup. GUI is P5-T06c.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
