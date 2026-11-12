@@ -4,28 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c1 — Joined outside-edit requests
+**Next task:** P5-T06c2 — Card banner and joined-result presentation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `c4e0488` (Check, Windows + Ubuntu)
+**Last green commit:** `3377d56` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c1` Joined outside-edit requests: implementation and ownership fixes in place;
-  not complete until final safety gate, Windows/Ubuntu CI and closeout. Lock/Discard run
-  on the existing joined launch worker; action/part/project/root/manifest and original errors
-  are captured; AppServices eligibility uses memory only, with core file checks off the UI.
-  Review found three inherited lifecycle faults (ambiguous native start, replacement work
-  during idle callbacks, invalidated completion); fixed tests-first, re-review APPROVE:
-  original 20 probes and 154 focused tests pass. 32/32 assertion-only routing/ownership
-  mutants; strict Windows/Linux typing passes for all 10 touched Python files. Full gate
-  before CI-upload safety correction: 3,733 passed / 6 skipped, all other checks green.
-  CI safety: remove automatic screenshot upload to respect the local-only rule; keep coverage
-  XML, both Check jobs and the complete gate; RED then 4 passing workflow tests, 2/2 upload
-  mutants caught. Final workflow review and gate pending. No new user-facing controls or
-  screenshots in c1; banner, confirmation, uncertain-start state refresh, full watcher-to-card
-  acceptance, keyboard checks, screenshots and user guide remain P5-T06c2.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-12 `P5-T06c1` Joined outside-edit requests (`3377d56`). Lock/Discard run on
+  the existing joined launch worker with memory-only service eligibility; captured results
+  identify the action/part/project/root/manifest and retain the original error. The worker
+  never publishes a saved manifest. Review found 3 inherited ownership faults (ambiguous
+  native startup, replacement during idle callbacks, invalidated completion); fixed tests-first,
+  re-review APPROVE: 20 original probes and 154 focused tests. Startup uncertainty retains
+  the writer lock until join; it does not promise rollback. 34/34 assertion-only mutants
+  (32 ownership/routing, 2 CI-upload), strict 10-file Windows/Linux typing and all budgets pass.
+  Full final gate: 3,733 passed / 6 skipped. Exact CI Check: Windows 3,724/15, Ubuntu
+  3,725/14 (3,739 selected). Integration not triggered: no real-tool/build/validation
+  changes. CI now uploads coverage only, honoring local-only screenshots; exact remote YAML
+  and both actual artifact ZIPs verified coverage.xml only. Final safety review APPROVE,
+  4 workflow tests. No new visible controls or screenshots in c1; banner/confirmation,
+  uncertain-start saved-state refresh, full watcher-to-card acceptance and user guide are c2.
+  No copyrighted assets, fonts or screenshots committed or uploaded by this change.
 - 2026-11-12 `P5-T06b` Lock as manual and Discard with backup, core (`c4e0488`).
   `core/components/edited.py`: `lock_as_manual` copies the edited output into `files/`
   (through `assign.copy_into_files`, backing up a different copy) and switches the part to

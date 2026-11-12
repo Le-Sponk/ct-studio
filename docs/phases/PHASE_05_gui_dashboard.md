@@ -314,7 +314,7 @@ keyboard path; light/dark screenshots.
 Split (size check: worker/service ownership, result routing, card layout, keyboard and real-watcher
 GUI tests together exceed 400 changed lines; no original acceptance removed):
 
-##### [ ] P5-T06c1 — Joined outside-edit requests
+##### [x] P5-T06c1 — Joined outside-edit requests (commit 3377d56)
 `AppServices.start_reconcile` checks current-project eligibility using memory only;
 `LaunchController.reconcile` runs Lock or Discard on the existing joined launch worker.
 Receipts identify the action, part and captured project/root/manifest; only the later UI
