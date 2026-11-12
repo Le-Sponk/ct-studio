@@ -4,12 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2 — Card banner and joined-result presentation
+**Next task:** P5-T06c2a — Outside-edit banner presentation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `3377d56` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2a` Outside-edit banner presentation. Plan: (1) RED widget contract tests;
+  (2) native-palette signal-only banner with explicit edited/eligible state, safe Discard
+  confirmation and recheck after modal callbacks; (3) progress/result/reset, keyboard and
+  narrow/enlarged-font light/dark evidence; (4) strict typing, mutation proof, independent
+  review, full gate and exact Windows/Ubuntu CI, then closeout. Files: new view and GUI tests,
+  architecture, phase checklist, STATUS/README. No project disk work or new worker. Risks:
+  confirming an old card after a modal reset, stale eligibility, invisible or clipped results.
+  Dashboard mounting, joined-result routing and original end-to-end acceptance remain c2b.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1098,6 +1105,9 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T06c2 split into c2a (signal-only banner presentation) and c2b (mounting, joined results,
+  uncertain-start recovery and full original GUI acceptance). Existing card/dashboard files
+  are 368/396 lines; the remaining work exceeds one small task. No acceptance removed.
 - P5-T06c split into c1 (joined requests) and c2 (card banner and results), preserving the
   full original watcher → card → Lock/Discard acceptance and screenshots in c2.
 - 2026-11-11: P5-T06 split into P5-T06a (project watcher and live status refresh), P5-T06b

@@ -330,6 +330,23 @@ P5-T06c acceptance: real edit → banner within 2 s → Lock copies to `files/` 
 Discard backup and refreshed status; re-read saved state after interrupted startup rather than
 assuming the action did not run; keyboard path, minimum width/enlarged fonts, light/dark
 screenshots, user guide. Completing c2 completes P5-T06c and P5-T06.
+Split (size check: card/dashboard are already 368/396 lines; banner presentation, joined-result
+routing, uncertain-start disk recovery and full GUI acceptance exceed one small task):
+
+###### [ ] P5-T06c2a — Outside-edit banner presentation
+A signal-only native-palette widget for the card: Lock as manual / Discard, safe-default Discard
+confirmation, explicit eligibility, progress and bounded accessible result text. No disk work or
+worker ownership here. **Acceptance:** status/eligibility matrix, exact action signals, cancelled
+or invalidated confirmation does nothing, busy/reset and keyboard behavior, minimum-width and
+enlarged-font light/dark widget screenshots. Dashboard mounting is c2b; no unconnected actions
+are exposed in the application in this leaf.
+
+###### [ ] P5-T06c2b — Mount banner and present joined results
+Mount the widget on each eligible card; dispatch through c1, publish only fresh joined results,
+refresh saved state after uncertain startup, and preserve all original c2 acceptance above:
+real watcher edit → banner within 2 s → Lock copies/switches mode; confirmed Discard backs up
+and refreshes status; stale/error/refusal behavior, keyboard path, whole-dashboard minimum width
+and enlarged fonts, light/dark screenshots and user guide. Completes c2, c and P5-T06.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP

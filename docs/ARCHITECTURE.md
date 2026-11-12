@@ -737,6 +737,23 @@ is not rolled back, so the UI must recheck rather than assume it did not run. P5
 result presentation, stale-result rejection, rechecking and the full watcher-to-banner GUI test;
 there are no new user-facing controls in c1.
 
+P5-T06c2a: `gui/views/outside_edit_banner.py` is a signal-only `OutsideEditBanner`, not yet
+mounted in cards (c2b). `requested(str)` carries `lock` / `discard`; it has no project, disk or
+worker access. The owner supplies `set_state(edited=…, eligible=…)`, calls `show_work(action)`
+only after accepting a request (`None` after join), and renders outcomes with `show_note(text,
+detail)`. Status refreshes do not erase outcomes. Plain-text summaries are capped to four lines;
+full text/details remain in tooltips and accessible descriptions. A label-local FontChange
+event filter recalculates the four-line cap when fonts grow or shrink after construction.
+`clear()` is mandatory on
+project rebind: it resets all outcome/activity fields and invalidates pending modal approval.
+Status/work changes also invalidate it. Discard's native backup/rebuild explanation defaults,
+escapes and closes to Cancel; both actions are gated during confirmation, with a generation
+check after the modal loop. Controls retain the native palette, vertical Tab order and compact
+top-aligned notices. Local-only widget contact sheets exercise light/dark, normal/150% font,
+120% stretch, busy/error/result states and long Unicode/path metadata. They are not mounted-card
+or Linux-desktop evidence; c2b retains the original full acceptance, result ownership and saved-
+state recovery. No new user-facing controls are published by c2a.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves
