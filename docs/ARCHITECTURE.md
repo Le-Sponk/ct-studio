@@ -767,6 +767,22 @@ publishing `saved.manifest` on the UI thread, refresh statuses from disk and reb
 if recovery failed, it must explain uncertainty and prevent further edits against stale state
 until reopened. This leaf adds no application controls; c2b2 retains full GUI acceptance.
 
+P5-T06c2b2a: `gui/dashboard_reconcile.py` consumes joined results for the dashboard's current
+project/root. It publishes only the worker's saved snapshot, not a receipt or the captured
+input, then invalidates old checks and rebinds the header/cards/statuses/watch plan. Even an
+action/start fault can have changed disk: show that error and say saved state was reloaded,
+never claim rollback or fabricate a successful action. A request that never ran has neither
+saved state nor a recovery error and needs no quarantine. Stale captured memory, unreadable
+saved state or wrong snapshot root preserve the live manifest and set `read_only_reason`.
+The worker independently resolves the requested root into `LaunchResult.recovery_root`; compare
+that canonical provenance to `saved.root`, never the raw captured root. This accepts valid relative
+project paths without GUI-thread resolution or allowing a snapshot to authorize its own folder.
+`Project.read_only` and `save` respect this explicit reason even while the real writer lock is
+retained; existing core/GUI writers already check that property. Inspection remains available,
+but close CT Studio and reopen the project to read fresh state before editing again. Normal
+project closure still releases the held lock. No new controls are exposed yet; mounting and
+full end-to-end/visual acceptance remain c2b2b/c2b2c.
+
 P5-T03c: `gui/project_details.py` is a blocking persistence service. A `DetailsSnapshot` retains
 exact manifest bytes plus the parsed immutable manifest; save refuses a stale disk file, live
 manifest, different project or lost write lock, validates slot/source on the worker, preserves

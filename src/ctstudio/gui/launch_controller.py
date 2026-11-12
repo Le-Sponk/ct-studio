@@ -57,6 +57,7 @@ class LaunchResult:
     edit_action: str | None = None  # lock/discard; None for assignment or editor/folder dispatch
     saved: DetailsSnapshot | None = None  # post-attempt disk state, not the captured input
     recovery_error: BaseException | None = None  # separate from the original action/start error
+    recovery_root: Path | None = None  # independently resolved on the recovery worker
 
 
 @dataclass(frozen=True)
@@ -64,6 +65,7 @@ class _Recovered:
     receipt: Receipt | None
     snapshot: DetailsSnapshot | None = None
     error: BaseException | None = None
+    root: Path | None = None
 
 
 class _Relay(QObject):
@@ -98,6 +100,7 @@ class _Context:
             edit_action=self.edit_action,
             saved=recovered.snapshot if recovered is not None else None,
             recovery_error=recovered.error if recovered is not None else None,
+            recovery_root=recovered.root if recovered is not None else None,
         )
 
 
@@ -134,7 +137,11 @@ class LaunchController(QObject):
         return self._busy
 
     def start(self, project: Project, component_id: str | None = None) -> bool:
-        """Start Blender (None) or reveal ``component_id``; False when nothing started."""
+        """Start Blender (None) or reveal ``component_id``.
+
+        False is not rollback: native startup acknowledgement can fail after dispatch.
+        Respect busy ownership and joined completion even when this returns False.
+        """
         return self._begin(_Context(project, project.root, project.manifest, component_id))
 
     def assign(self, project: Project, part: str, source: Path, *, reference: bool) -> bool:
@@ -274,6 +281,7 @@ class _Work:
     @staticmethod
     def _recover(project: Project, receipt: Receipt | None) -> _Recovered:
         try:
-            return _Recovered(receipt, ProjectDetailsService().load(project))
+            root = project.root.resolve()
+            return _Recovered(receipt, ProjectDetailsService().load(project), root=root)
         except BaseException as exc:  # a separate, explicit outcome; never replace the action error
             return _Recovered(receipt, error=exc)

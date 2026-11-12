@@ -367,6 +367,29 @@ keyboard, whole-dashboard minimum width/enlarged fonts, local light/dark screens
 guide. Completes c2b, c2, c and P5-T06; b1 alone exposes no new application controls.
 Also clarify the inherited start() docstring: False can follow already-dispatched work;
 routing must respect busy ownership and joined completion, not assume rollback.
+Split after reading the live dashboard (396 lines) and recovery matrix: publication, controls,
+and complete visual/end-to-end coverage exceed one 400-line leaf. All acceptance above stays open.
+
+###### [ ] P5-T06c2b2a — Publish joined outside-edit saved state
+Route fresh joined Lock/Discard results separately from folder launches; publish the worker's
+saved snapshot even after action/startup faults, never a receipt's guessed state. Rebind cards,
+refresh statuses/watch plans, and show honest outcomes. Keep a stale live manifest unchanged;
+if saved state cannot safely be published, retain the write lock but make the project read-only
+until closed/reopened. **Acceptance:** real Lock/Discard and failure recovery, joined/UI-only
+publication, exact saved state, stale/project/root guards, actionable plain-text results,
+read-failure/stale write refusal and lock retention. No new controls exposed in this leaf.
+
+###### [ ] P5-T06c2b2b — Mount and route outside-edit controls
+Mount the c2a banner on eligible cards; route Lock and confirmed Discard through the joined owner
+and b2a publication. Explicit status/read-only/check/build/edit/launch eligibility, busy/results,
+modal invalidation, refusal and rebind behavior. **Acceptance:** real watcher edit to visible
+banner within 2 s, Lock copies and changes mode, confirmed Discard backs up, Cancel changes
+nothing, keyboard access and no UI disk work. Keep the original acceptance above intact.
+
+###### [ ] P5-T06c2b2c — Complete outside-edit dashboard acceptance
+Whole-dashboard minimum-width/enlarged-font light/dark local screenshots and geometry checks,
+full watcher-to-action recovery/refusal/stale regression coverage, user guide and honest Linux
+desktop gap. Completes c2b2, c2b, c2, c and P5-T06 only after every original criterion passes.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP

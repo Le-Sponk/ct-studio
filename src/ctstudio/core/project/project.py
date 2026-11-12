@@ -37,7 +37,8 @@ class Project:
 
     @property
     def read_only(self) -> bool:
-        return self.lock is None
+        """No writer lock, or unsafe saved state despite retaining the lock for inspection."""
+        return self.lock is None or self.read_only_reason is not None
 
     @property
     def manifest_path(self) -> Path:
@@ -78,7 +79,7 @@ class Project:
 
     def save(self, manifest: Manifest) -> None:
         """Write ``manifest`` and make it the current snapshot."""
-        if self.lock is None:
+        if self.read_only:
             raise ProjectError(
                 "This project is open read-only, so it was not saved.",
                 hint=f"{self.read_only_reason or 'It was closed'}. Close it there and reopen.",

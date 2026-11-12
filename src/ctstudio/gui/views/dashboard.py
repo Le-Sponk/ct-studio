@@ -30,6 +30,7 @@ from ctstudio.core.tools import editors
 from ctstudio.core.tools import folders as corefolders
 from ctstudio.gui.assign_text import STALE_ASSIGNMENT, assignment_detail, describe_assignment
 from ctstudio.gui.dashboard_builds import DashboardBuilds
+from ctstudio.gui.dashboard_reconcile import present_reconcile
 from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
@@ -360,7 +361,9 @@ class Dashboard(QWidget):
             and payload.project is project
             and payload.root == project.root
         ):
-            if payload.source is not None:
+            if payload.edit_action is not None:
+                present_reconcile(self, payload)
+            elif payload.source is not None:
                 self._assigned(project, payload)
             elif payload.manifest is project.manifest:
                 self._show_launch_text(describe_launch(payload))

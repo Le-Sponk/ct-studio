@@ -4,12 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2 — Dashboard wiring and full outside-edit acceptance
+**Next task:** P5-T06c2b2a — Publish joined outside-edit saved state
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `7919540` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b2a` — Publish joined outside-edit saved state.
+  1. Tests first: real Lock/Discard publication and post-attempt recovery faults.
+  2. Route joined results, rebind/recheck/watch, retain honest action/error outcomes.
+  3. Keep stale state; block writes but retain ownership when recovery is unsafe.
+  4. Independent review, assertion-caught mutations, strict two-platform typing, full gates/CI.
+  Files: dashboard, focused result helper, Project read-only contract, GUI/unit tests, docs.
+  Risks: startup False is not rollback; no UI filesystem calls; no stale publication or
+  write-lock release on recovery failure. No controls mounted until b2b; parents remain open.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1132,6 +1139,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-12: P5-T06c2b2 split into b2a (safe joined-result publication), b2b (mounted
+  controls and watcher/action flow), b2c (whole-dashboard visuals and final original acceptance).
+  The live dashboard is already 396 lines; publication-failure write protection and full GUI
+  coverage exceed one 400-line leaf. No original criterion removed or parent marked done.
 - 2026-11-12: P5-T06c2b split into c2b1 (joined saved-state recovery) and c2b2 (dashboard
   wiring plus all original end-to-end/visual/user-guide acceptance). Native-start uncertainty
   can leave saved changes without a success receipt; its failure tests plus dashboard/card
