@@ -4,22 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2a — Outside-edit banner presentation
+**Next task:** P5-T06c2b — Mount banner and present joined results
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `3377d56` (Check, Windows + Ubuntu)
+**Last green commit:** `99268e8` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2a` Outside-edit banner presentation. Plan: (1) RED widget contract tests;
-  (2) native-palette signal-only banner with explicit edited/eligible state, safe Discard
-  confirmation and recheck after modal callbacks; (3) progress/result/reset, keyboard and
-  narrow/enlarged-font light/dark evidence; (4) strict typing, mutation proof, independent
-  review, full gate and exact Windows/Ubuntu CI, then closeout. Files: new view and GUI tests,
-  architecture, phase checklist, STATUS/README. No project disk work or new worker. Risks:
-  confirming an old card after a modal reset, stale eligibility, invisible or clipped results.
-  Dashboard mounting, joined-result routing and original end-to-end acceptance remain c2b.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-12 `P5-T06c2a` Outside-edit banner presentation (`99268e8`). Signal-only native
+  Lock/Discard widget: explicit eligibility, Cancel-default/escape/close confirmation, modal
+  re-entry and generation guards, owner-driven progress, bounded plain-text outcomes with full
+  accessible details, and complete reset. No disk/project/worker ownership; not mounted yet.
+  Review exposed construction-only font caps; grow/shrink RED tests and FontChange fix pass.
+  Independent re-review APPROVE: 52 focused tests, 11 original probes, 2 font-cause cases and
+  3 assertion-caught controls. Main campaign: 35/35 assertion-caught; strict Windows/Linux
+  typing checks all 3 touched Python files; budgets pass. Fresh locked install under a space /
+  non-ASCII path passed a real Qt request/progress/reset smoke. Full gate: 3,785 passed / 6 existing
+  skips. Exact Check: Windows 3,776/15, Ubuntu 3,777/14 (3,791 selected).
+  Integration not triggered: presentation-only change. Remote workflow and both real artifact
+  ZIPs verified coverage.xml only. Local light/dark widget sheets inspected at normal/150%
+  fonts and 120% stretch; no screenshots/font binaries/game content committed or uploaded.
+  C2b retains mounting, joined results, saved-state recovery and original full GUI acceptance;
+  no new user-facing actions are exposed in c2a. Linux-desktop pixels remain unverified.
 - 2026-11-12 `P5-T06c1` Joined outside-edit requests (`3377d56`). Lock/Discard run on
   the existing joined launch worker with memory-only service eligibility; captured results
   identify the action/part/project/root/manifest and retain the original error. The worker

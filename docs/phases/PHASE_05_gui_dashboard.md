@@ -333,7 +333,7 @@ screenshots, user guide. Completing c2 completes P5-T06c and P5-T06.
 Split (size check: card/dashboard are already 368/396 lines; banner presentation, joined-result
 routing, uncertain-start disk recovery and full GUI acceptance exceed one small task):
 
-###### [ ] P5-T06c2a — Outside-edit banner presentation
+###### [x] P5-T06c2a — Outside-edit banner presentation (commit 99268e8)
 A signal-only native-palette widget for the card: Lock as manual / Discard, safe-default Discard
 confirmation, explicit eligibility, progress and bounded accessible result text. No disk work or
 worker ownership here. **Acceptance:** status/eligibility matrix, exact action signals, cancelled
