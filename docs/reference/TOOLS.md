@@ -677,6 +677,26 @@ A detached editor survived its launcher exiting **and** a plain `taskkill /F` of
 with a warning (silent empty load). Wine launches: see "Wine / winetricks" (P2-T05g2);
 Flatpak launchers still raise `ToolNotFound`.
 
+**Lorenzi prerequisite (P5-T07b1).** The adapter now requires an actual sibling file whose
+entry name is exactly lowercase `course.kcl` before editor discovery, Wine or launch. A directory,
+a case-only variant on Windows, or a collision in the working directory does not qualify.
+Inspection failures raise an actionable `EditorError`; no KMP/KCL bytes are rewritten. This
+checks presence/type, not KCL format or content readability. Worker/menu eligibility remains
+P5-T07d/e; this guard alone does not add an Edit KMP menu.
+
+**SZS native capability (P5-T07b audit, 2026-11-14; adapter pending T07b2).** Windows 11:
+BrawlCrate v0.42-h1 (`[exe, document, /audio:none]`) named the synthetic `.szs` in its owned
+window title; RiiStudio 5.11.5 (`[exe, document]`) showed a populated Level Editor, archive
+entries and parsed KMP tree counts in locally inspected native-window pixels. Both used
+cwd=document.parent. The archive was built by installed Wiimm 2.42a `wszst create DIR --dest
+OUT.szs` from the committed synthetic `wszst/2.42a/inputs/` course.kmp, course.kcl and
+map_model.brres (renamed course_model.brres); provenance hashes matched. Exact RiiStudio tag
+source `09e5754d56562219c87390c8d64ef31110725ccd` corroborates `.szs` → Level Editor → Yaz0/U8.
+RiiStudio logged model-matrix warnings; no warning-free validation, preview correctness, save
+or round-trip claim. Native capture/logs remain local scratch, never uploaded. This one
+capability observation is not a runtime loaded-document receipt: `Launched` remains launch-only,
+no window-title or `File:` parsing. Linux/Wine SZS loading is unmeasured, not declared unsupported.
+
 ## Verified command table (fill in; adapters must only use rows marked verified)
 Every flag in this table and the S3b conversion table is checked against the pinned tool's
 recorded help by `tests/unit/test_help_contract.py` (P2-T04a; recordings in

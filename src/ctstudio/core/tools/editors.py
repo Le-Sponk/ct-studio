@@ -65,12 +65,19 @@ _RIISTUDIO_NON_ASCII = (
 class EditorError(CTStudioError):
     """The document cannot be handed to that editor."""
 
-    def __init__(self, tool_id: str, document: Path, reason: str) -> None:
+    def __init__(
+        self,
+        tool_id: str,
+        document: Path,
+        reason: str,
+        *,
+        hint: str = "Choose a document of a type this editor opens.",
+    ) -> None:
         self.tool_id = tool_id
         self.document = document
         super().__init__(
             f"Cannot open {document.name} in {tool_id}: {reason}",
-            hint="Choose a document of a type this editor opens.",
+            hint=hint,
         )
 
 
@@ -94,6 +101,27 @@ def _check_document(tool_id: str, document: Path) -> None:
         raise EditorError(tool_id, document, "document not found")
     if not document.is_file():
         raise EditorError(tool_id, document, "not a file")
+    if tool_id == "kmp_editor_lorenzi":
+        _check_collision(document)
+
+
+def _check_collision(document: Path) -> None:
+    hint = "Place a file named exactly course.kcl beside the KMP and check folder permissions."
+    try:
+        found = any(
+            entry.name == "course.kcl" and entry.is_file() for entry in document.parent.iterdir()
+        )
+    except OSError as exc:
+        raise EditorError(
+            "kmp_editor_lorenzi", document, "could not inspect sibling course.kcl", hint=hint
+        ) from exc
+    if not found:
+        raise EditorError(
+            "kmp_editor_lorenzi",
+            document,
+            "a sibling file named exactly course.kcl is required",
+            hint=hint,
+        )
 
 
 def _executable(tool_id: str, configured: Path | None) -> tuple[Path, Launcher]:

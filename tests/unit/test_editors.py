@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from editor_test_helpers import document as _doc
 
 from ctstudio.core.errors import ToolNotFound
 from ctstudio.core.tools import editors, wine
@@ -32,13 +33,6 @@ def launches(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, object]]:
     return calls
 
 
-def _doc(tmp_path: Path, name: str, folder: str = "dossier e") -> Path:
-    path = tmp_path / folder / name
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(b"document")
-    return path
-
-
 def _exe(tmp_path: Path, name: str = "editor") -> Path:
     path = tmp_path / "tools" / name
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +53,7 @@ def _exe(tmp_path: Path, name: str = "editor") -> Path:
 def test_each_editor_gets_one_absolute_path_first_and_options_after(
     tool: str, name: str, tail: list[str], launches: list[dict[str, object]], tmp_path: Path
 ) -> None:
-    doc, exe = _doc(tmp_path, name), _exe(tmp_path)
+    doc, exe = _doc(tmp_path, name, eligible_for=tool), _exe(tmp_path)
     result = open_in(tool, doc, executable=exe)
     assert launches == [
         {"cmd": [exe.resolve(), doc.resolve(), *tail], "cwd": doc.parent.resolve(), "env": None}
@@ -70,7 +64,7 @@ def test_each_editor_gets_one_absolute_path_first_and_options_after(
 def test_relative_documents_are_made_absolute(
     launches: list[dict[str, object]], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    doc = _doc(tmp_path, "course.kmp")
+    doc = _doc(tmp_path, "course.kmp", eligible_for="kmp_editor_lorenzi")
     monkeypatch.chdir(tmp_path)
     open_in("kmp_editor_lorenzi", Path(doc.parent.name) / doc.name, executable=_exe(tmp_path))
     assert launches[0]["cmd"][1] == doc.resolve()  # type: ignore[index]
@@ -141,7 +135,9 @@ def test_other_editors_take_non_ascii_paths_without_warning(
 ) -> None:
     suffix = EDITOR_DOCUMENTS[tool][0]
     result = open_in(
-        tool, _doc(tmp_path, f"pièce{suffix}", folder="dossier é 日本"), executable=_exe(tmp_path)
+        tool,
+        _doc(tmp_path, f"pièce{suffix}", folder="dossier é 日本", eligible_for=tool),
+        executable=_exe(tmp_path),
     )
     assert result.warnings == ()
 
@@ -178,7 +174,7 @@ def test_discovered_direct_editor_is_launched(
 ) -> None:
     exe = _exe(tmp_path, "Lorenzi's KMP Editor.exe")
     seen = _discovered(monkeypatch, ToolLocation(exe, None, "standard", "direct"))
-    open_in("kmp_editor_lorenzi", _doc(tmp_path, "course.kmp"))
+    open_in("kmp_editor_lorenzi", _doc(tmp_path, "course.kmp", eligible_for="kmp_editor_lorenzi"))
     assert launches[0]["cmd"][0] == exe  # type: ignore[index]
     [(spec, kwargs)] = seen
     assert spec.id == "kmp_editor_lorenzi" and kwargs == {"include_dev": True}
@@ -255,7 +251,8 @@ def test_a_wine_editor_is_launched_through_the_wine_adapter(
     tmp_path: Path,
 ) -> None:
     exe, wine_exe = _wine_world(monkeypatch, tmp_path)
-    doc, prefix = _doc(tmp_path, name, folder="dossier é 日本"), tmp_path / "prefix"
+    doc = _doc(tmp_path, name, folder="dossier é 日本", eligible_for=tool)
+    prefix = tmp_path / "prefix"
     result = open_in(tool, doc, wine_prefix=prefix)
     assert launches == []  # never started directly
     assert wine_launches == [
@@ -301,7 +298,7 @@ def test_a_wine_editor_without_a_prefix_says_which_prefix_to_make(
 ) -> None:
     _wine_world(monkeypatch, tmp_path)
     with pytest.raises(wine.WineError, match="Wine prefix") as caught:
-        open_in(tool, _doc(tmp_path, f"x{EDITOR_DOCUMENTS[tool][0]}"))
+        open_in(tool, _doc(tmp_path, f"x{EDITOR_DOCUMENTS[tool][0]}", eligible_for=tool))
     hint = caught.value.hint or ""
     assert all(part in hint for part in recipe), hint
     assert ("dotnet48" in hint) == ("dotnet48" in recipe)

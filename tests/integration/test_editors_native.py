@@ -8,19 +8,30 @@ so only "one new window" is checked there (TOOLS.md "Launch contracts").
 
 from __future__ import annotations
 
+import importlib
 import os
 import shutil
 import sys
 import time
 from pathlib import Path
+from typing import Protocol, cast
 
 import pytest
 
+from ctstudio.core.tools.editors import open_in
+
+
+class _NativeProbe(Protocol):
+    """Typed boundary to the existing, dynamically loaded S7 window probe."""
+
+    def image_pids(self, image: str) -> set[int]: ...
+    def visible_windows(self) -> dict[int, tuple[int, str]]: ...
+    def kill_pids(self, pids: set[int]) -> None: ...
+
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "spikes"))
-import s7_native_windows as s7  # type: ignore[reportMissingImports] - spikes path inserted above
-
-from ctstudio.core.tools.editors import open_in
+s7 = cast(_NativeProbe, importlib.import_module("s7_native_windows"))
 
 REC = ROOT / "tests" / "fakes" / "recordings"
 TOOLS = ROOT / ".tools"
@@ -75,6 +86,8 @@ def test_open_in_starts_one_window_for_the_document(
     folder.mkdir()
     document = folder / f"pièce {source.name}"
     shutil.copyfile(source, document)
+    if tool == "kmp_editor_lorenzi":
+        shutil.copyfile(REC / "wkmpt/2.42a/inputs/course.kcl", folder / "course.kcl")
     before_pids, before_windows = s7.image_pids(exe.name), s7.visible_windows()
     launched = open_in(tool, document, executable=exe)
     try:

@@ -34,7 +34,7 @@ WINE, WINESERVER, WMCTRL = (shutil.which(n) for n in ("wine", "wineserver", "wmc
 READY = (
     os.name == "posix"
     and bool(os.environ.get("DISPLAY"))
-    and None not in (WINE, WINESERVER, WMCTRL)
+    and all(tool is not None for tool in (WINE, WINESERVER, WMCTRL))
     and all(p.is_file() for p in EDITORS.values())
     and (PREFIX64 / "system.reg").is_file()
     and (PREFIX32 / "drive_c" / "windows" / "dotnet48.installed.workaround").exists()
@@ -70,13 +70,14 @@ def _stop(prefix: Path) -> None:
 def docs(tmp_path: Path) -> dict[str, Path]:
     folder = tmp_path / "dossier é 日本"
     folder.mkdir()
-    out = {}
+    out: dict[str, Path] = {}
     for key, source in {
         "brres": REC / "wszst/2.42a/inputs/map_model.brres",
         "kmp": REC / "wkmpt/2.42a/inputs/course.kmp",
     }.items():
         out[key] = folder / f"pièce {source.name}"
         shutil.copyfile(source, out[key])
+    shutil.copyfile(REC / "wkmpt/2.42a/inputs/course.kcl", folder / "course.kcl")
     return out
 
 

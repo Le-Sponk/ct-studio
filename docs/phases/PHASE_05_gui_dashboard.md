@@ -461,7 +461,8 @@ Ubuntu passed. Nine bounded local probes, including the 510-case hosted prefix, 
 reproduce the hang. Matching runner/code/lockfile; one controlled same-SHA rerun passed:
 Windows 4100/15, Ubuntu 4101/14, 4115 selected, coverage-only ZIPs. No code repair or known
 host-flake diagnosis is claimed. Original failed log retained; no tests/time limits waived.
-Re-close this leaf only; this documentation update still requires full local/exact hosted checks.
+Final closeout 5cbf183 passed full local and exact Windows/Ubuntu Check, with coverage-only
+artifacts and clean matching main. P5-T07a is complete; the original timeout remains unexplained.
 
 #### [ ] P5-T07b — Built-in file dispatch and collision prerequisite
 Extend existing adapters for .szs, preserve OS argv/Wine/warnings/one-file/new-process rules,
@@ -469,6 +470,27 @@ and enforce exact lowercase sibling course.kcl before offering Lorenzi. No proce
 window-title or RiiStudio stdout claim of successful document loading.
 **Acceptance:** fake tools on both OS branches, options after path, two files/two dispatches,
 missing files/editors/prefixes and collision prerequisites leave user files unchanged.
+Split below after native capability measurement and a >400-line combined estimate; every
+original criterion remains required. P5-T07b stays open until both leaves are verified.
+
+##### [ ] P5-T07b1 — Exact Lorenzi collision prerequisite
+Refuse Lorenzi dispatch unless a regular sibling file is named literally course.kcl, including
+on case-insensitive Windows filesystems. Inspect only the document's own folder, before editor
+lookup, Wine or process launch; turn inspection errors into actionable typed errors. Preserve
+existing eligible-editor, Unicode, Wine-prefix and argument-order regression assertions.
+**Acceptance:** missing/wrong-case/directory/uninspectable sibling, no working-directory
+fallback, independent documents and fresh dispatch checks, two eligible requests/two detached
+launches, unchanged user bytes; independent review, assertion-caught controls, strict actual-
+file Windows/Linux typing, fresh install, full gates and exact Check/Integration.
+Menu eligibility and worker-thread preparation remain T07d/e, not completed by this adapter guard.
+
+##### [ ] P5-T07b2 — Measured SZS dispatch
+Enable BrawlCrate/RiiStudio .szs using their existing verified positional argv. Native Windows
+capability is measured with synthetic data; Linux/Wine SZS document loading remains unmeasured.
+**Acceptance:** both OS argv branches, options after path, one file/new process per request,
+two requests/two real-runner dispatches, missing document/editor/prefix refusals and unchanged
+bytes. Preserve launch-only receipts and Unicode warnings; never infer document loading from
+process/window/stdout. Retain HC1 manual-run requirement and all parent acceptance.
 
 #### [ ] P5-T07c — Custom-tool and Wine-prefix preferences and dispatch
 Persist custom editors using existing CustomTool argv templates and machine-specific Wine

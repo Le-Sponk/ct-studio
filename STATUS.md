@@ -4,12 +4,25 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07b — Built-in file dispatch and collision prerequisite
+**Next task:** P5-T07b1 — Exact Lorenzi collision prerequisite
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `c6f175b` (Check, Windows + Ubuntu; controlled Windows rerun)
+**Last green commit:** `5cbf183` (final P5-T07a closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07b1` — Exact Lorenzi collision prerequisite; parents T07b/T07 remain open.
+  1. Enforce literal lowercase regular sibling course.kcl before editor discovery, Wine or
+     dispatch; typed actionable inspection errors, no working-directory fallback or writes.
+  2. Preserve legacy eligible-editor/Unicode/missing-prefix assertions; prove independent
+     documents, fresh dispatch checks and two eligible requests/two detached launches.
+  3. Run assertion-caught source controls, strict actual-file Windows/Linux typing, fresh
+     install, independent review, full gate and exact hosted Check/Integration.
+  Files: core/tools/editors.py, sibling prerequisite/unit helpers, minimal native/Wine fixture
+  repairs and task/progress/tool docs. SZS is measured on Windows but adapter support is T07b2.
+  No menus, worker-preparation claims, custom preferences or second executor. Next P5-T07b2.
+  Native Lorenzi adapter case passed with a synthetic KMP/KCL; 22 progress/contributor-doc
+  tests passed. SZS provenance/executable hashes and local RiiStudio pixels independently
+  read back; no game data or screenshots uploaded. Final acceptance/source controls/review
+  and release verification remain pending; no leaf or parent closure is claimed.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -35,7 +48,8 @@
   One controlled same-SHA Windows rerun passed: job 132009094664 4100/15; Ubuntu job
   132009097315 4101/14; 4115 selected, both actual ZIPs coverage.xml only. Cause stays unknown,
   not a known host flake or a fix. Re-close this leaf only, keeping parent P5-T07 open.
-  This updated documentation still needs full local gate and its own exact CI/read-back.
+  Final closeout 5cbf183: local 4109/6/176; exact Check Windows 4100/15 and Ubuntu 4101/14,
+  4115 selected; actual ZIPs coverage.xml only, clean local/remote main verified. Complete.
 - 2026-11-14 `P5-T06c2b2c2b` Final original-acceptance closeout (`872b1cc`).
   Original canonical/lifecycle implementation d610b26 remains unchanged: 48 post-write fault
   cases and two real watcher switch/native-close cases; all 25 original criterion groups
@@ -1296,6 +1310,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T07b is split into T07b1 exact Lorenzi prerequisite and T07b2 measured SZS dispatch
+  after a combined >400-line estimate (325 + 258). Both pinned Windows editors loaded a
+  synthetic SZS with existing argv; no new flag or scope change. All original argv/two-launch/
+  refusal/byte-preservation/launch-only criteria remain; T07d/e still own worker/menu eligibility.
+  Linux/Wine SZS loading is unmeasured. No copyrighted data or local screenshots are uploaded.
 - P5-T07 is split into T07a catalogue/preferences, T07b built-in dispatch/collision prerequisite,
   T07c custom-tool/Wine preferences and dispatch, T07d joined preparation/guards, T07e menus/
   Tools guidance, T07f usable configuration controls and T07g final original-acceptance audit.
