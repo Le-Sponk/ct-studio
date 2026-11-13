@@ -32,7 +32,7 @@ from contextlib import ExitStack
 from dataclasses import dataclass
 from itertools import pairwise
 from pathlib import Path
-from typing import Literal, TextIO
+from typing import Literal, TextIO, cast
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -72,6 +72,7 @@ def tool(name: str) -> str:
 def build_steps(root: Path, *, fast: bool) -> list[Step]:
     """The gate's steps for the tree at ``root``, in execution order."""
     pytest_argv = [tool("pytest"), "-q", "-m", PYTEST_SELECTION]
+    pytest_argv += ["-vv", "-o", "faulthandler_timeout=60"]
     if not fast:
         pytest_argv += ["--cov=ctstudio", "--cov-report=term"]
     core = root / "src" / "ctstudio" / "core"
@@ -149,16 +150,30 @@ def coverage_failure(report: Path) -> str | None:
     return None
 
 
+def _timeout_output(exc: subprocess.TimeoutExpired, reason: str) -> str:
+    """TimeoutExpired may carry bytes even when subprocess.run uses text mode."""
+    partial = "".join(
+        value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
+        for value in (exc.stdout, exc.stderr)
+    )
+    separator = "\n" if partial and not partial.endswith("\n") else ""
+    return partial + separator + reason
+
+
+def _coverage_args(step: Step, stack: ExitStack) -> tuple[tuple[str, ...], Path | None]:
+    """Keep the optional coverage report alive until its owning step has been checked."""
+    if step.name != "pytest" or "--cov=ctstudio" not in step.argv:
+        return step.argv, None
+    report = Path(stack.enter_context(tempfile.TemporaryDirectory())) / "coverage.json"
+    return (*step.argv, f"--cov-report=json:{report}"), report
+
+
 def run_step(step: Step, root: Path) -> Result:
     if step.skip_reason is not None:
         return Result(step, "SKIP", 0.0, step.skip_reason)
     started = time.perf_counter()
     with ExitStack() as stack:
-        argv = step.argv
-        report: Path | None = None
-        if step.name == "pytest" and "--cov=ctstudio" in argv:
-            report = Path(stack.enter_context(tempfile.TemporaryDirectory())) / "coverage.json"
-            argv = (*argv, f"--cov-report=json:{report}")
+        argv, report = _coverage_args(step, stack)
         try:
             proc = subprocess.run(  # noqa: S603 - argv list of our own venv's tools, no shell
                 argv,
@@ -174,8 +189,9 @@ def run_step(step: Step, root: Path) -> Result:
         except FileNotFoundError:
             output = f"{step.argv[0]} is not installed. Run `uv sync` and try again."
             return Result(step, "FAIL", time.perf_counter() - started, output)
-        except subprocess.TimeoutExpired:
-            output = f"timed out after {step.timeout_s:.0f} s: {' '.join(step.argv)}"
+        except subprocess.TimeoutExpired as exc:
+            reason = f"timed out after {step.timeout_s:.0f} s: {' '.join(step.argv)}"
+            output = _timeout_output(exc, reason)
             return Result(step, "FAIL", time.perf_counter() - started, output)
         output = (proc.stdout + proc.stderr).strip()
         problem = coverage_failure(report) if report is not None and proc.returncode == 0 else None
@@ -234,11 +250,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--all", action="store_true", help="run every step even after a failure")
     parser.add_argument("--fast", action="store_true", help="skip pyright and coverage")
     args = parser.parse_args(argv)
+    out: TextIO = sys.stdout
     if isinstance(sys.stdout, io.TextIOWrapper):
         # Tool output may hold characters the console code page cannot encode (cp850).
-        sys.stdout.reconfigure(errors="replace")
+        cast("io.TextIOWrapper[io.BufferedWriter]", out).reconfigure(errors="replace")
     steps = build_steps(ROOT, fast=args.fast)
-    return run_all(steps, ROOT, keep_going=args.all, out=sys.stdout)
+    return run_all(steps, ROOT, keep_going=args.all, out=out)
 
 
 if __name__ == "__main__":

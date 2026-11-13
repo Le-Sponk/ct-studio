@@ -1113,6 +1113,13 @@ module, not merely the exit code. Linux still needs CI (P1-T07) or a Mint run.
 accepts `path` and `if-no-files-found` (https://github.com/actions/upload-artifact/tree/v4).
 `GITHUB_STEP_SUMMARY` is a runner-provided per-job summary file; schedule cron runs in UTC
 (https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
+**[verified on Windows 11, pytest 9.1.1]** The quality gate's `-vv -o
+faulthandler_timeout=60` preserves case progress and requests per-test thread dumps without
+changing its selection or 1200-second step limit. Real blocked-child/pytest probes prove
+partial stdout/stderr and actual tracebacks survive `TimeoutExpired`; nested gate contracts
+remain green. These diagnostics do not establish the cause or repair of prior suite hangs.
+See the [synthetic timeout recording](../../tests/fakes/recordings/pytest/p5-t06-timeout-diagnostics-windows.txt).
+
 **[verified on Windows 11]** uv 0.12.19 exposes `sync --locked`; pytest 9.1.1 writes
 `--junitxml` output and exits **0 even when all selected tests skip**. coverage.py 7.16.1
 writes XML via `coverage xml -o <path>`. `actionlint` 1.7.12 (official archive checksum

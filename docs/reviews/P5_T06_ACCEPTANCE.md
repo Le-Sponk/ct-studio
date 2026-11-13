@@ -81,8 +81,16 @@ Keep that distinction and the original time limits; a green rerun is not a claim
 
 All original P5-T06 criteria passed final review and exact implementation CI. The final leaf
 and parent closure are reopened: required Ubuntu closeout Check at `03c8008` exposed an empty-
-receipt race in the existing CLI fake-editor test. A deterministic test-only repair, independent
-review, full gates and exact Windows/Ubuntu checks are required before closure; no criteria waived. Keep & capture is expressly deferred to P7; automatic generators are not promised.
+receipt race in the existing CLI fake-editor test. Repair `8e5d688` atomically publishes its
+closed temporary receipt, with deterministic RED/GREEN and independent delta approval;
+526 combined acceptance and 57 fresh-install cases passed, local gate 4047/6/176.
+Ubuntu Check passed, but Windows job 131874581475 timed out at 1200 seconds. This is not
+proof of a receipt-fix failure or a timeout cure. `scripts/check.py` now preserves partial
+stdout/stderr on timeout and configures verbose case progress plus 60-second thread dumps.
+Real blocked child and blocked pytest probes verify retained output and actual tracebacks;
+original nested gate contracts and 1200-second limit remain unchanged. Independent review,
+full local gate and exact diagnostic-commit CI are required; final leaf and parents remain
+open with no criteria waived. Keep & capture is expressly deferred to P7; automatic generators are not promised.
 Local Windows offscreen font/palette proxies and hosted Linux runtime do not establish Linux
 native desktop appearance. That documented, nonblocking appearance gap remains unverified.
 Screenshots, fonts and game data remain local and are never part of uploaded evidence.

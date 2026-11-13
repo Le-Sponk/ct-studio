@@ -1,0 +1,32 @@
+CT Studio quality-gate timeout diagnostics: Windows 11, pytest 9.1.1
+Scope: synthetic blocked child processes only; no game files or external tools.
+
+Verified commands:
+  uv run pytest --version
+  pytest 9.1.1
+  exit 0
+
+  uv run pytest -q tests/unit/test_check_timeouts.py tests/unit/test_check.py
+  20 passed
+  exit 0
+
+Verified gate options:
+  -q -m "not integration and not slow and not realdata and not network"
+  -vv -o faulthandler_timeout=60
+  -vv shows test-file/test-function progress. The pytest step keeps its 1200-second limit.
+  The fast gate skips only typing/coverage, not timeout diagnostics or test selection.
+  No --debug option is passed, including to nested gate self-tests.
+
+Real blocked subprocess:
+  Child flushes UTF-8 stdout and stderr, then blocks on threading.Event.
+  run_step times it out at 2 seconds, returns FAIL and retains both partial streams.
+  TimeoutExpired bytes, str and None streams are covered, including invalid UTF-8 replacement.
+
+Real blocked pytest diagnostic probe (not a change to gate limits):
+  Temporary test_stalled.py::test_stalled blocks on threading.Event.
+  Probe adds -o faulthandler_timeout=0.5 and sets its own step timeout to 5 seconds.
+  Retained output contains test_stalled.py::test_stalled, Timeout (0:00:00.500000)!,
+  a stack frame in test_stalled, and the original timed out after 5 s reason.
+  The gate itself still uses 60-second thread dumps and a 1200-second step timeout.
+
+These probes verify observability only. They do not diagnose or fix the prior suite hangs.

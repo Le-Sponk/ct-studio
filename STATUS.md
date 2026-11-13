@@ -4,18 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c2b — Final closeout verification (CLI receipt race)
+**Next task:** P5-T06c2b2c2b — Final closeout verification (suite-timeout diagnostics)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `d610b26` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2c2b` — Final closeout verification: repair CLI fake-editor receipt race.
-  Ubuntu Check at `03c8008` read an empty JSON receipt after the detached fake created it
-  but before writing it. This is a concrete test-fixture race, not the prior unknown timeout.
-  1. Reproduce that publication ordering deterministically and preserve original launch assertions.
-  2. Apply a minimal test-only repair and independently review the exact delta.
-  3. Run full gates and exact Windows/Ubuntu checks; re-close parents only after they pass.
-  No production changes, weakened assertions, longer timeouts, game data or screenshots.
+- `P5-T06c2b2c2b` — Final closeout verification: expose the unexplained suite timeout.
+  Ubuntu Check at `03c8008` reproduced an empty fake-editor JSON receipt race, repaired
+  test-first in `8e5d688` with atomic publication and unchanged launch assertions/timeouts.
+  Independent review approved the exact repair; 526 acceptance / 57 fresh-install cases and
+  full gate 4047 passed / 6 skipped / 176 deselected. Ubuntu Check passed at `8e5d688`,
+  but Windows job 131874581475 hit pytest's unchanged 1200-second limit. Root cause unknown;
+  this is separate from the fixed receipt race. Its runner discarded partial output.
+  1. Preserve partial stdout/stderr, verbose test progress and 60-second thread dumps on timeout.
+  2. Prove real stalled-child diagnostics, unchanged nested gates/limits and independent review.
+  3. Run full local gate and exact Windows/Ubuntu checks; diagnose any captured stall before closure.
+  Diagnostics change scripts/check.py and add tests/unit/test_check_timeouts.py, not product code.
+  Twenty focused cases pass; four source controls assertion-caught. Strict Windows/Linux
+  checks both changed Python files. A small coverage-argument extraction and stdout type
+  annotation keep the existing gate behavior within strict typing/complexity budgets.
+  No weakened assertions, longer timeouts, game data, screenshots or speculative hang repair.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
