@@ -4,12 +4,18 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07 — "Open in…" framework
+**Next task:** P5-T06c2b2c2b — Final closeout verification (CLI receipt race)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `d610b26` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b2c2b` — Final closeout verification: repair CLI fake-editor receipt race.
+  Ubuntu Check at `03c8008` read an empty JSON receipt after the detached fake created it
+  but before writing it. This is a concrete test-fixture race, not the prior unknown timeout.
+  1. Reproduce that publication ordering deterministically and preserve original launch assertions.
+  2. Apply a minimal test-only repair and independently review the exact delta.
+  3. Run full gates and exact Windows/Ubuntu checks; re-close parents only after they pass.
+  No production changes, weakened assertions, longer timeouts, game data or screenshots.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -32,8 +38,9 @@
   (4,052 selected); exact remote workflow and both actual ZIPs coverage.xml only.
   Integration not triggered: tests/docs only, no adapter/build changes. P5_T06_ACCEPTANCE.md
   retains exact evidence boundaries and prior unexplained full-suite timeouts, not a claimed fix.
-  All original P5-T06 criteria now have executed coverage; close c2b2c2b and its P5-T06 parents
-  together, with no waived criteria. Keep & capture stays P7; Linux native desktop appearance
+  All original P5-T06 criteria have executed coverage. Original implementation evidence is
+  retained, but c2b2c2b and parent closure are reopened after required closeout CI exposed
+  a CLI fake-editor receipt race. Keep & capture stays P7; Linux native desktop appearance
   remains explicitly unverified/nonblocking. No game data, screenshots or fonts uploaded.
   Next P5-T07; closeout commit still requires its own exact CI/read-back.
 - 2026-11-13 `P5-T06c2b2c2a` Real-watcher native-action failure matrix (`dac5481`).

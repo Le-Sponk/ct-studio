@@ -9,14 +9,15 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
-import install as fake_install  # tests/fakes is put on sys.path by tests/conftest.py
 import pytest
+from fakes import install as fake_install
 
 pytestmark = pytest.mark.timeout(120)
 
@@ -100,8 +101,9 @@ def test_open_launches_the_editor_on_the_document(tmp_path: Path) -> None:
     fake_install.install_program(
         editors / "blender",
         "import json, os, sys\n"
-        f"open({str(record)!r}, 'w', encoding='utf-8').write("
-        "json.dumps({'argv': sys.argv[1:], 'cwd': os.getcwd()}))\n",
+        f"with open({str(record.with_suffix('.tmp'))!r}, 'w', encoding='utf-8') as receipt:\n"
+        "    receipt.write(json.dumps({'argv': sys.argv[1:], 'cwd': os.getcwd()}))\n"
+        f"os.replace({str(record.with_suffix('.tmp'))!r}, {str(record)!r})\n",
     )
     env = _environment(tmp_path, str(editors) + os.pathsep + os.environ.get("PATH", ""))
     document = tmp_path / "files é" / "track.blend"
@@ -118,6 +120,73 @@ def test_open_launches_the_editor_on_the_document(tmp_path: Path) -> None:
         time.sleep(0.1)
     launched = json.loads(record.read_text(encoding="utf-8"))
     assert launched == {"argv": [str(document.resolve())], "cwd": str(document.parent.resolve())}
+
+
+def _gated_editor_code(code: str, address: tuple[str, int]) -> str:
+    """Pause the actual detached writer after open, before its first write."""
+    return (
+        "import builtins, socket\n"
+        "real_open = builtins.open\n"
+        f"gate = socket.create_connection({address!r}, timeout=30)\n"
+        "writer = None\n"
+        "def gated_open(*args, **kwargs):\n"
+        "    global writer\n"
+        "    writer = real_open(*args, **kwargs)\n"
+        "    gate.sendall(b'O')\n"
+        "    assert gate.recv(1) == b'G'\n"
+        "    return writer\n"
+        "builtins.open = gated_open\n" + code + "gate.sendall(b'C' if writer.closed else b'U')\n"
+        "gate.close()\n"
+    )
+
+
+def test_open_receipt_is_not_published_until_the_writer_closes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    record = tmp_path / "editor argv.json"
+    install_program, ctstudio, exists = fake_install.install_program, _ctstudio, Path.exists
+    connection: socket.socket | None = None
+    released = False
+    completion = b""
+    with socket.socket() as server:
+        server.bind(("127.0.0.1", 0))
+        server.listen(1)
+        server.settimeout(30)
+        address = ("127.0.0.1", int(server.getsockname()[1]))
+
+        def install_gated(path: Path, code: str) -> Path:
+            return install_program(path, _gated_editor_code(code, address))
+
+        def launch_gated(env: dict[str, str], *args: str) -> subprocess.CompletedProcess[str]:
+            nonlocal connection
+            opened = ctstudio(env, *args)
+            connection, _ = server.accept()
+            connection.settimeout(30)
+            assert connection.recv(1) == b"O", "child reached open before write"
+            return opened
+
+        def exists_while_gated(path: Path) -> bool:
+            nonlocal released
+            visible = exists(path)
+            if path == record and not visible and connection is not None and not released:
+                connection.sendall(b"G")
+                released = True
+            return visible
+
+        monkeypatch.setattr(fake_install, "install_program", install_gated)
+        monkeypatch.setattr(sys.modules[__name__], "_ctstudio", launch_gated)
+        monkeypatch.setattr(Path, "exists", exists_while_gated)
+        try:
+            test_open_launches_the_editor_on_the_document(tmp_path)
+        except json.JSONDecodeError as exc:
+            raise AssertionError("detached writer exposed unfinished JSON") from exc
+        finally:
+            if connection is not None:
+                if not released:
+                    connection.sendall(b"G")
+                completion = connection.recv(1)
+                connection.close()
+        assert completion == b"C", "the detached receipt writer explicitly closed its file"
 
 
 @pytest.mark.parametrize("json_output", [True, False])

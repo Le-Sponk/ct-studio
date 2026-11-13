@@ -79,8 +79,10 @@ unchanged reruns; these are not diagnosed or fixed. Diagnostic pytest --debug al
 with a nested gate output contract; removing that flag restored it without assertion changes.
 Keep that distinction and the original time limits; a green rerun is not a claimed timeout cure.
 
-All original P5-T06 criteria passed final review and exact implementation CI; the final leaf
-and eligible P5-T06 parents are closed together, with closeout verification still required. Keep & capture is expressly deferred to P7; automatic generators are not promised.
+All original P5-T06 criteria passed final review and exact implementation CI. The final leaf
+and parent closure are reopened: required Ubuntu closeout Check at `03c8008` exposed an empty-
+receipt race in the existing CLI fake-editor test. A deterministic test-only repair, independent
+review, full gates and exact Windows/Ubuntu checks are required before closure; no criteria waived. Keep & capture is expressly deferred to P7; automatic generators are not promised.
 Local Windows offscreen font/palette proxies and hosted Linux runtime do not establish Linux
 native desktop appearance. That documented, nonblocking appearance gap remains unverified.
 Screenshots, fonts and game data remain local and are never part of uploaded evidence.
