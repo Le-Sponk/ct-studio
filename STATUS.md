@@ -4,12 +4,19 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c2 — Final outside-edit watcher failure acceptance
+**Next task:** P5-T06c2b2c2a — Real-watcher native-action failure matrix
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `5d5a443` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b2c2a` — Real-watcher native-action failure matrix.
+  1. Record original acceptance audit and retain canonical-recovery/lifecycle evidence gaps.
+  2. Add real watcher-to-native-action fault/refusal/rebind checks using saved files and real locks.
+  3. Prove startup uncertainty, post-write faults and unsafe recovery keep honest joined outcomes.
+  4. Independently review, assertion-mutate, fresh-install and run full local/Windows/Ubuntu gates.
+  5. Close only this leaf; c2b retains final original acceptance and every parent closure.
+  Expected files: two cohesive failure-flow test files and acceptance audit; no production change.
+  No game files, screenshots or fonts committed/uploaded; no UI-thread disk work or guessed rollback.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1204,6 +1211,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-13: P5-T06c2b2c2 split into c2a (real-watcher native-action failure matrix)
+  and c2b (canonical-resolution fault coverage, real watcher switch/close and final parent
+  acceptance). Independent audit found those two executable-evidence gaps in addition to the
+  360-line failure matrix. Historical scratch probes and scripted watchers cannot be relabeled
+  as committed full-flow coverage. No criteria waived; all P5-T06 parents remain open.
 - 2026-11-13: P5-T06c2b2c split after sizing into c1 (populated dashboard presentation,
   local light/dark/font checks, user guide and start/False clarification) and c2 (final real-
   watcher failure/recovery/stale acceptance and original parent closure). No criteria removed;

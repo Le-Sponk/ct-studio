@@ -406,6 +406,24 @@ Real watcher-to-action recovery, refusal and stale-result matrix, including nati
 uncertainty and post-write rebind, using actual saved files and writer-lock protection.
 Combine with prior timing/Lock/Discard/Cancel/keyboard and c1 whole-dashboard evidence;
 complete c2b2c and all P5-T06 parents only after every original criterion passes.
+Final audit found two additional executable-evidence gaps beyond the 360-line watcher/action
+failure matrix: canonical-resolution fault combinations and real watcher switch/close. Split
+again at the size check; no original criterion is waived and every parent stays open.
+
+###### [ ] P5-T06c2b2c2a — Real-watcher native-action failure matrix
+Actual edit after real watcher readiness, mounted native Lock/confirmed Discard, creation/core
+refusal/post-write/read faults, native-start uncertainty and post-write same/replaced-memory
+rebind. **Acceptance:** exact saved bytes/manual files/backups, joined UI delivery, original and
+independent error identities, retained writer lock, write refusal and editable reopen; prove
+new acceptance tests with assertion-caught source controls. Parents remain open for c2b.
+
+###### [ ] P5-T06c2b2c2b — Canonical recovery and real watcher lifecycle closure
+Add committed canonical-resolution failure coverage armed only after real actions, including
+relative/absolute roots and independent startup/action/recovery errors; prove worker-only
+resolution, no saved reader after failed canonicalization, protection/lock retention and reopen.
+Add real watcher project switch/close coverage alongside deterministic late-event tests.
+**Acceptance:** resolve acceptance-audit G02/G03, re-run all original criteria plus the new
+failure matrices, and close P5-T06 parents only after final independent review and exact CI.
 
 ### [ ] P5-T07 — "Open in…" framework
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP
