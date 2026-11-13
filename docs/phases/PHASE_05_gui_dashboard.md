@@ -442,7 +442,7 @@ blank box.
 **Acceptance:** tests with fake GUI tools verifying argument construction per OS, including that
 options follow the path and that two files produce two launches; manual run noted for HC1.
 
-#### [ ] P5-T07a — Built-in editor catalogue and saved preferences
+#### [x] P5-T07a — Built-in editor catalogue and saved preferences (commit `d5a5164`)
 Add pure ordered defaults for .brres/.szs (BrawlCrate, RiiStudio), .kmp (Lorenzi, KMP Cloud),
 .blend (Blender) and folders (system file manager). Store preferred built-in choices in the
 machine settings; preserve unknown settings, tool paths and backups. Malformed recognized
@@ -450,6 +450,11 @@ preferences must raise SettingsError, never silently select another editor. No d
 **Acceptance:** exact defaults/order, override/reset, immutable projections, Unicode-path
 round-trip/backups, invalid load/save with unchanged bytes, and unknown-field preservation.
 Catalogue intent for .szs is not executable support until T07b. Parent P5-T07 remains open.
+As built: 53 new cases, 150 focused; six assertion-caught source controls, independent APPROVE
+(76 settings plus 39 extra boundary cases), strict three-file Windows/Linux checks and 76 fresh-
+install cases. Full local gate 4,109 passed / 6 existing skips / 176 deselected; exact code
+Check Windows/Ubuntu selected 4,115, both actual artifacts coverage.xml only. No dispatch/UI.
+Documentation closeout requires its own full local gate, exact CI and remote read-back.
 
 #### [ ] P5-T07b — Built-in file dispatch and collision prerequisite
 Extend existing adapters for .szs, preserve OS argv/Wine/warnings/one-file/new-process rules,

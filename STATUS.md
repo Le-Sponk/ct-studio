@@ -4,29 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07a — Built-in editor catalogue and saved preferences
+**Next task:** P5-T07b — Built-in file dispatch and collision prerequisite
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `872b1cc` (Check + Integration, Windows + Ubuntu)
+**Last green commit:** `d5a5164` (Check, Windows + Ubuntu; model/settings-only)
 
 ## In progress
-- `P5-T07a` — Built-in editor catalogue and saved preferences (no dispatch or UI).
-  1. Add pure immutable ordered defaults for .brres/.szs, .kmp, .blend and folders.
-  2. Persist one recognized built-in preference per kind in the machine settings; retain
-     existing two-field UserSettings, tool paths, unknown fields and backup behavior.
-  3. Reject malformed recognized preferences at load and before save, without touching bytes;
-     test exact defaults/order, override/reset, Unicode round-trips and input immutability.
-  4. Prove controls, strict Windows/Linux typing, fresh install, independent review, full gates
-     and exact CI before closing this leaf. Next P5-T07b, not parent P5-T07 completion.
-  Files: core/project/editor_preferences.py, core/project/settings.py,
-  tests/unit/test_editor_preferences.py and task/progress/architecture docs.
-  Catalogue .szs intent is not existing adapter support; dispatch and exact course.kcl checks
-  stay T07b, custom/Wine preferences T07c, joined ownership T07d, menus T07e, configuration
-  controls T07f and original whole-framework acceptance T07g. No original criteria waived.
-  No new executor, discovery, filesystem-existence checks, Qt or process calls in the catalogue.
-  No game files, derived assets, screenshots or fonts may be committed or uploaded.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-14 `P5-T07a` Built-in editor catalogue and saved preferences (`d5a5164`).
+  Immutable defaults, preferred-first/reset projections and persisted machine settings; damaged
+  recognized preferences rejected at load and before save writes/backups. Existing constructor,
+  unknown settings/preferences, tool paths and exact backup bytes preserved. No dispatch or UI.
+  Tests-first evidence: 1 defaults, 25 projection and 24 persistence assertion failures; initial
+  missing-module collection and missing-method failure are not behavioral mutation evidence.
+  Final 150 focused cases; six source controls assertion-caught with no errors; strict three-file
+  Windows/Linux typing/budgets. Independent APPROVE on 574 unchanged files: 76 settings cases,
+  39 additional boundary cases and all six independent controls. Fresh locked Unicode install 76.
+  Full local gate 4109 passed / 6 existing skips / 176 deselected; exact code Check both OSes
+  selected 4115; actual Check artifacts coverage.xml only. Integration not applicable: pure
+  settings/catalogue, no adapter/runtime changes and no matching workflow paths.
+  Parent P5-T07 remains open; .szs is catalogue intent only. Next P5-T07b; later custom/Wine,
+  joined ownership, menus, controls and original acceptance retained. No game data uploaded.
+  Documentation closeout verification pending; Linux desktop appearance remains unverified.
 - 2026-11-14 `P5-T06c2b2c2b` Final original-acceptance closeout (`872b1cc`).
   Original canonical/lifecycle implementation d610b26 remains unchanged: 48 post-write fault
   cases and two real watcher switch/native-close cases; all 25 original criterion groups
