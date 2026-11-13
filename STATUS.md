@@ -4,23 +4,38 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c2b — Canonical recovery and real watcher lifecycle closure
+**Next task:** P5-T07 — "Open in…" framework
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `dac5481` (Check, Windows + Ubuntu)
+**Last green commit:** `d610b26` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2c2b` — Canonical recovery and real watcher lifecycle closure.
-  1. Add post-write canonical-resolution fault coverage across roots, actions and independent errors.
-  2. Exercise real watcher replacement/close, joins, obsolete delivery and current-dashboard isolation.
-  3. Audit and rerun every original P5-T06 criterion alongside all new acceptance cases.
-  4. Independently review, assertion-mutate, strict-type both platforms, fresh-install and full-gate.
-  5. Close eligible parents only after exact Windows/Ubuntu CI and final acceptance read-back.
-  Expected files: two bounded test modules, acceptance map and progress/closeout docs.
-  Risks: native-start uncertainty, UI-thread I/O, stale publication and lost writer protection.
-  Preserve all guards and user data; no production changes without a behavioral RED regression.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-13 `P5-T06c2b2c2b` Canonical recovery and real watcher lifecycle closure (`d610b26`).
+  Added 48 real-watcher/native Lock/confirmed Discard post-write canonical-fault cases:
+  relative/absolute roots, ordinary/interrupt resolution faults and no/action/native-start/both
+  primary errors. Exact errors and saved/manual/backup bytes, worker-only resolution, no reader
+  after resolution failure, unchanged memory, retained actual writer lock, refusal and editable
+  reopen checked. Single primary-result slot preserves native-start error; action error is
+  independently test-recorded, not an invented third result channel. Two real-backend lifecycle
+  cases prove actual adoption/current edits/native close, exact Thread joins and real locks;
+  adoption stops asynchronously, the test joins retired watchers. Synthetic obsolete callbacks
+  are explicitly injected; neither public bridge signals nor replacement/closed view may change.
+  No production change. Green-first acceptance proven by 6/6 assertion-caught source controls
+  in the new suites, no error-node catches. Independent APPROVE: 519 mapped cases across
+  25 original criterion groups, three independent controls and 570 immutable files.
+  Strict Windows/Linux each checks both final Python files; budgets pass. Fresh locked Unicode-
+  path install: 50 final cases pass. Full tool-free gate: 4,046 passed, 6 existing skips,
+  176 deselected. Exact Check Windows 4037/15, Ubuntu 4038/14
+  (4,052 selected); exact remote workflow and both actual ZIPs coverage.xml only.
+  Integration not triggered: tests/docs only, no adapter/build changes. P5_T06_ACCEPTANCE.md
+  retains exact evidence boundaries and prior unexplained full-suite timeouts, not a claimed fix.
+  All original P5-T06 criteria now have executed coverage; close c2b2c2b and its P5-T06 parents
+  together, with no waived criteria. Keep & capture stays P7; Linux native desktop appearance
+  remains explicitly unverified/nonblocking. No game data, screenshots or fonts uploaded.
+  Next P5-T07; closeout commit still requires its own exact CI/read-back.
 - 2026-11-13 `P5-T06c2b2c2a` Real-watcher native-action failure matrix (`dac5481`).
   Sixteen real watcher -> actual stage edit -> mounted native Lock/confirmed Discard cases
   cover creation failure, actual stale-manifest refusal, post-write errors, independent saved-

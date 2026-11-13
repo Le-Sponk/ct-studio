@@ -1,6 +1,6 @@
 # P5-T06 acceptance audit
 
-This is an executable-evidence map, not a claim that every P5-T06 parent is complete.
+Final original-acceptance evidence map for P5-T06 (implementation `d610b26`).
 Baseline: `3e87530`. The original 27-file watcher/action/presentation selection passed
 453 cases locally; the new real-watcher failure matrix is a separate 16-case selection.
 Final full gates and exact-commit Windows/Ubuntu CI remain release requirements.
@@ -66,15 +66,21 @@ All paths below are relative to `tests/`; parametrized cases retain their origin
   `gui/test_watcher_bridge.py` deterministic late-event cases remain part of the final suite.
   Neither strict Linux typing nor Windows execution establishes Linux backend runtime.
 
-Final additions require independent review, assertion-caught source controls, fresh installation,
-full gates and exact Windows/Ubuntu CI before G02/G03 or any P5-T06 parent may close.
+G02/G03 completed at `d610b26`: parent and independent review each passed all
+519 mapped cases across 25 original criterion groups; 6/6 parent source
+controls and three independent controls were assertion-caught with no errors. Strict Windows/
+Linux each checked both final Python files; fresh locked Unicode installation passed all
+50 new cases. Full gate 4046 passed / 6 existing skips / 176 deselected;
+exact Check Windows 4037/15, Ubuntu 4038/14 (4052 selected).
+Both actual CI artifacts contain coverage.xml only. No production change or acceptance waiver.
+The documentation closeout requires its own exact CI and remote read-back before final delivery.
 The prior closeout had unexplained Windows and Ubuntu full-suite timeouts before successful
 unchanged reruns; these are not diagnosed or fixed. Diagnostic pytest --debug also interfered
 with a nested gate output contract; removing that flag restored it without assertion changes.
 Keep that distinction and the original time limits; a green rerun is not a claimed timeout cure.
 
-All P5-T06 parents remain open until G02/G03 and every original criterion pass final review
-and exact CI. Keep & capture is expressly deferred to P7; automatic generators are not promised.
+All original P5-T06 criteria passed final review and exact implementation CI; the final leaf
+and eligible P5-T06 parents are closed together, with closeout verification still required. Keep & capture is expressly deferred to P7; automatic generators are not promised.
 Local Windows offscreen font/palette proxies and hosted Linux runtime do not establish Linux
 native desktop appearance. That documented, nonblocking appearance gap remains unverified.
 Screenshots, fonts and game data remain local and are never part of uploaded evidence.
