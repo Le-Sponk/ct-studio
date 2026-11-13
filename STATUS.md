@@ -6,7 +6,7 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T07b — Built-in file dispatch and collision prerequisite
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `d5a5164` (Check, Windows + Ubuntu; model/settings-only)
+**Last green commit:** `c6f175b` (Check, Windows + Ubuntu; controlled Windows rerun)
 
 ## In progress
 - None.
@@ -27,7 +27,15 @@
   settings/catalogue, no adapter/runtime changes and no matching workflow paths.
   Parent P5-T07 remains open; .szs is catalogue intent only. Next P5-T07b; later custom/Wine,
   joined ownership, menus, controls and original acceptance retained. No game data uploaded.
-  Documentation closeout verification pending; Linux desktop appearance remains unverified.
+  Required closeout c6f175b Windows job 131990126837 timed out at 1200 seconds; Ubuntu passed.
+  Captured case supported-mode spec0/auto: main thread in dialog.open, worker resolving root,
+  watcher preparing paths. This narrows location, not root cause. Nine bounded local probes,
+  including the 510-case prefix, did not reproduce it; real watchers retained, no leaked dialogs
+  in invalid cases. Matching runner/code/lockfile; no demonstrated repair. Original log preserved.
+  One controlled same-SHA Windows rerun passed: job 132009094664 4100/15; Ubuntu job
+  132009097315 4101/14; 4115 selected, both actual ZIPs coverage.xml only. Cause stays unknown,
+  not a known host flake or a fix. Re-close this leaf only, keeping parent P5-T07 open.
+  This updated documentation still needs full local gate and its own exact CI/read-back.
 - 2026-11-14 `P5-T06c2b2c2b` Final original-acceptance closeout (`872b1cc`).
   Original canonical/lifecycle implementation d610b26 remains unchanged: 48 post-write fault
   cases and two real watcher switch/native-close cases; all 25 original criterion groups

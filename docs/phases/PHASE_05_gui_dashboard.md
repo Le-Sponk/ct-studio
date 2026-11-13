@@ -454,7 +454,14 @@ As built: 53 new cases, 150 focused; six assertion-caught source controls, indep
 (76 settings plus 39 extra boundary cases), strict three-file Windows/Linux checks and 76 fresh-
 install cases. Full local gate 4,109 passed / 6 existing skips / 176 deselected; exact code
 Check Windows/Ubuntu selected 4,115, both actual artifacts coverage.xml only. No dispatch/UI.
-Documentation closeout requires its own full local gate, exact CI and remote read-back.
+Documentation closeout c6f175b failed Windows job 131990126837 at the unchanged 1200-second
+limit. Captured case: component-mode dialog supported spec0/auto, inside dialog.open(); worker
+stack in project_details.load/root.resolve and watcher path preparation. Cause not established.
+Ubuntu passed. Nine bounded local probes, including the 510-case hosted prefix, did not
+reproduce the hang. Matching runner/code/lockfile; one controlled same-SHA rerun passed:
+Windows 4100/15, Ubuntu 4101/14, 4115 selected, coverage-only ZIPs. No code repair or known
+host-flake diagnosis is claimed. Original failed log retained; no tests/time limits waived.
+Re-close this leaf only; this documentation update still requires full local/exact hosted checks.
 
 #### [ ] P5-T07b — Built-in file dispatch and collision prerequisite
 Extend existing adapters for .szs, preserve OS argv/Wine/warnings/one-file/new-process rules,
