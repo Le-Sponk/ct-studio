@@ -17,6 +17,12 @@ from typing import cast
 from ctstudio.core import platform as ct_platform
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.fsutil import replace_with_backup
+from ctstudio.core.project.editor_preferences import (
+    DEFAULT_EDITORS,
+    EDITOR_PREFERENCES,
+    parse_preferences,
+    validate_editor,
+)
 from ctstudio.core.tools.registry import TOOL_BY_ID
 
 FORMAT = 1
@@ -42,6 +48,27 @@ class UserSettings:
 
     tools: Mapping[str, str] = field(default_factory=lambda: {})
     other: Mapping[str, object] = field(default_factory=lambda: {})
+
+    def editor_order(self, kind: str) -> tuple[str, ...]:
+        """Pure ordered built-ins, preferred first; not tool discovery or dispatch."""
+        preferences = parse_preferences(self.other)
+        defaults = DEFAULT_EDITORS.get(kind, ())
+        preferred = preferences.get(kind)
+        if kind in DEFAULT_EDITORS and isinstance(preferred, str):
+            return (preferred, *(tool for tool in defaults if tool != preferred))
+        return defaults
+
+    def with_editor(self, kind: str, tool: str | None) -> UserSettings:
+        """Copy with an exact built-in preference, or reset this known kind."""
+        validate_editor(kind, tool)
+        preferences = parse_preferences(self.other)
+        preferences.pop(kind, None)
+        if tool is not None:
+            preferences[kind] = tool
+        other = dict(self.other)
+        if preferences or EDITOR_PREFERENCES in other:
+            other[EDITOR_PREFERENCES] = preferences
+        return UserSettings(self.tools, other)
 
     def configured(self) -> dict[str, Path]:
         """The set paths of tools this version knows, for discovery and doctor."""
@@ -94,10 +121,18 @@ def _parse(target: Path, data: object) -> UserSettings:
     fields = cast("dict[str, object]", data)
     _check_format(target, fields.get("format", FORMAT))
     other = {key: value for key, value in fields.items() if key not in ("format", "tools")}
+    _check_preferences(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
     return UserSettings(_tool_paths(target, fields.get("tools", {})), other)
+
+
+def _check_preferences(target: Path, other: Mapping[str, object]) -> None:
+    try:
+        parse_preferences(other)
+    except ValueError as exc:
+        raise SettingsError(target, "editor preferences are invalid", details=str(exc)) from exc
 
 
 def _check_format(target: Path, version: object) -> None:
@@ -120,6 +155,7 @@ def _tool_paths(target: Path, tools: object) -> dict[str, str]:
 def save(settings: UserSettings, path: Path | None = None) -> None:
     """Write the settings, keeping a backup of the file they replace."""
     target = path if path is not None else default_path()
+    _check_preferences(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

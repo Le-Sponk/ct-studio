@@ -216,6 +216,15 @@ post_build = ""
 Machine-specific settings (tool paths, game files folder, recent projects, theme) live in the
 user settings file under `platformdirs.user_config_dir("ctstudio")`, never in the project.
 
+P5-T07a adds the pure built-in catalogue in `core/project/editor_preferences.py` and the
+machine-settings object `editor_preferences` (`kind -> preferred built-in tool id`).
+`UserSettings.editor_order(kind)` returns an immutable ordered tuple; `with_editor(kind, id)`
+returns a new settings value, and `id=None` resets that known kind. Recognized malformed
+preferences fail `load` and fail `save` before writes/backups; unknown extension keys, other
+settings and tool paths survive. This is model/persistence groundwork, not discovery, launch
+support or a configuration UI. In particular, `.szs` catalogue intent does not extend the
+current editor adapter; T07b owns dispatch, T07c custom/Wine preferences, T07f usable controls.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

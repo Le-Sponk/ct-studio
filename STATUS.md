@@ -4,12 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07 — "Open in…" framework
+**Next task:** P5-T07a — Built-in editor catalogue and saved preferences
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `872b1cc` (Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07a` — Built-in editor catalogue and saved preferences (no dispatch or UI).
+  1. Add pure immutable ordered defaults for .brres/.szs, .kmp, .blend and folders.
+  2. Persist one recognized built-in preference per kind in the machine settings; retain
+     existing two-field UserSettings, tool paths, unknown fields and backup behavior.
+  3. Reject malformed recognized preferences at load and before save, without touching bytes;
+     test exact defaults/order, override/reset, Unicode round-trips and input immutability.
+  4. Prove controls, strict Windows/Linux typing, fresh install, independent review, full gates
+     and exact CI before closing this leaf. Next P5-T07b, not parent P5-T07 completion.
+  Files: core/project/editor_preferences.py, core/project/settings.py,
+  tests/unit/test_editor_preferences.py and task/progress/architecture docs.
+  Catalogue .szs intent is not existing adapter support; dispatch and exact course.kcl checks
+  stay T07b, custom/Wine preferences T07c, joined ownership T07d, menus T07e, configuration
+  controls T07f and original whole-framework acceptance T07g. No original criteria waived.
+  No new executor, discovery, filesystem-existence checks, Qt or process calls in the catalogue.
+  No game files, derived assets, screenshots or fonts may be committed or uploaded.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1273,6 +1287,14 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T07 is split into T07a catalogue/preferences, T07b built-in dispatch/collision prerequisite,
+  T07c custom-tool/Wine preferences and dispatch, T07d joined preparation/guards, T07e menus/
+  Tools guidance, T07f usable configuration controls and T07g final original-acceptance audit.
+  Existing core adapters, CustomTool and joined launch ownership are reused. The original
+  parent requirements remain verbatim; .szs catalogue intent is not adapter support, model
+  persistence is not a configuration UI, and parent closure waits for every original criterion.
+  T07a is bounded to the settings model/pure catalogue, approximately one small tested leaf;
+  P5-T08 still owns the complete multipage Settings shell, not deferral of T07 configurability.
 - 2026-11-13: P5-T06c2b2c2 split into c2a (real-watcher native-action failure matrix)
   and c2b (canonical-resolution fault coverage, real watcher switch/close and final parent
   acceptance). Independent audit found those two executable-evidence gaps in addition to the

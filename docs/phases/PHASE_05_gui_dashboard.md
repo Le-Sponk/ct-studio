@@ -442,6 +442,58 @@ blank box.
 **Acceptance:** tests with fake GUI tools verifying argument construction per OS, including that
 options follow the path and that two files produce two launches; manual run noted for HC1.
 
+#### [ ] P5-T07a — Built-in editor catalogue and saved preferences
+Add pure ordered defaults for .brres/.szs (BrawlCrate, RiiStudio), .kmp (Lorenzi, KMP Cloud),
+.blend (Blender) and folders (system file manager). Store preferred built-in choices in the
+machine settings; preserve unknown settings, tool paths and backups. Malformed recognized
+preferences must raise SettingsError, never silently select another editor. No dispatch/UI.
+**Acceptance:** exact defaults/order, override/reset, immutable projections, Unicode-path
+round-trip/backups, invalid load/save with unchanged bytes, and unknown-field preservation.
+Catalogue intent for .szs is not executable support until T07b. Parent P5-T07 remains open.
+
+#### [ ] P5-T07b — Built-in file dispatch and collision prerequisite
+Extend existing adapters for .szs, preserve OS argv/Wine/warnings/one-file/new-process rules,
+and enforce exact lowercase sibling course.kcl before offering Lorenzi. No process-liveness,
+window-title or RiiStudio stdout claim of successful document loading.
+**Acceptance:** fake tools on both OS branches, options after path, two files/two dispatches,
+missing files/editors/prefixes and collision prerequisites leave user files unchanged.
+
+#### [ ] P5-T07c — Custom-tool and Wine-prefix preferences and dispatch
+Persist custom editors using existing CustomTool argv templates and machine-specific Wine
+prefix choices. Validate damage, preserve unknown fields/backups, and execute only through
+core adapters with argv tokens, never shell parsing or another process owner.
+**Acceptance:** safe placeholders/Unicode argv, explicit custom choice, native/Wine routes,
+malformed/stale preferences fail closed; independent launch receipts and separate processes.
+
+#### [ ] P5-T07d — Joined editor preparation and application guards
+Prepare immutable available choices off the UI thread and re-read settings at dispatch.
+Reuse the existing joined launch owner; preserve current-project/root/manifest identity,
+read-only/busy/navigation/close protection and honest tool-aware result text.
+**Acceptance:** worker-thread preparation/dispatch, fresh/damaged settings, stale and interrupted
+startup/results, one owner, joined UI delivery and retained project locks on close timeout.
+
+#### [ ] P5-T07e — Mounted Open in… menus and missing-tool guidance
+Mount signal-only card/file actions using explicit supplied eligibility. Route requests through
+T07d and offer a missing-editor dialog leading to the existing Tools page. Extract cohesive
+card/menu code where existing files are near their size budgets; no duplicate executor.
+**Acceptance:** actual menu-to-worker flows, keyboard/disabled/stale/modal guards, visible
+launch warnings/results, missing-tool navigation and no falsely offered Lorenzi action.
+
+#### [ ] P5-T07f — Usable editor-preference and custom-tool controls
+Provide bounded controls for built-in defaults, custom argv templates and Wine prefixes during
+T07; P5-T08 still owns the complete multipage Settings shell. Damaged settings cannot be
+silently overwritten and changes must affect the next launch without restarting.
+**Acceptance:** real UI save/reset/reopen, backups and unknown fields retained, error handling,
+keyboard and minimum-width/enlarged-font light/dark local evidence.
+
+#### [ ] P5-T07g — Original Open in… acceptance and guide
+Re-run every original P5-T07 criterion across its leaves, including fake GUI tools on Windows
+and Linux, two-file/two-launch argument order, all default targets/custom choices, exact
+course.kcl eligibility, Tools guidance and configured next-launch behavior. Document launch-
+only wording, HC1 manual-run requirement and any unverified native-desktop behavior.
+**Acceptance:** executable original-criterion map, independent review, full gates and exact
+hosted CI. Only then close P5-T07; no original acceptance is removed by this split.
+
 ### [ ] P5-T08 — Settings dialog
 Pages: Tools (from P2-T07), Build (compression profiles, parallelism, `_d` variant default, auto-add),
 Editors (Open-in mapping, custom tools), Appearance, Advanced (show commands, extra args, log
