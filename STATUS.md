@@ -4,22 +4,35 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c2a — Real-watcher native-action failure matrix
+**Next task:** P5-T06c2b2c2b — Canonical recovery and real watcher lifecycle closure
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `5d5a443` (Check, Windows + Ubuntu)
+**Last green commit:** `dac5481` (Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2c2a` — Real-watcher native-action failure matrix.
-  1. Record original acceptance audit and retain canonical-recovery/lifecycle evidence gaps.
-  2. Add real watcher-to-native-action fault/refusal/rebind checks using saved files and real locks.
-  3. Prove startup uncertainty, post-write faults and unsafe recovery keep honest joined outcomes.
-  4. Independently review, assertion-mutate, fresh-install and run full local/Windows/Ubuntu gates.
-  5. Close only this leaf; c2b retains final original acceptance and every parent closure.
-  Expected files: two cohesive failure-flow test files and acceptance audit; no production change.
-  No game files, screenshots or fonts committed/uploaded; no UI-thread disk work or guessed rollback.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-13 `P5-T06c2b2c2a` Real-watcher native-action failure matrix (`dac5481`).
+  Sixteen real watcher -> actual stage edit -> mounted native Lock/confirmed Discard cases
+  cover creation failure, actual stale-manifest refusal, post-write errors, independent saved-
+  read failure, same/replaced-memory post-write rebind and native acknowledgement uncertainty.
+  Exact Unicode/comment saved bytes, actual manual files/backups, independent error identities,
+  UI delivery after worker join, honest requested-card outcomes, retained real writer lock,
+  write refusal and editable close/reopen all checked. No production change was needed.
+  Green-first tests proven by 8/8 assertion-caught source controls in the new suite,
+  zero error-node catches. Independent APPROVE: 16 new + 147 focused cases,
+  three independent source controls, 568 immutable snapshot files and matching live hashes.
+  Parent original selection 453 passes; combined final acceptance 469 passes. Strict
+  Windows/Linux each checks both touched Python files, all budgets pass; fresh locked Unicode-
+  path install passes 16 real failure-flow cases. Full tool-free gate: 3,996 passed,
+  6 existing skips, 176 deselected. Exact Check Windows 3987/15,
+  Ubuntu 3988/14 (4,002 selected), exact remote workflow and both actual
+  ZIPs coverage.xml only. Integration not triggered: tests/docs only, no adapter/build changes.
+  Acceptance map: docs/reviews/P5_T06_ACCEPTANCE.md. G01's new full-flow matrix is verified;
+  G02 canonical-resolution faults and G03 real watcher switch/close remain c2b's responsibility.
+  All P5-T06 parents stay open; Linux desktop appearance unverified. No game data/screenshots/
+  fonts committed or uploaded. Next P5-T06c2b2c2b, not P5-T07 yet.
 - 2026-11-13 `P5-T06c2b2c1` Whole-dashboard outside-edit presentation and guide (`5d5a443`).
   Sixteen actual MainWindow Lock/native-confirmed Discard cases cover 720x480 and 1280x1000,
   light/dark proxy palettes, normal and 150%-font/120%-stretch layouts; populated cards,

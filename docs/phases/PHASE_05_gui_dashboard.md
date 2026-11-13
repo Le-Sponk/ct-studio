@@ -410,7 +410,7 @@ Final audit found two additional executable-evidence gaps beyond the 360-line wa
 failure matrix: canonical-resolution fault combinations and real watcher switch/close. Split
 again at the size check; no original criterion is waived and every parent stays open.
 
-###### [ ] P5-T06c2b2c2a — Real-watcher native-action failure matrix
+###### [x] P5-T06c2b2c2a — Real-watcher native-action failure matrix (commit dac5481)
 Actual edit after real watcher readiness, mounted native Lock/confirmed Discard, creation/core
 refusal/post-write/read faults, native-start uncertainty and post-write same/replaced-memory
 rebind. **Acceptance:** exact saved bytes/manual files/backups, joined UI delivery, original and
