@@ -9,7 +9,15 @@
 **Last green commit:** `dac5481` (Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T06c2b2c2b` — Canonical recovery and real watcher lifecycle closure.
+  1. Add post-write canonical-resolution fault coverage across roots, actions and independent errors.
+  2. Exercise real watcher replacement/close, joins, obsolete delivery and current-dashboard isolation.
+  3. Audit and rerun every original P5-T06 criterion alongside all new acceptance cases.
+  4. Independently review, assertion-mutate, strict-type both platforms, fresh-install and full-gate.
+  5. Close eligible parents only after exact Windows/Ubuntu CI and final acceptance read-back.
+  Expected files: two bounded test modules, acceptance map and progress/closeout docs.
+  Risks: native-start uncertainty, UI-thread I/O, stale publication and lost writer protection.
+  Preserve all guards and user data; no production changes without a behavioral RED regression.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

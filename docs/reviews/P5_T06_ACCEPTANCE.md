@@ -16,7 +16,7 @@ All paths below are relative to `tests/`; parametrized cases retain their origin
 | A03 Cancel/Enter/Escape/close preserve user data | `gui/test_dashboard_outside_flow.py`; `gui/test_outside_edit_banner.py` native confirmation cases |
 | A04 atomic save and outside Blender/supplied paths | `unit/test_project_watcher.py::test_an_atomic_save_is_reported_under_the_files_own_name`; `unit/test_project_watcher_outside.py` |
 | A05 ignore own state/build/git/editor backups, not stage | `unit/test_project_watcher.py::test_ignored_changes_are_never_reported`; `unit/test_project_watch.py` |
-| A06 switching/closing and obsolete events | `gui/test_watcher_bridge.py::test_news_from_a_replaced_or_stopped_watcher_is_dropped` is scripted; G03 remains open |
+| A06 switching/closing and obsolete events | `gui/test_real_watch_lifecycle.py` real backend switch/native close; `gui/test_watcher_bridge.py::test_news_from_a_replaced_or_stopped_watcher_is_dropped` deterministic injected events; final G03 verification below |
 | A07 watcher shutdown joins, retains lock on timeout | `unit/test_project_watcher.py::test_stop_ends_every_watcher_thread_quickly`; `gui/test_watcher_bridge.py` ownership cases |
 | A08 watch failure/half-dead watcher and Refresh retry | `unit/test_project_watcher_faults.py`; `gui/test_dashboard_watch.py`; `gui/test_watcher_bridge.py` |
 | A09 outside folder disconnect/reconnect | `unit/test_project_watcher.py::test_an_outside_folder_that_comes_back_is_reported_and_watched_again` |
@@ -29,7 +29,7 @@ All paths below are relative to `tests/`; parametrized cases retain their origin
 | A16 off-UI actions, UI delivery after join, target-only outcome | `gui/test_reconcile_requests.py`; `gui/test_dashboard_outside_controls.py`; new failure matrix |
 | A17 uncertain native startup is not cancellation/rollback | `gui/test_reconcile_startup.py`; new native-acknowledgement case |
 | A18 actual saved bytes and independent action/read errors | `gui/test_reconcile_recovery.py`; new post-write/read-fault cases |
-| A19 canonical relative/absolute provenance, foreign roots | `gui/test_dashboard_reconcile.py` successful relative/absolute and foreign-root cases; G02 remains open |
+| A19 canonical relative/absolute provenance, foreign roots | `gui/test_dashboard_reconcile.py` successful relative/absolute and foreign-root cases; `gui/test_outside_canonical_failures.py` post-write fault matrix; final G02 verification below |
 | A20 unsafe memory read-only, real lock retained, editable reopen | `gui/test_dashboard_reconcile.py::test_unsafe_publication_retains_lock_but_refuses_writes`; new read-fault case |
 | A21 post-write rebind publishes or quarantines | `gui/test_dashboard_outside_rebind.py`; new both-action rebind cases |
 | A22 stale modal/project/root/manifest/result/status rejection | `gui/test_dashboard_outside_controls.py`; `gui/test_dashboard_outside_context.py`; `gui/test_dashboard_reconcile.py` |
@@ -37,22 +37,41 @@ All paths below are relative to `tests/`; parametrized cases retain their origin
 | A24 minimum/tall, wider enlarged fonts, light/dark real actions | `gui/test_dashboard_outside_visual.py` (16 cases); images inspected locally in P5-T06c2b2c1 |
 | A25 guide/native words, uncertain-start wording and scope | `unit/test_outside_edit_guide.py`; [user guide](../user/PROJECT_NAVIGATION.md#keeping-or-discarding-an-outside-edit) |
 
-## Remaining evidence gaps, not reproduced production defects
+## Final acceptance additions and release requirements
 
-- G01 is the current P5-T06c2b2c2a slice: `gui/test_dashboard_outside_failures.py` starts
+- G01 was completed by P5-T06c2b2c2a (`dac5481`, closeout `b631256`):
+  `gui/test_dashboard_outside_failures.py` starts
   with real watcher readiness and a real edit, then native Lock/confirmed Discard. Its 16
   cases cover creation failure, actual stale-manifest refusal, post-write error, independent
   recovery-read failure, same/replaced-memory post-write rebind and native acknowledgement
   uncertainty. Tests check exact disk/manual/backup bytes, joined UI delivery, error identities,
   retained real writer locks, write refusal and editable reopening. They were green-first;
   assertion-caught source controls, independent review and final gates establish their value.
-- G02 remains open for P5-T06c2b2c2b: commit executable canonical-resolution faults armed
-  only after real writes, relative/absolute roots, ordinary and interrupt failures, independent
-  startup/action/recovery errors, worker-only resolution, no saved read after failed resolution,
-  retained protection and editable reopen. Historical scratch probes are not committed tests.
-- G03 remains open for P5-T06c2b2c2b: combine real watcher switch/close and old-worker
-  termination/current-dashboard isolation with the existing deterministic scripted late-event
-  tests. Do not relabel scripted watchers as real backend execution.
+- G02's P5-T06c2b2c2b executable addition is
+  `gui/test_outside_canonical_failures.py::test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership`:
+  relative/absolute roots x real Lock/confirmed Discard x PermissionError/RuntimeError/
+  KeyboardInterrupt x no/action/native-start/both primary errors (48 cases). Resolution faults
+  arm only after actual writes; errors retain identity, canonicalization stays on the worker,
+  no saved reader runs after failed resolution, live memory stays unchanged, saved/manual/
+  backup bytes survive, real writer protection is retained and editable reopen works. When
+  startup and action both fail, the existing single primary-result slot preserves startup;
+  the executed action's distinct error is separately recorded and identity-checked by the test.
+- G03's additions in `gui/test_real_watch_lifecycle.py` exercise real watcher readiness,
+  real old/current edits, actual AppServices.adopt, shutdown and MainWindow.close(). Exact
+  retired/current Thread identities and real project lock contenders/reopens establish
+  termination and ownership. Adoption stops asynchronously; the test explicitly joins the
+  retired backend, while production shutdown/native close perform current-backend joins.
+  Obsolete callbacks are explicitly injected, not backend events: their Qt delivery cannot
+  escape bridge generation guards or change replacement/closed view state. Existing
+  `gui/test_watcher_bridge.py` deterministic late-event cases remain part of the final suite.
+  Neither strict Linux typing nor Windows execution establishes Linux backend runtime.
+
+Final additions require independent review, assertion-caught source controls, fresh installation,
+full gates and exact Windows/Ubuntu CI before G02/G03 or any P5-T06 parent may close.
+The prior closeout had unexplained Windows and Ubuntu full-suite timeouts before successful
+unchanged reruns; these are not diagnosed or fixed. Diagnostic pytest --debug also interfered
+with a nested gate output contract; removing that flag restored it without assertion changes.
+Keep that distinction and the original time limits; a green rerun is not a claimed timeout cure.
 
 All P5-T06 parents remain open until G02/G03 and every original criterion pass final review
 and exact CI. Keep & capture is expressly deferred to P7; automatic generators are not promised.
