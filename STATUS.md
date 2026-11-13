@@ -4,28 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07b1 — Exact Lorenzi collision prerequisite
+**Next task:** P5-T07b2 — Measured SZS dispatch
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `5cbf183` (final P5-T07a closeout Check, Windows + Ubuntu)
+**Last green commit:** `38d0fab` (P5-T07b1 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07b1` — Exact Lorenzi collision prerequisite; parents T07b/T07 remain open.
-  1. Enforce literal lowercase regular sibling course.kcl before editor discovery, Wine or
-     dispatch; typed actionable inspection errors, no working-directory fallback or writes.
-  2. Preserve legacy eligible-editor/Unicode/missing-prefix assertions; prove independent
-     documents, fresh dispatch checks and two eligible requests/two detached launches.
-  3. Run assertion-caught source controls, strict actual-file Windows/Linux typing, fresh
-     install, independent review, full gate and exact hosted Check/Integration.
-  Files: core/tools/editors.py, sibling prerequisite/unit helpers, minimal native/Wine fixture
-  repairs and task/progress/tool docs. SZS is measured on Windows but adapter support is T07b2.
-  No menus, worker-preparation claims, custom preferences or second executor. Next P5-T07b2.
-  Native Lorenzi adapter case passed with a synthetic KMP/KCL; 22 progress/contributor-doc
-  tests passed. SZS provenance/executable hashes and local RiiStudio pixels independently
-  read back; no game data or screenshots uploaded. Final acceptance/source controls/review
-  and release verification remain pending; no leaf or parent closure is claimed.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-14 `P5-T07b1` Exact Lorenzi collision prerequisite (`38d0fab`).
+  Literal lowercase regular sibling course.kcl required before discovery/Wine/dispatch;
+  actionable typed inspection errors, no working-directory fallback or user writes.
+  27 new / 91 focused + 8 independent boundary cases; two real fake-editor dispatches with
+  distinct launcher/writer PIDs, exact Unicode argv/cwd and unchanged KMP/KCL bytes. Existing
+  36 legacy assertion ASTs preserved, including reachable missing-Wine-prefix coverage.
+  Six primary-assertion source controls caught; reviewer independently repeated three,
+  APPROVE with no findings on an unchanged 576-file snapshot. Strict six actual files per
+  Windows/Linux target; 91 fresh locked Unicode-install cases. Native synthetic Lorenzi
+  launch passed; no loaded/save/round-trip or collision-content-validation claim.
+  Full local gate 4136 passed / 6 existing skips / 176 deselected; exact code Check and
+  Integration Windows/Ubuntu green, selected 4142; both actual Check ZIPs coverage.xml only.
+  SZS Windows capability measured with synthetic input, not yet adapter support; Linux/Wine
+  SZS loading unmeasured. No screenshots/fonts/game data uploaded. b/T07 remain open;
+  next P5-T07b2, menu/worker eligibility still T07d/e. Closeout verification remains pending.
 - 2026-11-14 `P5-T07a` Built-in editor catalogue and saved preferences (`d5a5164`).
   Immutable defaults, preferred-first/reset projections and persisted machine settings; damaged
   recognized preferences rejected at load and before save writes/backups. Existing constructor,

@@ -473,7 +473,7 @@ missing files/editors/prefixes and collision prerequisites leave user files unch
 Split below after native capability measurement and a >400-line combined estimate; every
 original criterion remains required. P5-T07b stays open until both leaves are verified.
 
-##### [ ] P5-T07b1 — Exact Lorenzi collision prerequisite
+##### [x] P5-T07b1 — Exact Lorenzi collision prerequisite (commit `38d0fab`)
 Refuse Lorenzi dispatch unless a regular sibling file is named literally course.kcl, including
 on case-insensitive Windows filesystems. Inspect only the document's own folder, before editor
 lookup, Wine or process launch; turn inspection errors into actionable typed errors. Preserve
@@ -483,6 +483,12 @@ fallback, independent documents and fresh dispatch checks, two eligible requests
 launches, unchanged user bytes; independent review, assertion-caught controls, strict actual-
 file Windows/Linux typing, fresh install, full gates and exact Check/Integration.
 Menu eligibility and worker-thread preparation remain T07d/e, not completed by this adapter guard.
+As built: 27 new / 91 focused + 8 independent boundary cases; 36 legacy assertion ASTs
+unchanged, 6/6 source controls assertion-caught (3 independently repeated), strict 6 actual
+files per Windows/Linux target and 91 fresh locked-install cases. Native synthetic Lorenzi
+adapter launch passed. Full local gate 4136/6/176; exact code Check + Integration both
+platforms passed, selected 4142; actual Check ZIPs coverage.xml only. No loading/save claim.
+Only b1 is complete; b/b2/T07 remain open. Documentation closeout still needs its own checks.
 
 ##### [ ] P5-T07b2 — Measured SZS dispatch
 Enable BrawlCrate/RiiStudio .szs using their existing verified positional argv. Native Windows
