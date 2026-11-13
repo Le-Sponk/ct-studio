@@ -79,18 +79,24 @@ unchanged reruns; these are not diagnosed or fixed. Diagnostic pytest --debug al
 with a nested gate output contract; removing that flag restored it without assertion changes.
 Keep that distinction and the original time limits; a green rerun is not a claimed timeout cure.
 
-All original P5-T06 criteria passed final review and exact implementation CI. The final leaf
-and parent closure are reopened: required Ubuntu closeout Check at `03c8008` exposed an empty-
-receipt race in the existing CLI fake-editor test. Repair `8e5d688` atomically publishes its
-closed temporary receipt, with deterministic RED/GREEN and independent delta approval;
-526 combined acceptance and 57 fresh-install cases passed, local gate 4047/6/176.
-Ubuntu Check passed, but Windows job 131874581475 timed out at 1200 seconds. This is not
-proof of a receipt-fix failure or a timeout cure. `scripts/check.py` now preserves partial
-stdout/stderr on timeout and configures verbose case progress plus 60-second thread dumps.
-Real blocked child and blocked pytest probes verify retained output and actual tracebacks;
-original nested gate contracts and 1200-second limit remain unchanged. Independent review,
-full local gate and exact diagnostic-commit CI are required; final leaf and parents remain
-open with no criteria waived. Keep & capture is expressly deferred to P7; automatic generators are not promised.
+All original P5-T06 criteria passed independent review and exact implementation CI. Required
+Ubuntu closeout Check at `03c8008` exposed a fake-editor receipt race, repaired in `8e5d688`
+with deterministic real detached-writer RED/GREEN, atomic closed-receipt publication and
+independent approval. Existing launch/text/argv/cwd assertions and polling limits are unchanged.
+Windows Check at `8e5d688` hit the unchanged 1200-second suite limit. Diagnostics `872b1cc`
+retain partial stdout/stderr, verbose progress and 60-second thread dumps. Real stalled-child
+and stalled-pytest probes prove usable progress/stack capture; original nested gate contracts
+pass unchanged. Independent diagnostics review approved 572 immutable files, 20 focused cases
+and an assertion-caught stderr omission; all four parent omission controls caught assertions.
+Final original/new mapped selection 546 passes across 33 files; fresh locked Unicode install
+77 passes, strict Windows/Linux typing checks five actual files with no errors. Full gate
+4056 passed / 6 existing skips / 176 deselected. Exact `872b1cc` Check Windows
+4047/15, Ubuntu 4048/14 (4062 selected); Integration Windows
+126/21, Ubuntu 130/17 (all skips expected). Both actual Check ZIPs coverage.xml only.
+Final leaf and original parents close together; documentation closeout still requires exact
+CI/read-back. No product source changed and no criteria waived. This run did not reproduce
+the prior Windows/Ubuntu suite hangs: their cause remains unexplained, not claimed repaired.
+Keep & capture remains deferred to P7; automatic generators are not promised.
 Local Windows offscreen font/palette proxies and hosted Linux runtime do not establish Linux
 native desktop appearance. That documented, nonblocking appearance gap remains unverified.
 Screenshots, fonts and game data remain local and are never part of uploaded evidence.

@@ -4,29 +4,40 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T06c2b2c2b — Final closeout verification (suite-timeout diagnostics)
+**Next task:** P5-T07 — "Open in…" framework
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `d610b26` (Check, Windows + Ubuntu)
+**Last green commit:** `872b1cc` (Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T06c2b2c2b` — Final closeout verification: expose the unexplained suite timeout.
-  Ubuntu Check at `03c8008` reproduced an empty fake-editor JSON receipt race, repaired
-  test-first in `8e5d688` with atomic publication and unchanged launch assertions/timeouts.
-  Independent review approved the exact repair; 526 acceptance / 57 fresh-install cases and
-  full gate 4047 passed / 6 skipped / 176 deselected. Ubuntu Check passed at `8e5d688`,
-  but Windows job 131874581475 hit pytest's unchanged 1200-second limit. Root cause unknown;
-  this is separate from the fixed receipt race. Its runner discarded partial output.
-  1. Preserve partial stdout/stderr, verbose test progress and 60-second thread dumps on timeout.
-  2. Prove real stalled-child diagnostics, unchanged nested gates/limits and independent review.
-  3. Run full local gate and exact Windows/Ubuntu checks; diagnose any captured stall before closure.
-  Diagnostics change scripts/check.py and add tests/unit/test_check_timeouts.py, not product code.
-  Twenty focused cases pass; four source controls assertion-caught. Strict Windows/Linux
-  checks both changed Python files. A small coverage-argument extraction and stdout type
-  annotation keep the existing gate behavior within strict typing/complexity budgets.
-  No weakened assertions, longer timeouts, game data, screenshots or speculative hang repair.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-14 `P5-T06c2b2c2b` Final original-acceptance closeout (`872b1cc`).
+  Original canonical/lifecycle implementation d610b26 remains unchanged: 48 post-write fault
+  cases and two real watcher switch/native-close cases; all 25 original criterion groups
+  mapped to executed assertions, six assertion-caught source controls, independent APPROVE.
+  Ubuntu closeout 03c8008 exposed a separate fake-editor empty JSON receipt race. Repair
+  8e5d688 closes a temporary receipt before atomic publication, preserving exact launch/text/
+  argv/cwd checks and original polling bounds. Real gated detached-writer RED/GREEN and
+  independent APPROVE: seven CLI cases and one assertion-caught publication-omission control.
+  Windows Check at 8e5d688 then hit the existing 1200-second suite limit; cause remains unknown.
+  Diagnostics 872b1cc retain partial stdout/stderr, verbose case progress and 60-second
+  thread dumps, without changing selection/limits. Real blocked-child and pytest stack probes,
+  20 focused cases including all 11 original nested-gate contracts; four assertion-caught
+  omission controls plus independent stderr control; independent APPROVE on 572 immutable files.
+  Coverage-argument extraction/stdout type annotation preserve behavior within strict budgets.
+  Final mapped selection 546 passed in 33 files; fresh locked Unicode installation
+  77 passed. Strict Windows/Linux checked all five relevant Python files, no errors.
+  Full local gate 4,056 passed / 6 existing skips / 176 deselected.
+  Exact Check Windows 4047/15, Ubuntu 4048/14 (4,062 selected).
+  Synthetic recording triggered Integration: Windows 126/21, Ubuntu 130/17;
+  all skips expected, zero failures. Exact remote workflow and actual Check ZIPs coverage.xml only.
+  Diagnostics CI did not reproduce the hang; this is not proof its cause was found or fixed.
+  Earlier Windows/Ubuntu timeout logs retained. No product sources changed; no acceptance waiver.
+  Re-close this leaf and eligible P5-T06 parents; next P5-T07. P7 capture remains deferred,
+  Linux desktop appearance nonblocking/unverified; no game data, screenshots or fonts uploaded.
+  Documentation closeout still requires its own exact CI and remote read-back before delivery.
 - 2026-11-13 `P5-T06c2b2c2b` Canonical recovery and real watcher lifecycle closure (`d610b26`).
   Added 48 real-watcher/native Lock/confirmed Discard post-write canonical-fault cases:
   relative/absolute roots, ordinary/interrupt resolution faults and no/action/native-start/both

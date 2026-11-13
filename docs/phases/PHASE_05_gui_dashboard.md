@@ -276,7 +276,7 @@ issue scrolls to and focuses that part's card.
 **Acceptance:** GUI tests populated from recorded `wszst check` output; keyboard path; light
 and dark screenshots.
 
-### [ ] P5-T06 — File watching & external-edit detection
+### [x] P5-T06 — File watching & external-edit detection (commit 872b1cc)
 WatcherBridge wraps core watcher (watchfiles thread) → debounced status refresh. When a generated
 stage file changes externally → `EditedExternally` banner on the card with the three choices from
 ARCHITECTURE §8 (the capture mechanism itself arrives in P7; here implement Lock-as-manual and
@@ -306,7 +306,7 @@ backs the edited file up into `.ctstudio/backups/<UTC time>/` and removes it so 
 makes it again. **Acceptance:** tests: both actions, backups made, manifest saved, refusals
 (read-only, part not edited, file gone) change nothing.
 
-#### [ ] P5-T06c — Edited-outside banner on the card (GUI)
+#### [x] P5-T06c — Edited-outside banner on the card (GUI) (commit 872b1cc)
 The card of an EditedExternally part shows a banner with Lock as manual and Discard (the capture
 choice arrives in P7), run on the joined launch worker. **Acceptance:** the original P5-T06
 acceptance (edit → banner within 2 s → Lock-as-manual copies to `files/` and switches mode);
@@ -323,7 +323,7 @@ files; off-UI execution, joined completion, error/interrupt identity, one-at-a-t
 read-only/busy/invalid refusals without disk work; switching/closing retain the project lock.
 No new buttons in this leaf.
 
-##### [ ] P5-T06c2 — Card banner and joined-result presentation
+##### [x] P5-T06c2 — Card banner and joined-result presentation (commit 872b1cc)
 Wire those requests to the EditedExternally banner with Lock as manual / Discard controls,
 confirmation for Discard, per-card progress/results and stale-result guards. Retain all original
 P5-T06c acceptance: real edit → banner within 2 s → Lock copies to `files/` and switches mode;
@@ -341,7 +341,7 @@ or invalidated confirmation does nothing, busy/reset and keyboard behavior, mini
 enlarged-font light/dark widget screenshots. Dashboard mounting is c2b; no unconnected actions
 are exposed in the application in this leaf.
 
-###### [ ] P5-T06c2b — Mount banner and present joined results
+###### [x] P5-T06c2b — Mount banner and present joined results (commit 872b1cc)
 Mount the widget on each eligible card; dispatch through c1, publish only fresh joined results,
 refresh saved state after uncertain startup, and preserve all original c2 acceptance above:
 real watcher edit → banner within 2 s → Lock copies/switches mode; confirmed Discard backs up
@@ -359,7 +359,7 @@ Lock/Discard, post-write failure and native-start interruption; off-UI reads, un
 error identity, read failure reported separately, no disk read for requests that never ran or
 for assignment/editor/folder requests; invalidated completion remains suppressed.
 
-###### [ ] P5-T06c2b2 — Dashboard wiring and full outside-edit acceptance
+###### [x] P5-T06c2b2 — Dashboard wiring and full outside-edit acceptance (commit 872b1cc)
 Mount the banner, route requests and fresh joined results (including b1 recovery), refresh
 statuses/watch plans, and retain all c2b acceptance above: real watcher → banner → Lock copies
 and changes mode; confirmed Discard backup; safe recovery/read failure/refusal/stale results;
@@ -386,7 +386,7 @@ modal invalidation, refusal and rebind behavior. **Acceptance:** real watcher ed
 banner within 2 s, Lock copies and changes mode, confirmed Discard backs up, Cancel changes
 nothing, keyboard access and no UI disk work. Keep the original acceptance above intact.
 
-###### [ ] P5-T06c2b2c — Complete outside-edit dashboard acceptance
+###### [x] P5-T06c2b2c — Complete outside-edit dashboard acceptance (commit 872b1cc)
 Whole-dashboard minimum-width/enlarged-font light/dark local screenshots and geometry checks,
 full watcher-to-action recovery/refusal/stale regression coverage, user guide and honest Linux
 desktop gap. Completes c2b2, c2b, c2, c and P5-T06 only after every original criterion passes.
@@ -401,7 +401,7 @@ real-action, hosted Linux runtime and unverified Linux desktop appearance claims
 joined-result screenshots in both themes/font sizes; guide matches native choices and recovery.
 All parents remain open until c2b2c2 checks every original criterion.
 
-###### [ ] P5-T06c2b2c2 — Final outside-edit watcher failure acceptance
+###### [x] P5-T06c2b2c2 — Final outside-edit watcher failure acceptance (commit 872b1cc)
 Real watcher-to-action recovery, refusal and stale-result matrix, including native-start
 uncertainty and post-write rebind, using actual saved files and writer-lock protection.
 Combine with prior timing/Lock/Discard/Cancel/keyboard and c1 whole-dashboard evidence;
@@ -417,7 +417,7 @@ rebind. **Acceptance:** exact saved bytes/manual files/backups, joined UI delive
 independent error identities, retained writer lock, write refusal and editable reopen; prove
 new acceptance tests with assertion-caught source controls. Parents remain open for c2b.
 
-###### [ ] P5-T06c2b2c2b — Canonical recovery and real watcher lifecycle closure
+###### [x] P5-T06c2b2c2b — Canonical recovery and real watcher lifecycle closure (commit 872b1cc)
 Add committed canonical-resolution failure coverage armed only after real actions, including
 relative/absolute roots and independent startup/action/recovery errors; prove worker-only
 resolution, no saved reader after failed canonicalization, protection/lock retention and reopen.
