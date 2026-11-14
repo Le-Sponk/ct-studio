@@ -606,6 +606,39 @@ Route through existing core process/Wine owners, not shell parsing or a new exec
 launch receipts/processes, native/Wine routes, stale executable/document/prefix refusals,
 unchanged user bytes, original built-in behavior/warnings and launch-only wording.
 
+###### [ ] P5-T07c3a — Native custom-editor dispatch
+Explicitly dispatch a supplied CustomTool through the existing detached process owner.
+Keep each argv token intact, substituting canonical document/directory/project paths with
+existing safe placeholder rules (including escaped braces and empty specs). No discovery,
+default selection, settings writes, CLI/menu/UI wiring or Wine startup in this leaf.
+**Acceptance:** two actual fake-editor processes/atomic receipts with distinct launch and
+writer PIDs, exact Unicode/space/empty/metacharacter argv and document-parent cwd; freshly
+refuse missing/non-file documents/executables and invalid project directories, unsafe text
+and filesystem inspection failures before dispatch. Preserve typed errors/causes, user bytes,
+unchanged built-in adapters/warnings and launch-only receipts. Linux .exe requires Wine and
+is refused here; c3b adds that route. An explicit custom id may equal a built-in id without
+implicitly applying that built-in's options or changing defaults.
+
+###### [ ] P5-T07c3b — Custom Wine argv and fresh runtime validation
+Route explicit Windows custom tools on Linux through the existing Wine/process owners.
+Convert file/directory/project substitution values using verified winepath behavior, not
+shell parsing or conversion of literal user tokens. Validate executable/prefix architecture
+and prefix existence for both 32- and 64-bit programs at every dispatch; retain native behavior.
+**Acceptance:** exact Wine argv/cwd/environment, safe placeholders and Unicode, independent
+requests, stale/malformed/missing-prefix/executable/document refusals and unchanged user bytes.
+Exercise the actual Wine adapter and process boundary with controlled fakes; distinguish that
+proof from real Wine/editor loading, which remains unmeasured unless explicitly exercised.
+
+###### [ ] P5-T07c3c — Fresh saved-choice dispatch facade
+Load machine settings freshly for every explicit built-in versus custom choice; keep those
+namespaces distinct even for equal ids, preserve built-in defaults/options/warnings and
+use per-editor saved Wine prefix plus configured Wine. No silent fallback on damaged settings,
+missing custom choices or stale paths. Leave worker/menu guards and controls to d/e/f.
+**Acceptance:** changed settings affect the next launch, recognized corruption causes no
+launch/writes, explicit choices select only their own namespace, native/Wine routes reach
+existing owners, two real requests retain correct launch receipts and bytes. Re-run c3's
+complete original criterion map across a/b/c before closing c3; c and T07 remain open.
+
 #### [ ] P5-T07d — Joined editor preparation and application guards
 Prepare immutable available choices off the UI thread and re-read settings at dispatch.
 Reuse the existing joined launch owner; preserve current-project/root/manifest identity,

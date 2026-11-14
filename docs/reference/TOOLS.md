@@ -711,6 +711,19 @@ the three-input synthetic SZS with real Wiimm and dispatches two documents throu
 runner to fake editors, checking separate launch/child receipts, exact argv/cwd, warnings and
 unchanged source/archive bytes without claiming native Wine loading.
 
+**Custom native dispatch (P5-T07c3a).** `custom_editors.open_custom(id, CustomTool, document,
+project=...)` uses the user's existing argv-token contract, not a new third-party CLI contract.
+Canonical document, its parent and the project directory replace `{file}`, `{dir}` and
+`{project}`; safe empty specs and escaped braces retain existing behavior. It freshly validates
+regular executable/document files and project-directory existence and rejects unsafe text
+before spawning via the existing detached runner. Each supplied token stays one token,
+including empty strings, spaces, Unicode and shell-looking literals; no shell parser or
+built-in editor flags/defaults/discovery are used. Two synthetic fake-editor launches with
+receipts exercise real native processes, not editor loading; even a custom id equal to a built-in id
+remains custom. Typed inspection causes and process failures are preserved. This leaf neither
+loads saved choices nor starts Wine or adds UI; Linux `.exe` is explicitly refused with native/
+Wine guidance. Saved-choice wiring is c3c, Wine is c3b. No new editor flag/loading claim follows.
+
 ## Verified command table (fill in; adapters must only use rows marked verified)
 Every flag in this table and the S3b conversion table is checked against the pinned tool's
 recorded help by `tests/unit/test_help_contract.py` (P2-T04a; recordings in

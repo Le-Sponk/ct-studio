@@ -4,12 +4,22 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3 — Explicit configured custom/native/Wine dispatch
+**Next task:** P5-T07c3a — Native custom-editor dispatch
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `80b22b5` (P5-T07c2 exact Check, Windows + Ubuntu)
+**Last green commit:** `793d1e1` (P5-T07c2 final closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c3a` — Native custom-editor dispatch.
+  1. Test canonical path/token handling and explicit native-only refusals before code.
+  2. Add the smallest custom adapter reusing CustomTool.argv and launch_detached.
+  3. Prove two independent real fake-editor receipts, fresh path guards and unchanged bytes.
+  4. Freeze and independently review; assertion controls, strict actual Windows/Linux files,
+     locked Unicode fresh install and full local gates.
+  5. Commit/push/exact Check and applicable Integration/coverage-only proof; close c3a only.
+  Files: new core/tools/custom_editors.py and focused tests; architecture/TOOLS/phase/STATUS/README.
+  Risks: no shell parsing/discovery/default changes; reject unsafe text and failed inspection;
+  Linux Windows-exe routing remains c3b, fresh settings facade c3c, GUI ownership d/e/f.
+  Next P5-T07c3b. Parent c3/c/T07 and original d/e/f/g/HC1 remain open.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -36,6 +46,9 @@
   file48 and GUI predecessor1135 pass without source changes; not a fix or Linux proof.
   Sole same-SHA Ubuntu rerun passes; original failure retained, cause unexplained, no repair claim.
   c/c3/b/T07 and d/e/f/HC1 remain open; next P5-T07c3. No game data/fonts/screenshots uploaded.
+  Final closeout 793d1e1 passed its separate full local 4455/6/178 gate and exact Check
+  Windows 132593939707 / Ubuntu 132593940311 (4461 selected); actual ZIPs coverage.xml only,
+  clean matching local/remote main verified. P5-T07c2 is complete; original timeout unexplained.
 - 2026-11-14 `P5-T07c1` Validated custom-tool machine preferences (`7d65fa4`).
   Reuses CustomTool for copied machine-only executable/argv records; recognized damage refuses
   load/projection/update/save before writes or backups. Unknown fields, raw user backups,
@@ -1383,6 +1396,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T07c3 is split into c3a native custom dispatch, c3b custom Wine argv/runtime validation,
+  and c3c fresh saved-choice dispatch. One combined adapter/facade and executable native/Wine/
+  settings/refusal matrix exceeds a ~400-line leaf. Original c3 acceptance stays above the
+  new child checklists; none removed. Native-only c3a does not close c3/c/T07 or imply UI,
+  Wine operation, saved-choice wiring or the original before-offering/HC1 proof.
 - P5-T07c is split into c1 validated custom-tool settings, c2 Wine-prefix settings and c3
   explicit native/Wine custom dispatch: combined code and executable acceptance exceed one
   ~400-line leaf. No acceptance removed; menus/joined ownership/configuration remain d/e/f,

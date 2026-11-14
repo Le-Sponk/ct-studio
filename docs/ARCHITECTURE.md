@@ -248,6 +248,17 @@ do not stat/resolve, inspect registries/architecture, discover or launch Wine, c
 editor selection, or provide a GUI. Actual prefix validation and explicit fresh native/Wine
 routing remain the existing adapters and T07c3; configuration controls remain T07f.
 
+T07c3 is split into c3a native custom dispatch, c3b custom Wine argv/runtime checks and
+c3c fresh saved-choice dispatch. `core/tools/custom_editors.py:open_custom(id, tool, document,
+project=...)` is c3a's explicit native boundary: it canonicalizes and freshly checks a regular
+document/executable and project directory, uses the existing `CustomTool.argv` token grammar,
+and calls only `process.launch_detached` with document-parent cwd. Unsafe text or failed
+inspection raises a typed error with its cause; interrupts and runner errors retain identity.
+It returns the existing launch-only `Launched` value without built-in options/warnings,
+discovery, settings writes, automatic selection or UI. Linux `.exe` dispatch is refused until
+c3b supplies Wine; loading saved choices belongs to c3c. A custom id equal to a built-in id
+does not implicitly invoke that built-in's contract. None of these leaves closes T07 on its own.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`
