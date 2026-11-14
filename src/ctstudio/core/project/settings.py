@@ -17,6 +17,10 @@ from typing import cast
 from ctstudio.core import platform as ct_platform
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.fsutil import replace_with_backup
+from ctstudio.core.project.custom_tool_preferences import (
+    parse_custom_tools,
+    updated_custom_tools,
+)
 from ctstudio.core.project.editor_preferences import (
     DEFAULT_EDITORS,
     EDITOR_PREFERENCES,
@@ -24,6 +28,7 @@ from ctstudio.core.project.editor_preferences import (
     validate_editor,
 )
 from ctstudio.core.tools.registry import TOOL_BY_ID
+from ctstudio.core.tools.spec import CustomTool
 
 FORMAT = 1
 FILE_NAME = "settings.json"
@@ -69,6 +74,14 @@ class UserSettings:
         if preferences or EDITOR_PREFERENCES in other:
             other[EDITOR_PREFERENCES] = preferences
         return UserSettings(self.tools, other)
+
+    def custom_tools(self) -> dict[str, CustomTool]:
+        """Validated copies of the user's custom tools; no discovery or filesystem checks."""
+        return parse_custom_tools(self.other)
+
+    def with_custom_tool(self, tool_id: str, tool: CustomTool | None) -> UserSettings:
+        """Copy with one custom tool set, or removed when ``tool`` is None."""
+        return UserSettings(self.tools, updated_custom_tools(self.other, tool_id, tool))
 
     def configured(self) -> dict[str, Path]:
         """The set paths of tools this version knows, for discovery and doctor."""
@@ -122,6 +135,7 @@ def _parse(target: Path, data: object) -> UserSettings:
     _check_format(target, fields.get("format", FORMAT))
     other = {key: value for key, value in fields.items() if key not in ("format", "tools")}
     _check_preferences(target, other)
+    _check_custom_tools(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
@@ -133,6 +147,13 @@ def _check_preferences(target: Path, other: Mapping[str, object]) -> None:
         parse_preferences(other)
     except ValueError as exc:
         raise SettingsError(target, "editor preferences are invalid", details=str(exc)) from exc
+
+
+def _check_custom_tools(target: Path, other: Mapping[str, object]) -> None:
+    try:
+        parse_custom_tools(other)
+    except ValueError as exc:
+        raise SettingsError(target, "custom tools are invalid", details=str(exc)) from exc
 
 
 def _check_format(target: Path, version: object) -> None:
@@ -156,6 +177,7 @@ def save(settings: UserSettings, path: Path | None = None) -> None:
     """Write the settings, keeping a backup of the file they replace."""
     target = path if path is not None else default_path()
     _check_preferences(target, settings.other)
+    _check_custom_tools(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

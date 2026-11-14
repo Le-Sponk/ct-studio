@@ -4,12 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c — Custom-tool and Wine-prefix preferences and dispatch
+**Next task:** P5-T07c1 — Validated custom-tool machine preferences
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `bd7398b` (P5-T07b2 exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `72b4c6f` (final P5-T07b2 closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c1` — Validated custom-tool machine preferences; c/T07 remain open.
+  1. Test first: recognized custom-tool damage must refuse load and pre-write save.
+  2. Reuse CustomTool tokens in pure saved-setting projections and copy/update/reset methods;
+     preserve constructor, built-in preferences, unknown fields and exact user backups.
+  3. Prove Unicode/placeholder validation, malformed/unencodable values, no filesystem work
+     and unchanged user bytes; no custom launch/default selection or GUI in this leaf.
+  4. Run old/new acceptance, assertion controls, strict actual-file Windows/Linux typing,
+     locked fresh install, frozen independent review, full gates and exact hosted checks.
+  Files: settings.py, small custom-tool preference codec, focused unit tests, task/reference docs.
+  Next P5-T07c2 (Wine-prefix preferences), then c3 dispatch; c/T07/HC1 remain open.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -35,7 +44,10 @@
   Windows Application Control WinError 4551 blocking synthetic fake wszst.exe. Full log
   retained. test_fake_wiimm.py then passed in three fresh processes (144 cases each),
   without code/test/security changes. Original block is not a demonstrated repair;
-  why the policy result differed is unknown. A fresh full gate is required.
+  why the policy result differed is unknown. The subsequent unchanged full gate passed
+  4160/6/178. Final closeout 72b4c6f passed exact Windows/Ubuntu Check, selected 4166,
+  both actual artifacts coverage.xml only; clean matching local/remote main verified.
+  P5-T07b2 is complete; the original policy inconsistency remains unexplained.
   P5-T07b and P5-T07 remain open: before-offering collision/worker/menu proof still T07d/e;
   HC1 original requirement retained. Next P5-T07c. No game data/fonts/screenshots uploaded.
 - 2026-11-14 `P5-T07b1` Exact Lorenzi collision prerequisite (`38d0fab`).
@@ -1339,6 +1351,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T07c is split into c1 validated custom-tool settings, c2 Wine-prefix settings and c3
+  explicit native/Wine custom dispatch: combined code and executable acceptance exceed one
+  ~400-line leaf. No acceptance removed; menus/joined ownership/configuration remain d/e/f,
+  original before-offering collision eligibility and HC1 still required. c/T07 remain open.
 - P5-T07b is split into T07b1 exact Lorenzi prerequisite and T07b2 measured SZS dispatch
   after a combined >400-line estimate (325 + 258). Both pinned Windows editors loaded a
   synthetic SZS with existing argv; no new flag or scope change. All original argv/two-launch/

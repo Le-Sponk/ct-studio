@@ -1360,6 +1360,19 @@ a set `.exe` editor on Linux runs through Wine); a set path that is not a progra
 the chosen program is what the adapters would run. `ctstudio doctor` reads the file; a
 damaged one prints a warning on stderr and the check runs without the set paths.
 
+**Custom-tool records (P5-T07c1, pure settings only).** The same machine file accepts
+`custom_tools: {id: {name, exe, args_template, ...}}`; ids are exact lowercase slugs.
+`UserSettings.custom_tools()` returns copied `CustomTool` values and `with_custom_tool(id,
+tool)` copies an update/removal (`None`). Token lists keep spaces, Unicode and empty argv
+elements; only literal `{file}`, `{dir}`, `{project}` substitutions and escaped braces are
+allowed by the existing CustomTool model. Its empty-spec spellings (`{file:}`, `{dir:}`,
+`{project:}`) are identical plain substitutions, retained unchanged; nonempty specs,
+conversions and indexed/attribute fields are refused. Damaged recognized records, NUL or
+invalid Unicode refuse load/save before replacement or backup; unknown record fields/settings survive.
+Executable text may be relative or nonexistent metadata: saving it does not discover or run
+it. Custom choices, fresh executable/Wine checks and dispatch remain c2/c3; configuration UI
+remains T07f. This adds no verified third-party flag or editor-loading claim.
+
 **Tools page (P2-T07b).** Settings → Tools… in the main window shows the same report as
 `ctstudio doctor`, in the same words, with a coloured status per tool (green ready or not
 needed; amber optional and not ready; red required and not ready). Browse… sets a tool's

@@ -516,8 +516,10 @@ First local closeout gate hit Windows Application Control WinError 4551 on fake 
 111 failed / 4049 passed / 6 skipped. Failed run retained; three fresh focused
 test_fake_wiimm.py runs then passed (144 cases each), with source/tests/security
 unchanged. The policy inconsistency is unexplained, not a code or security repair.
-Documentation closeout separately requires exact-SHA Check/artifact verification. Only b2
-adapter scope is delivered; parent b/T07 remain open for worker/menu eligibility and release.
+Final closeout 72b4c6f passed the unchanged full local gate and exact Windows/Ubuntu Check,
+selected 4166, coverage-only actual artifacts and clean matching main. P5-T07b2 is complete.
+Only b2 adapter scope is delivered; parent b/T07 remain open for worker/menu eligibility
+and release.
 
 Parent closure boundary: b1/b2 adapter tests cover dispatch/refusal, not menu eligibility.
 The original requirement to check course.kcl **before offering** Edit KMP still needs executable
@@ -531,6 +533,34 @@ prefix choices. Validate damage, preserve unknown fields/backups, and execute on
 core adapters with argv tokens, never shell parsing or another process owner.
 **Acceptance:** safe placeholders/Unicode argv, explicit custom choice, native/Wine routes,
 malformed/stale preferences fail closed; independent launch receipts and separate processes.
+Split below: combined persistence, validation and dispatch tests exceed one ~400-line leaf.
+Every original criterion remains required; c/T07 stay open until all leaves and original
+joined/menu/configuration acceptance are verified.
+
+##### [ ] P5-T07c1 — Validated custom-tool machine preferences
+Persist named CustomTool executable/argv templates under machine settings, not projects.
+Reuse its existing {file}/{dir}/{project} token validation (including harmless empty-spec
+spellings such as {file:}); preserve the two-argument
+UserSettings constructor, unrelated tools/preferences, unknown record fields and exact backups.
+Recognized damaged data fails closed on load, projection, update and before any save write.
+**Acceptance:** Unicode/token/escaped-brace round trips, immutable projected argv,
+malformed types/placeholders/NUL/unencodable text, pure projections without filesystem work,
+unknown-field retention, reset/nonmutation, prior file and backups unchanged on refusal.
+No custom default, executable discovery, Wine routing, launching or GUI is delivered by c1.
+
+##### [ ] P5-T07c2 — Machine-specific Wine-prefix preferences
+Persist/reset per-editor Wine-prefix choices with strict recognized-data validation,
+unknown fields/backups and old constructor compatibility. Prefix existence/architecture
+are rechecked by adapters at dispatch, not inferred from saved metadata.
+**Acceptance:** Unicode round trips, native defaults unaffected, malformed data refuses
+before writes, independent choices and no filesystem work in pure projection.
+
+##### [ ] P5-T07c3 — Explicit configured custom/native/Wine dispatch
+Use saved CustomTool argv tokens only for an explicit custom choice; keep built-in defaults.
+Route through existing core process/Wine owners, not shell parsing or a new executor.
+**Acceptance:** fresh preferences, safe placeholders and Unicode argv, two independent real
+launch receipts/processes, native/Wine routes, stale executable/document/prefix refusals,
+unchanged user bytes, original built-in behavior/warnings and launch-only wording.
 
 #### [ ] P5-T07d — Joined editor preparation and application guards
 Prepare immutable available choices off the UI thread and re-read settings at dispatch.

@@ -221,9 +221,23 @@ machine-settings object `editor_preferences` (`kind -> preferred built-in tool i
 `UserSettings.editor_order(kind)` returns an immutable ordered tuple; `with_editor(kind, id)`
 returns a new settings value, and `id=None` resets that known kind. Recognized malformed
 preferences fail `load` and fail `save` before writes/backups; unknown extension keys, other
-settings and tool paths survive. This is model/persistence groundwork, not discovery, launch
-support or a configuration UI. In particular, `.szs` catalogue intent does not extend the
-current editor adapter; T07b owns dispatch, T07c custom/Wine preferences, T07f usable controls.
+settings and tool paths survive. This catalogue/persistence layer itself does not discover
+or launch tools or supply a configuration UI. T07b2 separately enables measured `.szs`
+dispatch; T07c owns custom/Wine preferences and explicit routing, T07f usable controls.
+
+P5-T07c1 adds `custom_tools` (`id -> {name, exe, args_template, ...future fields}`) to
+machine settings. `UserSettings.custom_tools()` projects copies as existing `CustomTool`
+values; `with_custom_tool(id, tool)` copies an update/removal (`None`), retaining unrelated
+settings and unknown record fields. Recognized damage refuses load, projection/update and
+save before writes/backups. The name/argv text must be UTF-8 encodable and NUL-free; argv
+uses only the existing literal `{file}`, `{dir}`, `{project}` placeholder contract, with
+escaped braces and token boundaries preserved. The unchanged CustomTool also accepts empty
+format-spec spellings (`{file:}`, `{dir:}`, `{project:}`) as identical plain substitutions;
+nonempty format specs, conversions and indexed/attribute fields remain refused.
+Saved executable text is metadata, not proof of installation; projection does not stat/resolve
+or launch anything. Wine-prefix
+preferences and explicit fresh native/Wine routing remain T07c2/c3; built-in defaults and
+editor menus are unchanged by c1.
 
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
