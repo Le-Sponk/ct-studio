@@ -4,25 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3a — Native custom-editor dispatch
+**Next task:** P5-T07c3b — Custom Wine argv and fresh runtime validation
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `793d1e1` (P5-T07c2 final closeout Check, Windows + Ubuntu)
+**Last green commit:** `231180e` (P5-T07c3a exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c3a` — Native custom-editor dispatch.
-  1. Test canonical path/token handling and explicit native-only refusals before code.
-  2. Add the smallest custom adapter reusing CustomTool.argv and launch_detached.
-  3. Prove two independent real fake-editor receipts, fresh path guards and unchanged bytes.
-  4. Freeze and independently review; assertion controls, strict actual Windows/Linux files,
-     locked Unicode fresh install and full local gates.
-  5. Commit/push/exact Check and applicable Integration/coverage-only proof; close c3a only.
-  Files: new core/tools/custom_editors.py and focused tests; architecture/TOOLS/phase/STATUS/README.
-  Risks: no shell parsing/discovery/default changes; reject unsafe text and failed inspection;
-  Linux Windows-exe routing remains c3b, fresh settings facade c3c, GUI ownership d/e/f.
-  Next P5-T07c3b. Parent c3/c/T07 and original d/e/f/g/HC1 remain open.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-15 `P5-T07c3a` Native custom-editor dispatch (`231180e`).
+  Explicit supplied CustomTool keeps canonical file/directory/project substitutions and each
+  Unicode/space/empty/metacharacter token intact through the existing detached process owner.
+  Fresh regular-file/project-directory checks, typed causes/interrupt/runner identity and
+  Linux .exe refusal; no discovery, settings load/write, Wine startup, built-in options or UI.
+  Two actual fake-editor launches/atomic receipts retain independent launch/writer PIDs and
+  unchanged user bytes; launch-only, not editor loading/save. 544 focused/fresh locked Unicode
+  install cases (62 new), 22 independent boundaries, 15 parent/6 independent assertion
+  source faults; strict 2 actual files per target. Immutable 584-file review APPROVE;
+  483 legacy source/test files match snapshot/live, inherited Git EOL-only differences audited.
+  Full local 4517 passed / 6 skipped / 178 deselected. Exact Check Windows 132613173743,
+  Ubuntu 132613173500 (4523 selected); Integration Windows 132613173671, Ubuntu 132613173357,
+  including existing real-Wiimm synthetic archive dispatch. Both Check ZIPs coverage.xml only;
+  no private game data/fonts/screenshots uploaded. API-absence and initial origin-env/Git-path/
+  mutation-basetemp harness failures retained, not behavioral proof or product repairs.
+  c3/c/b/T07, d/e/f/g and HC1 remain open. Next P5-T07c3b; real Wine/editor loading unmeasured.
 - 2026-11-15 `P5-T07c2` Machine-specific Wine-prefix preferences (`80b22b5`).
   Per-editor copied metadata/update/reset, strict damaged-record refusal before save writes,
   independent choices and nested extension isolation; unknown settings, native defaults,

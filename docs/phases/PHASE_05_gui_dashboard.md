@@ -606,7 +606,7 @@ Route through existing core process/Wine owners, not shell parsing or a new exec
 launch receipts/processes, native/Wine routes, stale executable/document/prefix refusals,
 unchanged user bytes, original built-in behavior/warnings and launch-only wording.
 
-###### [ ] P5-T07c3a — Native custom-editor dispatch
+###### [x] P5-T07c3a — Native custom-editor dispatch (commit `231180e`)
 Explicitly dispatch a supplied CustomTool through the existing detached process owner.
 Keep each argv token intact, substituting canonical document/directory/project paths with
 existing safe placeholder rules (including escaped braces and empty specs). No discovery,
@@ -618,6 +618,21 @@ and filesystem inspection failures before dispatch. Preserve typed errors/causes
 unchanged built-in adapters/warnings and launch-only receipts. Linux .exe requires Wine and
 is refused here; c3b adds that route. An explicit custom id may equal a built-in id without
 implicitly applying that built-in's options or changing defaults.
+
+Delivered c3a only: supplied CustomTool native dispatch through the existing detached owner;
+544 focused/locked Unicode fresh-install cases (62 new), 22 independent boundaries,
+15 parent plus 6 independent primary-assertion source controls, strict 2 actual files
+per Windows/Linux target, and immutable 584-file APPROVE. Two real fake-editor
+launches prove exact argv/cwd, separate launch/writer PIDs and unchanged source bytes, not
+editor loading. Original built-in source/tests/defaults/warnings remain unchanged.
+Full local 4517/6/178; exact Windows/Ubuntu Check (4523 selected) plus both
+Integration jobs, including the existing two-case real-Wiimm synthetic archive dispatch suite.
+Both actual Check artifact ZIPs contain coverage.xml only; no game assets/fonts/screenshots.
+API-absence RED and retained parent/reviewer harness failures are not product proof; final
+behavioral checks and source controls are separately verified. No Wine execution, saved-choice
+facade, menu/UI or real-editor loading/save claim. c3/c/b/T07 and d/e/f/g/HC1 remain open;
+next c3b. Documentation closeout requires its own full local gate, exact hosted Check and
+artifact/remote readback before final delivery.
 
 ###### [ ] P5-T07c3b — Custom Wine argv and fresh runtime validation
 Route explicit Windows custom tools on Linux through the existing Wine/process owners.
