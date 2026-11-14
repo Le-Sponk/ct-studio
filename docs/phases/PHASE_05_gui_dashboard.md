@@ -471,7 +471,8 @@ window-title or RiiStudio stdout claim of successful document loading.
 **Acceptance:** fake tools on both OS branches, options after path, two files/two dispatches,
 missing files/editors/prefixes and collision prerequisites leave user files unchanged.
 Split below after native capability measurement and a >400-line combined estimate; every
-original criterion remains required. P5-T07b stays open until both leaves are verified.
+original criterion remains required. P5-T07b stays open until both leaves and the original
+before-offering collision check (worker/menu proof in P5-T07d/e) are verified.
 
 ##### [x] P5-T07b1 — Exact Lorenzi collision prerequisite (commit `38d0fab`)
 Refuse Lorenzi dispatch unless a regular sibling file is named literally course.kcl, including
@@ -488,7 +489,8 @@ unchanged, 6/6 source controls assertion-caught (3 independently repeated), stri
 files per Windows/Linux target and 91 fresh locked-install cases. Native synthetic Lorenzi
 adapter launch passed. Full local gate 4136/6/176; exact code Check + Integration both
 platforms passed, selected 4142; actual Check ZIPs coverage.xml only. No loading/save claim.
-Only b1 is complete; b/b2/T07 remain open. Documentation closeout still needs its own checks.
+Only b1 is complete; b/b2/T07 remain open. Final closeout 47fb5f0 passed its full local gate
+and exact Windows/Ubuntu Check, selected 4142, with coverage-only actual artifacts.
 
 ##### [ ] P5-T07b2 — Measured SZS dispatch
 Enable BrawlCrate/RiiStudio .szs using their existing verified positional argv. Native Windows
@@ -497,6 +499,12 @@ capability is measured with synthetic data; Linux/Wine SZS document loading rema
 two requests/two real-runner dispatches, missing document/editor/prefix refusals and unchanged
 bytes. Preserve launch-only receipts and Unicode warnings; never infer document loading from
 process/window/stdout. Retain HC1 manual-run requirement and all parent acceptance.
+
+Parent closure boundary: b1/b2 adapter tests cover dispatch/refusal, not menu eligibility.
+The original requirement to check course.kcl **before offering** Edit KMP still needs executable
+worker/menu proof in P5-T07d/e. Completing b2 alone leaves P5-T07b and P5-T07 open; next is
+P5-T07c. Final T07g acceptance must rerun b1/b2 plus every original argv, refusal,
+two-request/real-runner and byte-preservation case. Native automated probes do not complete HC1.
 
 #### [ ] P5-T07c — Custom-tool and Wine-prefix preferences and dispatch
 Persist custom editors using existing CustomTool argv templates and machine-specific Wine

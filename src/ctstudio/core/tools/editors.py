@@ -32,8 +32,8 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 
 EDITOR_DOCUMENTS: MappingProxyType[str, tuple[str, ...]] = MappingProxyType(
     {
-        "brawlcrate": (".brres",),
-        "riistudio": (".brres",),
+        "brawlcrate": (".brres", ".szs"),
+        "riistudio": (".brres", ".szs"),
         "kmp_editor_lorenzi": (".kmp",),
         "kmp_cloud": (".kmp",),
         "blender": (".blend",),

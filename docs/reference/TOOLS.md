@@ -666,7 +666,7 @@ healthy process, and must not check window titles (two of five never name the fi
 
 **`editors.open_in` (P2-T05g, native Windows only).** `open_in(tool_id, document, *,
 executable=None) -> Launched(tool_id, pid, document, warnings)` resolves the document,
-accepts only the measured types (BrawlCrate/RiiStudio `.brres`, Lorenzi/KMP Cloud `.kmp`,
+accepts only the measured types (BrawlCrate/RiiStudio `.brres`/`.szs`, Lorenzi/KMP Cloud `.kmp`,
 Blender `.blend`; case-insensitive), and runs `[editor, document, *options]` through
 `launch_detached` with cwd = the document's folder (BrawlCrate gets `/audio:none` after the
 path). P2-T05g probe, Windows 11, document in `dossier é 日本`: every editor started one
@@ -684,7 +684,7 @@ Inspection failures raise an actionable `EditorError`; no KMP/KCL bytes are rewr
 checks presence/type, not KCL format or content readability. Worker/menu eligibility remains
 P5-T07d/e; this guard alone does not add an Edit KMP menu.
 
-**SZS native capability (P5-T07b audit, 2026-11-14; adapter pending T07b2).** Windows 11:
+**SZS native capability (P5-T07b audit, 2026-11-14; adapter P5-T07b2).** Windows 11:
 BrawlCrate v0.42-h1 (`[exe, document, /audio:none]`) named the synthetic `.szs` in its owned
 window title; RiiStudio 5.11.5 (`[exe, document]`) showed a populated Level Editor, archive
 entries and parsed KMP tree counts in locally inspected native-window pixels. Both used
@@ -696,6 +696,20 @@ RiiStudio logged model-matrix warnings; no warning-free validation, preview corr
 or round-trip claim. Native capture/logs remain local scratch, never uploaded. This one
 capability observation is not a runtime loaded-document receipt: `Launched` remains launch-only,
 no window-title or `File:` parsing. Linux/Wine SZS loading is unmeasured, not declared unsupported.
+The b2 adapter accepts `.szs`/`.SZS` for BrawlCrate and RiiStudio only, using those existing
+positional arguments; there is no extraction, guessed flag or new loaded-document receipt.
+`ctstudio open track.szs` chooses the first installed editor, BrawlCrate before RiiStudio;
+`--with riistudio` selects RiiStudio. It still reports `Started`, not `Loaded`, and preserves
+the existing native RiiStudio non-ASCII path warning.
+
+A b2 native adapter probe launched the rebuilt synthetic archive through `open_in` with the
+exact previously measured executable hashes: BrawlCrate 0.42-h1 named the file in its owned
+title and RiiStudio 5.11.5 exposed its owned window. Archive bytes were unchanged, and only
+owned PIDs were terminated and verified gone. This confirms adapter dispatch, not additional
+loading/save/round-trip correctness or human HC1 completion. An integration test rebuilds
+the three-input synthetic SZS with real Wiimm and dispatches two documents through the real
+runner to fake editors, checking separate launch/child receipts, exact argv/cwd, warnings and
+unchanged source/archive bytes without claiming native Wine loading.
 
 ## Verified command table (fill in; adapters must only use rows marked verified)
 Every flag in this table and the S3b conversion table is checked against the pinned tool's

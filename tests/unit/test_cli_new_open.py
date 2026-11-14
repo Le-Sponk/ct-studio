@@ -274,7 +274,7 @@ def test_a_file_type_without_an_editor_is_refused(
     assert main(["open", str(_file(tmp_path, "course.kcl"))]) == 1
     err = capsys.readouterr().err
     assert "CT Studio has no editor for .kcl files." in err
-    assert "Next: CT Studio opens .blend, .brres, .kmp files in an editor." in err
+    assert "Next: CT Studio opens .blend, .brres, .kmp, .szs files in an editor." in err
     assert launches == [] and searched == []
 
 

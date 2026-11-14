@@ -6,10 +6,20 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T07b2 — Measured SZS dispatch
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `38d0fab` (P5-T07b1 exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `47fb5f0` (final P5-T07b1 closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07b2` — Measured SZS dispatch; b1 is complete and P5-T07 remains open.
+  1. Test first, then add .szs only to BrawlCrate/RiiStudio's measured type table; retain
+     per-OS argv/Wine routing, options after path, warnings and launch-only receipts.
+  2. Prove two requests/two real fake-editor dispatches, missing document/editor/prefix
+     refusal and unchanged source bytes. Build integration SZS only from retained synthetic
+     inputs using verified Wiimm commands; no new game/binary/screenshot upload.
+  3. Run b1+b2 original adapter acceptance, source controls, strict actual-file Windows/Linux
+     typing, fresh install, independent review, full gates and exact Check/Integration.
+  Files: existing editor adapter/CLI help, sibling SZS unit/integration tests and minimal
+  tool/task/progress docs. No custom preferences, menus, second executor or loaded-file claim.
+  Next P5-T07c; before-offering menu/worker criteria remain T07d/e and must not be waived.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -27,7 +37,9 @@
   Integration Windows/Ubuntu green, selected 4142; both actual Check ZIPs coverage.xml only.
   SZS Windows capability measured with synthetic input, not yet adapter support; Linux/Wine
   SZS loading unmeasured. No screenshots/fonts/game data uploaded. b/T07 remain open;
-  next P5-T07b2, menu/worker eligibility still T07d/e. Closeout verification remains pending.
+  next P5-T07b2, menu/worker eligibility still T07d/e. Final closeout 47fb5f0 passed its
+  full local gate and exact Windows/Ubuntu Check, selected 4142, coverage-only actual ZIPs;
+  clean local/remote main verified. P5-T07b1 is complete.
 - 2026-11-14 `P5-T07a` Built-in editor catalogue and saved preferences (`d5a5164`).
   Immutable defaults, preferred-first/reset projections and persisted machine settings; damaged
   recognized preferences rejected at load and before save writes/backups. Existing constructor,

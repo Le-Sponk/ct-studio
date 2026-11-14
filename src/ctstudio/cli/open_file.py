@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import Protocol
 
 from ctstudio.cli.status import configured_tools
 from ctstudio.core.errors import CTStudioError, ToolNotFound
@@ -21,11 +22,17 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 _UNCERTAIN = "CT Studio cannot tell whether the editor loaded the file; check its window."
 
 
-def add_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+class _ParserAdder(Protocol):
+    """The public parser-building operation used here; avoids private argparse types."""
+
+    def add_parser(self, name: str, *, help: str, description: str) -> argparse.ArgumentParser: ...
+
+
+def add_parser(subparsers: _ParserAdder) -> None:
     parser = subparsers.add_parser(
         "open",
         help="open a file in an external editor",
-        description="Start an installed editor on FILE: a .blend in Blender, a .brres in "
+        description="Start an installed editor on FILE: a .blend in Blender, a .brres or .szs in "
         "BrawlCrate or RiiStudio, a .kmp in Lorenzi's KMP Editor or KMP Cloud.",
     )
     parser.add_argument("file", type=Path, help="the file to open")

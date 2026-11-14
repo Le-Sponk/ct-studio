@@ -73,8 +73,8 @@ def test_relative_documents_are_made_absolute(
 
 def test_document_types_are_the_measured_ones() -> None:
     assert dict(EDITOR_DOCUMENTS) == {
-        "brawlcrate": (".brres",),
-        "riistudio": (".brres",),
+        "brawlcrate": (".brres", ".szs"),
+        "riistudio": (".brres", ".szs"),
         "kmp_editor_lorenzi": (".kmp",),
         "kmp_cloud": (".kmp",),
         "blender": (".blend",),
