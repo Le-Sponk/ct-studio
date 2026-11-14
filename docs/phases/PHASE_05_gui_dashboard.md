@@ -559,7 +559,9 @@ Original reviewer probe 46 passed/1 failed (wrong empty-spec refusal expectation
 corrected 49 checks pass, no product behavior changed. Existing empty specs
 characterized in committed tests; earlier API-absence RED and harness errors not behavioral proof.
 c/c2/c3/T07 remain open; custom choices, fresh native/Wine dispatch and usable UI still pending.
-Documentation closeout separately requires a full local gate and exact-SHA Check/artifact readback.
+Documentation closeout bdc3609 passed its separate full local 4300/6/178 gate and exact
+Windows/Ubuntu Check (4306 selected), coverage-only actual ZIPs and clean matching main.
+P5-T07c1 is complete; no parent closure or custom dispatch is implied.
 
 ##### [ ] P5-T07c2 — Machine-specific Wine-prefix preferences
 Persist/reset per-editor Wine-prefix choices with strict recognized-data validation,
@@ -567,6 +569,13 @@ unknown fields/backups and old constructor compatibility. Prefix existence/archi
 are rechecked by adapters at dispatch, not inferred from saved metadata.
 **Acceptance:** Unicode round trips, native defaults unaffected, malformed data refuses
 before writes, independent choices and no filesystem work in pure projection.
+Machine schema: `wine_prefixes: {editor_id: {prefix: text, ...future fields}}`, with exact
+lowercase slug IDs for built-in/custom/future editors. `wine_prefixes()` projects copied
+Path metadata; `with_wine_prefix(id, path_or_none)` copies an update/reset, retaining siblings
+and extensions. Recognized malformed records refuse load/projection/update/save before
+writes/backups. Prefix text must be nonblank, UTF-8 encodable and NUL-free; relative/missing
+paths are allowed metadata. No resolve/stat/discovery, architecture checks, Wine invocation,
+launch-mode/default change or UI in c2; actual dispatch/validation stays c3 and adapters.
 
 ##### [ ] P5-T07c3 — Explicit configured custom/native/Wine dispatch
 Use saved CustomTool argv tokens only for an explicit custom choice; keep built-in defaults.

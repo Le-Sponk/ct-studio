@@ -1370,8 +1370,20 @@ allowed by the existing CustomTool model. Its empty-spec spellings (`{file:}`, `
 conversions and indexed/attribute fields are refused. Damaged recognized records, NUL or
 invalid Unicode refuse load/save before replacement or backup; unknown record fields/settings survive.
 Executable text may be relative or nonexistent metadata: saving it does not discover or run
-it. Custom choices, fresh executable/Wine checks and dispatch remain c2/c3; configuration UI
+it. Custom choices, fresh executable/Wine checks and dispatch remain c3; configuration UI
 remains T07f. This adds no verified third-party flag or editor-loading claim.
+
+**Wine-prefix records (P5-T07c2, pure settings only).** The machine file accepts
+`wine_prefixes: {editor_id: {prefix: text, ...future fields}}`; exact lowercase slug IDs can
+name built-in/custom/future editors without looking them up. `UserSettings.wine_prefixes()`
+returns copied Path metadata, and `with_wine_prefix(id, path_or_none)` copies an update/reset.
+Independent choices, unknown record fields, other settings and byte-exact backups survive.
+Recognized malformed tables/records/IDs or blank/NUL/unencodable prefix text refuse load,
+projection/update and save before replacement/backups. Relative/missing prefixes are allowed
+metadata: no filesystem work, prefix inspection or Wine invocation occurs in these APIs.
+Saving a prefix does not select Wine, change native defaults, prove prefix compatibility,
+launch an editor or add GUI controls. Dispatch still owns fresh prefix/executable/architecture
+checks via the existing adapters; no new third-party flag or platform capability is claimed.
 
 **Tools page (P2-T07b).** Settings → Tools… in the main window shows the same report as
 `ctstudio doctor`, in the same words, with a coloured status per tool (green ready or not

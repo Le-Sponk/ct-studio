@@ -27,6 +27,10 @@ from ctstudio.core.project.editor_preferences import (
     parse_preferences,
     validate_editor,
 )
+from ctstudio.core.project.wine_preferences import (
+    parse_wine_prefixes,
+    updated_wine_prefixes,
+)
 from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.core.tools.spec import CustomTool
 
@@ -83,6 +87,14 @@ class UserSettings:
         """Copy with one custom tool set, or removed when ``tool`` is None."""
         return UserSettings(self.tools, updated_custom_tools(self.other, tool_id, tool))
 
+    def wine_prefixes(self) -> dict[str, Path]:
+        """Copied per-editor Wine-prefix metadata; not checked against the filesystem."""
+        return parse_wine_prefixes(self.other)
+
+    def with_wine_prefix(self, editor_id: str, prefix: Path | None) -> UserSettings:
+        """Copy with one editor's Wine prefix set, or removed when ``prefix`` is None."""
+        return UserSettings(self.tools, updated_wine_prefixes(self.other, editor_id, prefix))
+
     def configured(self) -> dict[str, Path]:
         """The set paths of tools this version knows, for discovery and doctor."""
         return {tool: Path(path) for tool, path in self.tools.items() if tool in TOOL_BY_ID}
@@ -136,6 +148,7 @@ def _parse(target: Path, data: object) -> UserSettings:
     other = {key: value for key, value in fields.items() if key not in ("format", "tools")}
     _check_preferences(target, other)
     _check_custom_tools(target, other)
+    _check_wine_prefixes(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
@@ -154,6 +167,13 @@ def _check_custom_tools(target: Path, other: Mapping[str, object]) -> None:
         parse_custom_tools(other)
     except ValueError as exc:
         raise SettingsError(target, "custom tools are invalid", details=str(exc)) from exc
+
+
+def _check_wine_prefixes(target: Path, other: Mapping[str, object]) -> None:
+    try:
+        parse_wine_prefixes(other)
+    except ValueError as exc:
+        raise SettingsError(target, "Wine prefixes are invalid", details=str(exc)) from exc
 
 
 def _check_format(target: Path, version: object) -> None:
@@ -178,6 +198,7 @@ def save(settings: UserSettings, path: Path | None = None) -> None:
     target = path if path is not None else default_path()
     _check_preferences(target, settings.other)
     _check_custom_tools(target, settings.other)
+    _check_wine_prefixes(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

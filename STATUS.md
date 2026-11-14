@@ -6,10 +6,18 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T07c2 — Machine-specific Wine-prefix preferences
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7d65fa4` (P5-T07c1 exact Check, Windows + Ubuntu)
+**Last green commit:** `bdc3609` (P5-T07c1 final closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c2` — Machine-specific Wine-prefix preferences.
+  1. Validate per-editor machine records and project copied Path values without filesystem work.
+  2. Add copied update/reset APIs; preserve constructor, custom/built-in settings and unknown fields.
+  3. Refuse damaged load/save before writes; test Unicode, independent choices and exact backups first.
+  4. Freeze/review final tests; assertion controls, strict Windows/Linux files and locked fresh install.
+  5. Full gates, exact required hosted checks/coverage-only artifacts, c2-only closeout; next c3.
+  Files: new wine_preferences.py/test_wine_preferences.py, settings.py, architecture/TOOLS/phase/STATUS/README.
+  Risks: metadata is not Wine installation/architecture proof; no discovery/resolve/stat/launch/UI,
+  no new executor, no native-default changes. Relative/missing prefixes remain metadata until dispatch.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -28,6 +36,9 @@
   not repaired. Initial global-stat test-harness crash and test typing errors retained;
   API-absence RED not credited. No game data/fonts/screenshots uploaded.
   c/T07 remain open for c2/c3 and original d/e/f/HC1; next P5-T07c2.
+  Final closeout bdc3609 independently passed its full local 4300/6/178 gate and exact
+  Check Windows 132435861368 / Ubuntu 132435861579 (4306 selected), both actual ZIPs
+  coverage.xml only; clean matching local/remote main verified. P5-T07c1 is complete.
 - 2026-11-14 `P5-T07b2` Measured SZS dispatch (`bd7398b`).
   BrawlCrate/RiiStudio accept .szs through existing native/Wine arguments; .brres order,
   path-first/options-after, warnings and launch-only receipts retained. CLI help/selection

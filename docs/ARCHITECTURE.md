@@ -235,9 +235,18 @@ escaped braces and token boundaries preserved. The unchanged CustomTool also acc
 format-spec spellings (`{file:}`, `{dir:}`, `{project:}`) as identical plain substitutions;
 nonempty format specs, conversions and indexed/attribute fields remain refused.
 Saved executable text is metadata, not proof of installation; projection does not stat/resolve
-or launch anything. Wine-prefix
-preferences and explicit fresh native/Wine routing remain T07c2/c3; built-in defaults and
-editor menus are unchanged by c1.
+or launch anything. Built-in defaults and editor menus are unchanged by c1.
+
+P5-T07c2 stores per-editor `wine_prefixes: {id: {prefix: text, ...future fields}}` in the
+same machine file. Exact lowercase slug IDs may name built-in, custom or future editors;
+metadata does not depend on catalogue membership. `wine_prefixes()` projects copied Path
+values; `with_wine_prefix(id, path_or_none)` copies an update/removal while retaining unknown
+record fields, siblings and unrelated settings. Recognized damaged data refuses load,
+projection/update and save before replacement/backups. Prefix text is nonblank, NUL-free
+and UTF-8 encodable, but relative/missing prefixes are allowed as metadata. These pure APIs
+do not stat/resolve, inspect registries/architecture, discover or launch Wine, change native
+editor selection, or provide a GUI. Actual prefix validation and explicit fresh native/Wine
+routing remain the existing adapters and T07c3; configuration controls remain T07f.
 
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
