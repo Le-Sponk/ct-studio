@@ -563,7 +563,7 @@ Documentation closeout bdc3609 passed its separate full local 4300/6/178 gate an
 Windows/Ubuntu Check (4306 selected), coverage-only actual ZIPs and clean matching main.
 P5-T07c1 is complete; no parent closure or custom dispatch is implied.
 
-##### [ ] P5-T07c2 — Machine-specific Wine-prefix preferences
+##### [x] P5-T07c2 — Machine-specific Wine-prefix preferences (commit `80b22b5`)
 Persist/reset per-editor Wine-prefix choices with strict recognized-data validation,
 unknown fields/backups and old constructor compatibility. Prefix existence/architecture
 are rechecked by adapters at dispatch, not inferred from saved metadata.
@@ -576,6 +576,28 @@ and extensions. Recognized malformed records refuse load/projection/update/save 
 writes/backups. Prefix text must be nonblank, UTF-8 encodable and NUL-free; relative/missing
 paths are allowed metadata. No resolve/stat/discovery, architecture checks, Wine invocation,
 launch-mode/default change or UI in c2; actual dispatch/validation stays c3 and adapters.
+
+Delivered c2 only: 390 focused/locked fresh-install cases (155 new),
+29 independent checks, 14 parent and 5 independent assertion-caught
+source faults; strict 3 actual files per Windows/Linux target. Final 582-file snapshot unchanged,
+independent APPROVE; c1 source and legacy assertions unchanged. Per-editor prefix metadata,
+updates/reset, nested extension isolation, Unicode and byte-exact backups are covered, not
+Wine installation or dispatch. Full local 4455/6/178; exact implementation Windows/Ubuntu
+Check selected 4461, both actual ZIPs coverage.xml only. Integration not applicable:
+pure settings paths, no process/adapter/real-tool behavior change. Worker tool-limit exit1,
+API-absence RED and initial Windows-separator test-oracle failure retained, not approvals;
+parent completed final verification, no production repair claimed for that harness error.
+Initial Anthropic review hit HTTP429 before pytest execution; it was not an approval.
+The separate alternate-provider review supplies the independent checks recorded above.
+Original Ubuntu job 132579884831 timed out at 1200.1s in the existing canonical-recovery
+GUI case (none/KeyboardInterrupt/lock/absolute), during dashboard signal connection. Its one
+60s trace also shows a watcher resolving paths, not a proven filesystem cause or persistent
+stack. GUI/watch/test code, lockfile and runner image match the last green baseline.
+Three fresh Windows case probes, the 48-case file and 1135-case GUI predecessor prefix pass;
+these are nonreproduction, not Linux evidence or a repair. Sole same-SHA Ubuntu rerun passes;
+original failure is retained and cause remains unexplained. No tests/limits were weakened.
+c/c3/T07/b and original d/e/f/HC1 remain open; next c3. Documentation closeout requires its
+own full local gate, exact hosted Check and artifact/remote readback before final delivery.
 
 ##### [ ] P5-T07c3 — Explicit configured custom/native/Wine dispatch
 Use saved CustomTool argv tokens only for an explicit custom choice; keep built-in defaults.

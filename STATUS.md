@@ -4,23 +4,38 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c2 — Machine-specific Wine-prefix preferences
+**Next task:** P5-T07c3 — Explicit configured custom/native/Wine dispatch
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `bdc3609` (P5-T07c1 final closeout Check, Windows + Ubuntu)
+**Last green commit:** `80b22b5` (P5-T07c2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c2` — Machine-specific Wine-prefix preferences.
-  1. Validate per-editor machine records and project copied Path values without filesystem work.
-  2. Add copied update/reset APIs; preserve constructor, custom/built-in settings and unknown fields.
-  3. Refuse damaged load/save before writes; test Unicode, independent choices and exact backups first.
-  4. Freeze/review final tests; assertion controls, strict Windows/Linux files and locked fresh install.
-  5. Full gates, exact required hosted checks/coverage-only artifacts, c2-only closeout; next c3.
-  Files: new wine_preferences.py/test_wine_preferences.py, settings.py, architecture/TOOLS/phase/STATUS/README.
-  Risks: metadata is not Wine installation/architecture proof; no discovery/resolve/stat/launch/UI,
-  no new executor, no native-default changes. Relative/missing prefixes remain metadata until dispatch.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-15 `P5-T07c2` Machine-specific Wine-prefix preferences (`80b22b5`).
+  Per-editor copied metadata/update/reset, strict damaged-record refusal before save writes,
+  independent choices and nested extension isolation; unknown settings, native defaults,
+  custom tools, constructor and byte-exact backups preserved. Relative/missing prefix choices
+  remain metadata: no resolve/stat/discovery/architecture/Wine/launch/UI delivered.
+  390 focused/fresh locked Unicode-install cases (155 new); 29 independent checks,
+  14 parent/5 independent primary-assertion source faults; strict3 actual files/target.
+  Immutable 582-file review APPROVE. Full local 4455 passed / 6 skipped / 178 deselected.
+  Check (ubuntu-latest) job 132588687714; Check (windows-latest) job 132588689471; selected 4461; both
+  actual CI ZIPs coverage.xml only. Pure settings Integration not applicable; no real Wine claim.
+  Implementation worker exit1 hit its tool limit, not a product result; final legacy/post-format
+  and strengthened nested-copy checks were parent-completed. Original Windows path-separator
+  oracle failure retained/corrected without source repair; API-absence RED not credited.
+  Initial review HTTP429 before execution is not approval; alternate fresh-context reviewer
+  supplied the independent proof. Its first CRLF-versus-Git-LF preflight failure is retained;
+  exact snapshot/live legacy bytes and empty baseline legacy Git diff were separately verified.
+  Initial Ubuntu Check 132579884831 hit pytest's unchanged1200s limit in existing canonical
+  recovery GUI construction (none/KeyboardInterrupt/lock/absolute). One60s trace shows main
+  signal connection and watcher path resolution; neither a persistent frame nor cause proved.
+  GUI/watch/tests/lockfile unchanged from last green; runner/image match. Windows3 fresh cases,
+  file48 and GUI predecessor1135 pass without source changes; not a fix or Linux proof.
+  Sole same-SHA Ubuntu rerun passes; original failure retained, cause unexplained, no repair claim.
+  c/c3/b/T07 and d/e/f/HC1 remain open; next P5-T07c3. No game data/fonts/screenshots uploaded.
 - 2026-11-14 `P5-T07c1` Validated custom-tool machine preferences (`7d65fa4`).
   Reuses CustomTool for copied machine-only executable/argv records; recognized damage refuses
   load/projection/update/save before writes or backups. Unknown fields, raw user backups,
