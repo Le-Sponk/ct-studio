@@ -4,24 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c1 — Validated custom-tool machine preferences
+**Next task:** P5-T07c2 — Machine-specific Wine-prefix preferences
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `72b4c6f` (final P5-T07b2 closeout Check, Windows + Ubuntu)
+**Last green commit:** `7d65fa4` (P5-T07c1 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c1` — Validated custom-tool machine preferences; c/T07 remain open.
-  1. Test first: recognized custom-tool damage must refuse load and pre-write save.
-  2. Reuse CustomTool tokens in pure saved-setting projections and copy/update/reset methods;
-     preserve constructor, built-in preferences, unknown fields and exact user backups.
-  3. Prove Unicode/placeholder validation, malformed/unencodable values, no filesystem work
-     and unchanged user bytes; no custom launch/default selection or GUI in this leaf.
-  4. Run old/new acceptance, assertion controls, strict actual-file Windows/Linux typing,
-     locked fresh install, frozen independent review, full gates and exact hosted checks.
-  Files: settings.py, small custom-tool preference codec, focused unit tests, task/reference docs.
-  Next P5-T07c2 (Wine-prefix preferences), then c3 dispatch; c/T07/HC1 remain open.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-14 `P5-T07c1` Validated custom-tool machine preferences (`7d65fa4`).
+  Reuses CustomTool for copied machine-only executable/argv records; recognized damage refuses
+  load/projection/update/save before writes or backups. Unknown fields, raw user backups,
+  constructor and built-in settings preserved; no custom launch/default/Wine/UI delivered.
+  226 focused/final locked Unicode-install cases, 140 new; 48 independent
+  behavior probes plus origin; 12 parent/10 independent final source controls assertion-caught.
+  Strict 3 actual files per Windows/Linux target; unchanged 580-file original/final snapshots,
+  implementation and additive test/doc delta APPROVE. Full local 4300 passed / 6 skipped / 178 deselected.
+  Check (ubuntu-latest) job 132430530530; Check (windows-latest) job 132430530706; selected 4306, both actual
+  CI ZIPs coverage.xml only. Integration not applicable: pure settings, no matching workflow paths.
+  Original reviewer 47-case run retained (46 passed/1 false empty-spec expectation); corrected
+  49 checks green. Base CustomTool unchanged; safe empty-spec spellings characterized,
+  not repaired. Initial global-stat test-harness crash and test typing errors retained;
+  API-absence RED not credited. No game data/fonts/screenshots uploaded.
+  c/T07 remain open for c2/c3 and original d/e/f/HC1; next P5-T07c2.
 - 2026-11-14 `P5-T07b2` Measured SZS dispatch (`bd7398b`).
   BrawlCrate/RiiStudio accept .szs through existing native/Wine arguments; .brres order,
   path-first/options-after, warnings and launch-only receipts retained. CLI help/selection

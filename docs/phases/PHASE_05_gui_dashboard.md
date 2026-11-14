@@ -537,7 +537,7 @@ Split below: combined persistence, validation and dispatch tests exceed one ~400
 Every original criterion remains required; c/T07 stay open until all leaves and original
 joined/menu/configuration acceptance are verified.
 
-##### [ ] P5-T07c1 — Validated custom-tool machine preferences
+##### [x] P5-T07c1 — Validated custom-tool machine preferences (commit `7d65fa4`)
 Persist named CustomTool executable/argv templates under machine settings, not projects.
 Reuse its existing {file}/{dir}/{project} token validation (including harmless empty-spec
 spellings such as {file:}); preserve the two-argument
@@ -547,6 +547,19 @@ Recognized damaged data fails closed on load, projection, update and before any 
 malformed types/placeholders/NUL/unencodable text, pure projections without filesystem work,
 unknown-field retention, reset/nonmutation, prior file and backups unchanged on refusal.
 No custom default, executable discovery, Wine routing, launching or GUI is delivered by c1.
+
+Delivered c1 only: 226 focused/final locked-install cases (140 new),
+48 independent behavior probes plus origin, 12 parent and
+10 independent final assertion-caught source controls; strict 3 actual files per platform.
+Original/final 580-file review trees unchanged; original and additive test/doc delta approved.
+Full local gate 4300 passed / 6 skipped / 178 deselected; exact implementation Check Windows/Ubuntu,
+selected 4306, both actual artifacts coverage.xml only. Pure settings paths do not
+trigger/require real-tool Integration; no adapter, process, Wine, GUI or loading claim.
+Original reviewer probe 46 passed/1 failed (wrong empty-spec refusal expectation) retained;
+corrected 49 checks pass, no product behavior changed. Existing empty specs
+characterized in committed tests; earlier API-absence RED and harness errors not behavioral proof.
+c/c2/c3/T07 remain open; custom choices, fresh native/Wine dispatch and usable UI still pending.
+Documentation closeout separately requires a full local gate and exact-SHA Check/artifact readback.
 
 ##### [ ] P5-T07c2 — Machine-specific Wine-prefix preferences
 Persist/reset per-editor Wine-prefix choices with strict recognized-data validation,
