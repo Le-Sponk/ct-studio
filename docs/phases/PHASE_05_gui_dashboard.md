@@ -489,16 +489,35 @@ unchanged, 6/6 source controls assertion-caught (3 independently repeated), stri
 files per Windows/Linux target and 91 fresh locked-install cases. Native synthetic Lorenzi
 adapter launch passed. Full local gate 4136/6/176; exact code Check + Integration both
 platforms passed, selected 4142; actual Check ZIPs coverage.xml only. No loading/save claim.
-Only b1 is complete; b/b2/T07 remain open. Final closeout 47fb5f0 passed its full local gate
+At b1 closeout only b1 was complete; b/b2/T07 remained open. Final closeout 47fb5f0 passed its full local gate
 and exact Windows/Ubuntu Check, selected 4142, with coverage-only actual artifacts.
 
-##### [ ] P5-T07b2 — Measured SZS dispatch
+##### [x] P5-T07b2 — Measured SZS dispatch (commit `bd7398b`)
 Enable BrawlCrate/RiiStudio .szs using their existing verified positional argv. Native Windows
 capability is measured with synthetic data; Linux/Wine SZS document loading remains unmeasured.
 **Acceptance:** both OS argv branches, options after path, one file/new process per request,
 two requests/two real-runner dispatches, missing document/editor/prefix refusals and unchanged
 bytes. Preserve launch-only receipts and Unicode warnings; never infer document loading from
 process/window/stdout. Retain HC1 manual-run requirement and all parent acceptance.
+As built: 24 new unit / 122 focused cases, plus 2 real-Wiimm synthetic archive/real-runner
+integration cases. Six source controls assertion-caught; independent APPROVE, four
+independent controls and 19 boundary cases, immutable 578-file snapshot.
+Strict 7 actual Python files per Windows/Linux target; 122 fresh locked Unicode-install cases
+plus 11 gate self-tests. A later nested-gate Vulture failure was reproduced: required parser
+Protocol keyword help= needed the existing whitelist's documented name-use entry; checker
+thresholds stayed unchanged. The final metadata delta has separate independent approval.
+Exactly two legacy expectations updated for SZS; the other 87 assertion ASTs preserved.
+Pinned native adapter dispatch/owned windows/unchanged bytes measured, not new loading/save
+or HC1 proof. Local gate 4160/6/178; exact code Check + Integration both OSes passed,
+selected 4166, both new integration cases executed per OS, actual Check ZIPs coverage.xml only.
+Initial full gate stopped at collection: duplicate unit/integration module basenames.
+The byte-identical integration rename fixed collection; original failure evidence retained.
+First local closeout gate hit Windows Application Control WinError 4551 on fake wszst.exe:
+111 failed / 4049 passed / 6 skipped. Failed run retained; three fresh focused
+test_fake_wiimm.py runs then passed (144 cases each), with source/tests/security
+unchanged. The policy inconsistency is unexplained, not a code or security repair.
+Documentation closeout separately requires exact-SHA Check/artifact verification. Only b2
+adapter scope is delivered; parent b/T07 remain open for worker/menu eligibility and release.
 
 Parent closure boundary: b1/b2 adapter tests cover dispatch/refusal, not menu eligibility.
 The original requirement to check course.kcl **before offering** Edit KMP still needs executable

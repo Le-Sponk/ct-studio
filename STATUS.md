@@ -4,25 +4,40 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07b2 — Measured SZS dispatch
+**Next task:** P5-T07c — Custom-tool and Wine-prefix preferences and dispatch
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `47fb5f0` (final P5-T07b1 closeout Check, Windows + Ubuntu)
+**Last green commit:** `bd7398b` (P5-T07b2 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07b2` — Measured SZS dispatch; b1 is complete and P5-T07 remains open.
-  1. Test first, then add .szs only to BrawlCrate/RiiStudio's measured type table; retain
-     per-OS argv/Wine routing, options after path, warnings and launch-only receipts.
-  2. Prove two requests/two real fake-editor dispatches, missing document/editor/prefix
-     refusal and unchanged source bytes. Build integration SZS only from retained synthetic
-     inputs using verified Wiimm commands; no new game/binary/screenshot upload.
-  3. Run b1+b2 original adapter acceptance, source controls, strict actual-file Windows/Linux
-     typing, fresh install, independent review, full gates and exact Check/Integration.
-  Files: existing editor adapter/CLI help, sibling SZS unit/integration tests and minimal
-  tool/task/progress docs. No custom preferences, menus, second executor or loaded-file claim.
-  Next P5-T07c; before-offering menu/worker criteria remain T07d/e and must not be waived.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-14 `P5-T07b2` Measured SZS dispatch (`bd7398b`).
+  BrawlCrate/RiiStudio accept .szs through existing native/Wine arguments; .brres order,
+  path-first/options-after, warnings and launch-only receipts retained. CLI help/selection
+  names SZS without claiming loading. Public parser typing avoids private argparse types.
+  24 new unit / 122 focused + 2 real-Wiimm synthetic archive/two-process integration cases;
+  missing document/editor/prefix refusals and unchanged bytes. Six assertion source controls,
+  independent APPROVE with four controls and 19 boundaries on unchanged 578-file snapshot.
+  Strict 7 actual files per Windows/Linux target; 122 fresh locked Unicode-install cases
+  plus 11 gate self-tests. Reproduced nested Vulture failure corrected with documented
+  whitelist entry for the required parser Protocol help= keyword, without lowering checks;
+  final metadata delta separately reviewed. Provider-limited review attempts were not approvals.
+  Two intentional legacy expectation updates; other 87 assertion ASTs preserved.
+  Initial full gate collection error was a duplicate module basename; byte-identical
+  integration rename fixed it, with the original failed run retained.
+  Native pinned adapter launches/owned windows measured, not loading/save or human HC1;
+  Linux/Wine SZS loading remains unmeasured. Local full gate 4160/6/178; exact code
+  Check + Integration both OSes passed, selected 4166; new integration cases ran on both,
+  actual Check ZIPs coverage.xml only. Closeout has its own exact Check/artifact requirement.
+  First local documentation-closeout gate: 111 failed / 4049 passed / 6 skipped, with
+  Windows Application Control WinError 4551 blocking synthetic fake wszst.exe. Full log
+  retained. test_fake_wiimm.py then passed in three fresh processes (144 cases each),
+  without code/test/security changes. Original block is not a demonstrated repair;
+  why the policy result differed is unknown. A fresh full gate is required.
+  P5-T07b and P5-T07 remain open: before-offering collision/worker/menu proof still T07d/e;
+  HC1 original requirement retained. Next P5-T07c. No game data/fonts/screenshots uploaded.
 - 2026-11-14 `P5-T07b1` Exact Lorenzi collision prerequisite (`38d0fab`).
   Literal lowercase regular sibling course.kcl required before discovery/Wine/dispatch;
   actionable typed inspection errors, no working-directory fallback or user writes.
