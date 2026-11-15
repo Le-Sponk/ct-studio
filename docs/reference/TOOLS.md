@@ -648,6 +648,14 @@ parent cwd, WINEPREFIX and detached launch receipts without patching the three-s
 This is process/conversion evidence, not actual Wine/editor loading or saving. Saved-choice
 loading and mounted UI are later leaves.
 
+**P5-T07c3c1 saved-choice routing (unit/owner boundary).** `open_saved` loads settings on every
+request for an explicit `EditorChoice("builtin"|"custom", id)`. Equal ids retain separate tool
+namespaces; the existing per-id prefix metadata stays shared. Existing owners keep discovery,
+flags, warnings and launch-only receipts. Recognized corruption or a removed custom choice
+refuses without writes or fallback; native launches ignore unused Wine executable text.
+This leaf uses process-boundary spies, not real Wine/editor loading. Real-process saved-choice
+acceptance and the combined original dispatch criteria remain P5-T07c3c2.
+
 ---
 
 ## Launch contracts (S7, P0-T10 — verified by real GUI launches unless marked)

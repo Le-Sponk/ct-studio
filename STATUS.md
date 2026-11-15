@@ -4,12 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3c — Fresh saved-choice dispatch facade
+**Next task:** P5-T07c3c1 — Fresh saved-choice routing boundary
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `36953fa` (P5-T07c3b2 exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `70ca95b` (P5-T07c3b2 final closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c3c1` — Fresh saved-choice routing boundary.
+  1. Introduce an explicit built-in/custom choice; load machine settings on every request.
+  2. Delegate to the existing native/Wine/custom owners with saved executable/prefix values.
+  3. Test changes between requests, colliding ids, defaults/warnings and no fallback on damage.
+  4. Preserve error/cause/interrupt identity and unchanged settings; no GUI or new executor.
+  5. Strict Windows/Linux typing, source controls, immutable independent review, fresh install,
+     full gates and exact hosted verification; keep parent tasks open.
+  Files: new core/tools saved-choice facade and focused unit tests/helpers, architecture/TOOLS,
+  phase/STATUS/README. Risks: cached settings, accidental namespace fallback, overwrites,
+  replacing existing launch contracts or claiming editor loading from dispatch.
+  c3c2 retains real-process saved-choice acceptance and the complete original c3 criterion map.
+  First full gate: a generated native viewer was blocked by Windows Application Control;
+  original failure retained. Three fresh affected-file processes each passed 62 cases with
+  unchanged code; that is nonreproduction, not a security repair. An independently reviewed
+  test-only immutability assertion strengthening is included in the final verification round.
+  The next gate timed out in the existing CLI receipt test before checking its CLI result.
+  The exact retained fake executable later completed its original handshake; cause unproven.
+  A two-case RED/GREEN regression now requires the CLI status/stderr check before waiting;
+  three fresh combined CLI-file runs passed 9 cases each. This is diagnostic ordering only,
+  not a repair of the original child-start failure. No security-log read ran or was retried.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1442,6 +1461,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-16: Split P5-T07c3c into c1 (fresh saved-choice routing boundary) and c2
+  (real-process saved-choice acceptance plus combined original-criterion review). Full routing,
+  corruption/error/namespace tests and two native/Wine process oracles exceed a small one-leaf
+  change; keep the API/contract review separate from the combined acceptance closure. No scope
+  removed; c3c/c3/b/c/T07 and HC1 remain open until their own criteria are verified.
 - P5-T07c3b is split into b1 checked complete-argument Wine boundary and b2 custom Wine
   placeholder/public-dispatch integration. Shared runtime validation and executable native/
   Wine/refusal matrices exceed one ~400-line leaf. Original b criteria are retained above

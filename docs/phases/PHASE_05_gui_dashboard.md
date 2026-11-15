@@ -716,6 +716,24 @@ launch/writes, explicit choices select only their own namespace, native/Wine rou
 existing owners, two real requests retain correct launch receipts and bytes. Re-run c3's
 complete original criterion map across a/b/c before closing c3; c and T07 remain open.
 
+###### [ ] P5-T07c3c1 — Fresh saved-choice routing boundary
+Add an explicit built-in/custom choice and a settings-reading facade over the existing owners.
+Load settings anew for each dispatch, retain exact namespaces for colliding ids, configured
+executables/Wine/per-editor prefix and existing defaults/options/warnings. Never write settings
+or fall back after recognized corruption, a missing custom choice or a stale configured path.
+**Acceptance:** test-first fresh-setting/namespace/routing/refusal matrix, unchanged underlying
+owners and settings bytes, exception/cause/interrupt identity and launch-only receipts. No GUI,
+workers or new executor. Real-process saved-choice acceptance remains c3c2; c3c/c3 stay open.
+
+###### [ ] P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review
+Drive the saved-choice facade through actual synthetic native/Wine helpers and detached
+processes for two independent requests, including changed preferences and distinct project /
+document folders. Map and rerun every original c3 criterion across a/b/c, including built-in
+options/warnings, damaged settings, stale paths and unchanged bytes. Independently review the
+combined evidence before deciding parent closures; real editor loading/save, d/e/f/HC1 stay open.
+**Acceptance:** exact receipt argv/cwd/environment and separate launch/writer PIDs, original
+criteria linked to executed tests, fresh installation, assertion controls and both-platform CI.
+
 #### [ ] P5-T07d — Joined editor preparation and application guards
 Prepare immutable available choices off the UI thread and re-read settings at dispatch.
 Reuse the existing joined launch owner; preserve current-project/root/manifest identity,

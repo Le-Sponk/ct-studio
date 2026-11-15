@@ -283,6 +283,15 @@ and shared error handling. Document/project checks and Wine runtime validation r
 after helpers. Two synthetic public requests prove conversion and process dispatch, not
 real Wine/editor loading/save. Saved-choice loading, workers and menus remain c3c/d/e.
 
+P5-T07c3c1 adds `saved_editors.EditorChoice` (explicit `builtin` versus `custom` namespace)
+and `open_saved`. Each request reloads machine settings, passes the exact saved executable,
+configured Wine and per-editor prefix to the selected existing owner, and returns that owner's
+launch receipt unchanged. A missing custom choice or recognized settings corruption is an
+error, never fallback or a write. Namespace collisions do not borrow built-in options, warnings
+or discovery. Native launches ignore unused Wine paths; selected Wine validation remains in its
+owner. No GUI or worker wiring is added. Two real-process saved-choice requests and the combined
+original c3 acceptance review remain c3c2; c3c/c3 and HC1 are not closed by this routing leaf.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

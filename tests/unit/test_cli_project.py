@@ -160,6 +160,7 @@ def test_open_receipt_is_not_published_until_the_writer_closes(
         def launch_gated(env: dict[str, str], *args: str) -> subprocess.CompletedProcess[str]:
             nonlocal connection
             opened = ctstudio(env, *args)
+            assert opened.returncode == 0, opened.stderr
             connection, _ = server.accept()
             connection.settimeout(30)
             assert connection.recv(1) == b"O", "child reached open before write"
