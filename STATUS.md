@@ -6,10 +6,23 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T07c3b2 — Custom Wine placeholders and dispatch integration
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `5a139bf` (P5-T07c3b1 exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `bc90de7` (P5-T07c3b1 final closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c3b2` — Custom Wine placeholders and dispatch integration.
+  1. Prove explicit Linux Windows custom choices fail the current native-only route.
+  2. Reuse b1 Wine/runtime/process owners and CustomTool grammar for converted path values;
+     preserve literal tokens, native launches, launch-only receipts and built-in behavior.
+  3. Exercise original b acceptance across b1/b2: both architectures, fresh/stale/damaged
+     prerequisites, unsafe text, exact argv/cwd/environment, failures/interrupts and bytes.
+  4. Prove two real synthetic-Wine requests; strict actual-file typing for Windows/Linux,
+     source-fault controls, immutable independent review and fresh Unicode installation.
+  5. Full local gates, exact applicable hosted Check/Integration and coverage-only Check ZIPs;
+     close b2 only after verification, retaining parent b/c3/c/T07 and HC1 as open.
+  Files: core/tools/custom_editors.py, optional narrow CustomTool argv value typing, new
+  focused tests/helpers, architecture/TOOLS/phase/STATUS/README. No settings facade or GUI.
+  Risks: no shell parsing, conversion of literals, built-in flags/defaults, discovery fallback,
+  second executor or claim of actual Wine/editor loading/save. Keep original rejection proof.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -35,6 +48,9 @@
   No security/test weakening. Later green checks are nonreproduction, not a demonstrated fix.
   No game data/fonts/screenshots uploaded. b2/c3c, b/c3/c/T07, d/e/f/g and HC1 remain open;
   next P5-T07c3b2. Separate closeout gate/exact Check/artifact readback required before delivery.
+  Final closeout bc90de7 passed its separate 4585/6/178 local gate and exact Check Windows
+  132808035553 / Ubuntu 132808035336 (4591 selected), with actual coverage-only Check ZIPs
+  and clean matching main verified. P5-T07c3b1 is complete; the build-copy denial is not repaired.
 - 2026-11-15 `P5-T07c3a` Native custom-editor dispatch (`231180e`).
   Explicit supplied CustomTool keeps canonical file/directory/project substitutions and each
   Unicode/space/empty/metacharacter token intact through the existing detached process owner.

@@ -65,7 +65,7 @@ class CustomTool:
                     details=f"argument={argument!r}; error={exc}",
                 ) from exc
 
-    def argv(self, *, file: Path, dir: Path, project: Path) -> tuple[str, ...]:
+    def argv(self, *, file: str | Path, dir: str | Path, project: str | Path) -> tuple[str, ...]:
         """Substitute paths without shell parsing or splitting a token at spaces."""
         values = {"file": str(file), "dir": str(dir), "project": str(project)}
         return (str(self.exe), *(argument.format_map(values) for argument in self.args_template))

@@ -271,6 +271,18 @@ Inspection errors retain typed causes and interrupts escape; unclassified startu
 retain identity without a self-cause. Two synthetic Wine processes exercise this boundary,
 not actual Wine/editor loading. Custom Wine substitution/integration remains c3b2.
 
+P5-T07c3b2 extends `open_custom` with optional explicit `wine_executable`/`wine_prefix`.
+Only a canonical Linux `.exe` takes the Wine branch; native requests ignore unused Wine
+metadata. Both Wine values are required, with no discovery or default fallback. CustomTool
+remains the argv/placeholder authority; its path value types also accept already-converted
+strings without normalizing Windows syntax. Unsafe names/tokens and fresh document,
+executable/project/runtime checks precede helpers. Only referenced unescaped path values
+use `wine.windows_path`, cached per canonical value within one request; literals are never
+converted. Complete tokens go through `wine.launch_argv`, retaining cwd/WINEPREFIX/watch
+and shared error handling. Document/project checks and Wine runtime validation run again
+after helpers. Two synthetic public requests prove conversion and process dispatch, not
+real Wine/editor loading/save. Saved-choice loading, workers and menus remain c3c/d/e.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

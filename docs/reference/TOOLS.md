@@ -636,6 +636,18 @@ Two actual synthetic Wine executable launches write independent atomic argv/cwd/
 receipts and leave synthetic inputs unchanged. This proves the real process boundary, not
 Wine/editor loading or saving. Custom Wine placeholders/dispatch remain P5-T07c3b2.
 
+**P5-T07c3b2 custom Wine substitution/dispatch (synthetic only).** Explicit Linux `.exe`
+custom choices require both a supplied Wine executable and prefix. Existing native choices
+ignore unused Wine metadata; no discovery or built-in defaults are added. CustomTool keeps
+safe grammar, escaped braces and empty format specs. Only referenced canonical file/dir/
+project values are converted with the verified `winepath.exe -w` contract above, once per
+unique value per request; literal tokens, empty arguments and their order are unchanged.
+Checks precede helpers and run again after conversion before the existing complete-argv
+Wine owner starts the editor. Two actual synthetic public requests exercise helper argv,
+parent cwd, WINEPREFIX and detached launch receipts without patching the three-second watch.
+This is process/conversion evidence, not actual Wine/editor loading or saving. Saved-choice
+loading and mounted UI are later leaves.
+
 ---
 
 ## Launch contracts (S7, P0-T10 — verified by real GUI launches unless marked)
