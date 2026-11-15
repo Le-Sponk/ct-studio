@@ -4,12 +4,32 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3b — Custom Wine argv and fresh runtime validation
+**Next task:** P5-T07c3b1 — Checked complete-argument Wine launch boundary
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `231180e` (P5-T07c3a exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `e6f0b28` (P5-T07c3a final closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c3b1` — Checked complete-argument Wine launch boundary.
+  1. Prove missing/damaged 32-bit prefixes fail the current shared Wine boundary before code.
+  2. Add complete-token dispatch and share runtime/startup handling with existing Wine launch.
+  3. Exercise architecture/freshness/refusal/argument/typed-cause matrices and real fake-Wine receipt.
+  4. Freeze/review, source controls, strict actual Windows/Linux files, fresh Unicode install,
+     full local gates and exact applicable Check/Integration plus coverage-only Check ZIPs.
+  5. Close b1 only; next P5-T07c3b2 wires custom Wine placeholders and dispatch.
+  Files: core/tools/wine.py plus focused new tests; architecture/TOOLS/phase/STATUS/README.
+  Risks: no custom/native/built-in option changes, shell parsing, settings/UI or second executor;
+  inspect prefixes for both PE architectures, retain interrupts and original failure identities.
+  First independent review found registry stat ValueError lost through is_file(); the retained
+  failing probe and three-entrypoint RED now require explicit stat and original cause identity.
+  Original snapshot/gate remain scoped to rejected bytes; corrected-round proof is separate.
+  Corrected review APPROVE: 644 focused/fresh, 45 independent boundaries, 15 registry cases,
+  18 parent/10 independent assertion-caught faults, strict 2 actual files per target.
+  Corrected full gate: 4584 passed / 1 failed / 6 skipped / 178 deselected. Existing forced-build
+  test failed while staging course.kmp (Access is denied), reproduced once in a fresh process.
+  Retained synthetic project/logs and fixed six-process campaigns with and without a copy
+  observer: each three single-case and three 15-case file runs then passed, unchanged sources.
+  No failing syscall, handle owner, cause or repair established; no security/test weakening.
+  One controlled unchanged-code full-gate rerun is pending; failure keeps b1 open.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1402,6 +1422,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- P5-T07c3b is split into b1 checked complete-argument Wine boundary and b2 custom Wine
+  placeholder/public-dispatch integration. Shared runtime validation and executable native/
+  Wine/refusal matrices exceed one ~400-line leaf. Original b criteria are retained above
+  b1/b2 and must be rerun together before b closes; settings facade, UI and HC1 are unchanged.
 - P5-T07c3 is split into c3a native custom dispatch, c3b custom Wine argv/runtime validation,
   and c3c fresh saved-choice dispatch. One combined adapter/facade and executable native/Wine/
   settings/refusal matrix exceeds a ~400-line leaf. Original c3 acceptance stays above the

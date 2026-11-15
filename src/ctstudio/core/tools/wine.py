@@ -16,6 +16,7 @@ Measured on Linux Mint 22.3 with Wine 9.0 (Ubuntu) and winetricks 20240105 by
 
 from __future__ import annotations
 
+import stat
 import struct
 from pathlib import Path
 from typing import Literal
@@ -67,11 +68,14 @@ def exe_arch(exe: Path) -> Arch:
 def prefix_arch(prefix: Path) -> Arch:
     """The architecture recorded in the prefix's ``system.reg`` header."""
     registry = prefix / "system.reg"
-    if not registry.is_file():
+    try:
+        if not stat.S_ISREG(registry.stat().st_mode):
+            raise ValueError("the prefix registry is not a regular file")
+    except (OSError, ValueError, RuntimeError) as error:
         raise WineError(
             f"{prefix} is not a Wine prefix.",
             hint=f'Create it with: WINEPREFIX="{prefix}" wineboot -u',
-        )
+        ) from error
     with registry.open(encoding="utf-8", errors="replace") as handle:
         for line in handle:
             if line.startswith("#arch="):
@@ -111,7 +115,9 @@ def windows_path(path: Path, *, wine: Path, prefix: Path) -> str:
 
 
 def _check_prefix(exe: Path, prefix: Path) -> None:
-    if exe_arch(exe) == "win64" and prefix_arch(prefix) == "win32":
+    program_arch = exe_arch(exe)
+    installed_arch = prefix_arch(prefix)
+    if program_arch == "win64" and installed_arch == "win32":
         raise WineError(
             f"{exe.name} is a 64-bit program and cannot run in the 32-bit Wine prefix {prefix}.",
             hint='Use a 64-bit prefix: WINEARCH=win64 WINEPREFIX="<new folder>" wineboot -u',
@@ -134,18 +140,76 @@ def _explained(error: ToolFailed, exe: Path, prefix: Path) -> CTStudioError:
     return error
 
 
-def launch(exe: Path, document: Path, options: tuple[str, ...], *, wine: Path, prefix: Path) -> int:
-    """Start ``exe`` on ``document`` in ``prefix``; raise if Wine gives up at once."""
-    if not wine.is_file():
-        raise ToolNotFound("Wine", hint="Install Wine from https://www.winehq.org/.")
-    _check_prefix(exe, prefix)
-    target = windows_path(document, wine=wine, prefix=prefix)
+def _safe_text(text: str) -> None:
+    text.encode("utf-8")
+    if "\0" in text:
+        raise ValueError("text contains NUL")
+
+
+def _runtime_path(path: Path, role: str, *, directory: bool = False) -> Path:
+    try:
+        _safe_text(str(path))
+        resolved = path.resolve(strict=True)
+        mode = resolved.stat().st_mode
+        if not (stat.S_ISDIR(mode) if directory else stat.S_ISREG(mode)):
+            raise ValueError("not a directory" if directory else "not a regular file")
+        return resolved
+    except (OSError, ValueError, RuntimeError) as error:
+        hint = f"Choose an existing, readable {role} {'directory' if directory else 'file'}."
+        if role == "Wine":
+            raise ToolNotFound("Wine", hint="Install Wine or choose its executable.") from error
+        raise WineError(
+            f"Could not inspect the {role} path.", hint=hint, details=str(error)
+        ) from error
+
+
+def validate_runtime(exe: Path, *, wine: Path, prefix: Path) -> tuple[Path, Path, Path]:
+    """Return canonical program/Wine/prefix paths; freshly inspect both PE/prefix headers."""
+    wine = _runtime_path(wine, "Wine")
+    exe = _runtime_path(exe, "Windows program")
+    prefix = _runtime_path(prefix, "Wine prefix", directory=True)
+    try:
+        _check_prefix(exe, prefix)
+    except (OSError, ValueError, RuntimeError) as error:
+        raise WineError(
+            "Could not read the Windows program or Wine prefix.",
+            hint="Check the program and prefix permissions, or select them again.",
+            details=str(error),
+        ) from error
+    return exe, wine, prefix
+
+
+def _start(exe: Path, arguments: tuple[str, ...], *, cwd: Path, wine: Path, prefix: Path) -> int:
+    try:
+        for token in arguments:
+            _safe_text(token)
+    except ValueError as error:
+        raise WineError(
+            "The Wine arguments contain unsafe text.",
+            hint="Remove NUL or invalid Unicode from the editor arguments.",
+        ) from error
     try:
         return launch_detached(
-            [wine, exe, target, *options],
-            cwd=document.parent,
-            env=_env(prefix),
-            watch=WATCH_SECONDS,
+            [wine, exe, *arguments], cwd=cwd, env=_env(prefix), watch=WATCH_SECONDS
         )
     except ToolFailed as error:
-        raise _explained(error, exe, prefix) from error
+        explained = _explained(error, exe, prefix)
+        if explained is error:
+            raise
+        raise explained from error
+
+
+def launch_argv(
+    exe: Path, arguments: tuple[str, ...], *, cwd: Path, wine: Path, prefix: Path
+) -> int:
+    """Start complete opaque argument tokens; conversion belongs to the caller."""
+    exe, wine, prefix = validate_runtime(exe, wine=wine, prefix=prefix)
+    cwd = _runtime_path(cwd, "working", directory=True)
+    return _start(exe, arguments, cwd=cwd, wine=wine, prefix=prefix)
+
+
+def launch(exe: Path, document: Path, options: tuple[str, ...], *, wine: Path, prefix: Path) -> int:
+    """Start ``exe`` on ``document`` in ``prefix``; raise if Wine gives up at once."""
+    exe, wine, prefix = validate_runtime(exe, wine=wine, prefix=prefix)
+    target = windows_path(document, wine=wine, prefix=prefix)
+    return _start(exe, (target, *options), cwd=document.parent, wine=wine, prefix=prefix)

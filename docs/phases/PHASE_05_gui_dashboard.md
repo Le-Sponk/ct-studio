@@ -644,6 +644,28 @@ requests, stale/malformed/missing-prefix/executable/document refusals and unchan
 Exercise the actual Wine adapter and process boundary with controlled fakes; distinguish that
 proof from real Wine/editor loading, which remains unmeasured unless explicitly exercised.
 
+###### [ ] P5-T07c3b1 — Checked complete-argument Wine launch boundary
+Add a complete-token argv entrypoint to the existing Wine owner and share its detached
+startup/watch/error handling with the existing document-first entrypoint. Validate Wine,
+PE executable and prefix freshly for every request, including prefix inspection for 32-bit
+programs; preserve typed actionable failures and inspection causes without swallowing interrupts.
+**Acceptance:** PE32/win32, PE32/win64 and PE32+/win64 success; PE32+/win32, missing/malformed/
+stale prefixes and executables refused before helper/editor processes. Opaque Unicode/space/
+empty/metacharacter tokens, exact cwd/WINEPREFIX/watch and early-error explanation are retained;
+an actual synthetic Wine executable reaches the real process boundary with an atomic receipt
+and unchanged input bytes. Existing built-in argument/warning behavior remains unchanged.
+This boundary does not substitute custom placeholders or wire custom settings/UI; b2 does
+custom Wine dispatch. Re-run all original b acceptance across b1/b2 before closing b.
+
+###### [ ] P5-T07c3b2 — Custom Wine placeholders and dispatch integration
+Route explicit Linux Windows custom choices through b1's existing Wine/process owner.
+Convert only file/directory/project substitution values using verified winepath, retain literal
+user tokens and existing safe grammar, and keep c3a's native behavior and launch-only result.
+**Acceptance:** full original b matrix, exact converted argv/cwd/environment, two independent
+real synthetic-Wine requests/receipts, stale/malformed prerequisites and unsafe-text refusals
+before dispatch, unchanged user bytes and built-in/native behavior. No saved-choice facade,
+menu/UI or real Wine/editor-loading claim; c3c/d/e/f/HC1 remain open.
+
 ###### [ ] P5-T07c3c — Fresh saved-choice dispatch facade
 Load machine settings freshly for every explicit built-in versus custom choice; keep those
 namespaces distinct even for equal ids, preserve built-in defaults/options/warnings and

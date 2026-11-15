@@ -259,6 +259,18 @@ discovery, settings writes, automatic selection or UI. Linux `.exe` dispatch is 
 c3b supplies Wine; loading saved choices belongs to c3c. A custom id equal to a built-in id
 does not implicitly invoke that built-in's contract. None of these leaves closes T07 on its own.
 
+P5-T07c3b1 adds `wine.validate_runtime(exe, wine=..., prefix=...)`, returning freshly
+checked canonical program/Wine/prefix paths. Both PE architectures require a readable
+registry header; x86 may use win32 or win64, while x64 requires win64. Registry inspection
+uses explicit stat so invalid-path errors keep their causes rather than becoming absence.
+`wine.launch_argv` accepts complete opaque tokens and an explicit checked working directory,
+without winepath,
+placeholder substitution or built-in flags. It shares detached startup, WINEPREFIX, the
+three-second watch and early-error explanations with the existing document-first launch.
+Inspection errors retain typed causes and interrupts escape; unclassified startup failures
+retain identity without a self-cause. Two synthetic Wine processes exercise this boundary,
+not actual Wine/editor loading. Custom Wine substitution/integration remains c3b2.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

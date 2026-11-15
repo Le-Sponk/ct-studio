@@ -623,6 +623,19 @@ dotnet48 for BrawlCrate/KMP Cloud, `win64` for RiiStudio/Lorenzi). Blender is ne
 Wine; Flatpak stays refused. The RiiStudio non-ASCII warning is native-only. Not measured:
 KMP Cloud under this Wine, failures after 3 s, Wayland sessions.
 
+**P5-T07c3b1 checked runtime/complete argv boundary (synthetic process proof only).**
+`validate_runtime` returns canonical executable/Wine/prefix paths after fresh regular-file,
+PE and prefix-header inspection. Prefix inspection now also runs for 32-bit programs;
+missing/damaged prefixes fail before winepath or editor startup. `launch_argv` accepts
+already-complete tokens and an explicit checked cwd; it performs no conversion, substitution,
+shell parsing or built-in option insertion. Unicode, spaces, empty and metacharacter tokens
+remain distinct, with WINEPREFIX and the existing three-second watch. Both launch entrypoints
+share early .NET/architecture explanations; other startup errors retain their identity/cause.
+Unsafe text and ordinary inspection errors become actionable typed errors; interrupts escape.
+Two actual synthetic Wine executable launches write independent atomic argv/cwd/environment
+receipts and leave synthetic inputs unchanged. This proves the real process boundary, not
+Wine/editor loading or saving. Custom Wine placeholders/dispatch remain P5-T07c3b2.
+
 ---
 
 ## Launch contracts (S7, P0-T10 — verified by real GUI launches unless marked)
