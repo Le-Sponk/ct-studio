@@ -4,35 +4,37 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3b1 — Checked complete-argument Wine launch boundary
+**Next task:** P5-T07c3b2 — Custom Wine placeholders and dispatch integration
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `e6f0b28` (P5-T07c3a final closeout Check, Windows + Ubuntu)
+**Last green commit:** `5a139bf` (P5-T07c3b1 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c3b1` — Checked complete-argument Wine launch boundary.
-  1. Prove missing/damaged 32-bit prefixes fail the current shared Wine boundary before code.
-  2. Add complete-token dispatch and share runtime/startup handling with existing Wine launch.
-  3. Exercise architecture/freshness/refusal/argument/typed-cause matrices and real fake-Wine receipt.
-  4. Freeze/review, source controls, strict actual Windows/Linux files, fresh Unicode install,
-     full local gates and exact applicable Check/Integration plus coverage-only Check ZIPs.
-  5. Close b1 only; next P5-T07c3b2 wires custom Wine placeholders and dispatch.
-  Files: core/tools/wine.py plus focused new tests; architecture/TOOLS/phase/STATUS/README.
-  Risks: no custom/native/built-in option changes, shell parsing, settings/UI or second executor;
-  inspect prefixes for both PE architectures, retain interrupts and original failure identities.
-  First independent review found registry stat ValueError lost through is_file(); the retained
-  failing probe and three-entrypoint RED now require explicit stat and original cause identity.
-  Original snapshot/gate remain scoped to rejected bytes; corrected-round proof is separate.
-  Corrected review APPROVE: 644 focused/fresh, 45 independent boundaries, 15 registry cases,
-  18 parent/10 independent assertion-caught faults, strict 2 actual files per target.
-  Corrected full gate: 4584 passed / 1 failed / 6 skipped / 178 deselected. Existing forced-build
-  test failed while staging course.kmp (Access is denied), reproduced once in a fresh process.
-  Retained synthetic project/logs and fixed six-process campaigns with and without a copy
-  observer: each three single-case and three 15-case file runs then passed, unchanged sources.
-  No failing syscall, handle owner, cause or repair established; no security/test weakening.
-  One controlled unchanged-code full-gate rerun is pending; failure keeps b1 open.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-15 `P5-T07c3b1` Checked complete-argument Wine launch boundary (`5a139bf`).
+  Fresh canonical Wine/PE/prefix validation, including missing/damaged x86-prefix refusals;
+  complete opaque tokens, exact cwd/environment/watch and shared detached startup/errors.
+  Inspection causes/interrupts retained; unclassified startup errors no longer self-chain.
+  Two actual synthetic Wine processes/atomic receipts preserve independent launch/writer
+  PIDs, argv/cwd/environment and input bytes; no actual Wine/editor loading/save claim.
+  644 focused/fresh locked Unicode-install cases (68 new), 45 independent boundaries,
+  18 parent/10 independent assertion-caught source faults; strict 2 actual files per target.
+  Immutable 585-file APPROVE; 484 legacy source/test files unchanged.
+  Full local 4585 passed / 6 skipped / 178 deselected. Check Windows 132802695214,
+  Ubuntu 132802694992 (4591 selected); Integration Windows 132802695248, Ubuntu 132802694997.
+  Existing real-Wiimm archive dispatch executed both OSes; both actual Check ZIPs coverage.xml only.
+  API-absence RED is not behavior proof; failed worker HTTP429 supplied no implementation/approval.
+  First review's registry-stat cause loss was reproduced (three public entrypoints), fixed with
+  explicit stat and re-reviewed on corrected bytes; rejected proof retained, denied command not retried.
+  First corrected full gate: 4584 passed/1 failed/6 skipped/178 deselected; existing forced-build
+  course.kmp staging reported Access is denied. A fresh case reproduced it; two fixed six-process
+  case/file campaigns (with/without observation) subsequently passed unchanged source. Original
+  logs/project and sole full-gate rerun retained; no syscall/handle owner/cause/repair established.
+  No security/test weakening. Later green checks are nonreproduction, not a demonstrated fix.
+  No game data/fonts/screenshots uploaded. b2/c3c, b/c3/c/T07, d/e/f/g and HC1 remain open;
+  next P5-T07c3b2. Separate closeout gate/exact Check/artifact readback required before delivery.
 - 2026-11-15 `P5-T07c3a` Native custom-editor dispatch (`231180e`).
   Explicit supplied CustomTool keeps canonical file/directory/project substitutions and each
   Unicode/space/empty/metacharacter token intact through the existing detached process owner.

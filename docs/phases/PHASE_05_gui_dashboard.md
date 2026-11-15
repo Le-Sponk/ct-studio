@@ -644,7 +644,7 @@ requests, stale/malformed/missing-prefix/executable/document refusals and unchan
 Exercise the actual Wine adapter and process boundary with controlled fakes; distinguish that
 proof from real Wine/editor loading, which remains unmeasured unless explicitly exercised.
 
-###### [ ] P5-T07c3b1 — Checked complete-argument Wine launch boundary
+###### [x] P5-T07c3b1 — Checked complete-argument Wine launch boundary (commit `5a139bf`)
 Add a complete-token argv entrypoint to the existing Wine owner and share its detached
 startup/watch/error handling with the existing document-first entrypoint. Validate Wine,
 PE executable and prefix freshly for every request, including prefix inspection for 32-bit
@@ -656,6 +656,30 @@ an actual synthetic Wine executable reaches the real process boundary with an at
 and unchanged input bytes. Existing built-in argument/warning behavior remains unchanged.
 This boundary does not substitute custom placeholders or wire custom settings/UI; b2 does
 custom Wine dispatch. Re-run all original b acceptance across b1/b2 before closing b.
+
+Delivered b1 only: fresh canonical Wine/PE/prefix checks for both architectures, complete
+opaque argv/cwd/WINEPREFIX/watch and one shared detached startup/error owner. Unknown startup
+failures keep their identity/cause; inspection failures are typed and interrupts escape.
+644 focused/locked Unicode fresh-install cases (68 new), 45 independent boundaries,
+18 parent plus 10 independent primary-assertion source controls; strict 2 actual files
+per Windows/Linux target. Immutable 585-file APPROVE and 484 unchanged legacy source/test files.
+Two actual synthetic Wine process receipts retain independent launch/writer PIDs, exact tokens,
+cwd/environment and unchanged inputs; not actual Wine/editor loading or saving.
+Full local 4585/6/178; exact Windows/Ubuntu Check (4591 selected) plus both
+Integration jobs, including existing real-Wiimm synthetic archive dispatch. Actual Check ZIPs
+contain coverage.xml only; no game assets/fonts/screenshots. API-absence RED is not behavioral
+proof; the rate-limited implementation worker supplied no implementation/approval.
+The first review's registry-stat cause finding was reproduced through all three entrypoints,
+fixed with explicit stat, and re-reviewed on this separate corrected snapshot. Rejected bytes
+remain retained; the denied follow-up command was not retried.
+The first corrected full gate failed an existing forced-build case while staging course.kmp
+(Access is denied): 4584 passed/1 failed/6 skipped/178 deselected. One fresh case reproduced
+it; fixed bounded case/file campaigns later passed with unchanged source, with and without
+an observation wrapper. Original logs/project and the sole full-gate rerun are retained;
+no failing syscall, handle owner, cause or repair established, and no security/test weakening.
+Custom Wine placeholder/dispatch integration remains b2; saved-choice facade c3c, d/e/f/g,
+b/c3/c/T07 and HC1 remain open. Documentation closeout needs its own full gate, exact Check
+and actual-artifact/remote readback before final delivery.
 
 ###### [ ] P5-T07c3b2 — Custom Wine placeholders and dispatch integration
 Route explicit Linux Windows custom choices through b1's existing Wine/process owner.
