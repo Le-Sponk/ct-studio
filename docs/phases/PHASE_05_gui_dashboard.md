@@ -681,7 +681,7 @@ Custom Wine placeholder/dispatch integration remains b2; saved-choice facade c3c
 b/c3/c/T07 and HC1 remain open. Documentation closeout needs its own full gate, exact Check
 and actual-artifact/remote readback before final delivery.
 
-###### [ ] P5-T07c3b2 — Custom Wine placeholders and dispatch integration
+###### [x] P5-T07c3b2 — Custom Wine placeholders and dispatch integration (commit `36953fa`)
 Route explicit Linux Windows custom choices through b1's existing Wine/process owner.
 Convert only file/directory/project substitution values using verified winepath, retain literal
 user tokens and existing safe grammar, and keep c3a's native behavior and launch-only result.
@@ -689,6 +689,22 @@ user tokens and existing safe grammar, and keep c3a's native behavior and launch
 real synthetic-Wine requests/receipts, stale/malformed prerequisites and unsafe-text refusals
 before dispatch, unchanged user bytes and built-in/native behavior. No saved-choice facade,
 menu/UI or real Wine/editor-loading claim; c3c/d/e/f/HC1 remain open.
+
+Delivered b2 only: optional explicit `wine_executable`/`wine_prefix` on `open_custom`; only a
+canonical Linux `.exe` takes the Wine route and needs both values (no discovery). Referenced
+file/dir/project values are converted once per value per request; literals, escaped braces,
+empty specs/tokens and metacharacters are unchanged. Document/project/runtime checks run before
+helpers and again before b1's complete-argv owner starts the editor. 769 focused and locked
+Unicode fresh-install cases (125 new, including original b criteria), 38 independent boundary
+cases (two real synthetic-Wine requests with a project folder separate from both document
+folders), 25 parent plus 8 independent primary-assertion source controls; strict 7 actual files
+per Windows/Linux target; immutable 590-file APPROVE. A first reviewer stopped on a provider
+usage limit and supplied no verdict. The worker's process-proof helper read its receipt as soon
+as the startup watch returned; a parent test-only fix polls the atomic receipt (Event-gated
+RED/GREEN), with no production change. Full local 4710/6/178; exact Windows/Ubuntu Check (4716
+selected) and both Integration jobs; actual Check ZIPs contain coverage.xml only. Synthetic
+process/conversion evidence, not actual Wine/editor loading or saving. Parent b still needs its
+own closure decision; c3c, c3/c/T07 and HC1 remain open.
 
 ###### [ ] P5-T07c3c — Fresh saved-choice dispatch facade
 Load machine settings freshly for every explicit built-in versus custom choice; keep those

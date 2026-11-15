@@ -4,28 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3b2 — Custom Wine placeholders and dispatch integration
+**Next task:** P5-T07c3c — Fresh saved-choice dispatch facade
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `bc90de7` (P5-T07c3b1 final closeout Check, Windows + Ubuntu)
+**Last green commit:** `36953fa` (P5-T07c3b2 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c3b2` — Custom Wine placeholders and dispatch integration.
-  1. Prove explicit Linux Windows custom choices fail the current native-only route.
-  2. Reuse b1 Wine/runtime/process owners and CustomTool grammar for converted path values;
-     preserve literal tokens, native launches, launch-only receipts and built-in behavior.
-  3. Exercise original b acceptance across b1/b2: both architectures, fresh/stale/damaged
-     prerequisites, unsafe text, exact argv/cwd/environment, failures/interrupts and bytes.
-  4. Prove two real synthetic-Wine requests; strict actual-file typing for Windows/Linux,
-     source-fault controls, immutable independent review and fresh Unicode installation.
-  5. Full local gates, exact applicable hosted Check/Integration and coverage-only Check ZIPs;
-     close b2 only after verification, retaining parent b/c3/c/T07 and HC1 as open.
-  Files: core/tools/custom_editors.py, optional narrow CustomTool argv value typing, new
-  focused tests/helpers, architecture/TOOLS/phase/STATUS/README. No settings facade or GUI.
-  Risks: no shell parsing, conversion of literals, built-in flags/defaults, discovery fallback,
-  second executor or claim of actual Wine/editor loading/save. Keep original rejection proof.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-16 `P5-T07c3b2` Custom Wine placeholders and dispatch integration (`36953fa`).
+  `open_custom` takes optional explicit `wine_executable`/`wine_prefix`; only a canonical
+  Linux `.exe` takes the Wine route and needs both (no discovery); native routes ignore them.
+  Only referenced file/dir/project values are converted (once per value per request);
+  literals, escaped braces, empty specs/tokens and metacharacters unchanged. Checks run before
+  helpers and again before b1's complete-argv Wine owner starts the editor.
+  769 focused/fresh locked Unicode-install cases (125 new, original b criteria rerun),
+  38 independent boundaries incl. two real synthetic-Wine requests with a separate project
+  folder, 25 parent/8 independent assertion-caught source faults; strict 7 actual files per
+  target. Immutable 590-file APPROVE (first reviewer stopped on a usage limit, no verdict).
+  Parent test-only fix: process-proof helper polls the atomic receipt (Event-gated RED/GREEN).
+  Full local 4710 passed / 6 skipped / 178 deselected. Check Windows 132824771366, Ubuntu
+  132824771581 (4716 selected); Integration Windows 132824771149, Ubuntu 132824770939.
+  Both actual Check ZIPs coverage.xml only. Synthetic process/conversion evidence only; no
+  actual Wine/editor loading/save claim. Parent b closure undecided; c3c, c3/c/T07, HC1 open.
 - 2026-11-15 `P5-T07c3b1` Checked complete-argument Wine launch boundary (`5a139bf`).
   Fresh canonical Wine/PE/prefix validation, including missing/damaged x86-prefix refusals;
   complete opaque tokens, exact cwd/environment/watch and shared detached startup/errors.
