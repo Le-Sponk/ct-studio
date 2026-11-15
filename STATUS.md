@@ -4,34 +4,36 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3c1 — Fresh saved-choice routing boundary
+**Next task:** P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `70ca95b` (P5-T07c3b2 final closeout Check, Windows + Ubuntu)
+**Last green commit:** `3a9370d` (P5-T07c3c1 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c3c1` — Fresh saved-choice routing boundary.
-  1. Introduce an explicit built-in/custom choice; load machine settings on every request.
-  2. Delegate to the existing native/Wine/custom owners with saved executable/prefix values.
-  3. Test changes between requests, colliding ids, defaults/warnings and no fallback on damage.
-  4. Preserve error/cause/interrupt identity and unchanged settings; no GUI or new executor.
-  5. Strict Windows/Linux typing, source controls, immutable independent review, fresh install,
-     full gates and exact hosted verification; keep parent tasks open.
-  Files: new core/tools saved-choice facade and focused unit tests/helpers, architecture/TOOLS,
-  phase/STATUS/README. Risks: cached settings, accidental namespace fallback, overwrites,
-  replacing existing launch contracts or claiming editor loading from dispatch.
-  c3c2 retains real-process saved-choice acceptance and the complete original c3 criterion map.
-  First full gate: a generated native viewer was blocked by Windows Application Control;
-  original failure retained. Three fresh affected-file processes each passed 62 cases with
-  unchanged code; that is nonreproduction, not a security repair. An independently reviewed
-  test-only immutability assertion strengthening is included in the final verification round.
-  The next gate timed out in the existing CLI receipt test before checking its CLI result.
-  The exact retained fake executable later completed its original handshake; cause unproven.
-  A two-case RED/GREEN regression now requires the CLI status/stderr check before waiting;
-  three fresh combined CLI-file runs passed 9 cases each. This is diagnostic ordering only,
-  not a repair of the original child-start failure. No security-log read ran or was retried.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-16 `P5-T07c3c1` Fresh saved-choice routing boundary (`3a9370d`).
+  Explicit built-in/custom choices reload settings per request and forward exact saved values
+  to existing native/Wine owners; no namespace fallback, settings writes, UI or new executor.
+  Receipts, defaults, warnings and exception/cause/interrupt identity retained; native launches
+  ignore unused Wine metadata. 876 focused/locked Unicode-install cases (100 new),
+  47 independent routing boundaries, 15 routing + 2 diagnostic parent assertion controls,
+  6 routing + 2 diagnostic independent controls; strict 9 actual files per target.
+  Original 597-file routing APPROVE plus separately approved immutability assertion delta;
+  final 598-file snapshot unchanged and diagnostic APPROVE (107 cases); 490 legacy files
+  unchanged, existing CLI test has only a status/stderr assertion before the socket wait.
+  Full local 4810 passed / 6 skipped / 178 deselected. Check Windows 132986660304, Ubuntu
+  132986660341 (4816 selected); Integration Windows 132986659610, Ubuntu 132986659851.
+  Both actual Check ZIPs coverage.xml only. Initial gate's native viewer policy block and
+  next gate's CLI connection timeout are retained; three fresh affected-file passes and
+  exact retained fake handshake replay are nonreproduction, not security/root-cause repairs.
+  Test-first diagnostic ordering now exposes a refused CLI before waiting; original timeout
+  cause remains unproven. No security-log read ran or was retried; no security/test weakening.
+  Failed classifier and equivalent stderr-message control experiments retained, not counted.
+  Real-process saved-choice/combined original criteria remain P5-T07c3c2; b/c3c/c3/c/T07 and
+  d/e/f/g/HC1 remain open. No real Wine/editor loading/save claim. Separate closeout gate,
+  exact Check and actual artifact/clean remote readback are required before final delivery.
 - 2026-11-16 `P5-T07c3b2` Custom Wine placeholders and dispatch integration (`36953fa`).
   `open_custom` takes optional explicit `wine_executable`/`wine_prefix`; only a canonical
   Linux `.exe` takes the Wine route and needs both (no discovery); native routes ignore them.

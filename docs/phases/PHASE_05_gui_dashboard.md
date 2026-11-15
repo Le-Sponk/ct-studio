@@ -716,7 +716,7 @@ launch/writes, explicit choices select only their own namespace, native/Wine rou
 existing owners, two real requests retain correct launch receipts and bytes. Re-run c3's
 complete original criterion map across a/b/c before closing c3; c and T07 remain open.
 
-###### [ ] P5-T07c3c1 — Fresh saved-choice routing boundary
+###### [x] P5-T07c3c1 — Fresh saved-choice routing boundary (commit `3a9370d`)
 Add an explicit built-in/custom choice and a settings-reading facade over the existing owners.
 Load settings anew for each dispatch, retain exact namespaces for colliding ids, configured
 executables/Wine/per-editor prefix and existing defaults/options/warnings. Never write settings
@@ -724,6 +724,21 @@ or fall back after recognized corruption, a missing custom choice or a stale con
 **Acceptance:** test-first fresh-setting/namespace/routing/refusal matrix, unchanged underlying
 owners and settings bytes, exception/cause/interrupt identity and launch-only receipts. No GUI,
 workers or new executor. Real-process saved-choice acceptance remains c3c2; c3c/c3 stay open.
+
+Delivered c3c1 only: explicit namespaces and fresh settings route to existing native/Wine owners,
+with unchanged receipts/errors/warnings and user settings. 876 focused/locked Unicode-install
+cases (100 new), 47 independent routing boundaries, 15 routing + 2 diagnostic parent controls,
+6 routing + 2 diagnostic independent controls; strict 9 actual files per Windows/Linux target.
+Original immutable routing APPROVE plus exact assertion-delta approval; unchanged final 598-file
+snapshot and diagnostic APPROVE (107 cases). Full local 4810/6/178; exact Check on both OSes
+selected 4816 plus both Integration jobs. Both actual Check ZIPs contain coverage.xml only.
+Initial local native-viewer policy block and later CLI connection timeout remain unexplained;
+retained fake replay and fresh affected-file passes are nonreproduction, not a repair. The
+one-line, test-first CLI status check improves diagnostic ordering only; no security-log read
+ran or was retried. Failed classifier/equivalent-control attempts are retained, not counted.
+Real-process saved-choice and original c3 criteria remain c3c2; b/c3c/c3/c/T07 and HC1 stay open.
+No GUI, real Wine/editor loading or saving claim. Closeout requires its own full local gate,
+exact hosted Check and actual artifact/clean-remote readback before final delivery.
 
 ###### [ ] P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review
 Drive the saved-choice facade through actual synthetic native/Wine helpers and detached
