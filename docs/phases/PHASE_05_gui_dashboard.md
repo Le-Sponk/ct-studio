@@ -748,6 +748,8 @@ options/warnings, damaged settings, stale paths and unchanged bytes. Independent
 combined evidence before deciding parent closures; real editor loading/save, d/e/f/HC1 stay open.
 **Acceptance:** exact receipt argv/cwd/environment and separate launch/writer PIDs, original
 criteria linked to executed tests, fresh installation, assertion controls and both-platform CI.
+The criterion map is `docs/reference/EDITOR_DISPATCH_ACCEPTANCE.json`; every named test prefix
+must match passing, non-skipped cases in the final combined run before a parent can close.
 
 #### [ ] P5-T07d — Joined editor preparation and application guards
 Prepare immutable available choices off the UI thread and re-read settings at dispatch.

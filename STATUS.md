@@ -6,10 +6,29 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `3a9370d` (P5-T07c3c1 exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `61f7e41` (P5-T07c3c1 final closeout Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07c3c2` — Saved-choice process acceptance and combined dispatch review.
+  1. Drive explicit built-in/custom native and synthetic-Wine choices through real processes.
+  2. Change saved settings between two requests with separate project/document folders.
+  3. Assert exact argv/cwd/environment, independent launch/writer PIDs and unchanged bytes.
+  4. Map and rerun original c3/b/c3c criteria, including refusals and original warnings/defaults.
+  5. Prove the new acceptance tests catch source faults; strict typing, independent review,
+     locked fresh installation, full gates and exact hosted verification before closeout.
+  Files: new focused process-test helpers/tests, original-criterion map, architecture/TOOLS,
+  phase/STATUS/README. No product changes unless a reproduced defect needs a test-first fix.
+  Risks: conflating synthetic Wine with real loading, stale settings, incomplete original
+  criterion coverage, policy-blocked fakes and launch/writer PID confusion. Parent closures
+  require the combined review; c/T07/d/e/f/g/HC1 and real-editor loading/save remain separate.
+  New valid acceptance cases were first-green against unchanged production; behavior RED is
+  isolated source-control evidence, not initial invalid-prefix fixtures or a Windows fixture
+  removal race. Parent reproduced a receipt-only refusal coverage gap: a real no-receipt
+  process survived; direct observation of unchanged runner entry now catches it. No fixed
+  refusal delay or runner replacement remains; earlier experiments/worker bytes are retained.
+  First combined run: 893 passed, 2 existing SZS fake-editor cases refused by Windows
+  Application Control. Original artifacts retained; three fixed fresh affected-file runs
+  passed unchanged code. No policy/security change or security-log read; cause not repaired.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

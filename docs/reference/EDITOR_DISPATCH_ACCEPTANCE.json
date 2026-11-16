@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "task": "P5-T07c3c2",
+  "phase_source": "docs/phases/PHASE_05_gui_dashboard.md",
+  "scope": [
+    "P5-T07c3",
+    "P5-T07c3b",
+    "P5-T07c3c"
+  ],
+  "execution_rule": "Each listed function prefix must match passing, non-skipped collected cases in the final combined run. The mapping alone is not execution evidence or permission to close a parent.",
+  "requirements": [
+    {
+      "id": "c3-explicit-custom-authority",
+      "criterion": "Use saved CustomTool argv tokens only for an explicit custom choice; keep built-in defaults.",
+      "tests": [
+        "tests/unit/test_saved_editor_routing.py::test_custom_collision_routes_fresh_record_only",
+        "tests/unit/test_saved_editor_contracts.py::test_unknown_exact_id_never_selects_preference",
+        "tests/unit/test_custom_editor_wine.py::test_explicit_wine_preserves_custom_authority"
+      ]
+    },
+    {
+      "id": "c3-existing-process-owners",
+      "criterion": "Route through existing core process/Wine owners, not shell parsing or a new executor.",
+      "tests": [
+        "tests/unit/test_custom_editor_native.py::test_two_real_launches_keep_exact_argv_and_bytes",
+        "tests/unit/test_custom_wine_process_proof.py::test_two_public_requests_use_real_conversion_and_processes",
+        "tests/unit/test_wine_argv.py::test_two_actual_synthetic_wine_processes_keep_tokens_and_bytes"
+      ]
+    },
+    {
+      "id": "c3-fresh-settings",
+      "criterion": "Fresh preferences; changed settings affect the next launch.",
+      "tests": [
+        "tests/unit/test_saved_editor_routing.py::test_builtin_routes_fresh_settings",
+        "tests/unit/test_saved_editor_routing.py::test_custom_collision_routes_fresh_record_only",
+        "tests/unit/test_saved_editor_contracts.py::test_default_path_resolved_for_each_request"
+      ]
+    },
+    {
+      "id": "c3-placeholders-unicode-opaque-tokens",
+      "criterion": "Safe placeholders and Unicode argv, including escaped braces, empty tokens, file/directory/project and literal metacharacters.",
+      "tests": [
+        "tests/unit/test_custom_editor_native.py::test_two_real_launches_keep_exact_argv_and_bytes",
+        "tests/unit/test_custom_editor_native.py::test_tokens_are_inert",
+        "tests/unit/test_custom_editor_wine.py::test_only_actual_placeholders_are_converted_once",
+        "tests/unit/test_custom_editor_wine.py::test_unsafe_text_never_reaches_helpers_or_editor"
+      ]
+    },
+    {
+      "id": "c3-native-and-wine",
+      "criterion": "Native/Wine routes retain built-in and explicit custom behavior; native launches ignore unused Wine metadata.",
+      "tests": [
+        "tests/unit/test_custom_editor_native.py::test_native_platform_boundary",
+        "tests/unit/test_saved_editor_metadata.py::test_native_ignores_unsafe_unused_wine",
+        "tests/unit/test_saved_editor_owners.py::test_real_builtin_wine_route_keeps_owner_options",
+        "tests/unit/test_custom_editor_wine.py::test_native_routes_ignore_even_unsafe_unused_wine_metadata"
+      ]
+    },
+    {
+      "id": "c3-stale-prerequisites",
+      "criterion": "Stale executable/document/prefix refusals; no discovery fallback for removed configured executables.",
+      "tests": [
+        "tests/unit/test_custom_editor_native.py::test_fresh_prerequisites",
+        "tests/unit/test_custom_wine_freshness.py::test_each_request_freshly_checks_deleted_paths",
+        "tests/unit/test_saved_editor_owners.py::test_removed_configured_executable_never_discovers_fallback"
+      ]
+    },
+    {
+      "id": "c3-original-builtins-warnings-defaults",
+      "criterion": "Original built-in behavior/warnings and options remain unchanged.",
+      "tests": [
+        "tests/unit/test_editors.py::test_each_editor_gets_one_absolute_path_first_and_options_after",
+        "tests/unit/test_editors.py::test_riistudio_warns_about_non_ascii_paths_but_still_launches",
+        "tests/unit/test_editors.py::test_riistudio_under_wine_has_no_non_ascii_warning",
+        "tests/unit/test_saved_editor_owners.py::test_real_builtin_defaults_options_warnings_and_unused_metadata",
+        "tests/unit/test_editor_preferences.py::test_default_projection"
+      ]
+    },
+    {
+      "id": "c3-launch-only-wording",
+      "criterion": "Launch-only wording; a dispatch receipt is not proof of document loading or saving.",
+      "tests": [
+        "tests/unit/test_editor_szs_dispatch.py::test_szs_cli_automatic_selection_preserves_launch_only_output",
+        "tests/unit/test_editor_szs_dispatch.py::test_open_help_names_szs_without_claiming_loaded_documents"
+      ],
+      "limitation": "Real Wine/editor loading/save and desktop appearance remain unmeasured by synthetic children. GUI and full T07 acceptance remain separate."
+    },
+    {
+      "id": "b-explicit-wine-and-runtime-architecture",
+      "criterion": "Validate executable/prefix architecture and prefix existence for both 32- and 64-bit programs at every dispatch; require explicit Wine executable and prefix.",
+      "tests": [
+        "tests/unit/test_custom_editor_wine.py::test_wine_requires_both_explicit_choices",
+        "tests/unit/test_wine_argv.py::test_32_bit_launch_checks_prefix_before_any_process",
+        "tests/unit/test_wine_argv.py::test_complete_argv_refuses_incompatible_or_damaged_prefixes_before_processes",
+        "tests/unit/test_custom_wine_freshness.py::test_headers_refuse_before_helpers",
+        "tests/unit/test_wine.py::test_a_32_bit_editor_may_use_a_64_bit_prefix"
+      ]
+    },
+    {
+      "id": "b-helper-conversion-and-argv-environment",
+      "criterion": "Exact Wine argv/cwd/environment; convert file/directory/project substitutions once per distinct path, not literal tokens.",
+      "tests": [
+        "tests/unit/test_custom_editor_wine.py::test_only_actual_placeholders_are_converted_once",
+        "tests/unit/test_custom_editor_wine.py::test_identical_path_values_share_one_conversion",
+        "tests/unit/test_wine_argv.py::test_complete_argv_preserves_every_token_and_startup_contract",
+        "tests/unit/test_custom_wine_process_proof.py::test_two_public_requests_use_real_conversion_and_processes"
+      ]
+    },
+    {
+      "id": "b-helper-to-launch-revalidation",
+      "criterion": "Stale/malformed/missing prefix/executable/document refusals before dispatch, including changes during helper work.",
+      "tests": [
+        "tests/unit/test_custom_wine_freshness.py::test_invalid_paths_refuse_before_helpers",
+        "tests/unit/test_custom_wine_freshness.py::test_helper_changes_cannot_dispatch_stale_inputs",
+        "tests/unit/test_custom_wine_failures.py::test_real_launch_boundary_revalidates_after_helper_work",
+        "tests/unit/test_custom_wine_failures.py::test_real_converter_output_cannot_bypass_safe_dispatch"
+      ]
+    },
+    {
+      "id": "b-typed-errors-causes-interrupts",
+      "criterion": "Preserve typed actionable errors, inspection causes, original process failures and interrupts.",
+      "tests": [
+        "tests/unit/test_custom_wine_freshness.py::test_inspection_causes_interrupts_and_no_processes",
+        "tests/unit/test_custom_wine_freshness.py::test_helper_start_failures_escape_identically",
+        "tests/unit/test_wine_argv.py::test_registry_stat_cause_and_interrupts_reach_all_entrypoints",
+        "tests/unit/test_saved_editor_contracts.py::test_error_cause_and_interrupt_identity"
+      ]
+    },
+    {
+      "id": "c3c-settings-damage-no-writes-no-fallback",
+      "criterion": "Recognized corruption causes no launch/writes; missing custom choices never fall back.",
+      "tests": [
+        "tests/unit/test_saved_editor_contracts.py::test_corruption_after_success_refuses_without_writes",
+        "tests/unit/test_saved_editor_contracts.py::test_missing_settings_custom_is_actionable_without_creating_file",
+        "tests/unit/test_saved_editor_refusals.py::test_removed_custom_never_falls_back"
+      ]
+    },
+    {
+      "id": "c3c-namespace-prefix-configured-wine",
+      "criterion": "Explicit choices select only their namespace, including equal ids; use per-editor saved Wine prefix and configured Wine.",
+      "tests": [
+        "tests/unit/test_saved_editor_routing.py::test_builtin_routes_fresh_settings",
+        "tests/unit/test_saved_editor_routing.py::test_custom_collision_routes_fresh_record_only",
+        "tests/unit/test_saved_editor_owners.py::test_real_builtin_wine_route_keeps_owner_options",
+        "tests/unit/test_saved_editor_owners.py::test_real_wine_owner_refuses_missing_selected_metadata"
+      ]
+    },
+    {
+      "id": "c3c-native-independent-receipts-and-bytes",
+      "criterion": "Two fresh saved-choice native requests per built-in/custom route with changed executable and tokens; separate document/project folders, exact argv/cwd, independent launch/writer PIDs, native unused Wine and unchanged user bytes.",
+      "tests": [
+        "tests/unit/test_saved_choice_native_process.py::test_saved_native_two_fresh_requests"
+      ]
+    },
+    {
+      "id": "c3c-wine-independent-receipts-and-bytes",
+      "criterion": "Two fresh saved-choice synthetic-Wine requests per built-in/custom route with changed executable/launcher/prefix/tokens, exact conversion helpers/argv/cwd/WINEPREFIX, independent launch/writer PIDs and unchanged user bytes.",
+      "tests": [
+        "tests/unit/test_saved_choice_wine_process.py::test_saved_wine_two_fresh_requests"
+      ]
+    },
+    {
+      "id": "c3c-post-success-refusal-no-process",
+      "criterion": "After successful real synthetic dispatch, malformed/removed settings, removed custom entry, stale executable/document/project/prefix refuse with typed actionable errors, no runner entry and unchanged remaining bytes.",
+      "tests": [
+        "tests/unit/test_saved_choice_process_refusals.py::test_saved_choice_refusal_starts_no_additional_process"
+      ]
+    }
+  ],
+  "outside_scope": [
+    "actual Wine/editor document loading or saving",
+    "mounted menus and joined GUI guards",
+    "full parent P5-T07c/P5-T07 acceptance",
+    "HC1 human checkpoint"
+  ]
+}

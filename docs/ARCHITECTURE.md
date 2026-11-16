@@ -292,6 +292,15 @@ or discovery. Native launches ignore unused Wine paths; selected Wine validation
 owner. No GUI or worker wiring is added. Two real-process saved-choice requests and the combined
 original c3 acceptance review remain c3c2; c3c/c3 and HC1 are not closed by this routing leaf.
 
+P5-T07c3c2 adds acceptance tests over that existing facade, not another product launch path.
+Built-in and colliding custom choices each make two real synthetic native/Wine requests with
+changed machine settings and separate project/document folders. Atomic child/helper receipts
+check exact argv/cwd/prefix, independent launch/writer PIDs and input bytes; post-success
+refusals also observe real runner entry without replacing the runner. The executable criterion
+map is `docs/reference/EDITOR_DISPATCH_ACCEPTANCE.json`; combined execution and independent
+review, not this test-layer description, decide c3/b/c3c closure. Synthetic dispatch/conversion
+is not real editor loading/save, mounted menus, joined GUI guards or HC1.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

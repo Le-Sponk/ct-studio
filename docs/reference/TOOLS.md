@@ -656,6 +656,16 @@ refuses without writes or fallback; native launches ignore unused Wine executabl
 This leaf uses process-boundary spies, not real Wine/editor loading. Real-process saved-choice
 acceptance and the combined original dispatch criteria remain P5-T07c3c2.
 
+**P5-T07c3c2 synthetic saved-choice process acceptance.** New normal-Check tests run the actual
+settings/facade/native/Wine/process owners with generated receipt-writing executables. Only
+OS selection is controlled; helper and editor launch calls are real. Two requests change saved
+configuration for each namespace/route, with separate document/project folders and exact
+argv/cwd/WINEPREFIX, distinct launch/writer PIDs and unchanged input-byte checks. Post-success
+refusals observe real runner entry and retained receipt bytes; a no-receipt process control
+exposed the previous fixed-delay observation gap. This is synthetic dispatch/conversion only,
+not new external-tool flag verification, actual Wine/editor loading/save or desktop evidence.
+Original criteria are mapped in `EDITOR_DISPATCH_ACCEPTANCE.json`; execution proof is separate.
+
 ---
 
 ## Launch contracts (S7, P0-T10 — verified by real GUI launches unless marked)
