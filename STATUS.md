@@ -4,34 +4,50 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review
+**Next task:** P5-T07d — Joined editor preparation and application guards
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `61f7e41` (P5-T07c3c1 final closeout Check, Windows + Ubuntu)
+**Last green commit:** `fd8b690` (P5-T07c3c2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07c3c2` — Saved-choice process acceptance and combined dispatch review.
-  1. Drive explicit built-in/custom native and synthetic-Wine choices through real processes.
-  2. Change saved settings between two requests with separate project/document folders.
-  3. Assert exact argv/cwd/environment, independent launch/writer PIDs and unchanged bytes.
-  4. Map and rerun original c3/b/c3c criteria, including refusals and original warnings/defaults.
-  5. Prove the new acceptance tests catch source faults; strict typing, independent review,
-     locked fresh installation, full gates and exact hosted verification before closeout.
-  Files: new focused process-test helpers/tests, original-criterion map, architecture/TOOLS,
-  phase/STATUS/README. No product changes unless a reproduced defect needs a test-first fix.
-  Risks: conflating synthetic Wine with real loading, stale settings, incomplete original
-  criterion coverage, policy-blocked fakes and launch/writer PID confusion. Parent closures
-  require the combined review; c/T07/d/e/f/g/HC1 and real-editor loading/save remain separate.
-  New valid acceptance cases were first-green against unchanged production; behavior RED is
-  isolated source-control evidence, not initial invalid-prefix fixtures or a Windows fixture
-  removal race. Parent reproduced a receipt-only refusal coverage gap: a real no-receipt
-  process survived; direct observation of unchanged runner entry now catches it. No fixed
-  refusal delay or runner replacement remains; earlier experiments/worker bytes are retained.
-  First combined run: 893 passed, 2 existing SZS fake-editor cases refused by Windows
-  Application Control. Original artifacts retained; three fixed fresh affected-file runs
-  passed unchanged code. No policy/security change or security-log read; cause not repaired.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-16 `P5-T07c3c2` Saved-choice process acceptance and combined dispatch review (`fd8b690`).
+  Tests over unchanged production drive explicit built-in/custom native and synthetic-Wine
+  choices through real helpers/children. Two fresh requests change executable/launcher/prefix/
+  tokens, with separate project/document folders, exact argv/cwd/WINEPREFIX, independent
+  launch/writer PIDs, original options/warnings and unchanged input/settings bytes.
+  Post-success refusals passively observe real runner entry without replacing the runner;
+  a no-receipt hidden-start control exposed the earlier receipt-only observation gap.
+  895 combined/locked Unicode-install cases (19 new), all 17 original requirements mapped to
+  actual passing collection; 11 parent plus 7 distinct independent assertion-only controls,
+  38 independent adversarial cases and strict 4 actual files per Windows/Linux target.
+  Immutable 603-file APPROVE, all 499 legacy source/test files unchanged. First reviewer
+  stopped on a provider limit without a verdict; completing review independently executed
+  its checks. Retained reviewer PE32/PE32+ fixture-oracle failure was not a product defect.
+  Full local 4829 passed / 6 skipped / 178 deselected. Exact Check Windows 133041023051
+  (4820 passed / 15 skipped), Ubuntu 133041023437 (4821 passed / 14 skipped): 4835 selected.
+  Both actual Check ZIPs contain coverage.xml only. Test/docs-only Integration not applicable:
+  unchanged approved production and no workflow-filter match. Individual job-log redirects
+  failed DNS twice; the official run-log archive supplied actual totals without job reruns.
+  First combined run's two existing Windows Application Control refusals are retained;
+  three unchanged fresh affected-file passes and later green checks are nonreproduction,
+  not a policy/cause repair. First closeout gate: 4828 passed / 1 failed / 6 skipped;
+  Windows Application Control refused a generated native RiiStudio test program. The exact
+  failure and initial document freeze are retained. Three fresh unchanged affected-file
+  processes passed 4 cases each; no policy repair or security changes are established.
+  Second closeout gate: 4827 passed / 2 failed / 6 skipped / 178 deselected, with explicit
+  policy refusals in two existing CLI Blender test launches. Three fresh unchanged combined
+  CLI/diagnostic processes passed 9 cases each; original failures and second freeze retained.
+  The diagnostic ordering exposed refusals before socket waits. No cause or repair is proved;
+  only one final full closeout attempt follows those fixed probes, not an unbounded retry.
+  No security-log read, security change or weakened acceptance.
+  Combined execution and independent review establish original c3/b/c3c dispatch criteria;
+  close those three dispatch parents with this leaf only. c/T07/d/e/f/g/HC1 remain open.
+  Synthetic dispatch/conversion is not actual Wine/editor loading/save or desktop/UI evidence.
+  No game data/fonts/screenshots uploaded; next P5-T07d.
+  Separate closeout verification is required before final delivery.
 - 2026-11-16 `P5-T07c3c1` Fresh saved-choice routing boundary (`3a9370d`).
   Explicit built-in/custom choices reload settings per request and forward exact saved values
   to existing native/Wine owners; no namespace fallback, settings writes, UI or new executor.

@@ -599,7 +599,7 @@ original failure is retained and cause remains unexplained. No tests/limits were
 c/c3/T07/b and original d/e/f/HC1 remain open; next c3. Documentation closeout requires its
 own full local gate, exact hosted Check and artifact/remote readback before final delivery.
 
-##### [ ] P5-T07c3 — Explicit configured custom/native/Wine dispatch
+##### [x] P5-T07c3 — Explicit configured custom/native/Wine dispatch (commit `fd8b690`)
 Use saved CustomTool argv tokens only for an explicit custom choice; keep built-in defaults.
 Route through existing core process/Wine owners, not shell parsing or a new executor.
 **Acceptance:** fresh preferences, safe placeholders and Unicode argv, two independent real
@@ -634,7 +634,7 @@ facade, menu/UI or real-editor loading/save claim. c3/c/b/T07 and d/e/f/g/HC1 re
 next c3b. Documentation closeout requires its own full local gate, exact hosted Check and
 artifact/remote readback before final delivery.
 
-###### [ ] P5-T07c3b — Custom Wine argv and fresh runtime validation
+###### [x] P5-T07c3b — Custom Wine argv and fresh runtime validation (commit `fd8b690`)
 Route explicit Windows custom tools on Linux through the existing Wine/process owners.
 Convert file/directory/project substitution values using verified winepath behavior, not
 shell parsing or conversion of literal user tokens. Validate executable/prefix architecture
@@ -706,7 +706,7 @@ selected) and both Integration jobs; actual Check ZIPs contain coverage.xml only
 process/conversion evidence, not actual Wine/editor loading or saving. Parent b still needs its
 own closure decision; c3c, c3/c/T07 and HC1 remain open.
 
-###### [ ] P5-T07c3c — Fresh saved-choice dispatch facade
+###### [x] P5-T07c3c — Fresh saved-choice dispatch facade (commit `fd8b690`)
 Load machine settings freshly for every explicit built-in versus custom choice; keep those
 namespaces distinct even for equal ids, preserve built-in defaults/options/warnings and
 use per-editor saved Wine prefix plus configured Wine. No silent fallback on damaged settings,
@@ -740,7 +740,7 @@ Real-process saved-choice and original c3 criteria remain c3c2; b/c3c/c3/c/T07 a
 No GUI, real Wine/editor loading or saving claim. Closeout requires its own full local gate,
 exact hosted Check and actual artifact/clean-remote readback before final delivery.
 
-###### [ ] P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review
+###### [x] P5-T07c3c2 — Saved-choice process acceptance and combined dispatch review (commit `fd8b690`)
 Drive the saved-choice facade through actual synthetic native/Wine helpers and detached
 processes for two independent requests, including changed preferences and distinct project /
 document folders. Map and rerun every original c3 criterion across a/b/c, including built-in
@@ -750,6 +750,30 @@ combined evidence before deciding parent closures; real editor loading/save, d/e
 criteria linked to executed tests, fresh installation, assertion controls and both-platform CI.
 The criterion map is `docs/reference/EDITOR_DISPATCH_ACCEPTANCE.json`; every named test prefix
 must match passing, non-skipped cases in the final combined run before a parent can close.
+
+Delivered c3c2: 19 new synthetic-process acceptance cases over unchanged production; 895
+combined and locked Unicode-install cases execute all 17 mapped original requirements.
+Exact native/Wine helper/editor argv/cwd/prefix, two fresh settings requests, separate project
+folders, independent launch/writer PIDs, typed post-success refusals/no runner entry and
+unchanged input bytes are checked. Immutable 603-file APPROVE; 499 legacy source/test files
+unchanged; 38 independent boundaries, 11 parent plus 7 distinct independent assertion controls,
+strict 4 actual files per Windows/Linux target. Full local 4829/6/178; exact Check Windows
+133041023051 (4820/15), Ubuntu 133041023437 (4821/14), both 4835 selected. Both actual Check
+ZIPs contain coverage.xml only; unchanged product/test-only scope does not require Integration.
+Two failed individual-log DNS retrievals were retained; the official run archive supplied
+actual job totals without reruns. Initial policy refusals and the reviewer fixture-oracle
+failure remain distinct retained evidence, not product/security repairs. The first closeout
+gate passed 4828 and failed one native RiiStudio synthetic launch with an explicit Application
+Control refusal; 6 skipped, 178 deselected. Three fresh unchanged affected-file processes
+passed 4 cases each; original logs/freeze retained, no policy repair claimed. No security-log
+read or policy change. Second closeout gate: 4827 passed / 2 failed / 6 skipped / 178
+deselected; two existing CLI synthetic Blender launches explicitly refused by policy. Three
+fresh unchanged combined CLI/diagnostic processes passed 9 cases each; retained failures and
+second freeze are not a cause/repair claim. Only one final full attempt is scheduled after
+those fixed probes. Combined original-criterion execution plus independent review establishes
+only c3b/c3c/c3 dispatch closure; c/T07/d/e/f/g/HC1 remain open. Synthetic Wine is not actual
+Wine/editor loading/save or desktop appearance. Separate closeout full gate, exact Check,
+actual artifact inspection and clean remote readback are required before final delivery.
 
 #### [ ] P5-T07d — Joined editor preparation and application guards
 Prepare immutable available choices off the UI thread and re-read settings at dispatch.
