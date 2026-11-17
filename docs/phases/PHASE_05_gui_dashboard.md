@@ -784,7 +784,7 @@ startup/results, one owner, joined UI delivery and retained project locks on clo
 The preparation catalogue, joined-worker extension and application/result guards exceed one
 small tested leaf. Keep every original criterion above; none closes from preparation alone.
 
-##### [ ] P5-T07d1 — Immutable editor-choice preparation boundary
+##### [x] P5-T07d1 — Immutable editor-choice preparation boundary (commit `2efa2bd`)
 Provide a blocking, read-only service that prepares immutable document-compatible built-in
 and explicit custom choices from fresh machine settings. Preserve saved preference order,
 namespace separation and exact sibling course.kcl eligibility; damaged settings fail closed.
@@ -793,6 +793,14 @@ Reuse existing catalogue/discovery contracts without launching tools or writing 
 damaged settings, missing tools, exact collision eligibility and typed inspection failures;
 independent review, source controls, fresh locked install and both-platform checks. This leaf
 adds no menu, executor, application guard or claim of off-UI application dispatch.
+
+Delivered d1: blocking read-only `gui/editor_launch.py` preparation service; 68 new / 772
+combined and locked Unicode-install cases, seven all-primary assertion controls, strict
+Windows/Linux typing and independent exact-code APPROVE (608-file snapshot). Full gate 4897
+passed / 6 skipped / 178 deselected; exact Check Windows 133995303457 (4888/15) and Ubuntu
+133995303062 (4889/14), both Integration jobs green, Check ZIPs coverage.xml only. A rare
+existing Qt/GIL full-suite deadlock seen during d1 is TD-017, shelved to P13-T06 by the
+owner. No menu, executor or application dispatch claim; d2/d3, d/c/T07 and HC1 stay open.
 
 ##### [ ] P5-T07d2 — Joined editor preparation and dispatch ownership
 Extend the existing launch owner for preparation and explicit saved-choice dispatch; no new

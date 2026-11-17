@@ -4,39 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07d1 — Immutable editor-choice preparation boundary
+**Next task:** P5-T07d2 — Joined editor preparation and dispatch ownership
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `fd8b690` (P5-T07c3c2 exact Check, Windows + Ubuntu)
+**Last green commit:** `2efa2bd` (P5-T07d1 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07d1` — Immutable editor-choice preparation boundary.
-  1. Define the blocking, read-only preparation contract and capture the released baseline.
-  2. Add vertical test-first choice/order/eligibility/settings/error behavior and minimal service.
-  3. Verify source controls, strict actual-file Windows/Linux typing and locked Unicode install.
-  4. Freeze for independent review; run full local gate and applicable exact-SHA hosted checks.
-  5. Release only d1 with a separate verified closeout; next d2, parents d/c/T07 stay open.
-  Expected: cohesive GUI preparation service and focused test/helper siblings, architecture,
-  this status and phase plan/README progress. Risks: falsely offered Lorenzi, stale settings,
-  hidden discovery fallback, mutable results and mistaking preparation for application wiring.
-  No new executor or UI controls; application off-thread/join/lock evidence remains d2/d3.
-  Implementation handoff: 68 new/393 combined cases and 11 strictly audited assertion-only
-  controls, seven actual files typed per Windows/Linux target. Public non-launch helpers
-  share document/path checks; no legacy test edits. Initial API-absence RED and mixed-primary
-  control campaigns are retained, not counted as behavioral/all-primary proof. Parent added
-  executable permission to synthetic program fixtures for Linux discovery (Windows chmod
-  cannot establish Unix mode behavior); final focused/install/control/review checks follow.
-  No screenshot claim: this boundary has no mounted view. Independent exact-code APPROVE:
-  772 combined plus 43 adversarial cases, seven all-primary controls, seven actual files typed
-  per platform, immutable 608-file snapshot. Combined locked-install acceptance passed 772 after
-  the user switched Smart App Control off (earlier Application Control refusals retained).
-  Two full local gates then stopped at the unchanged 1200 s pytest limit on a rare Qt/GIL
-  deadlock in existing code (TD-017). On 2026-11-17 the user shelved that investigation to
-  Phase 13 so development continues; full diagnostic notes are archived locally (TD-017).
-  Full local gate on the unchanged reviewed source then passed: 4897 passed / 6 skipped /
-  178 deselected (4903 selected), all steps OK. Exact-SHA hosted Check/Integration pending.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-17 `P5-T07d1` Immutable editor-choice preparation boundary (`2efa2bd`).
+  Blocking read-only service prepares immutable document-compatible built-in and explicit
+  custom choices from freshly read settings: saved order, namespace separation, exact sibling
+  course.kcl eligibility, damaged settings fail closed, no launch or settings write. 68 new /
+  772 combined and locked Unicode-install cases; seven all-primary assertion controls; seven
+  files strictly typed per Windows/Linux; independent exact-code APPROVE on a 608-file snapshot.
+  Earlier Application Control refusals were resolved by the owner switching Smart App Control
+  off. Two full gates stopped at 1200 s on a rare existing Qt/GIL deadlock; the owner shelved
+  it to Phase 13 as TD-017 (diagnostics local-only). Full local gate then 4897 passed / 6
+  skipped / 178 deselected. Exact Check Windows 133995303457 (4888 passed / 15 skipped), Ubuntu
+  133995303062 (4889 / 14): 4903 selected; Integration Windows 133995303124 (128/21 expected)
+  and Ubuntu 133995303601 (132/17 expected). Both Check ZIPs contain coverage.xml only. Next
+  P5-T07d2; d, c, T07 and HC1 remain open.
 - 2026-11-16 `P5-T07c3c2` Saved-choice process acceptance and combined dispatch review (`fd8b690`).
   Tests over unchanged production drive explicit built-in/custom native and synthetic-Wine
   choices through real helpers/children. Two fresh requests change executable/launcher/prefix/
@@ -2205,6 +2194,13 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   notes are local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07d1/` (dumps never
   uploaded). Until then: if a gate or CI job hits the 1200 s limit, compare its stacks with
   this signature; rerun once on a match and record it, and investigate anything else.
+- **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
+  load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
+  once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-
+  KeyboardInterrupt-lock-relative]` got its joined result, then "dashboard did not return idle"
+  within `settled`'s 5 s. That exact case passed 3/3 alone and its 48-case file passed 3/3;
+  4896 others passed. Nonreproduction, not a fix. Find which busy flag stays set (likely a
+  queued watcher status refresh) before changing waits; do not just lengthen the timeout.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_
