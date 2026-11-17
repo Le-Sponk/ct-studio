@@ -802,12 +802,21 @@ passed / 6 skipped / 178 deselected; exact Check Windows 133995303457 (4888/15) 
 existing Qt/GIL full-suite deadlock seen during d1 is TD-017, shelved to P13-T06 by the
 owner. No menu, executor or application dispatch claim; d2/d3, d/c/T07 and HC1 stay open.
 
-##### [ ] P5-T07d2 — Joined editor preparation and dispatch ownership
+##### [x] P5-T07d2 — Joined editor preparation and dispatch ownership (commit `89b1190`)
 Extend the existing launch owner for preparation and explicit saved-choice dispatch; no new
 executor. Keep immutable request identity and exact receipts/errors/warnings, re-read settings
 at dispatch and join before UI delivery. Reject stale preparation and preserve interruptions.
 **Acceptance:** real joined worker preparation/dispatch, one owner across existing operations,
 fresh/damaged settings, stale/queued results and uncertain native startup coverage.
+
+Delivered d2: `LaunchController.prepare_editors`/`open_editor` on the existing joined
+launch worker; dispatch re-reads settings via `open_saved`; only the latest delivered
+preparation for the identical project/root/manifest and an offered choice authorises an
+open. 18 new tests (real child, fresh/damaged settings, stale/queued, uncertain start),
+15/15 assertion mutants, independent APPROVE after one revision. Full gate 4915 passed /
+6 skipped / 178 deselected; exact Check Windows 134413060216 (4906/15) and Ubuntu
+134413059754 (4907/14), ZIPs coverage.xml only. d3 must route editor results on
+`editor_action` before `describe_launch` (else "Blender was started"). d, c, T07, HC1 open.
 
 ##### [ ] P5-T07d3 — Application guards, result text and combined ownership acceptance
 Route current-project requests through the joined owner with memory-only eligibility and

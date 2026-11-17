@@ -4,34 +4,29 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07d2 — Joined editor preparation and dispatch ownership
+**Next task:** P5-T07d3 — Application guards, result text and combined ownership acceptance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `2efa2bd` (P5-T07d1 exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `89b1190` (P5-T07d2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07d2` — Joined editor preparation and dispatch ownership.
-  1. Extend `LaunchController` (no new executor) with `prepare_editors(project, document)` and
-     `open_editor(project, prepared, choice)` on the existing `ctstudio-launch` worker.
-  2. Results carry the captured project/root/manifest, document, exact choice and the exact
-     PreparedEditors / Launched receipt or the unwrapped error; delivery joins first.
-  3. Open accepts only the owner's latest delivered preparation for the same project, root and
-     manifest and an offered choice; dispatch re-reads settings via `open_saved`.
-  4. Test-first: worker thread/busy/one-owner, stale/queued results, interrupts and native
-     bootstrap uncertainty, fresh/damaged settings with real synthetic children.
-  Acceptance: as the d2 phase entry. Files: gui/launch_controller.py, gui/editor_launch.py,
-  new tests/gui editor-owner tests/helpers, ARCHITECTURE, STATUS, phase plan, README progress.
-  Risks: confusing preparation with Blender (component None), stale preparation reuse after
-  shutdown/rebind, preparation readiness treated as launch authority. No menus/UI (d3/e).
-  d3 risk (from d2 review): the dashboard's `_launched` routes component-None results to
-  `describe_launch`, so an editor result would read "Blender was started…" (open) or
-  "Could not open Blender: None." (prepare); d3 must route on `editor_action` first.
-  Implemented and independently approved (re-review after one NEEDS_REVISION: two test gaps and
-  a missing-document Blender fall-through, all fixed test-first). 18 new tests, 15/15 assertion
-  mutants caught. Full local gate green: 4915 passed / 6 skipped / 178 deselected (4921
-  selected) after one TD-018-class idle-wait failure in an untouched test. Exact-SHA CI pending.
+- None.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-18 `P5-T07d2` Joined editor preparation and dispatch ownership (`89b1190`).
+  `LaunchController.prepare_editors`/`open_editor` run on the existing ctstudio-launch
+  worker (no new executor), never overlapping Blender/folder/assign/outside-edit work.
+  Dispatch re-reads settings via `open_saved`; only the latest delivered successful
+  preparation for the identical project/root/manifest and an offered choice authorises an
+  open (stale/foreign/unoffered: ProjectError, nothing starts; busy: False). New, failed
+  preparations and successful shutdown retire it; a missing document never reaches Blender.
+  18 new tests incl. a real child with settings changed after preparation and damaged
+  settings; 15/15 assertion mutants; independent APPROVE after one NEEDS_REVISION (two test
+  gaps, one fall-through, fixed test-first). Gate 4915 passed / 6 skipped / 178 deselected
+  after one TD-018-class idle-wait failure in an untouched test. Exact Check Windows
+  134413060216 (4906 / 15), Ubuntu 134413059754 (4907 / 14): 4921 selected; Integration not
+  triggered (gui/tests/docs only). Check ZIPs coverage.xml only. d3 risk: route editor
+  results on `editor_action` before `describe_launch`. Next P5-T07d3; d, c, T07, HC1 open.
 - 2026-11-17 `P5-T07d1` Immutable editor-choice preparation boundary (`2efa2bd`).
   Blocking read-only service prepares immutable document-compatible built-in and explicit
   custom choices from freshly read settings: saved order, namespace separation, exact sibling
