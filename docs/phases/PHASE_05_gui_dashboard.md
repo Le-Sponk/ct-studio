@@ -781,6 +781,33 @@ Reuse the existing joined launch owner; preserve current-project/root/manifest i
 read-only/busy/navigation/close protection and honest tool-aware result text.
 **Acceptance:** worker-thread preparation/dispatch, fresh/damaged settings, stale and interrupted
 startup/results, one owner, joined UI delivery and retained project locks on close timeout.
+The preparation catalogue, joined-worker extension and application/result guards exceed one
+small tested leaf. Keep every original criterion above; none closes from preparation alone.
+
+##### [ ] P5-T07d1 — Immutable editor-choice preparation boundary
+Provide a blocking, read-only service that prepares immutable document-compatible built-in
+and explicit custom choices from fresh machine settings. Preserve saved preference order,
+namespace separation and exact sibling course.kcl eligibility; damaged settings fail closed.
+Reuse existing catalogue/discovery contracts without launching tools or writing settings.
+**Acceptance:** compatible/unsupported documents, preferred and colliding custom ids, fresh/
+damaged settings, missing tools, exact collision eligibility and typed inspection failures;
+independent review, source controls, fresh locked install and both-platform checks. This leaf
+adds no menu, executor, application guard or claim of off-UI application dispatch.
+
+##### [ ] P5-T07d2 — Joined editor preparation and dispatch ownership
+Extend the existing launch owner for preparation and explicit saved-choice dispatch; no new
+executor. Keep immutable request identity and exact receipts/errors/warnings, re-read settings
+at dispatch and join before UI delivery. Reject stale preparation and preserve interruptions.
+**Acceptance:** real joined worker preparation/dispatch, one owner across existing operations,
+fresh/damaged settings, stale/queued results and uncertain native startup coverage.
+
+##### [ ] P5-T07d3 — Application guards, result text and combined ownership acceptance
+Route current-project requests through the joined owner with memory-only eligibility and
+captured project/root/manifest checks. Preserve read-only/busy/navigation/close protection
+and tool-aware launch-only result wording; rerun all original d criteria together.
+**Acceptance:** application service-to-worker flows, stale identity refusals, close-timeout
+writer-lock retention, exact warnings/error wording and independently reviewed executable
+original-criterion map. Only this combined proof may close d; menus remain e.
 
 #### [ ] P5-T07e — Mounted Open in… menus and missing-tool guidance
 Mount signal-only card/file actions using explicit supplied eligibility. Route requests through

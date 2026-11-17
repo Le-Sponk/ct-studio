@@ -19,6 +19,7 @@ Measured contracts (docs/reference/TOOLS.md "Launch contracts"; S7, P0-T13, P2-T
 
 from __future__ import annotations
 
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
@@ -91,7 +92,8 @@ class Launched:
     warnings: tuple[str, ...]
 
 
-def _check_document(tool_id: str, document: Path) -> None:
+def check_document(tool_id: str, document: Path) -> None:
+    """Check document compatibility and exact collision eligibility without launching."""
     suffixes = EDITOR_DOCUMENTS.get(tool_id)
     if suffixes is None:
         raise EditorError(tool_id, document, "not an editor CT Studio can launch")
@@ -109,9 +111,10 @@ def _check_collision(document: Path) -> None:
     hint = "Place a file named exactly course.kcl beside the KMP and check folder permissions."
     try:
         found = any(
-            entry.name == "course.kcl" and entry.is_file() for entry in document.parent.iterdir()
+            entry.name == "course.kcl" and stat.S_ISREG(entry.stat().st_mode)
+            for entry in document.parent.iterdir()
         )
-    except OSError as exc:
+    except (OSError, ValueError, RuntimeError) as exc:
         raise EditorError(
             "kmp_editor_lorenzi", document, "could not inspect sibling course.kcl", hint=hint
         ) from exc
@@ -185,7 +188,7 @@ def open_in(
     discovered unless ``wine_executable`` is given.
     """
     document = Path(document).resolve()
-    _check_document(tool_id, document)
+    check_document(tool_id, document)
     exe, launcher = _executable(tool_id, executable)
     if launcher == "wine":
         pid = _through_wine(tool_id, exe, document, wine_prefix, wine_executable)

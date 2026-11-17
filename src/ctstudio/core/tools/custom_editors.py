@@ -20,7 +20,8 @@ def _safe_text(text: str) -> None:
     text.encode("utf-8")
 
 
-def _checked_path(tool_id: str, document: Path, path: Path, role: str) -> Path:
+def checked_path(tool_id: str, document: Path, path: Path, role: str) -> Path:
+    """Inspect a canonical document/executable/project path without launching anything."""
     try:
         _safe_text(str(path))
         resolved = path.resolve(strict=True)
@@ -85,9 +86,9 @@ def open_custom(
     wine_executable: Path | None = None,
 ) -> Launched:
     """Start explicit native/Wine custom argv; this does not establish document loading."""
-    document = _checked_path(tool_id, document, document, "document")
-    executable = _checked_path(tool_id, document, tool.exe, "executable")
-    project = _checked_path(tool_id, document, project, "project")
+    document = checked_path(tool_id, document, document, "document")
+    executable = checked_path(tool_id, document, tool.exe, "executable")
+    project = checked_path(tool_id, document, project, "project")
     values: dict[str, str | Path] = {"file": document, "dir": document.parent, "project": project}
     argv = _arguments(tool_id, tool, document, values)
     if current_os() == "linux" and executable.suffix.lower() == ".exe":
@@ -101,8 +102,8 @@ def open_custom(
         )
         _convert_values(tool, values, launcher=launcher, prefix=prefix)
         argv = _arguments(tool_id, tool, document, values)
-        document = _checked_path(tool_id, document, document, "document")
-        _checked_path(tool_id, document, project, "project")
+        document = checked_path(tool_id, document, document, "document")
+        checked_path(tool_id, document, project, "project")
         pid = wine.launch_argv(
             executable, argv[1:], cwd=document.parent, wine=launcher, prefix=prefix
         )

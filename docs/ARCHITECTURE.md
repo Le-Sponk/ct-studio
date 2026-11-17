@@ -301,6 +301,21 @@ map is `docs/reference/EDITOR_DISPATCH_ACCEPTANCE.json`; combined execution and 
 review, not this test-layer description, decide c3/b/c3c closure. Synthetic dispatch/conversion
 is not real editor loading/save, mounted menus, joined GUI guards or HC1.
 
+P5-T07d1 adds blocking `gui/editor_launch.py:EditorLaunchService.prepare`, with frozen
+`PreparedEditors`/`EditorOption` values. Each call reads current machine settings and prepares
+ordered document-compatible built-ins followed by explicit custom choices in saved order;
+colliding ids retain their namespaces. Readiness is advisory: available means non-launch
+checks passed, missing carries installation/runtime guidance, and ineligible describes document
+constraints (including exact sibling course.kcl). Shared public `editors.check_document` and
+`custom_editors.checked_path` retain adapter checks; collision stat/iteration failures preserve
+their typed causes. Discovery and nonspawning Wine PE/prefix validation run only when needed;
+native choices ignore unused Wine metadata. Damaged settings fail closed, inspection errors
+remain typed, interrupts retain identity, and root/manifest changes refuse the prepared result.
+No settings/project writes, tool processes, executor, launch method or UI are added. The
+caller must schedule this blocking boundary; joined application wiring and guards remain
+T07d2/d3, menus/guidance T07e and configuration controls T07f. The snapshot is not permission
+to launch: dispatch must freshly use the selected saved-choice owner.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

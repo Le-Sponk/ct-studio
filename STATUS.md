@@ -4,12 +4,36 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07d — Joined editor preparation and application guards
+**Next task:** P5-T07d1 — Immutable editor-choice preparation boundary
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `fd8b690` (P5-T07c3c2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07d1` — Immutable editor-choice preparation boundary.
+  1. Define the blocking, read-only preparation contract and capture the released baseline.
+  2. Add vertical test-first choice/order/eligibility/settings/error behavior and minimal service.
+  3. Verify source controls, strict actual-file Windows/Linux typing and locked Unicode install.
+  4. Freeze for independent review; run full local gate and applicable exact-SHA hosted checks.
+  5. Release only d1 with a separate verified closeout; next d2, parents d/c/T07 stay open.
+  Expected: cohesive GUI preparation service and focused test/helper siblings, architecture,
+  this status and phase plan/README progress. Risks: falsely offered Lorenzi, stale settings,
+  hidden discovery fallback, mutable results and mistaking preparation for application wiring.
+  No new executor or UI controls; application off-thread/join/lock evidence remains d2/d3.
+  Implementation handoff: 68 new/393 combined cases and 11 strictly audited assertion-only
+  controls, seven actual files typed per Windows/Linux target. Public non-launch helpers
+  share document/path checks; no legacy test edits. Initial API-absence RED and mixed-primary
+  control campaigns are retained, not counted as behavioral/all-primary proof. Parent added
+  executable permission to synthetic program fixtures for Linux discovery (Windows chmod
+  cannot establish Unix mode behavior); final focused/install/control/review checks follow.
+  No screenshot claim: this boundary has no mounted view. Independent exact-code APPROVE:
+  772 combined plus 43 adversarial cases, seven all-primary controls, seven actual files typed
+  per platform, immutable 608-file snapshot. Combined locked-install acceptance passed 772 after
+  the user switched Smart App Control off (earlier Application Control refusals retained).
+  Two full local gates then stopped at the unchanged 1200 s pytest limit on a rare Qt/GIL
+  deadlock in existing code (TD-017). On 2026-11-17 the user shelved that investigation to
+  Phase 13 so development continues; full diagnostic notes are archived locally (TD-017).
+  Full local gate on the unchanged reviewed source then passed: 4897 passed / 6 skipped /
+  178 deselected (4903 selected), all steps OK. Exact-SHA hosted Check/Integration pending.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1498,6 +1522,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-16: Split P5-T07d into d1 immutable editor-choice preparation, d2 extension of
+  the existing joined owner and d3 application/result guards plus original-criterion audit.
+  Catalogue/discovery/settings error matrices and lifecycle/application acceptance exceed
+  one ~400-line leaf. All original d criteria remain above the children; preparation alone
+  adds no executor/menu or application worker/lock guarantee. d/c/T07 and HC1 stay open.
 - 2026-11-16: Split P5-T07c3c into c1 (fresh saved-choice routing boundary) and c2
   (real-process saved-choice acceptance plus combined original-criterion review). Full routing,
   corruption/error/namespace tests and two native/Wine process oracles exceed a small one-leaf
@@ -2030,7 +2059,7 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
-_none_ — GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
+_none_ · GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
 
 ## Needs human — non-blocking
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
@@ -2161,6 +2190,21 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   passed 3,238 / 14. First seen on the new Ubuntu 26.04 runner image. Likely a Qt object
   freed off its thread by a cyclic collection; if it recurs, run the GUI suite with
   faulthandler and `gc.collect()` after each test to find the owning test.
+- **TD-017 · P13-T06 · rare full-suite hang: Qt/GIL deadlock in worker-thread garbage
+  collection.** Shelved from P5-T07d1 by the user on 2026-11-17 (little benefit for the work
+  still needed). Two P5-T07d1 full local gates stopped at the 1200 s pytest limit; earlier
+  1200 s CI timeouts (c6f175b and 8e5d688 Windows, Ubuntu job 132579884831) and TD-016 may be
+  the same bug but are unproven. Native captures of one hang show the GUI thread holding the
+  Python GIL while waiting on a Qt signal-connection mutex, and the file-watcher thread, in
+  Python's cyclic garbage collector, running PySide weakref cleanup for `_Cancels`
+  (`gui/build_controller.py`, `destroyed.connect(self._cancels.cancel)`) while holding that
+  mutex and waiting for the GIL. No small reproduction or proven fix: one repair experiment
+  was rejected, and a bounded three-experiment Qt launcher stopped at design (it needs a
+  separate supervisor process to be safe). Phase 13 first builds a deterministic reproduction,
+  then tries making that cleanup independent of cyclic GC on worker threads. Evidence and full
+  notes are local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07d1/` (dumps never
+  uploaded). Until then: if a gate or CI job hits the 1200 s limit, compare its stacks with
+  this signature; rerun once on a match and record it, and investigate anything else.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_
