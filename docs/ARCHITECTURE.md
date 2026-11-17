@@ -316,6 +316,18 @@ caller must schedule this blocking boundary; joined application wiring and guard
 T07d2/d3, menus/guidance T07e and configuration controls T07f. The snapshot is not permission
 to launch: dispatch must freshly use the selected saved-choice owner.
 
+P5-T07d2 extends the existing joined launch owner (no new executor):
+`LaunchController.prepare_editors(project, document)` runs `EditorLaunchService.prepare` and
+`open_editor(project, prepared, choice)` runs `EditorLaunchService.dispatch` (`open_saved`, which
+re-reads machine settings) on the same `ctstudio-launch` worker, so editor work never overlaps
+Blender, folder, assignment or outside-edit work. `LaunchResult.editor_action` (prepare/open),
+`document` and `choice` identify these results (component_id None); receipts are the exact
+`PreparedEditors` or `Launched`, errors keep identity and delivery joins first. Only the latest
+delivered successful preparation authorises an open, for the identical Project object, root,
+manifest object and an offered choice; otherwise `open_editor` raises `ProjectError` and starts
+nothing (False only while busy). A new preparation, a failed preparation and a successful
+shutdown retire it. Application guards, result text and eligibility remain T07d3.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

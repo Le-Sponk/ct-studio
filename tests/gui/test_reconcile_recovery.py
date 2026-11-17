@@ -19,6 +19,7 @@ from ctstudio.core.components.assign import Assigned, assign_file
 from ctstudio.core.components.edited import discard_edit, lock_as_manual
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.project.project import Project
+from ctstudio.gui.editor_launch import EditorLaunchService
 from ctstudio.gui.launch_controller import LaunchResult, _Context, _Relay, _Work
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
 
@@ -117,6 +118,7 @@ def _inline(project: Project, action: str) -> object:
         assign_file,
         lock_as_manual,
         discard_edit,
+        EditorLaunchService(),
     )
     raised = outcome(lambda: worker.run(context))
     if raised is not None:

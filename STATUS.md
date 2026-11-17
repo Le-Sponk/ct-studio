@@ -9,7 +9,26 @@
 **Last green commit:** `2efa2bd` (P5-T07d1 exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07d2` — Joined editor preparation and dispatch ownership.
+  1. Extend `LaunchController` (no new executor) with `prepare_editors(project, document)` and
+     `open_editor(project, prepared, choice)` on the existing `ctstudio-launch` worker.
+  2. Results carry the captured project/root/manifest, document, exact choice and the exact
+     PreparedEditors / Launched receipt or the unwrapped error; delivery joins first.
+  3. Open accepts only the owner's latest delivered preparation for the same project, root and
+     manifest and an offered choice; dispatch re-reads settings via `open_saved`.
+  4. Test-first: worker thread/busy/one-owner, stale/queued results, interrupts and native
+     bootstrap uncertainty, fresh/damaged settings with real synthetic children.
+  Acceptance: as the d2 phase entry. Files: gui/launch_controller.py, gui/editor_launch.py,
+  new tests/gui editor-owner tests/helpers, ARCHITECTURE, STATUS, phase plan, README progress.
+  Risks: confusing preparation with Blender (component None), stale preparation reuse after
+  shutdown/rebind, preparation readiness treated as launch authority. No menus/UI (d3/e).
+  d3 risk (from d2 review): the dashboard's `_launched` routes component-None results to
+  `describe_launch`, so an editor result would read "Blender was started…" (open) or
+  "Could not open Blender: None." (prepare); d3 must route on `editor_action` first.
+  Implemented and independently approved (re-review after one NEEDS_REVISION: two test gaps and
+  a missing-document Blender fall-through, all fixed test-first). 18 new tests, 15/15 assertion
+  mutants caught. Full local gate green: 4915 passed / 6 skipped / 178 deselected (4921
+  selected) after one TD-018-class idle-wait failure in an untouched test. Exact-SHA CI pending.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2201,6 +2220,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   within `settled`'s 5 s. That exact case passed 3/3 alone and its 48-case file passed 3/3;
   4896 others passed. Nonreproduction, not a fix. Find which busy flag stays set (likely a
   queued watcher status refresh) before changing waits; do not just lengthen the timeout.
+  Second instance (P5-T07d2 implementation gate, a different test):
+  `test_build_dashboard_visual.py::test_result_reveal_waits_for_queued_footer_growth` failed
+  "initial status did not settle" (dashboard status check not idle within 5 s, early in the
+  run); 4914 others passed. Exact case 3/3 and its 5-test file 3/3 passed alone (one solo run
+  took 7.6 s vs ~1 s, suggesting host load). Same class: a 5 s idle wait under load. A repeat
+  of either test, or a third test with this symptom, makes it a defect to investigate now.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

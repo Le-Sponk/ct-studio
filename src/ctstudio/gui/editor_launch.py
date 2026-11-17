@@ -13,7 +13,7 @@ from ctstudio.core.project import settings
 from ctstudio.core.project.project import Project
 from ctstudio.core.tools import custom_editors, discovery, editors, wine
 from ctstudio.core.tools.registry import TOOL_BY_ID
-from ctstudio.core.tools.saved_editors import EditorChoice
+from ctstudio.core.tools.saved_editors import EditorChoice, open_saved
 from ctstudio.core.tools.spec import CustomTool, ToolSpec
 
 
@@ -74,6 +74,10 @@ class EditorLaunchService:
                 hint="Check document, tool and settings paths and permissions, then retry.",
                 details=str(error),
             ) from error
+
+    def dispatch(self, project: Project, choice: EditorChoice, document: Path) -> editors.Launched:
+        """Start exactly ``choice`` with settings read now (preparation is not authority)."""
+        return open_saved(choice, document, project=project.root, settings_path=self._settings_path)
 
     def _prepare(self, document: Path) -> PreparedEditors:
         document = custom_editors.checked_path("editor", document, document, "document")

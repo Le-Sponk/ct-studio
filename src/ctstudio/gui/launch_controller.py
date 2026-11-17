@@ -1,12 +1,16 @@
 """Joined ownership of blocking editor, folder and file-assignment work (ARCHITECTURE §10).
 
 ``LaunchController.start`` runs one Blender launch (``component_id`` None) or one component
-folder reveal (P5-T03i), and ``assign`` one ``assign_file`` call (P5-T04b), on a named thread
-(``ctstudio-launch``); only one of them runs at a time. The result, including any typed error,
-crash or worker interrupt, comes back once as ``completed`` on the UI thread, with the project,
+folder reveal (P5-T03i), ``assign`` one ``assign_file`` call (P5-T04b), and
+``prepare_editors``/``open_editor`` one editor preparation or saved-choice dispatch
+(P5-T07d2), on a named thread (``ctstudio-launch``); only one of them runs at a time. The
+result, including any typed error, crash or worker interrupt, comes back once as
+``completed`` on the UI thread, with the project,
 root and manifest captured when it started. ``busy`` stays True until that delivery has joined
 the worker; ``shutdown`` waits and, when it times out, keeps the owner busy so the caller keeps
 the project open. A receipt only means the request was dispatched, not that anything displayed.
+``open_editor`` accepts only the latest delivered preparation for the same project, root and
+manifest, and one of its offered choices; dispatch re-reads settings on the worker.
 """
 
 from __future__ import annotations
@@ -27,13 +31,17 @@ from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.project import Project
 from ctstudio.core.tools import editors
 from ctstudio.core.tools import folders as corefolders
+from ctstudio.core.tools.saved_editors import EditorChoice
 from ctstudio.gui.blender_launch import BlenderLaunchService
+from ctstudio.gui.editor_launch import EditorLaunchService, PreparedEditors
 from ctstudio.gui.folder_reveal import FolderRevealService
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
 
 _LOG = logging.getLogger(__name__)
 THREAD_NAME = "ctstudio-launch"
-Receipt = editors.Launched | corefolders.OpenedFolder | Assigned | Path
+Receipt = editors.Launched | corefolders.OpenedFolder | Assigned | Path | PreparedEditors
+STALE_CHOICES = "Those editor choices are out of date."
+STALE_HINT = "Prepare editor choices for the current project again, then choose one."
 
 
 class Assign(Protocol):
@@ -58,6 +66,9 @@ class LaunchResult:
     saved: DetailsSnapshot | None = None  # post-attempt disk state, not the captured input
     recovery_error: BaseException | None = None  # separate from the original action/start error
     recovery_root: Path | None = None  # independently resolved on the recovery worker
+    editor_action: str | None = None  # prepare/open; component_id is then None
+    document: Path | None = None
+    choice: EditorChoice | None = None  # the exact saved choice an open dispatched
 
 
 @dataclass(frozen=True)
@@ -83,6 +94,9 @@ class _Context:
     source: Path | None = None
     reference: bool = False
     edit_action: str | None = None  # lock/discard; None for assignment or editor/folder dispatch
+    editor_action: str | None = None  # prepare/open
+    document: Path | None = None
+    choice: EditorChoice | None = None
 
     def result(self, receipt: object = None, error: object = None) -> LaunchResult:
         recovered = receipt if isinstance(receipt, _Recovered) else None
@@ -101,6 +115,9 @@ class _Context:
             saved=recovered.snapshot if recovered is not None else None,
             recovery_error=recovered.error if recovered is not None else None,
             recovery_root=recovered.root if recovered is not None else None,
+            editor_action=self.editor_action,
+            document=self.document,
+            choice=self.choice,
         )
 
 
@@ -116,6 +133,7 @@ class LaunchController(QObject):
         assign: Assign = assign_file,
         lock: Callable[[Project, str], Assigned] = lock_as_manual,
         discard: Callable[[Project, str], Path] = discard_edit,
+        editors: EditorLaunchService | None = None,
         parent: QObject | None = None,
     ) -> None:
         super().__init__(parent)
@@ -123,6 +141,8 @@ class LaunchController(QObject):
         self._folders = folders if folders is not None else FolderRevealService()
         self._assign = assign
         self._lock, self._discard = lock, discard
+        self._editors = editors if editors is not None else EditorLaunchService()
+        self._latest: LaunchResult | None = None  # the last delivered successful preparation
         self._relay = _Relay()
         self._relay.done.connect(self._on_done)
         self._thread: threading.Thread | None = None
@@ -163,9 +183,45 @@ class LaunchController(QObject):
             _Context(project, project.root, project.manifest, part, edit_action=action)
         )
 
+    def prepare_editors(self, project: Project, document: Path) -> bool:
+        """Inspect editor choices for ``document``; the receipt is the ``PreparedEditors``."""
+        context = _Context(
+            project,
+            project.root,
+            project.manifest,
+            None,
+            editor_action="prepare",
+            document=document,
+        )
+        return self._begin(context)
+
+    def open_editor(
+        self, project: Project, prepared: PreparedEditors, choice: EditorChoice
+    ) -> bool:
+        """Dispatch ``choice`` from the latest delivered preparation for this project.
+
+        Raises ``ProjectError`` (nothing starts) for a stale, foreign or unoffered request.
+        """
+        if self._busy:
+            return False
+        if not _current(self._latest, project, prepared, choice):
+            raise ProjectError(STALE_CHOICES, hint=STALE_HINT)
+        context = _Context(
+            project,
+            project.root,
+            project.manifest,
+            None,
+            editor_action="open",
+            document=prepared.document,
+            choice=choice,
+        )
+        return self._begin(context)
+
     def _begin(self, context: _Context) -> bool:
         if self._busy:
             return False
+        if context.editor_action == "prepare":
+            self._latest = None
         self._generation += 1
         work = _Work(
             self._generation,
@@ -175,6 +231,7 @@ class LaunchController(QObject):
             self._assign,
             self._lock,
             self._discard,
+            self._editors,
         )
         thread = threading.Thread(target=work.run, args=(context,), name=THREAD_NAME, daemon=True)
         self._thread, self._context = thread, context
@@ -220,6 +277,7 @@ class LaunchController(QObject):
                 return False
         self._thread, self._context = None, None  # a queued delivery now finds no context
         self._start_error = None
+        self._latest = None
         self._generation += 1
         self._set_busy(False)
         return self._thread is None  # an idle callback may have started another request
@@ -242,7 +300,24 @@ class LaunchController(QObject):
         self._thread, self._context = None, None
         self._set_busy(False)
         if generation == self._generation:
-            self.completed.emit(context.result(receipt, error))
+            result = context.result(receipt, error)
+            if isinstance(result.receipt, PreparedEditors):  # an error leaves no receipt
+                self._latest = result
+            self.completed.emit(result)
+
+
+def _current(
+    latest: LaunchResult | None, project: Project, prepared: PreparedEditors, choice: EditorChoice
+) -> bool:
+    """Only the latest delivered preparation, for this exact project/root/manifest and choice."""
+    return (
+        latest is not None
+        and latest.receipt is prepared
+        and latest.project is project
+        and project.root == latest.root
+        and project.manifest is latest.manifest
+        and choice in [option.choice for option in prepared.options]
+    )
 
 
 @dataclass(frozen=True)
@@ -256,23 +331,14 @@ class _Work:
     assign: Assign
     lock: Callable[[Project, str], Assigned]
     discard: Callable[[Project, str], Path]
+    editors: EditorLaunchService
 
     def run(self, context: _Context) -> None:
         receipt: Receipt | None = None
         error: BaseException | None = None
-        project, component_id = context.project, context.component_id
+        project = context.project
         try:
-            if context.edit_action is not None and component_id is not None:
-                action = self.lock if context.edit_action == "lock" else self.discard
-                receipt = action(project, component_id)
-            elif context.source is not None and component_id is not None:
-                receipt = self.assign(
-                    project, component_id, context.source, reference=context.reference
-                )
-            elif component_id is None:
-                receipt = self.blender.launch(project)
-            else:
-                receipt = self.folders.reveal(project, component_id)
+            receipt = self._perform(context)
         except CTStudioError as exc:
             error = exc
         except BaseException as exc:  # crashes and interrupts must reach the window
@@ -280,6 +346,30 @@ class _Work:
             error = exc
         outgoing = self._recover(project, receipt) if context.edit_action is not None else receipt
         self.relay.done.emit(self.generation, outgoing, error)
+
+    def _perform(self, context: _Context) -> Receipt:
+        project, component_id = context.project, context.component_id
+        if context.editor_action is not None:
+            return self._editor(context)
+        if context.edit_action is not None and component_id is not None:
+            action = self.lock if context.edit_action == "lock" else self.discard
+            return action(project, component_id)
+        if context.source is not None and component_id is not None:
+            return self.assign(project, component_id, context.source, reference=context.reference)
+        if component_id is None:
+            return self.blender.launch(project)
+        return self.folders.reveal(project, component_id)
+
+    def _editor(self, context: _Context) -> Receipt:
+        document = context.document
+        if document is None:  # an untyped caller; never fall through to another action
+            raise ProjectError(
+                "No document was given to the editor request.",
+                hint="Choose the file to open again, then retry.",
+            )
+        if context.choice is None:
+            return self.editors.prepare(context.project, document)
+        return self.editors.dispatch(context.project, context.choice, document)
 
     @staticmethod
     def _recover(project: Project, receipt: Receipt | None) -> _Recovered:
