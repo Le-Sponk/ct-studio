@@ -28,6 +28,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.gui.assign_text import STALE_ASSIGNMENT, assignment_detail, describe_assignment
 from ctstudio.gui.dashboard_builds import DashboardBuilds
+from ctstudio.gui.dashboard_editors import DashboardEditors
 from ctstudio.gui.dashboard_outside import DashboardOutside
 from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.launch_text import component_name
@@ -61,6 +62,7 @@ class Dashboard(QWidget):
         self._project: Project | None = None
         self._checking = False
         self.outside_edits = DashboardOutside(self)
+        self.editors = DashboardEditors(self)
         self.setObjectName("dashboard")
         self._layout = QVBoxLayout(self)
         self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -100,6 +102,7 @@ class Dashboard(QWidget):
             self.refresh()  # retain last good results, including during an existing check/build
             return
         self.outside_edits.bind(project)
+        self.editors.clear()
         self._project = project
         self.builds.clear()
         self.issues.clear()
@@ -269,6 +272,10 @@ class Dashboard(QWidget):
     def _shown(self) -> Project | None:
         return self._project if self._current() else None
 
+    @property
+    def shown_project(self) -> Project | None:
+        return self._shown()
+
     def _sync(self, _running: bool = False) -> None:
         self.builds.sync()
         building = self.services.build.running
@@ -297,6 +304,11 @@ class Dashboard(QWidget):
             and self._project is not None
             and not self._project.read_only
         )
+
+    @property
+    def inspectable(self) -> bool:
+        """Read-only work (editor choices) may start: idle, statuses known."""
+        return self._idle() and not self.services.status.busy
 
     def _idle(self) -> bool:
         """Explicit app state only: current project and no check, build, edit or launch."""
@@ -346,7 +358,9 @@ class Dashboard(QWidget):
             and payload.project is project
             and payload.root == project.root
         ):
-            if payload.edit_action is not None:
+            if payload.editor_action is not None:  # before Blender: no component
+                self.editors.completed(payload)
+            elif payload.edit_action is not None:
                 self.outside_edits.completed(payload)
             elif payload.source is not None:
                 self._assigned(project, payload)

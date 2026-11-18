@@ -328,6 +328,20 @@ manifest object and an offered choice; otherwise `open_editor` raises `ProjectEr
 nothing (False only while busy). A new preparation, a failed preparation and a successful
 shutdown retire it. Application guards, result text and eligibility remain T07d3.
 
+P5-T07d3 adds the application layer. `AppServices.start_prepare_editors(document)` and
+`start_open_editor(prepared, choice)` apply the existing memory-only refusals (no project,
+project details open, build running, launch owner busy, statuses being checked); a read-only
+project may prepare (it only reads) but never open. `gui/dashboard_editors.py`
+(`DashboardEditors`, like `DashboardOutside`) captures the request identity, shows progress and
+refusals, ignores results that do not match it, and keeps the latest delivered choices only while
+the shown Project object, root and manifest object are unchanged (`choices` re-checks on every
+read; a dashboard rebind or new preparation retires them). The dashboard routes results on
+`editor_action` before Blender/folder handling, and `launch_text.describe_editor` names the
+offered editor: "<label> was started (process N) with <file>" plus "cannot tell whether <label>
+finished opening the file" and the adapter warnings; preparation reads "Editor choices for
+<file> are ready (n of m found)". No menus (T07e). `docs/reference/EDITOR_OWNER_ACCEPTANCE.json`
+maps every original P5-T07d criterion to executed d1/d2/d3 tests.
+
 **As built (P3-T01):** `core/project/manifest.py` (frozen dataclasses, edit with
 `dataclasses.replace`), `manifest_io.py` (`load`/`save`; tomllib reads, tomli-w writes, the
 write is atomic), `toml_table.py` (key-path errors), `migrations.py` (`(from_version, fn)`

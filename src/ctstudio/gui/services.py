@@ -20,7 +20,9 @@ from ctstudio.core.project.project import Project
 from ctstudio.core.project.settings import SettingsError
 from ctstudio.core.tools import doctor
 from ctstudio.core.tools.doctor import Report
+from ctstudio.core.tools.saved_editors import EditorChoice
 from ctstudio.gui.build_controller import BuildController
+from ctstudio.gui.editor_launch import PreparedEditors
 from ctstudio.gui.launch_controller import LaunchController
 from ctstudio.gui.status_service import StatusService
 from ctstudio.gui.watcher_bridge import WatcherBridge
@@ -270,6 +272,40 @@ class AppServices:
             )
         return self.launch.reconcile(project, part, action)
 
+    def start_prepare_editors(self, document: Path) -> bool:
+        """Prepare editor choices for ``document`` on the joined launch worker (P5-T07d3).
+
+        Memory-only eligibility; the worker inspects the document, settings and tools. A
+        read-only project may prepare (it only reads) but never open.
+        """
+        project = self._editor_project()
+        return self.launch.prepare_editors(project, document)
+
+    def start_open_editor(self, prepared: PreparedEditors, choice: EditorChoice) -> bool:
+        """Open ``choice`` from the latest delivered preparation; settings are re-read then.
+
+        The owner refuses stale, foreign or unoffered choices before anything starts.
+        """
+        project = self._editor_project()
+        if project.read_only:
+            raise ProjectError(
+                "Cannot open an editor for a read-only project.",
+                hint="Close it in the other CT Studio, then reopen it here for editing.",
+            )
+        return self.launch.open_editor(project, prepared, choice)
+
+    def _editor_project(self) -> Project:
+        project = self.project
+        if project is None:
+            raise ProjectError("No project is open.", hint="Open or create a project first.")
+        self._refuse_while_building()
+        if self.status.busy:
+            raise ProjectError(
+                "Component statuses are still being checked.",
+                hint="Wait for the check to finish, then try again.",
+            )
+        return project
+
     def _refresh(self, _result: object) -> None:
         if self.project is not None:
             self.status.request(self.project)
@@ -292,7 +328,7 @@ class AppServices:
             )
         if self.launch.busy:
             raise ProjectError(
-                "A Blender launch, folder or file request is still finishing; "
+                "A Blender launch, editor, folder or file request is still finishing; "
                 "the project stays open.",
                 hint="Wait a moment for it to finish, then try again.",
             )

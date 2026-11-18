@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "task": "P5-T07d3",
+  "phase_source": "docs/phases/PHASE_05_gui_dashboard.md",
+  "scope": [
+    "P5-T07d",
+    "P5-T07d1",
+    "P5-T07d2",
+    "P5-T07d3"
+  ],
+  "execution_rule": "Each listed function prefix must match passing, non-skipped collected cases in the final combined run. The mapping alone is not execution evidence or permission to close a parent.",
+  "requirements": [
+    {
+      "id": "d-immutable-choices",
+      "criterion": "Prepare immutable available choices (document-compatible built-in and explicit custom, saved order, exact course.kcl eligibility).",
+      "tests": [
+        "tests/gui/test_editor_preparation.py::test_native_preferred_choices_are_immutable_read_only",
+        "tests/gui/test_editor_preparation.py::test_custom_choices_keep_exact_namespace_insertion_order_and_fresh_settings",
+        "tests/gui/test_editor_preparation.py::test_lorenzi_requires_exact_regular_sibling_not_installation"
+      ]
+    },
+    {
+      "id": "d-worker-thread",
+      "criterion": "Preparation and dispatch run off the UI thread on the joined launch worker.",
+      "tests": [
+        "tests/gui/test_editor_owner.py::test_preparation_runs_joined_on_the_launch_worker_with_exact_identity",
+        "tests/gui/test_editor_owner.py::test_open_dispatches_an_offered_choice_of_the_latest_preparation",
+        "tests/gui/test_editor_requests.py::test_service_requests_run_joined_on_the_owner_for_the_current_project"
+      ]
+    },
+    {
+      "id": "d-fresh-damaged-settings",
+      "criterion": "Fresh settings at preparation and again at dispatch; damaged settings fail closed.",
+      "tests": [
+        "tests/gui/test_editor_preparation.py::test_fresh_builtin_preference_and_discovery_use_actual_filesystem",
+        "tests/gui/test_editor_preparation_failures.py::test_fresh_damaged_settings_never_fall_back_or_return_partial_choices",
+        "tests/gui/test_editor_owner.py::test_real_dispatch_rereads_fresh_settings_and_reports_damaged_ones"
+      ]
+    },
+    {
+      "id": "d-stale-results",
+      "criterion": "Stale preparations, foreign/unoffered choices and stale results are refused or ignored; project/root/manifest identity preserved.",
+      "tests": [
+        "tests/gui/test_editor_owner.py::test_stale_or_unoffered_open_requests_are_refused_without_dispatch",
+        "tests/gui/test_editor_owner.py::test_shutdown_and_a_failed_preparation_both_retire_the_latest_choices",
+        "tests/gui/test_editor_preparation_failures.py::test_mutated_project_identity_is_not_returned_as_prepared",
+        "tests/gui/test_editor_requests.py::test_stale_choices_are_refused_through_the_services",
+        "tests/gui/test_dashboard_editors.py::test_choices_retire_when_the_project_changes_and_stale_opens_start_nothing",
+        "tests/gui/test_dashboard_editors.py::test_an_unrelated_or_stale_editor_result_changes_nothing",
+        "tests/gui/test_dashboard_editors.py::test_a_new_preparation_retires_old_choices_and_ignores_foreign_results"
+      ]
+    },
+    {
+      "id": "d-interrupted-startup",
+      "criterion": "Interrupted or uncertain native startup keeps ownership, never authorises choices, and every failure is delivered once.",
+      "tests": [
+        "tests/gui/test_editor_owner.py::test_uncertain_native_start_keeps_the_owner_and_never_authorises_choices",
+        "tests/gui/test_editor_owner.py::test_every_editor_failure_is_delivered_exactly_once_and_frees_the_owner",
+        "tests/gui/test_editor_preparation_failures.py::test_inspection_failures_keep_exact_causes_or_interrupts"
+      ]
+    },
+    {
+      "id": "d-one-owner",
+      "criterion": "One owner across editor, Blender, folder, assignment and outside-edit work; no new executor.",
+      "tests": [
+        "tests/gui/test_editor_owner.py::test_one_owner_spans_editor_and_existing_operations",
+        "tests/gui/test_editor_requests.py::test_a_busy_owner_refuses_every_request_and_keeps_the_project"
+      ]
+    },
+    {
+      "id": "d-joined-ui-delivery",
+      "criterion": "Results reach the UI thread only after the worker joined; queued deliveries after shutdown are dropped.",
+      "tests": [
+        "tests/gui/test_editor_owner.py::test_preparation_runs_joined_on_the_launch_worker_with_exact_identity",
+        "tests/gui/test_editor_owner.py::test_shutdown_timeout_keeps_ownership_and_drops_a_queued_preparation",
+        "tests/gui/test_editor_requests.py::test_service_requests_run_joined_on_the_owner_for_the_current_project"
+      ]
+    },
+    {
+      "id": "d-close-timeout-lock",
+      "criterion": "Close/shutdown timeout during an editor request keeps the project and its writer lock.",
+      "tests": [
+        "tests/gui/test_editor_owner.py::test_shutdown_timeout_keeps_ownership_and_drops_a_queued_preparation",
+        "tests/gui/test_editor_requests.py::test_close_timeout_during_an_editor_request_keeps_the_writer_lock",
+        "tests/gui/test_dashboard_editors.py::test_window_navigation_and_close_wait_for_an_editor_request"
+      ]
+    },
+    {
+      "id": "d-application-guards",
+      "criterion": "Memory-only application guards: no project, details open, build, busy owner, status check; read-only may prepare but not open; navigation held.",
+      "tests": [
+        "tests/gui/test_editor_requests.py::test_memory_only_refusals_start_nothing",
+        "tests/gui/test_editor_requests.py::test_a_running_build_refuses_both_requests",
+        "tests/gui/test_editor_requests.py::test_a_busy_owner_refuses_every_request_and_keeps_the_project",
+        "tests/gui/test_editor_requests.py::test_read_only_projects_may_prepare_but_never_open",
+        "tests/gui/test_dashboard_editors.py::test_read_only_dashboards_may_prepare_but_never_open",
+        "tests/gui/test_dashboard_editors.py::test_a_service_refusal_is_shown_and_frees_the_dashboard",
+        "tests/gui/test_dashboard_editors.py::test_window_navigation_and_close_wait_for_an_editor_request"
+      ]
+    },
+    {
+      "id": "d-tool-aware-wording",
+      "criterion": "Honest tool-aware, launch-only result text with warnings and exact error wording; never Blender for an editor.",
+      "note": "The two test_launch_controls entries are Blender/folder regressions: they prove editor routing did not change those results, not editor wording itself.",
+      "tests": [
+        "tests/gui/test_editor_requests.py::test_open_wording_names_the_chosen_editor_and_claims_only_a_start",
+        "tests/gui/test_editor_requests.py::test_preparation_wording_is_a_readiness_note_not_a_launch",
+        "tests/gui/test_editor_requests.py::test_editor_failures_are_explained_without_blender",
+        "tests/gui/test_dashboard_editors.py::test_prepare_then_open_shows_launch_only_text_never_blender",
+        "tests/gui/test_launch_controls.py::test_results_have_their_own_notice",
+        "tests/gui/test_launch_controls.py::test_failures_are_explained"
+      ]
+    }
+  ]
+}

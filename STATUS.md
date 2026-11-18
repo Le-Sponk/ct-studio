@@ -9,7 +9,29 @@
 **Last green commit:** `89b1190` (P5-T07d2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- None.
+- `P5-T07d3` Application guards, result text and combined ownership acceptance.
+  Plan: (1) `AppServices.start_prepare_editors(document)` / `start_open_editor(prepared,
+  choice)` with the existing memory-only guards (no project, details open, build, launch busy,
+  status check; read-only may prepare but not open), routed to the d2 owner. (2) The open's
+  offered label travels in the result; `launch_text.describe_launch` routes editor results on
+  `editor_action` first: preparation shows a readiness note ("Editor choices for <file> are
+  ready (n of m found)"), an open says "<label> was started (process N)
+  with <file>" plus "cannot tell whether it finished opening" and the adapter warnings, never
+  "Blender". (3) A dashboard presenter (`gui/dashboard_editors.py`, like `dashboard_outside`)
+  shows progress/refusals and keeps the latest delivered choices only while they still match
+  the shown project/root/manifest (for T07e menus). (4) Window tests: navigation refused and
+  close timeout keeps the writer lock during an editor request. (5) Original-criterion map
+  `docs/reference/EDITOR_OWNER_ACCEPTANCE.json` over d1/d2/d3 tests, rerun together.
+  Files: `gui/services.py`, `gui/launch_text.py`, `gui/views/dashboard.py`, new
+  `gui/dashboard_editors.py`, new GUI tests, docs.
+  State: review NEEDS_REVISION (map claimed the build guard with no build test; four minor)
+  fixed; re-review APPROVE. 24 new tests; 21/21 source faults assertion-caught; strict
+  pyright Windows+Linux 0 errors; combined 61-file run 751 passed/6 skipped with all 35 mapped
+  tests passing.
+  Risks for T07e: `views/dashboard.py` is at 399/400 lines, so move card/menu code out before
+  adding menus; the new build-refusal test swaps in `services.build` after setup (production
+  wiring refreshes statuses on build end; harmless here, pass `build=` through
+  `editor_services` when that helper is next touched).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2221,6 +2243,26 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   run); 4914 others passed. Exact case 3/3 and its 5-test file 3/3 passed alone (one solo run
   took 7.6 s vs ~1 s, suggesting host load). Same class: a 5 s idle wait under load. A repeat
   of either test, or a third test with this symptom, makes it a defect to investigate now.
+  **Now a confirmed defect (P5-T07d3, 2026-11-18), deferred to Phase 13 by the owner after one
+  more investigation round.** Third instance (P5-T07d3 implementation gate, 1 failure in 4938):
+  `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[none-PermissionError-
+  discard-absolute]` never showed the outside-edit banner with Lock enabled within 5 s. Exact
+  case 3/3, its 48-test file 3/3, and the file 3/3 with four CPU-saturating processes all
+  passed, so ordinary CPU load alone does not cause it. Four more full-suite runs with a
+  scratch recorder on that helper's wait (logs which idle part stays set, then watches 30 s
+  more) caught no miss there; one of them (run 4) failed a fourth test instead:
+  `test_dashboard_reconcile.py::test_a_pre_save_status_result_cannot_publish_after_recovery`,
+  "the old snapshot was never evaluated" - the status worker did not reach its evaluator within
+  5 s of `status.request` (test took 6.23 s; 1.17 s in the other runs, neighbours normal).
+  So in about 2 of 6 full runs one wait anywhere stalls ~5 s while the same test is fast alone:
+  an intermittent whole-process pause (the GUI thread or a worker not scheduled), most likely
+  related to TD-017's worker-thread GC/GIL contention, not a per-test timing bug. Phase 13:
+  capture all thread stacks (faulthandler.dump_traceback) at the moment any `settled` wait
+  passes 4 s in a full run, compare with TD-017's signature, and fix the cause; never lengthen
+  the waits. Recorder and runs are local-only in
+  `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07d3-TD018/`. Until then a single such failure in an
+  untouched test is recorded here and the gate rerun once; two in one gate, or a hang, stop
+  release.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

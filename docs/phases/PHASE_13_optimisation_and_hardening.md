@@ -23,7 +23,9 @@ Remove unused dependencies; check licences; package size budget; exclude unused 
 hypothesis-based fuzzing for KCL/KMP readers and TOML loading; kill-during-write tests for atomicity;
 watcher + build race review; long-path tests on Windows. Includes TD-017 (rare full-suite Qt/GIL
 deadlock during worker-thread garbage collection; see STATUS Tech debt): reproduce it first, then fix.
-Also TD-018 (outside-edit failure test's idle wait under full-suite load).
+Also TD-018 (a confirmed intermittent ~5 s whole-process stall that makes 5 s idle waits miss in
+about 1 of 3 full-suite runs; capture all thread stacks when a wait passes 4 s and compare with
+TD-017 first).
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.
