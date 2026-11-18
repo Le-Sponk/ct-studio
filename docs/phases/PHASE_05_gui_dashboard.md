@@ -839,7 +839,7 @@ Card menus, the choice dialog and dispatch, plus missing-tool navigation through
 window and visual acceptance, exceed one small tested leaf. Every criterion above stays with
 the parent; neither child closes it alone.
 
-##### [ ] P5-T07e1 — Card Open in… action and editor-choice dialog
+##### [x] P5-T07e1 — Card Open in… action and editor-choice dialog
 Extract cohesive card-file and dashboard-assignment code to make room, then add a signal-only
 "Open in…" card action for a checked, present single file. It prepares choices through d3's
 presenter and offers them in a dialog: available editors open through the joined owner;

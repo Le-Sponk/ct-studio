@@ -4,29 +4,41 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07e1 — Card Open in… action and editor-choice dialog
+**Next task:** P5-T07e2 — Missing-tool guidance and Open in… acceptance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `0206811` (P5-T07d3 exact Check, Windows + Ubuntu)
+**Last green commit:** `3fdb838` (P5-T07e1 + test repair exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07e1` — Card Open in… action and editor-choice dialog (e split into e1/e2, see Plan
-  changes). Steps: (1) make room: card file-assignment helpers to `views/card_files.py`
-  (re-exported), dashboard assignment publishing to `gui/dashboard_assign.py`; (2) tests
-  first: card action/eligibility, choice dialog, card-to-worker-to-dialog-to-launch flows,
-  stale/modal/busy/read-only guards, real preparation for Lorenzi with and without
-  course.kcl; (3) card `Open in…` action (checked, present single file; emits only);
-  (4) `views/editor_choices.py` dialog (window-modal, keyboard, disabled unavailable rows
-  with reason and hint, Open off for read-only); (5) `DashboardEditors.request(part)`
-  prepares, then offers the dialog; accept goes through d3's `open`, which rechecks identity
-  and ownership; rebinding closes the dialog. Acceptance: phase file e1. Files:
-  `views/component_card.py`, `views/card_files.py`, `views/dashboard.py`,
-  `gui/dashboard_assign.py`, `gui/dashboard_editors.py`, `views/editor_choices.py`, new tests.
-  Risks: dashboard/main window at 399 lines; the d3 build-refusal test swaps in
-  `services.build` after setup (pass `build=` through `editor_services` when touched); modal
-  dialog lifetime (close on rebind, deleteLater on finish).
+- None. Next leaf P5-T07e2 (missing-tool guidance and Open in… acceptance; closes P5-T07e
+  with e1). Risks carried from e1: `main_window.py` is at 399/400 lines, so extract window
+  code before adding the Tools route; `views/component_card.py` is at 397; when choices are
+  ready but another modal window was open, e1 shows only the "Editor choices for…" note
+  (choose Open in… again) — e2 may add a hint; `test_dashboard_assign.py` still has two
+  pre-existing strict-pyright findings (deprecated contextmanager, private `_eligible`).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-18 `P5-T07e1` Card Open in… action and editor-choice dialog (`bb5894a`, test
+  repair `3fdb838`); P5-T07e stays open for e2. Single-file cards get a signal-only
+  "Open in…" enabled only when the status check found the file present
+  (`ComponentStatus.present`, evaluated off the UI thread: an unmade output is not present
+  even when a missing tool makes it Error, nor an unrecorded leftover). `DashboardEditors`
+  prepares through the joined owner, then opens the window-modal
+  `views/editor_choices.py` (unavailable rows disabled with reason and next step; read-only
+  shows the project's own reason and cannot open; launch-only note); the choice opens via
+  d3's guarded `open`; stale choices open nothing and say so; one dialog at a time, retired
+  on rebind, never over another modal or a hidden page. Lorenzi is offered only with an exact
+  course.kcl (real service). Moved, unchanged: `views/card_files.py`,
+  `gui/dashboard_assign.py`. Evidence: 44 mutants assertion-caught (one 600 s timeout once,
+  caught on isolated rerun, recorded under TD-017); strict pyright 0 on Windows and Linux;
+  review NEEDS_REVISION (unmade outputs offered, wording, modal stacking, fragile tests,
+  accessibility) → fixed → APPROVE, post-approval delta APPROVE; local gate 5009 passed /
+  6 skipped / 178 deselected. `bb5894a` Ubuntu Check 134784604391 failed
+  `test_returning_to_dashboard_keeps_live_progress` (helper waited for the fake build's
+  cancel token, not its first event; reproduced 3/3 with a 0.5 s delay); repaired in
+  `3fdb838` (test-only, reviewed APPROVE). Exact Check for `3fdb838`: Windows 134797741155
+  (5000 passed / 15 skipped), Ubuntu 134797741677 (5001 / 14), 5015 selected; artifacts
+  14427945973 / 14426988505 coverage.xml only; Integration not triggered.
 - 2026-11-18 `P5-T07d3` Application guards, result text and combined ownership acceptance
   (`0206811`); closes parent `P5-T07d`. `AppServices.start_prepare_editors`/`start_open_editor`
   apply the memory-only refusals (no project, details open, build, busy owner, status check;
