@@ -1,4 +1,8 @@
-"""Memory-only routing of editor preparation/open requests through the joined owner (d3)."""
+"""Memory-only routing of editor preparation/open requests through the joined owner (d3).
+
+A card's Open in… (e1) prepares choices, then offers them in a window-modal dialog; the
+chosen editor opens through ``open``, so the owner re-checks project and choice again.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QApplication
 
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.manifest import Manifest
@@ -16,6 +21,7 @@ from ctstudio.core.tools.saved_editors import EditorChoice
 from ctstudio.gui.editor_launch import PreparedEditors
 from ctstudio.gui.launch_controller import LaunchResult
 from ctstudio.gui.launch_text import describe_editor, describe_launch
+from ctstudio.gui.views.editor_choices import EditorChoices
 
 if TYPE_CHECKING:
     from ctstudio.gui.views.dashboard import Dashboard
@@ -31,6 +37,7 @@ class _Request:
     action: str
     choice: EditorChoice | None = None
     label: str = ""
+    offer: bool = False  # show the choice dialog when choices arrive
 
     def matches(self, result: LaunchResult) -> bool:
         return (
@@ -47,6 +54,9 @@ class _Request:
         return project.root == self.root and project.manifest is self.manifest
 
 
+STALE_CHOICE = "Nothing was opened: the project changed or other work started meanwhile."
+
+
 class DashboardEditors(QObject):
     """Own presentation context and the latest delivered choices, never the worker."""
 
@@ -55,6 +65,7 @@ class DashboardEditors(QObject):
         self.page = page
         self._pending: _Request | None = None
         self._choices: tuple[_Request, PreparedEditors] | None = None
+        self.dialog: EditorChoices | None = None
 
     @property
     def pending(self) -> bool:
@@ -69,16 +80,25 @@ class DashboardEditors(QObject):
         return kept[1]
 
     def clear(self) -> None:
-        """Retire presentation context and choices (another project, or one reloaded)."""
+        """Retire presentation context, choices and any open choice dialog."""
         self._pending = self._choices = None
+        dialog, self.dialog = self.dialog, None
+        if dialog is not None:
+            dialog.reject()  # its finished signal now finds no dialog to act on
 
-    def prepare(self, document: Path) -> None:
+    def request(self, part: str) -> None:
+        """A card asked to open its single file: prepare, then offer the choice dialog."""
+        card = self.page.cards.get(part)
+        if self.dialog is None and card is not None and card.can_open() and card.path:
+            self.prepare(card.path, offer=True)
+
+    def prepare(self, document: Path, *, offer: bool = False) -> None:
         """Ask for choices for ``document``; read-only projects may prepare (reading only)."""
         project = self.page.shown_project
         if project is None or not self.page.inspectable:
             return
         self._choices = None
-        request = _Request(project, project.root, project.manifest, "prepare")
+        request = _Request(project, project.root, project.manifest, "prepare", offer=offer)
         self._start(request, lambda: self.page.services.start_prepare_editors(document))
 
     def open(self, choice: EditorChoice) -> None:
@@ -118,3 +138,38 @@ class DashboardEditors(QObject):
         label = request.label
         text = describe_editor(result, label) if label else describe_launch(result)
         self.page.show_launch_note(text)
+        prepared = self.choices
+        if request.offer and prepared is not None and self._may_offer():
+            self._offer(request.project, prepared)
+
+    def _may_offer(self) -> bool:
+        """Only over the visible page and never on top of another modal window (e.g. Tools)."""
+        return self.page.isVisible() and QApplication.activeModalWidget() is None
+
+    def _offer(self, project: Project, prepared: PreparedEditors) -> None:
+        dialog = EditorChoices(
+            prepared,
+            can_open=not project.read_only,
+            why_not=project.read_only_reason,
+            parent=self.page,
+        )
+        self.dialog = dialog
+
+        def finished(_result: int) -> None:
+            self._finished(dialog)
+
+        dialog.finished.connect(finished)
+        dialog.finished.connect(dialog.deleteLater)
+        dialog.open()  # window-modal; the page keeps running its own workers meanwhile
+
+    def _finished(self, dialog: EditorChoices) -> None:
+        if dialog is not self.dialog:  # retired by clear(): nothing may open from it
+            return
+        self.dialog = None
+        choice = dialog.chosen  # set only when the user chose an available editor
+        if choice is None:
+            return
+        if self.choices is None or not self.page.mutable:  # changed while choosing
+            self.page.show_launch_note(STALE_CHOICE)
+            return
+        self.open(choice)

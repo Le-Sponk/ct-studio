@@ -4,15 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07e — Mounted Open in… menus and missing-tool guidance
+**Next task:** P5-T07e1 — Card Open in… action and editor-choice dialog
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `0206811` (P5-T07d3 exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next leaf P5-T07e. Risks carried from d3: `views/dashboard.py` is at 399/400 lines
-  and `main_window.py` at 399, so move card/menu code out before adding menus; the d3
-  build-refusal test swaps in `services.build` after setup (pass `build=` through
-  `editor_services` when that helper is next touched).
+- `P5-T07e1` — Card Open in… action and editor-choice dialog (e split into e1/e2, see Plan
+  changes). Steps: (1) make room: card file-assignment helpers to `views/card_files.py`
+  (re-exported), dashboard assignment publishing to `gui/dashboard_assign.py`; (2) tests
+  first: card action/eligibility, choice dialog, card-to-worker-to-dialog-to-launch flows,
+  stale/modal/busy/read-only guards, real preparation for Lorenzi with and without
+  course.kcl; (3) card `Open in…` action (checked, present single file; emits only);
+  (4) `views/editor_choices.py` dialog (window-modal, keyboard, disabled unavailable rows
+  with reason and hint, Open off for read-only); (5) `DashboardEditors.request(part)`
+  prepares, then offers the dialog; accept goes through d3's `open`, which rechecks identity
+  and ownership; rebinding closes the dialog. Acceptance: phase file e1. Files:
+  `views/component_card.py`, `views/card_files.py`, `views/dashboard.py`,
+  `gui/dashboard_assign.py`, `gui/dashboard_editors.py`, `views/editor_choices.py`, new tests.
+  Risks: dashboard/main window at 399 lines; the d3 build-refusal test swaps in
+  `services.build` after setup (pass `build=` through `editor_services` when touched); modal
+  dialog lifetime (close on rebind, deleteLater on finish).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1543,6 +1554,10 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-18: Split P5-T07e into e1 (card Open in… action, choice dialog and dispatch, with
+  room-making extractions) and e2 (missing-tool navigation to the Tools page, main-window
+  extraction, visual/keyboard evidence and the combined e criterion map). Both together exceed
+  one ~400-line leaf; all original e criteria stay above the children. e/T07 and HC1 stay open.
 - 2026-11-16: Split P5-T07d into d1 immutable editor-choice preparation, d2 extension of
   the existing joined owner and d3 application/result guards plus original-criterion audit.
   Catalogue/discovery/settings error matrices and lifecycle/application acceptance exceed
@@ -2226,6 +2241,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   notes are local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07d1/` (dumps never
   uploaded). Until then: if a gate or CI job hits the 1200 s limit, compare its stacks with
   this signature; rerun once on a match and record it, and investigate anything else.
+  Possible further instance (P5-T07e1 mutation run, 2026-11-18): one mutant's focused pytest
+  run (`dialog_offers_unavailable`) hit the 600 s mutation timeout with no output, though the
+  same mutant was assertion-caught in four earlier runs and in an isolated rerun with thread
+  stacks armed at 90 s (not triggered). Unproven (no stacks); the mutation runner now keeps
+  partial output on a timeout. Evidence local-only in
+  `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e1-TD017/`.
 - **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
   load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
   once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-

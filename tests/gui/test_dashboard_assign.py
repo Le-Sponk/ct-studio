@@ -261,13 +261,28 @@ def test_a_refusal_before_starting_is_shown_on_the_card(qtbot: QtBot, tmp_path: 
         assert project.manifest is not None
         services.status.request(project)  # a status check is now pending
         assert services.status.busy
-        page._assign("kcl", tmp_path / "x.kcl", False)
+        page.assigns.request("kcl", tmp_path / "x.kcl", False)
         assert work.calls == []
         assert page.cards["kcl"].assign_note.text() == (
             "Component statuses are still being checked.\n"
             "Next: Wait for the check to finish, then try again."
         )
         qtbot.waitUntil(lambda: not services.status.busy)
+
+
+def test_a_dashboard_for_a_replaced_project_assigns_nothing(qtbot: QtBot, tmp_path: Path) -> None:
+    with board(qtbot, tmp_path) as (page, services, project, work):
+        source = write(tmp_path / "mine.kcl", kcl_bytes())
+        other = Project.create(tmp_path / "Other", "Other")
+        services.project = other  # the shown page now belongs to a project no longer current
+        try:
+            page.assigns.request("kcl", source, False)
+            assert work.calls == [], "a stale dashboard assigned into the current project"
+            assert page.cards["kcl"].assign_note.text() == ""
+            assert not services.launch.busy
+        finally:
+            services.project = project
+            other.close()
 
 
 def test_a_read_only_dashboard_takes_no_drops(qtbot: QtBot, tmp_path: Path) -> None:
@@ -284,7 +299,7 @@ def test_a_read_only_dashboard_takes_no_drops(qtbot: QtBot, tmp_path: Path) -> N
             source = write(tmp_path / "mine.kcl", kcl_bytes())
             assert not drop(page.cards["kcl"], local(source))
             assert not page.cards["kcl"].choose_action.isEnabled()
-            page._assign("kcl", source, False)
+            page.assigns.request("kcl", source, False)
             assert work.calls == []
         finally:
             assert services.shutdown(10)

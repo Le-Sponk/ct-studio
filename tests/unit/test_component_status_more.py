@@ -22,7 +22,9 @@ def test_a_manual_file_outside_the_project_is_shown_as_given(tmp_path: Path) -> 
     shared = tmp_path / "shared é.brres"
     shared.write_bytes(brres())
     w.part("course_model", mode="manual", file=str(shared))
-    assert w.status("course_model") == ComponentStatus(State.MANUAL, (f"using {shared}",))
+    assert w.status("course_model") == ComponentStatus(
+        State.MANUAL, (f"using {shared}",), present=True
+    )
 
 
 def test_evaluate_reports_every_part_in_dashboard_order(tmp_path: Path) -> None:

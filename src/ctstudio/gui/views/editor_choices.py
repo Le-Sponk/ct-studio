@@ -1,0 +1,107 @@
+"""The editor-choice dialog for one file (P5-T07e1): pick an available editor, or learn why not.
+
+Signal-free and work-free: it only shows a delivered PreparedEditors snapshot and records the
+chosen EditorChoice. The dashboard opens it after preparation and dispatches the choice through
+the joined launch owner, which re-checks the project and the choice before starting anything.
+"""
+
+from __future__ import annotations
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ctstudio.core.tools.saved_editors import EditorChoice
+from ctstudio.gui.editor_launch import EditorOption, PreparedEditors
+
+_SUFFIX = {"available": "", "missing": " (not found)", "ineligible": " (cannot open this file)"}
+READ_ONLY = "This project is open read-only here, so no editor can be started from it."
+NONE_AVAILABLE = "No editor here can open this file yet."
+LAUNCH_ONLY = "CT Studio starts the editor; it cannot tell whether the file finished opening."
+
+
+def _reason(option: EditorOption) -> str:
+    return f"{option.explanation}\nNext: {option.hint}" if option.hint else option.explanation
+
+
+class EditorChoices(QDialog):
+    """Choose one available editor for ``prepared.document``; ``chosen`` is None otherwise."""
+
+    def __init__(
+        self,
+        prepared: PreparedEditors,
+        *,
+        can_open: bool,
+        why_not: str | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.setObjectName("editorChoices")
+        self.setWindowTitle(f"Open {prepared.document.name} in…")
+        self.chosen: EditorChoice | None = None
+        self._options = prepared.options
+        self._can_open = can_open
+        self._why_not = why_not
+        layout = QVBoxLayout(self)
+        heading = QLabel("&Choose an editor:", self)
+        layout.addWidget(heading)
+        self.choices = QListWidget(self)
+        heading.setBuddy(self.choices)
+        self.choices.setObjectName("editorChoiceList")
+        self.choices.setAccessibleName("Editors")
+        for option in self._options:
+            item = QListWidgetItem(option.label + _SUFFIX[option.state], self.choices)
+            item.setToolTip(_reason(option))
+            item.setData(Qt.ItemDataRole.AccessibleDescriptionRole, _reason(option))
+            if option.state != "available":
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+        self.choices.itemDoubleClicked.connect(self._double_clicked)
+        layout.addWidget(self.choices)
+        self.notes = QLabel(self._notes(), self)
+        self.notes.setObjectName("editorChoiceNotes")
+        self.notes.setTextFormat(Qt.TextFormat.PlainText)
+        self.notes.setWordWrap(True)
+        self.notes.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        layout.addWidget(self.notes)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel, parent=self)
+        self.open_button = buttons.addButton("Open", QDialogButtonBox.ButtonRole.AcceptRole)
+        self.open_button.setObjectName("editorChoiceOpen")
+        self.open_button.clicked.connect(self._open_current)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+        first = next((row for row, o in enumerate(self._options) if o.state == "available"), -1)
+        self.choices.setCurrentRow(first)
+        self.open_button.setEnabled(can_open and first >= 0)
+        self.open_button.setDefault(True)
+
+    def _notes(self) -> str:
+        lines: list[str] = []
+        if not self._can_open:
+            lines.append(READ_ONLY)
+            if self._why_not:  # the project's own reason, e.g. who holds it
+                lines.append(f"Why: {self._why_not.rstrip('.')}.")
+        elif not any(option.state == "available" for option in self._options):
+            lines.append(NONE_AVAILABLE)
+        lines += [f"{o.label}: {_reason(o)}" for o in self._options if o.state != "available"]
+        lines.append(LAUNCH_ONLY)
+        return "\n".join(lines)
+
+    def _choose(self, row: int) -> None:
+        if self._can_open and 0 <= row < len(self._options):
+            option = self._options[row]
+            if option.state == "available":
+                self.chosen = option.choice
+                self.accept()
+
+    def _open_current(self) -> None:
+        self._choose(self.choices.currentRow())
+
+    def _double_clicked(self, item: QListWidgetItem) -> None:
+        self._choose(self.choices.row(item))

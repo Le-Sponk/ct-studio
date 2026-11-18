@@ -71,7 +71,11 @@ def test_the_part_then_uses_its_own_file(project: Project, part: str) -> None:
     edit(project, part)
     project.manifest = lock_as_manual(project, part).manifest
     name = GAME_NAME[part]
-    assert evaluate(project, ())[part] == ComponentStatus(State.MANUAL, (f"using files/{name}",))
+    assert evaluate(project, ())[part] == ComponentStatus(
+        State.MANUAL,
+        (f"using files/{name}",),
+        present=part != "posteffect",  # folders: never
+    )
 
 
 def test_a_different_copy_already_in_files_is_backed_up_first(project: Project) -> None:

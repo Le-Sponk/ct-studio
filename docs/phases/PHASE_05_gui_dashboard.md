@@ -835,6 +835,28 @@ Starting point (from d3): `Dashboard.editors` (`gui/dashboard_editors.py`) alrea
 is at 399/400 lines and `main_window.py` at 399, so extract before adding anything.
 **Acceptance:** actual menu-to-worker flows, keyboard/disabled/stale/modal guards, visible
 launch warnings/results, missing-tool navigation and no falsely offered Lorenzi action.
+Card menus, the choice dialog and dispatch, plus missing-tool navigation through the main
+window and visual acceptance, exceed one small tested leaf. Every criterion above stays with
+the parent; neither child closes it alone.
+
+##### [ ] P5-T07e1 — Card Open in… action and editor-choice dialog
+Extract cohesive card-file and dashboard-assignment code to make room, then add a signal-only
+"Open in…" card action for a checked, present single file. It prepares choices through d3's
+presenter and offers them in a dialog: available editors open through the joined owner;
+ineligible ones (Lorenzi without an exact sibling course.kcl) and missing ones are shown
+disabled with their reason and hint. Read-only projects see choices but cannot open.
+**Acceptance:** actual card-to-worker-to-dialog-to-launch flows on the joined owner, disabled
+and stale/modal guards (project changed or work started while the dialog is open, a dialog
+retired on rebind), keyboard choice and Escape, visible launch-only results and warnings, and
+real preparation showing Lorenzi disabled without course.kcl and enabled with it. No new
+executor; missing-tool navigation and visual evidence are e2.
+
+##### [ ] P5-T07e2 — Missing-tool guidance and Open in… acceptance
+Turn missing choices into a "Set up in Tools…" route to the existing Tools page (extracting
+main-window code near its budget), and cover keyboard, minimum-width, enlarged-font and
+light/dark local evidence. Map and rerun every e criterion across e1/e2 before closing e.
+**Acceptance:** missing-tool dialog navigation with the window's busy/modal guards, the
+mapped combined run, and inspected local screenshots (never uploaded).
 
 #### [ ] P5-T07f — Usable editor-preference and custom-tool controls
 Provide bounded controls for built-in defaults, custom argv templates and Wine prefixes during

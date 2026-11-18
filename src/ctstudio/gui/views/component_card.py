@@ -7,14 +7,12 @@ They only emit ``assign_requested``; the dashboard runs the assignment and repor
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QMimeData, Qt, Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
     QApplication,
-    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMenu,
@@ -31,8 +29,17 @@ from ctstudio.core.components.state import GENERATED_DIR
 from ctstudio.core.components.status import STATE_LABELS, ComponentStatus, State
 from ctstudio.core.project.manifest_io import FILE_NAME
 from ctstudio.core.project.project import Project
+from ctstudio.gui.views.card_files import (
+    DROP_ONE,
+    ChooseSource,
+    choose_source,
+    copyable,
+    dropped_path,
+    takes_a_file,
+)
 from ctstudio.gui.views.outside_edit_banner import OutsideEditBanner
 
+__all__ = ["DROP_ONE", "ComponentCard", "choose_source", "dropped_path", "takes_a_file"]
 _STATUS_ICONS = {
     State.MISSING: QStyle.StandardPixmap.SP_MessageBoxQuestion,
     State.STALE: QStyle.StandardPixmap.SP_BrowserReload,
@@ -42,39 +49,6 @@ _STATUS_ICONS = {
     State.MANUAL: QStyle.StandardPixmap.SP_FileIcon,
     State.EDITED_EXTERNALLY: QStyle.StandardPixmap.SP_FileDialogDetailedView,
 }
-DROP_ONE = "Drop one file or folder from this computer. Nothing was changed."
-ChooseSource = Callable[[QWidget, ComponentSpec, Path], Path | None]  # None: cancelled
-
-
-def choose_source(parent: QWidget, spec: ComponentSpec, start: Path) -> Path | None:
-    """The native chooser: a folder for post-effects, otherwise one file."""
-    if spec.kind is None:
-        chosen = QFileDialog.getExistingDirectory(
-            parent, f"Choose the {spec.name} folder", str(start)
-        )
-    else:
-        chosen, _filter = QFileDialog.getOpenFileName(
-            parent, f"Choose the {spec.name} file", str(start)
-        )
-    return Path(chosen) if chosen else None
-
-
-def takes_a_file(spec: ComponentSpec) -> bool:
-    """A part whose modes include manual and that has its own settings table."""
-    return "manual" in spec.modes and spec.manifest_table not in (None, "project")
-
-
-def _copyable(event: QDropEvent) -> bool:
-    copy = Qt.DropAction.CopyAction
-    return event.mimeData().hasUrls() and event.possibleActions() & copy == copy
-
-
-def dropped_path(data: QMimeData) -> Path | None:
-    """The one local file or folder in a drop, or None for anything else."""
-    urls = data.urls() if data.hasUrls() else []
-    if len(urls) != 1 or not urls[0].isLocalFile() or not urls[0].toLocalFile():
-        return None
-    return Path(urls[0].toLocalFile())
 
 
 class ComponentCard(QWidget):
@@ -84,6 +58,7 @@ class ComponentCard(QWidget):
     reveal_requested = Signal(str)
     assign_requested = Signal(str, object, bool)  # part, source Path, reference in place
     reconcile_requested = Signal(str, str)  # part, outside-edit action
+    open_requested = Signal(str)  # part whose single file the user wants to open
 
     def __init__(self, spec: ComponentSpec, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -93,6 +68,7 @@ class ComponentCard(QWidget):
         self._actions_enabled = False
         self._inspection_enabled = False
         self._edited = False
+        self._present = False  # checked, and its file exists
         self.path: Path | None = None
         self.choose: ChooseSource = choose_source
         self.setObjectName(f"card_{spec.id}")
@@ -169,6 +145,7 @@ class ComponentCard(QWidget):
         self.reveal_action.setToolTip("Request this part's folder, even if the output is missing.")
         self.reveal_action.triggered.connect(self._request_reveal)
         self._add_file_actions(menu)
+        self._add_open_action(menu)
         self._mode_menu = QMenu("Mode", menu)
         self._mode_menu.setObjectName(f"{spec.id}ModeMenu")
         self.mode_actions: dict[str, QAction] = {}
@@ -184,6 +161,28 @@ class ComponentCard(QWidget):
         footer.addWidget(self.more_button)
         layout.addLayout(footer)
         self._sync_actions()
+
+    def _add_open_action(self, menu: QMenu) -> None:
+        spec = self._spec
+        self.open_action = QAction("Open in…", self)
+        self.open_action.setObjectName(f"{spec.id}OpenIn")
+        self.open_action.setToolTip("Choose an editor to start with this part's file.")
+        self.open_action.triggered.connect(self._request_open)
+        if spec.kind is not None:
+            menu.addAction(self.open_action)
+
+    def can_open(self) -> bool:
+        """Explicit state only: a single-file part, checked present, inspection allowed."""
+        return (
+            self._spec.kind is not None
+            and self._present
+            and self._inspection_enabled
+            and self.path is not None
+        )
+
+    def _request_open(self) -> None:
+        if self.can_open():
+            self.open_requested.emit(self._spec.id)
 
     def _add_file_actions(self, menu: QMenu) -> None:
         spec = self._spec
@@ -226,14 +225,14 @@ class ComponentCard(QWidget):
     # outlive a gate change, so the drop checks again.
     # Always a copy: a move (Shift in Explorer) would let the file manager delete the original.
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
-        if _copyable(event):
+        if copyable(event):
             event.setDropAction(Qt.DropAction.CopyAction)
             event.accept()
         else:
             event.ignore()
 
     def dropEvent(self, event: QDropEvent) -> None:
-        if not self._can_assign() or not _copyable(event):
+        if not self._can_assign() or not copyable(event):
             event.ignore()
             return
         source = dropped_path(event.mimeData())
@@ -290,6 +289,7 @@ class ComponentCard(QWidget):
         self.copy_action.setEnabled(copyable)
         self.copy_action.setToolTip(self.copy_button.toolTip())
         self.reveal_action.setEnabled(self._inspection_enabled and copyable)
+        self.open_action.setEnabled(self.can_open())
         assignable = self._can_assign()
         self.choose_action.setEnabled(assignable)
         self.reference_action.setEnabled(assignable)
@@ -349,14 +349,19 @@ class ComponentCard(QWidget):
         self.show_status(None)
         self.show_assign_note("")
 
-    def show_status(self, status: ComponentStatus | None) -> None:
-        """Render an already evaluated status; None is explicitly not checked."""
+    def _remember(self, status: ComponentStatus | None) -> None:
+        """Keep the explicit flags the actions follow (checked file presence, outside edit)."""
+        self._present = status is not None and status.present
         self._edited = (
             status is not None
             and status.state == State.EDITED_EXTERNALLY
             and self._current_mode != "manual"
             and bool(self._spec.outputs)
         )
+
+    def show_status(self, status: ComponentStatus | None) -> None:
+        """Render an already evaluated status; None is explicitly not checked."""
+        self._remember(status)
         self._sync_actions()
         text = "Not checked" if status is None else STATE_LABELS[status.state]
         reasons = () if status is None else status.reasons

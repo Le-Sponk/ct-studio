@@ -15,6 +15,9 @@ Missing when not chosen or not found, and Error when it is the wrong type. Objec
 info are Ready, or Warning when something is worth a look.
 
 Only size+mtime is read for unchanged files; a touched file is hashed once (cached).
+
+``present`` says whether a single-file part's file exists right now (checked here, off the
+UI thread), so the dashboard never infers it from a label: an Error part may have no file.
 """
 
 from __future__ import annotations
@@ -22,7 +25,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Collection, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from pathlib import Path
 from typing import Literal, Protocol
@@ -77,6 +80,7 @@ STATE_LABELS: Mapping[State, str] = {
 class ComponentStatus:
     state: State
     reasons: tuple[str, ...] = ()
+    present: bool = False  # a single-file part's file exists (never set for folders)
 
 
 class ProjectLike(Protocol):
@@ -111,6 +115,29 @@ def settings_key(manifest: Manifest, component: str) -> str:
 
 
 def _one(
+    spec: ComponentSpec, project: ProjectLike, tools: Collection[str], state: ProjectState
+) -> ComponentStatus:
+    status = _judge(spec, project, tools, state)
+    file = single_file(spec, project)
+    if file is None:
+        return status
+    table = getattr(project.manifest.components, spec.id)
+    if table.mode != "manual" and spec.id not in state.components:
+        return status  # a leftover CT Studio never recorded making is not its output
+    return replace(status, present=file.is_file())
+
+
+def single_file(spec: ComponentSpec, project: ProjectLike) -> Path | None:
+    """The one file a single-file part is: its chosen manual file or its first output."""
+    if spec.kind is None or spec.manifest_table in (None, "project"):
+        return None
+    table = getattr(project.manifest.components, spec.manifest_table)
+    if table.mode == "manual":
+        return input_path(project.root, table.file) if table.file else None
+    return project.root / GENERATED_DIR / spec.outputs[0]
+
+
+def _judge(
     spec: ComponentSpec, project: ProjectLike, tools: Collection[str], state: ProjectState
 ) -> ComponentStatus:
     if spec.id == "objects":

@@ -6,8 +6,6 @@ shows their results. Launch results have their own notice, so a status check nev
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
@@ -22,11 +20,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ctstudio.core.components.assign import Assigned
 from ctstudio.core.components.registry import COMPONENTS
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
-from ctstudio.gui.assign_text import STALE_ASSIGNMENT, assignment_detail, describe_assignment
+from ctstudio.gui.dashboard_assign import DashboardAssign
 from ctstudio.gui.dashboard_builds import DashboardBuilds
 from ctstudio.gui.dashboard_editors import DashboardEditors
 from ctstudio.gui.dashboard_outside import DashboardOutside
@@ -63,6 +60,7 @@ class Dashboard(QWidget):
         self._checking = False
         self.outside_edits = DashboardOutside(self)
         self.editors = DashboardEditors(self)
+        self.assigns = DashboardAssign(self)
         self.setObjectName("dashboard")
         self._layout = QVBoxLayout(self)
         self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -185,7 +183,8 @@ class Dashboard(QWidget):
             card = ComponentCard(spec, self)
             card.mode_requested.connect(self.mode_requested)
             card.reveal_requested.connect(self.reveal_requested)
-            card.assign_requested.connect(self._assign)
+            card.assign_requested.connect(self.assigns.request)
+            card.open_requested.connect(self.editors.request)
             card.reconcile_requested.connect(self.outside_edits.request)
             card.setFocusPolicy(Qt.FocusPolicy.ClickFocus)  # the Issues panel can go to it
             card.setAccessibleName(spec.name)
@@ -334,21 +333,6 @@ class Dashboard(QWidget):
         """Window-level news about the launch owner, e.g. that closing must wait for it."""
         self._show_launch_text(text)
 
-    def _assign(self, part: str, source: Path, reference: bool) -> None:
-        """A card asked to use ``source``; the launch owner runs it, ``_assigned`` reports."""
-        card = self.cards.get(part)
-        if card is None or not self._current():
-            return
-        try:
-            started = self.services.start_assign(part, source, reference=reference)
-        except CTStudioError as exc:
-            card.show_assign_note(str(exc))
-            return
-        if started:
-            doing = "Recording" if reference else "Copying"
-            where = "" if reference else " into the project"
-            card.show_assign_note(f"{doing} {source.name or source}{where}…")
-
     def _launched(self, payload: object) -> None:
         project = self._project
         if (
@@ -363,28 +347,10 @@ class Dashboard(QWidget):
             elif payload.edit_action is not None:
                 self.outside_edits.completed(payload)
             elif payload.source is not None:
-                self._assigned(project, payload)
+                self.assigns.completed(project, payload)
             elif payload.manifest is project.manifest:
                 self._show_launch_text(describe_launch(payload))
         self._sync()
-
-    def _assigned(self, project: Project, result: LaunchResult) -> None:
-        """Publish a saved assignment (UI thread, worker joined), then check statuses again."""
-        card = self.cards.get(result.component_id or "")
-        saved = isinstance(result.receipt, Assigned)
-        if saved and result.manifest is not project.manifest:  # changed meanwhile: keep it
-            if card is not None:
-                card.show_assign_note(STALE_ASSIGNMENT)
-            return
-        if isinstance(result.receipt, Assigned):  # (saved; pyright needs the narrowing)
-            project.manifest = result.receipt.manifest
-            self.outside_edits.bind(project)
-            for each in self.cards.values():
-                each.bind(project)
-            self.recheck()
-        self._show_launch_text("")
-        if card is not None:
-            card.show_assign_note(describe_assignment(result), assignment_detail(result))
 
     def _show_launch_text(self, text: str) -> None:
         self.launch_notice.setText(text)
