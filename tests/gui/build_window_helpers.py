@@ -65,7 +65,11 @@ def build_window(qtbot: QtBot, tmp_path: Path) -> Generator[tuple[MainWindow, Pr
 
 
 def started(qtbot: QtBot, view: MainWindow, fake: FakeBuilds) -> None:
-    eventually(qtbot, lambda: bool(fake.cancels), "build action never reached the worker")
+    """Wait until the held build has sent its first event, then deliver it on the UI thread.
+
+    The token is recorded before that event is sent, so waiting only for it raced (Ubuntu CI).
+    """
+    eventually(qtbot, lambda: fake.sent > 0, "the held build never sent its first event")
     QCoreApplication.sendPostedEvents()
     assert view.services.build.running, "held build lost ownership"
 

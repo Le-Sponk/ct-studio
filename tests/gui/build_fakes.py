@@ -52,6 +52,7 @@ class FakeBuilds:
         self.plan_error: BaseException | None = None
         self.run_error: BaseException | None = None
         self.cancels: list[CancelToken] = []
+        self.sent = 0  # events handed to on_event so far (the worker thread writes it)
 
     def plan(self, root: Path, manifest: Manifest, profile: str, **kw: Any) -> BuildPlan:
         self.threads.append(threading.current_thread())
@@ -70,6 +71,7 @@ class FakeBuilds:
         self.cancels.append(kw["cancel"])
         for number, event in enumerate(self.events):
             on_event(event)
+            self.sent += 1
             if number == 0 and gate is not None:
                 assert gate.wait(WAIT / 1000)
         if self.run_error is not None:
