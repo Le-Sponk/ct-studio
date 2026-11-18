@@ -10,8 +10,6 @@ from pathlib import Path
 from PySide6.QtGui import QAction, QCloseEvent, QFontDatabase
 from PySide6.QtWidgets import (
     QApplication,
-    QDialog,
-    QDialogButtonBox,
     QLabel,
     QMainWindow,
     QScrollArea,
@@ -20,7 +18,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ctstudio import __version__
 from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
@@ -29,13 +26,14 @@ from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.dashboard import Dashboard
 from ctstudio.gui.views.new_project import NewProjectWizard
 from ctstudio.gui.views.project_details import ProjectDetailsDialog
-from ctstudio.gui.views.tools_page import ToolsPage
 from ctstudio.gui.views.welcome_page import WelcomePage, choose_project
+from ctstudio.gui.window_dialogs import ToolsWindow, about_dialog
 
 MakeWizard = Callable[["MainWindow"], NewProjectWizard]
 MakeDetails = Callable[[AppServices, QWidget], ProjectDetailsDialog]
 MakeMode = Callable[[AppServices, str, str, QWidget], ProjectDetailsDialog]
 _SHUTDOWN_WAIT = 10.0  # seconds a running build gets to stop when the window closes
+TOOLS_LATER = "Close the other window first, then choose Settings → Tools…."
 
 
 def _new_project_wizard(parent: MainWindow) -> NewProjectWizard:
@@ -92,13 +90,11 @@ class MainWindow(QMainWindow):
         _ensure_offscreen_font()
         super().__init__()
         self.services = services if services is not None else AppServices()
-        self._tools = self.services.tools
+        self.tools_window = ToolsWindow(self.services.tools, self)
         self._make_wizard = new_project
         self._make_details = edit_project
         self._make_mode = edit_component
         self._details: ProjectDetailsDialog | None = None
-        self._tools_dialog: QDialog | None = None
-        self._tools_page: ToolsPage | None = None
         self.setWindowTitle("CT Studio")
         self.resize(960, 600)
         self.setMinimumSize(720, 480)
@@ -159,7 +155,7 @@ class MainWindow(QMainWindow):
         self.tools_action.triggered.connect(self._open_tools)
         settings_menu.addAction(self.tools_action)
 
-        self.about_dialog = self._make_about_dialog()
+        self.about_dialog = about_dialog(self)
         help_menu = self.menuBar().addMenu("&Help")
         self.about_action = QAction("About CT Studio", self)
         self.about_action.setObjectName("aboutAction")
@@ -297,6 +293,7 @@ class MainWindow(QMainWindow):
         self.dashboard.mode_requested.connect(self._edit_component)
         self.dashboard.blender_requested.connect(self._open_blender)
         self.dashboard.reveal_requested.connect(self._launch)
+        self.dashboard.tools_requested.connect(self._show_tools)
         return scroll
 
     def _edit_project(self) -> None:
@@ -362,38 +359,11 @@ class MainWindow(QMainWindow):
 
     def _open_tools(self) -> None:
         """Settings → Tools: made on first use (checking starts then), checked again later."""
-        if self._tools_dialog is None or self._tools_page is None:
-            dialog = QDialog(self)
-            dialog.setObjectName("toolsDialog")
-            dialog.setWindowTitle("Tools")
-            dialog.resize(900, 560)
-            layout = QVBoxLayout(dialog)
-            self._tools_page = ToolsPage(self._tools, parent=dialog)
-            layout.addWidget(self._tools_page)
-            buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, parent=dialog)
-            buttons.rejected.connect(dialog.reject)
-            layout.addWidget(buttons)
-            self._tools_dialog = dialog
-        elif not self._tools_page.busy:
-            self._tools_page.recheck(force=False)
-        self._tools_dialog.open()
+        self.tools_window.open()
 
-    def _make_about_dialog(self) -> QDialog:
-        dialog = QDialog(self)
-        dialog.setObjectName("aboutDialog")
-        dialog.setWindowTitle("About CT Studio")
-        dialog.setMinimumWidth(420)
-        layout = QVBoxLayout(dialog)
-        for text in (
-            f"CT Studio {__version__}",
-            "Turn a Blender project into a Mario Kart Wii custom track.",
-            "Licence: GPL-3.0-or-later",
-            "Third-party notices will be listed here before release.",
-        ):
-            label = QLabel(text, dialog)
-            label.setWordWrap(True)
-            layout.addWidget(label)
-        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, parent=dialog)
-        buttons.rejected.connect(dialog.reject)
-        layout.addWidget(buttons)
-        return dialog
+    def _show_tools(self, tool_id: str) -> None:
+        """A choice dialog's "Set up … in Tools…": that tool in the same Tools window."""
+        if QApplication.activeModalWidget() is not None:  # never stack modal windows
+            self.dashboard.show_launch_note(TOOLS_LATER)
+            return
+        self.tools_window.open(tool_id)

@@ -1,0 +1,120 @@
+{
+ "schema_version": 1,
+ "task": "P5-T07e2",
+ "phase_source": "docs/phases/PHASE_05_gui_dashboard.md",
+ "scope": [
+  "P5-T07e",
+  "P5-T07e1",
+  "P5-T07e2"
+ ],
+ "execution_rule": "Each listed function prefix must match passing, non-skipped collected cases in the final combined run. The mapping alone is not execution evidence or permission to close a parent.",
+ "requirements": [
+  {
+   "id": "e-signal-only-eligibility",
+   "criterion": "Mount signal-only card actions using explicit supplied eligibility (checked, present single file; inspection allowed), never a status label.",
+   "tests": [
+    "tests/gui/test_card_open_in.py::test_only_single_file_parts_offer_open_in",
+    "tests/gui/test_card_open_in.py::test_open_in_needs_inspection_and_a_checked_present_file",
+    "tests/gui/test_card_open_in.py::test_only_the_checked_presence_decides_never_the_label",
+    "tests/gui/test_card_open_in.py::test_parts_without_a_single_file_never_ask",
+    "tests/unit/test_component_presence.py::test_a_new_project_without_tools_offers_no_files",
+    "tests/unit/test_component_presence.py::test_an_unrecorded_leftover_output_is_missing_and_not_present"
+   ]
+  },
+  {
+   "id": "e-menu-to-worker",
+   "criterion": "Actual menu-to-worker flows: the card action routes through T07d's joined owner (preparation off the UI thread), the dialog's choice opens through the same owner; no new executor.",
+   "tests": [
+    "tests/gui/test_editor_menu_flow.py::test_card_action_prepares_offers_and_opens_the_chosen_editor",
+    "tests/gui/test_editor_menu_flow.py::test_the_real_status_check_offers_no_unmade_file",
+    "tests/gui/test_editor_menu_flow.py::test_the_card_asks_only_through_its_own_part_and_path"
+   ]
+  },
+  {
+   "id": "e-keyboard",
+   "criterion": "Keyboard: arrows move between available editors, Return opens, Escape cancels (real keys), Tab reaches Set up in Tools… and Space activates it.",
+   "tests": [
+    "tests/gui/test_editor_choices.py::test_keyboard_moves_between_available_rows_and_return_opens",
+    "tests/gui/test_editor_choices.py::test_escape_chooses_nothing",
+    "tests/gui/test_editor_menu_flow.py::test_escape_opens_nothing_and_frees_the_dashboard",
+    "tests/gui/test_editor_choices_tools.py::test_the_keyboard_reaches_set_up_right_after_the_list"
+   ]
+  },
+  {
+   "id": "e-disabled",
+   "criterion": "Disabled guards: unavailable editors are disabled with reason and next step; nothing available keeps Open off; read-only projects see choices but cannot open; a slot reached past Qt's disablement still does nothing.",
+   "tests": [
+    "tests/gui/test_editor_choices.py::test_rows_keep_order_and_only_available_editors_can_be_chosen",
+    "tests/gui/test_editor_choices.py::test_with_nothing_available_open_stays_off_and_says_why",
+    "tests/gui/test_editor_choices.py::test_read_only_projects_see_choices_but_cannot_open",
+    "tests/gui/test_editor_choices.py::test_double_click_opens_an_available_row_only",
+    "tests/gui/test_editor_choices.py::test_the_read_only_note_gives_the_projects_own_reason",
+    "tests/gui/test_editor_choices.py::test_the_list_is_labelled_and_every_row_describes_itself",
+    "tests/gui/test_editor_menu_flow.py::test_read_only_cards_offer_choices_but_open_nothing"
+   ]
+  },
+  {
+   "id": "e-stale",
+   "criterion": "Stale guards: a project changed or work started while choosing opens nothing and says so; a dialog retired on rebind opens nothing, reports nothing and asks for no Tools; one dialog at a time.",
+   "tests": [
+    "tests/gui/test_editor_menu_flow.py::test_a_project_changed_while_choosing_opens_nothing_and_says_so",
+    "tests/gui/test_editor_menu_flow.py::test_work_started_while_choosing_opens_nothing",
+    "tests/gui/test_editor_menu_flow.py::test_rebinding_closes_an_open_choice_dialog",
+    "tests/gui/test_editor_menu_flow.py::test_one_choice_dialog_at_a_time",
+    "tests/gui/test_editor_tools_flow.py::test_a_retired_choice_dialog_asks_for_no_tools"
+   ]
+  },
+  {
+   "id": "e-modal",
+   "criterion": "Modal guards: neither the choice dialog nor the Tools window opens over another modal window; the notes say how to continue.",
+   "tests": [
+    "tests/gui/test_editor_menu_flow.py::test_no_dialog_over_another_modal_window",
+    "tests/gui/test_editor_tools_flow.py::test_tools_never_open_over_another_modal_window",
+    "tests/gui/test_editor_tools_flow.py::test_choices_found_behind_another_window_say_how_to_see_them"
+   ]
+  },
+  {
+   "id": "e-visible-results",
+   "criterion": "Visible launch-only results and warnings: the started editor, its process, the launch-only caveat and adapter warnings; a failed preparation shows its reason.",
+   "tests": [
+    "tests/gui/test_editor_menu_flow.py::test_card_action_prepares_offers_and_opens_the_chosen_editor",
+    "tests/gui/test_editor_menu_flow.py::test_a_failed_preparation_shows_its_reason_and_offers_nothing",
+    "tests/gui/test_editor_choices.py::test_rows_keep_order_and_only_available_editors_can_be_chosen"
+   ]
+  },
+  {
+   "id": "e-missing-tool-navigation",
+   "criterion": "Missing-tool navigation: a missing built-in editor leads to the existing Tools window with that tool selected and in view (also while its check runs); never for ineligible or custom editors; allowed for read-only projects.",
+   "tests": [
+    "tests/gui/test_editor_choices_tools.py::test_a_missing_builtin_editor_is_offered_in_tools",
+    "tests/gui/test_editor_choices_tools.py::test_several_missing_editors_go_to_tools_at_the_first",
+    "tests/gui/test_editor_choices_tools.py::test_only_missing_builtin_editors_lead_to_tools",
+    "tests/gui/test_editor_choices_tools.py::test_read_only_projects_may_still_set_up_tools",
+    "tests/gui/test_editor_choices_tools.py::test_open_still_clears_setup",
+    "tests/gui/test_editor_tools_flow.py::test_set_up_in_tools_opens_the_tools_window_at_that_editor",
+    "tests/gui/test_editor_tools_flow.py::test_the_editor_is_selected_once_a_running_check_shows_it",
+    "tests/gui/test_editor_tools_flow.py::test_a_later_recheck_keeps_the_users_own_selection",
+    "tests/gui/test_editor_tools_flow.py::test_a_pick_made_while_set_up_rechecks_is_kept",
+    "tests/gui/test_editor_tools_flow.py::test_a_selection_made_when_idle_is_not_repeated_later",
+    "tests/gui/test_editor_tools_flow.py::test_a_request_the_check_could_not_show_is_dropped",
+    "tests/gui/test_editor_tools_flow.py::test_a_request_while_no_check_runs_is_not_kept",
+    "tests/gui/test_editor_tools_flow.py::test_read_only_projects_may_still_set_up_tools_from_the_card",
+    "tests/gui/test_tools_page_more.py::test_settings_tools_opens_the_page"
+   ]
+  },
+  {
+   "id": "e-no-false-lorenzi",
+   "criterion": "No falsely offered Lorenzi action: real preparation shows Lorenzi disabled without an exact course.kcl and enabled with it.",
+   "tests": [
+    "tests/gui/test_editor_menu_lorenzi.py::test_lorenzi_is_offered_only_beside_an_exact_course_kcl"
+   ]
+  },
+  {
+   "id": "e-local-visual",
+   "criterion": "Minimum-window, enlarged/stretched-font and light/dark local pictures of the choice dialog and the Tools route with containment, unclipped labels and the selected tool in view (local only, never uploaded).",
+   "tests": [
+    "tests/gui/test_editor_tools_visual.py::test_choice_dialog_and_tools_route_pictures"
+   ]
+  }
+ ]
+}

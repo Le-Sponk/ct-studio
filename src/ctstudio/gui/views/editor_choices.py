@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -46,6 +47,7 @@ class EditorChoices(QDialog):
         self.setObjectName("editorChoices")
         self.setWindowTitle(f"Open {prepared.document.name} in…")
         self.chosen: EditorChoice | None = None
+        self.setup: str | None = None  # a missing built-in editor to set up in Tools
         self._options = prepared.options
         self._can_open = can_open
         self._why_not = why_not
@@ -64,6 +66,8 @@ class EditorChoices(QDialog):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         self.choices.itemDoubleClicked.connect(self._double_clicked)
         layout.addWidget(self.choices)
+        self.setup_button = self._setup_button()
+        layout.addWidget(self.setup_button)
         self.notes = QLabel(self._notes(), self)
         self.notes.setObjectName("editorChoiceNotes")
         self.notes.setTextFormat(Qt.TextFormat.PlainText)
@@ -92,6 +96,27 @@ class EditorChoices(QDialog):
         lines += [f"{o.label}: {_reason(o)}" for o in self._options if o.state != "available"]
         lines.append(LAUNCH_ONLY)
         return "\n".join(lines)
+
+    def _setup_button(self) -> QPushButton:
+        """One way to the Tools window for the missing built-in editors (custom ones are not
+        listed there, and an ineligible editor needs a file, not a tool)."""
+        missing = [
+            o for o in self._options if o.state == "missing" and o.choice.namespace == "builtin"
+        ]
+        name = missing[0].label if len(missing) == 1 else "editors"
+        button = QPushButton(f"Set up {name} in Tools…", self)
+        button.setObjectName("editorChoiceSetup")
+        button.setToolTip("Opens Settings → Tools, where you can choose or download a program.")
+        button.setEnabled(bool(missing))
+        button.setVisible(bool(missing))
+        self._setup_id = missing[0].choice.tool_id if missing else None
+        button.clicked.connect(self._set_up)
+        return button
+
+    def _set_up(self) -> None:
+        if self._setup_id is not None:
+            self.setup = self._setup_id
+            self.reject()
 
     def _choose(self, row: int) -> None:
         if self._can_open and 0 <= row < len(self._options):

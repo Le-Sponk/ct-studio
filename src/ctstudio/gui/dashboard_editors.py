@@ -55,6 +55,7 @@ class _Request:
 
 
 STALE_CHOICE = "Nothing was opened: the project changed or other work started meanwhile."
+SEE_AGAIN = "To see them, close the other window if one is open, then choose Open in… again."
 
 
 class DashboardEditors(QObject):
@@ -137,10 +138,13 @@ class DashboardEditors(QObject):
             self._choices = (request, result.receipt)
         label = request.label
         text = describe_editor(result, label) if label else describe_launch(result)
-        self.page.show_launch_note(text)
         prepared = self.choices
-        if request.offer and prepared is not None and self._may_offer():
-            self._offer(request.project, prepared)
+        if request.offer and prepared is not None:
+            if self._may_offer():
+                self._offer(request.project, prepared)
+            else:  # behind another window or off-page: say how to get them back
+                text += f"\n{SEE_AGAIN}"
+        self.page.show_launch_note(text)
 
     def _may_offer(self) -> bool:
         """Only over the visible page and never on top of another modal window (e.g. Tools)."""
@@ -166,8 +170,10 @@ class DashboardEditors(QObject):
         if dialog is not self.dialog:  # retired by clear(): nothing may open from it
             return
         self.dialog = None
-        choice = dialog.chosen  # set only when the user chose an available editor
-        if choice is None:
+        if dialog.setup is not None:  # "Set up … in Tools…": the window opens Tools
+            self.page.tools_requested.emit(dialog.setup)
+        choice = dialog.chosen  # set only when the user chose an available editor (never
+        if choice is None:  # together with setup: both close the dialog)
             return
         if self.choices is None or not self.page.mutable:  # changed while choosing
             self.page.show_launch_note(STALE_CHOICE)

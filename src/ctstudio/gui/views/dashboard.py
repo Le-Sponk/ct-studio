@@ -52,6 +52,7 @@ class Dashboard(QWidget):
     mode_requested = Signal(str, str)
     blender_requested = Signal()
     reveal_requested = Signal(str)
+    tools_requested = Signal(str)  # a tool id to set up in Settings → Tools (P5-T07e2)
 
     def __init__(self, services: AppServices, parent: QWidget | None = None) -> None:
         super().__init__(parent)

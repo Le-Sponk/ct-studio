@@ -111,6 +111,7 @@ class ToolsPage(QWidget):
         self._choose_file, self._open_url = choose_file, open_url
         self._latest = self._shown = 0
         self._result: ToolsResult | None = None
+        self._wanted: str | None = None  # a tool to select once its row is shown
         self._build()
         self.recheck(force=False)
 
@@ -193,6 +194,20 @@ class ToolsPage(QWidget):
     def busy(self) -> bool:
         return self._shown != self._latest
 
+    def select(self, tool_id: str) -> None:
+        """Select ``tool_id``'s row now if shown; if not, once the running check shows it."""
+        shown = self._select_row(tool_id)
+        self._wanted = tool_id if self.busy and not shown else None
+
+    def _select_row(self, wanted: str) -> bool:
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            if item is not None and item.data(Qt.ItemDataRole.UserRole) == wanted:
+                self._table.selectRow(row)
+                self._table.scrollToItem(item)  # a long list may hide the row otherwise
+                return True
+        return False
+
     def recheck(self, *, force: bool) -> None:
         """Check every tool again in a worker; ``force`` re-runs the version probes."""
         self._start(lambda: self.service.check(force=force))
@@ -246,6 +261,7 @@ class ToolsPage(QWidget):
                 # A path may have been saved before the check failed: keep Clear truthful.
                 self._result = replace(self._result, configured=payload.configured)
             self._problem(_failure_text(payload.error))
+        self._wanted = None  # a request lasts one finished check, shown or not
         self._update()
         self.checked.emit()
 
@@ -258,6 +274,8 @@ class ToolsPage(QWidget):
         for row, check in enumerate(result.report.tools):
             self._fill(row, check)
         self._problem(result.settings_problem)
+        if self._wanted is not None:  # asked for while this check was running
+            self._select_row(self._wanted)
 
     def _fill(self, row: int, check: ToolCheck) -> None:
         name = QTableWidgetItem(check.name)

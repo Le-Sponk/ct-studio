@@ -9,12 +9,22 @@
 **Last green commit:** `3fdb838` (P5-T07e1 + test repair exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next leaf P5-T07e2 (missing-tool guidance and Open in… acceptance; closes P5-T07e
-  with e1). Risks carried from e1: `main_window.py` is at 399/400 lines, so extract window
-  code before adding the Tools route; `views/component_card.py` is at 397; when choices are
-  ready but another modal window was open, e1 shows only the "Editor choices for…" note
-  (choose Open in… again) — e2 may add a hint; `test_dashboard_assign.py` still has two
-  pre-existing strict-pyright findings (deprecated contextmanager, private `_eligible`).
+- `P5-T07e2` — Missing-tool guidance and Open in… acceptance (closes P5-T07e with e1).
+  Steps: (1) make room: Settings → Tools and About windows move from `main_window.py`
+  (399/400) to `gui/window_dialogs.py`, unchanged; (2) tests first: a missing built-in editor
+  offers "Set up <editor> in Tools…" in the choice dialog (not for ineligible Lorenzi or
+  custom tools, which the Tools page does not list), the dashboard passes it up as
+  `tools_requested`, the window opens the existing Tools window with that tool selected
+  (also when its check is still running), never over another modal window (a note says to
+  use Settings → Tools… instead), and a retired dialog asks for nothing; (3) the declined
+  dialog note gains "choose Open in… again"; (4) keyboard (Tab to the new button),
+  minimum-width and 150%/stretched-font light/dark screenshots, kept local; (5) the combined
+  e criterion map `docs/reference/EDITOR_MENU_ACCEPTANCE.json`, checked against the source
+  and a combined e1+e2 run. Files: `main_window.py`, new `window_dialogs.py`,
+  `views/editor_choices.py`, `gui/dashboard_editors.py`, `views/dashboard.py`,
+  `views/tools_page.py`, new tests. Risks: `component_card.py` at 397 (untouched here);
+  Tools stays usable during a build or launch like its menu action (only the modal guard is
+  new); `test_dashboard_assign.py` keeps two pre-existing strict-pyright findings.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2259,6 +2269,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   stacks armed at 90 s (not triggered). Unproven (no stacks); the mutation runner now keeps
   partial output on a timeout. Evidence local-only in
   `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e1-TD017/`.
+  Two more possible instances (P5-T07e2 mutation run 5, 2026-11-19): `setup_label_generic` and
+  `select_wanted_even_idle` each hit the 600 s timeout after their first failing assertions
+  had already printed (partial output kept); both were assertion-caught in an isolated rerun
+  with thread stacks armed at 90 s (not triggered), and `setup_label_generic` in four earlier
+  runs. Still unproven (no stacks). Evidence local-only in
+  `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e2-TD017/`.
 - **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
   load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
   once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-
