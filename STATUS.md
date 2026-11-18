@@ -4,37 +4,33 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07d3 — Application guards, result text and combined ownership acceptance
+**Next task:** P5-T07e — Mounted Open in… menus and missing-tool guidance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `89b1190` (P5-T07d2 exact Check, Windows + Ubuntu)
+**Last green commit:** `0206811` (P5-T07d3 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07d3` Application guards, result text and combined ownership acceptance.
-  Plan: (1) `AppServices.start_prepare_editors(document)` / `start_open_editor(prepared,
-  choice)` with the existing memory-only guards (no project, details open, build, launch busy,
-  status check; read-only may prepare but not open), routed to the d2 owner. (2) The open's
-  offered label travels in the result; `launch_text.describe_launch` routes editor results on
-  `editor_action` first: preparation shows a readiness note ("Editor choices for <file> are
-  ready (n of m found)"), an open says "<label> was started (process N)
-  with <file>" plus "cannot tell whether it finished opening" and the adapter warnings, never
-  "Blender". (3) A dashboard presenter (`gui/dashboard_editors.py`, like `dashboard_outside`)
-  shows progress/refusals and keeps the latest delivered choices only while they still match
-  the shown project/root/manifest (for T07e menus). (4) Window tests: navigation refused and
-  close timeout keeps the writer lock during an editor request. (5) Original-criterion map
-  `docs/reference/EDITOR_OWNER_ACCEPTANCE.json` over d1/d2/d3 tests, rerun together.
-  Files: `gui/services.py`, `gui/launch_text.py`, `gui/views/dashboard.py`, new
-  `gui/dashboard_editors.py`, new GUI tests, docs.
-  State: review NEEDS_REVISION (map claimed the build guard with no build test; four minor)
-  fixed; re-review APPROVE. 24 new tests; 21/21 source faults assertion-caught; strict
-  pyright Windows+Linux 0 errors; combined 61-file run 751 passed/6 skipped with all 35 mapped
-  tests passing.
-  Risks for T07e: `views/dashboard.py` is at 399/400 lines, so move card/menu code out before
-  adding menus; the new build-refusal test swaps in `services.build` after setup (production
-  wiring refreshes statuses on build end; harmless here, pass `build=` through
+- None. Next leaf P5-T07e. Risks carried from d3: `views/dashboard.py` is at 399/400 lines
+  and `main_window.py` at 399, so move card/menu code out before adding menus; the d3
+  build-refusal test swaps in `services.build` after setup (pass `build=` through
   `editor_services` when that helper is next touched).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-18 `P5-T07d3` Application guards, result text and combined ownership acceptance
+  (`0206811`); closes parent `P5-T07d`. `AppServices.start_prepare_editors`/`start_open_editor`
+  apply the memory-only refusals (no project, details open, build, busy owner, status check;
+  read-only may prepare, never open). `launch_text.describe_editor` routes on `editor_action`
+  before Blender/folder wording: "<label> was started (process N) with <file>", "cannot tell
+  whether <label> finished opening the file", adapter warnings, exact typed errors; readiness
+  note for preparation. `gui/dashboard_editors.py` keeps choices only for the unchanged shown
+  project. 24 new tests; 21/21 source faults assertion-caught; strict pyright Windows+Linux.
+  Review NEEDS_REVISION (build guard mapped but untested) fixed, re-review APPROVE.
+  `docs/reference/EDITOR_OWNER_ACCEPTANCE.json`: 10 original P5-T07d criteria, 35 tests, all
+  passing in a combined 61-file run (751 passed / 6 skipped). TD-018 confirmed as an
+  intermittent whole-process stall and deferred to Phase 13 by the owner. Full local gate
+  4939 passed / 6 skipped / 178 deselected. Exact Check Windows 134619827268 (4930 / 15),
+  Ubuntu 134619827471 (4931 / 14): 4945 selected; Integration not triggered (gui/tests/docs
+  only). Check ZIPs coverage.xml only. Next P5-T07e; c, T07 and HC1 remain open.
 - 2026-11-18 `P5-T07d2` Joined editor preparation and dispatch ownership (`89b1190`).
   `LaunchController.prepare_editors`/`open_editor` run on the existing ctstudio-launch
   worker (no new executor), never overlapping Blender/folder/assign/outside-edit work.

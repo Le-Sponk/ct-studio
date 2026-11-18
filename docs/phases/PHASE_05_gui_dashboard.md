@@ -775,7 +775,7 @@ only c3b/c3c/c3 dispatch closure; c/T07/d/e/f/g/HC1 remain open. Synthetic Wine 
 Wine/editor loading/save or desktop appearance. Separate closeout full gate, exact Check,
 actual artifact inspection and clean remote readback are required before final delivery.
 
-#### [ ] P5-T07d — Joined editor preparation and application guards
+#### [x] P5-T07d — Joined editor preparation and application guards (closed by d3 map, commit `0206811`)
 Prepare immutable available choices off the UI thread and re-read settings at dispatch.
 Reuse the existing joined launch owner; preserve current-project/root/manifest identity,
 read-only/busy/navigation/close protection and honest tool-aware result text.
@@ -818,7 +818,7 @@ open. 18 new tests (real child, fresh/damaged settings, stale/queued, uncertain 
 134413059754 (4907/14), ZIPs coverage.xml only. d3 must route editor results on
 `editor_action` before `describe_launch` (else "Blender was started"). d, c, T07, HC1 open.
 
-##### [ ] P5-T07d3 — Application guards, result text and combined ownership acceptance
+##### [x] P5-T07d3 — Application guards, result text and combined ownership acceptance (commit `0206811`)
 Route current-project requests through the joined owner with memory-only eligibility and
 captured project/root/manifest checks. Preserve read-only/busy/navigation/close protection
 and tool-aware launch-only result wording; rerun all original d criteria together.
@@ -830,6 +830,9 @@ original-criterion map. Only this combined proof may close d; menus remain e.
 Mount signal-only card/file actions using explicit supplied eligibility. Route requests through
 T07d and offer a missing-editor dialog leading to the existing Tools page. Extract cohesive
 card/menu code where existing files are near their size budgets; no duplicate executor.
+Starting point (from d3): `Dashboard.editors` (`gui/dashboard_editors.py`) already offers
+`prepare(document)`, `open(choice)` and the identity-checked `choices`; `views/dashboard.py`
+is at 399/400 lines and `main_window.py` at 399, so extract before adding anything.
 **Acceptance:** actual menu-to-worker flows, keyboard/disabled/stale/modal guards, visible
 launch warnings/results, missing-tool navigation and no falsely offered Lorenzi action.
 
