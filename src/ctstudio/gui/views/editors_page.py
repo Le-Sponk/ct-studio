@@ -55,7 +55,9 @@ def _error_text(error: Exception) -> str:
 def _breakable(text: str) -> str:
     """Let a Windows path wrap after each backslash (a zero-width space): a word-wrapped label
     cannot break after a backslash, so the path would widen the window past the screen.
-    Qt already breaks after "/" (tested with a long Linux-style path)."""
+    Qt already breaks after "/" when a letter or digit follows (not before "." or "-"),
+    which real Linux paths give often enough (tested with a long Linux-style path); one
+    folder name over about 65 characters can still widen the window (TD-019)."""
     return text.replace("\\", "\\\u200b")
 
 

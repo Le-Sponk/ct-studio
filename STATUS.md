@@ -4,26 +4,34 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07f1 — Default-editor choices (Settings → Editors…)
+**Next task:** P5-T07f2 — Custom editor programs
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `16c27f2` (P5-T07e2 exact Check, Windows + Ubuntu)
+**Last green commit:** `eef0b58` (P5-T07f1 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07f1` Default-editor choices (Settings → Editors…). Plan: (1) a plain
-  `EditorPreferencesService` (load the file kinds with their built-in order and the saved
-  choice; save one choice or a reset through `UserSettings.with_editor`, backup kept);
-  (2) an `EditorsPage` with one combo box per kind that has more than one built-in editor
-  ("Default order" plus each editor), reads and saves on a worker, a damaged-file banner
-  that turns saving off; (3) Settings → Editors… in `window_dialogs.py`, made on first use
-  and reread on reopen; (4) tests through the real settings file and a card's next Open
-  in…, plus light/dark minimum-width/enlarged-font screenshots. Acceptance as in
-  PHASE_05. Files: `gui/services.py` or a new sibling, new `gui/views/editors_page.py`,
-  `gui/window_dialogs.py`, `gui/main_window.py`, new tests. Risks: `main_window.py` is at
-  369/400 lines and keeps two pre-existing strict-pyright findings (`dashboard._sync()`);
-  `views/component_card.py` is at 397/400; `test_dashboard_assign.py` keeps its own two.
+- None. Next leaf P5-T07f2 (custom editor programs in Settings → Editors…). Carried
+  risks: `views/component_card.py` is at 397/400 lines; `main_window.py` (375/400) keeps
+  two pre-existing strict-pyright findings (`dashboard._sync()`), as does
+  `test_dashboard_assign.py` (deprecated contextmanager, private `_eligible`).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-19 `P5-T07f1` Default-editor choices (`eef0b58`). Settings → Editors… lists
+  .brres, .szs and .kmp (kinds with more than one built-in editor): "Default order (X
+  first)" or one editor, saved at once on a worker through the user settings file
+  (backup, unknown fields kept); the next Open in… lists it first without a restart. A
+  damaged or newer file shows a banner and the choices stay off; a save re-reads and
+  refuses it too; a failed save shows why and puts the choice back. Labels above
+  choices; the window fits a wrapped banner within the screen; a Windows path in the
+  banner breaks after each backslash. Plan split f1/f2/f3 (README 122/199). Evidence:
+  27 tests through the real main window, settings file and Open in… preparation;
+  light/dark × normal/enlarged × healthy/damaged pictures plus long Windows and Linux
+  paths inspected (local only); 39 mutants assertion-caught; strict pyright 0 on
+  Windows and Linux; reviews NEEDS_REVISION (banner path widened the window past the
+  screen at an enlarged font) → fixed → APPROVE (TD-019 noted); local gate 5059 passed
+  / 6 skipped / 178 deselected. Exact Check for `eef0b58`: Windows 135298842896 (5050
+  passed / 15 skipped), Ubuntu 135298842602 (5051 / 14), 5065 selected; artifacts
+  14494231773 / 14493213693 coverage.xml only; Integration not triggered.
 - 2026-11-19 `P5-T07e2` Missing-tool guidance and Open in… acceptance (`16c27f2`); closes
   P5-T07e with e1. A missing built-in editor in the choice dialog offers one "Set up …
   in Tools…" (first of several; never for custom or ineligible editors; allowed when
@@ -2334,6 +2342,14 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   status workers to go idle (line 105) at 17% of the run; the 13 sibling cases passed. Same
   code had passed the implementation gate and the exact Check; gate rerun once per the rule.
   Log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e2-TD018/`.
+- **TD-019 · P13-T06 · one very long folder name can widen Settings → Editors….** The
+  damaged-settings banner names the settings file; it wraps after each backslash (added)
+  and Qt wraps after "/" before a letter or digit, but a single folder name over about
+  65 characters at an enlarged font still makes the window wider than an 800 px screen
+  (reviewer probe: 844 px with a 68-character name). Real settings paths
+  (`<profile>\AppData\Roaming\…`, `~/.config/…`) do not reach it. Phase 13: also break
+  after `_`, `.` and `-` (or elide the path with the full one in a tooltip) and add a
+  single-long-name test.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

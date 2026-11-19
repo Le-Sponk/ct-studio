@@ -875,7 +875,7 @@ over the same settings file, each with its own validation, worker and visual evi
 they exceed one small tested leaf. Every criterion above stays with the parent; it closes only
 through f3's combined map.
 
-##### [ ] P5-T07f1 — Default-editor choices (Settings → Editors…)
+##### [x] P5-T07f1 — Default-editor choices (Settings → Editors…) (commit `eef0b58`)
 A Settings → Editors… window (made on first use, reread on reopen) lists each file kind with
 more than one built-in editor and lets the user pick one as preferred or go back to the
 default order. Reads and saves run on a worker; a damaged or newer settings file is shown and
