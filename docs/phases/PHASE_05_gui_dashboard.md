@@ -826,7 +826,7 @@ and tool-aware launch-only result wording; rerun all original d criteria togethe
 writer-lock retention, exact warnings/error wording and independently reviewed executable
 original-criterion map. Only this combined proof may close d; menus remain e.
 
-#### [ ] P5-T07e — Mounted Open in… menus and missing-tool guidance
+#### [x] P5-T07e — Mounted Open in… menus and missing-tool guidance (closed by e2 map, commit `16c27f2`)
 Mount signal-only card/file actions using explicit supplied eligibility. Route requests through
 T07d and offer a missing-editor dialog leading to the existing Tools page. Extract cohesive
 card/menu code where existing files are near their size budgets; no duplicate executor.
@@ -839,7 +839,7 @@ Card menus, the choice dialog and dispatch, plus missing-tool navigation through
 window and visual acceptance, exceed one small tested leaf. Every criterion above stays with
 the parent; neither child closes it alone.
 
-##### [x] P5-T07e1 — Card Open in… action and editor-choice dialog
+##### [x] P5-T07e1 — Card Open in… action and editor-choice dialog (commit `bb5894a`)
 Extract cohesive card-file and dashboard-assignment code to make room, then add a signal-only
 "Open in…" card action for a checked, present single file. It prepares choices through d3's
 presenter and offers them in a dialog: available editors open through the joined owner;
@@ -851,12 +851,18 @@ retired on rebind), keyboard choice and Escape, visible launch-only results and 
 real preparation showing Lorenzi disabled without course.kcl and enabled with it. No new
 executor; missing-tool navigation and visual evidence are e2.
 
-##### [ ] P5-T07e2 — Missing-tool guidance and Open in… acceptance
+##### [x] P5-T07e2 — Missing-tool guidance and Open in… acceptance (commit `16c27f2`)
 Turn missing choices into a "Set up in Tools…" route to the existing Tools page (extracting
 main-window code near its budget), and cover keyboard, minimum-width, enlarged-font and
 light/dark local evidence. Map and rerun every e criterion across e1/e2 before closing e.
 **Acceptance:** missing-tool dialog navigation with the window's busy/modal guards, the
 mapped combined run, and inspected local screenshots (never uploaded).
+Closure: `docs/reference/EDITOR_MENU_ACCEPTANCE.json` maps all ten P5-T07e criteria (e1 +
+e2) to 45 targets (68 collected cases), every one passing and none skipped, and the exact
+Check for `16c27f2` passed on Windows and Ubuntu, so P5-T07e is complete. P5-T07 stays open
+(T07b, T07c, T07f, T07g). The before-offering course.kcl menu proof P5-T07b waited for now
+exists (criterion e-no-false-lorenzi); b and c still close only through T07g's
+original-criterion map.
 
 #### [ ] P5-T07f — Usable editor-preference and custom-tool controls
 Provide bounded controls for built-in defaults, custom argv templates and Wine prefixes during

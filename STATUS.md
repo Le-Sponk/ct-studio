@@ -4,30 +4,37 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07e2 — Missing-tool guidance and Open in… acceptance
+**Next task:** P5-T07f — Usable editor-preference and custom-tool controls
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `3fdb838` (P5-T07e1 + test repair exact Check, Windows + Ubuntu)
+**Last green commit:** `16c27f2` (P5-T07e2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07e2` — Missing-tool guidance and Open in… acceptance (closes P5-T07e with e1).
-  Steps: (1) make room: Settings → Tools and About windows move from `main_window.py`
-  (399/400) to `gui/window_dialogs.py`, unchanged; (2) tests first: a missing built-in editor
-  offers "Set up <editor> in Tools…" in the choice dialog (not for ineligible Lorenzi or
-  custom tools, which the Tools page does not list), the dashboard passes it up as
-  `tools_requested`, the window opens the existing Tools window with that tool selected
-  (also when its check is still running), never over another modal window (a note says to
-  use Settings → Tools… instead), and a retired dialog asks for nothing; (3) the declined
-  dialog note gains "choose Open in… again"; (4) keyboard (Tab to the new button),
-  minimum-width and 150%/stretched-font light/dark screenshots, kept local; (5) the combined
-  e criterion map `docs/reference/EDITOR_MENU_ACCEPTANCE.json`, checked against the source
-  and a combined e1+e2 run. Files: `main_window.py`, new `window_dialogs.py`,
-  `views/editor_choices.py`, `gui/dashboard_editors.py`, `views/dashboard.py`,
-  `views/tools_page.py`, new tests. Risks: `component_card.py` at 397 (untouched here);
-  Tools stays usable during a build or launch like its menu action (only the modal guard is
-  new); `test_dashboard_assign.py` keeps two pre-existing strict-pyright findings.
+- None. Next leaf P5-T07f (usable editor-preference and custom-tool controls). Carried
+  risks: `views/component_card.py` is at 397/400 lines; `main_window.py` keeps two
+  pre-existing strict-pyright findings (`dashboard._sync()`), as does
+  `test_dashboard_assign.py` (deprecated contextmanager, private `_eligible`).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-19 `P5-T07e2` Missing-tool guidance and Open in… acceptance (`16c27f2`); closes
+  P5-T07e with e1. A missing built-in editor in the choice dialog offers one "Set up …
+  in Tools…" (first of several; never for custom or ineligible editors; allowed when
+  read-only); the window opens the same Tools window with that tool selected and in view,
+  also while its check runs, never over another modal (TOOLS_LATER note); a retired
+  dialog asks for nothing; choices found behind a window say how to see them. Tools and
+  About moved unchanged to `gui/window_dialogs.py` (main_window 399 → 369). Selection
+  rule: a shown row is selected at once; a request is kept only while a check runs and
+  the row is not yet shown, and ends with the next finished check (shown or failed).
+  Evidence: `docs/reference/EDITOR_MENU_ACCEPTANCE.json` 10 criteria → 45 targets / 68
+  cases, all passing; light/dark × normal/enlarged pictures at the smallest window
+  inspected (local only; caught and fixed the selected row scrolled out of view); 27
+  mutants assertion-caught (two 600 s timeouts caught on isolated rerun, TD-017 note);
+  strict pyright 0 on Windows and Linux; reviews APPROVE (notes fixed) → NEEDS_REVISION
+  (a pick made during the Set up recheck was overridden) → fixed → APPROVE; local gate
+  5032 passed / 6 skipped / 178 deselected. Exact Check for `16c27f2`: Windows
+  135007388033 (5023 passed / 15 skipped), Ubuntu 135007388473 (5024 / 14), 5038
+  selected; artifacts 14455568188 / 14454203871 coverage.xml only; Integration not
+  triggered.
 - 2026-11-18 `P5-T07e1` Card Open in… action and editor-choice dialog (`bb5894a`, test
   repair `3fdb838`); P5-T07e stays open for e2. Single-file cards get a signal-only
   "Open in…" enabled only when the status check found the file present
@@ -2270,8 +2277,8 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   partial output on a timeout. Evidence local-only in
   `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e1-TD017/`.
   Two more possible instances (P5-T07e2 mutation run 5, 2026-11-19): `setup_label_generic` and
-  `select_wanted_even_idle` each hit the 600 s timeout after their first failing assertions
-  had already printed (partial output kept); both were assertion-caught in an isolated rerun
+  `select_wanted_even_idle` each hit the 600 s timeout after their first test failures had
+  already printed (partial output kept); both were assertion-caught in an isolated rerun
   with thread stacks armed at 90 s (not triggered), and `setup_label_generic` in four earlier
   runs. Still unproven (no stacks). Evidence local-only in
   `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e2-TD017/`.
@@ -2308,6 +2315,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07d3-TD018/`. Until then a single such failure in an
   untouched test is recorded here and the gate rerun once; two in one gate, or a hang, stop
   release.
+  Recorded instance (P5-T07e2 closeout gate, docs-only, 2026-11-19): `test_dashboard_reconcile.py::
+  test_action_faults_recover_disk_without_claiming_success[error3-discard]` (an outside-edit
+  repair whose action raises a bare RuntimeError) failed its `settled` wait for the launch and
+  status workers to go idle (line 105) at 17% of the run; the 13 sibling cases passed. Same
+  code had passed the implementation gate and the exact Check; gate rerun once per the rule.
+  Log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e2-TD018/`.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_
