@@ -2,7 +2,8 @@
 
 ``AppServices`` (P5-T01a/b) holds what the whole app shares: the current project (opened,
 so locked, by this app), the tools, the build controller, the part statuses, the editor /
-folder launch owner (P5-T03i) and the file watcher (P5-T06a).
+folder launch owner (P5-T03i), the file watcher (P5-T06a) and the editor choices
+(P5-T07f1).
 ``ToolsService`` (P2-T07b) is what the Tools page needs: the user's settings file and the
 doctor check. Its methods block (disk, version probes), so views call them from a worker.
 """
@@ -23,6 +24,7 @@ from ctstudio.core.tools.doctor import Report
 from ctstudio.core.tools.saved_editors import EditorChoice
 from ctstudio.gui.build_controller import BuildController
 from ctstudio.gui.editor_launch import PreparedEditors
+from ctstudio.gui.editor_settings import EditorPreferencesService
 from ctstudio.gui.launch_controller import LaunchController
 from ctstudio.gui.status_service import StatusService
 from ctstudio.gui.watcher_bridge import WatcherBridge
@@ -93,12 +95,14 @@ class AppServices:
         status: StatusService | None = None,
         launch: LaunchController | None = None,
         watcher: WatcherBridge | None = None,
+        editor_settings: EditorPreferencesService | None = None,
     ) -> None:
         self.tools = tools if tools is not None else ToolsService()
         self.build = build if build is not None else BuildController()
         self.status = status if status is not None else StatusService()
         self.launch = launch if launch is not None else LaunchController()
         self.watcher = watcher if watcher is not None else WatcherBridge()
+        self.editor_settings = editor_settings or EditorPreferencesService()
         self.project: Project | None = None
         self.editing = False  # modal project-details owner; prevents switching/releasing its lock
         self.build.finished.connect(self._refresh)

@@ -4,15 +4,23 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07f — Usable editor-preference and custom-tool controls
+**Next task:** P5-T07f1 — Default-editor choices (Settings → Editors…)
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `16c27f2` (P5-T07e2 exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next leaf P5-T07f (usable editor-preference and custom-tool controls). Carried
-  risks: `views/component_card.py` is at 397/400 lines; `main_window.py` keeps two
-  pre-existing strict-pyright findings (`dashboard._sync()`), as does
-  `test_dashboard_assign.py` (deprecated contextmanager, private `_eligible`).
+- `P5-T07f1` Default-editor choices (Settings → Editors…). Plan: (1) a plain
+  `EditorPreferencesService` (load the file kinds with their built-in order and the saved
+  choice; save one choice or a reset through `UserSettings.with_editor`, backup kept);
+  (2) an `EditorsPage` with one combo box per kind that has more than one built-in editor
+  ("Default order" plus each editor), reads and saves on a worker, a damaged-file banner
+  that turns saving off; (3) Settings → Editors… in `window_dialogs.py`, made on first use
+  and reread on reopen; (4) tests through the real settings file and a card's next Open
+  in…, plus light/dark minimum-width/enlarged-font screenshots. Acceptance as in
+  PHASE_05. Files: `gui/services.py` or a new sibling, new `gui/views/editors_page.py`,
+  `gui/window_dialogs.py`, `gui/main_window.py`, new tests. Risks: `main_window.py` is at
+  369/400 lines and keeps two pre-existing strict-pyright findings (`dashboard._sync()`);
+  `views/component_card.py` is at 397/400; `test_dashboard_assign.py` keeps its own two.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1583,6 +1591,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-19: Split P5-T07f into f1 (default-editor choices in a new Settings → Editors…
+  window), f2 (custom editor programs) and f3 (Wine-prefix choices plus the combined f
+  criterion map). Each is its own form, validation and visual evidence over the same
+  settings file; together they exceed one ~400-line leaf. All original f criteria stay
+  above the children; f, T07 and HC1 stay open (197 → 199 planned tasks).
 - 2026-11-18: Split P5-T07e into e1 (card Open in… action, choice dialog and dispatch, with
   room-making extractions) and e2 (missing-tool navigation to the Tools page, main-window
   extraction, visual/keyboard evidence and the combined e criterion map). Both together exceed

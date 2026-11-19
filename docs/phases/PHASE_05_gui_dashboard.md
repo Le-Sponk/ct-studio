@@ -870,6 +870,37 @@ T07; P5-T08 still owns the complete multipage Settings shell. Damaged settings c
 silently overwritten and changes must affect the next launch without restarting.
 **Acceptance:** real UI save/reset/reopen, backups and unknown fields retained, error handling,
 keyboard and minimum-width/enlarged-font light/dark local evidence.
+Default-editor choices, custom-tool editing and Wine-prefix choices are three separate forms
+over the same settings file, each with its own validation, worker and visual evidence; together
+they exceed one small tested leaf. Every criterion above stays with the parent; it closes only
+through f3's combined map.
+
+##### [ ] P5-T07f1 — Default-editor choices (Settings → Editors…)
+A Settings → Editors… window (made on first use, reread on reopen) lists each file kind with
+more than one built-in editor and lets the user pick one as preferred or go back to the
+default order. Reads and saves run on a worker; a damaged or newer settings file is shown and
+nothing can be saved. Each save keeps a backup and every unknown field.
+**Acceptance:** real window save/reset/reopen through the settings file, backup and unknown
+fields (top-level and inside `editor_preferences`) retained, damaged file and save-failure
+banners with controls off, busy state, keyboard reach, and the next Open in… on a card listing
+the preferred editor first without restarting; minimum-width/enlarged-font light/dark local
+screenshots inspected.
+
+##### [ ] P5-T07f2 — Custom editor programs
+In the same window, add, edit and remove custom tools (name, program, argument template using
+only `{file}`, `{dir}`, `{project}`), with the model's own validation errors shown before
+anything is saved.
+**Acceptance:** real save/edit/remove/reopen with backups and unknown record fields kept,
+invalid name/program/template refused with the reason, damaged-file guard, keyboard and
+visual evidence, and the next Open in… offering the saved custom tool without restarting.
+
+##### [ ] P5-T07f3 — Wine-prefix choices and f acceptance
+Per-editor Wine-prefix folder choice and clear for built-in and custom Windows editors, shown
+on every platform but explained as Linux-only, then map and rerun every f criterion across
+f1–f3 before closing f.
+**Acceptance:** real choose/clear/reopen with backups and unknown fields kept, damaged-file
+guard, the next Linux-path preparation (fake platform) using the saved prefix without
+restarting, keyboard and visual evidence, and the combined executable f criterion map.
 
 #### [ ] P5-T07g — Original Open in… acceptance and guide
 Re-run every original P5-T07 criterion across its leaves, including fake GUI tools on Windows

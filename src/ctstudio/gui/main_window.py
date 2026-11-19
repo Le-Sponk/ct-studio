@@ -27,7 +27,7 @@ from ctstudio.gui.views.dashboard import Dashboard
 from ctstudio.gui.views.new_project import NewProjectWizard
 from ctstudio.gui.views.project_details import ProjectDetailsDialog
 from ctstudio.gui.views.welcome_page import WelcomePage, choose_project
-from ctstudio.gui.window_dialogs import ToolsWindow, about_dialog
+from ctstudio.gui.window_dialogs import EditorsWindow, ToolsWindow, about_dialog
 
 MakeWizard = Callable[["MainWindow"], NewProjectWizard]
 MakeDetails = Callable[[AppServices, QWidget], ProjectDetailsDialog]
@@ -91,6 +91,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.services = services if services is not None else AppServices()
         self.tools_window = ToolsWindow(self.services.tools, self)
+        self.editors_window = EditorsWindow(self.services.editor_settings, self)
         self._make_wizard = new_project
         self._make_details = edit_project
         self._make_mode = edit_component
@@ -154,6 +155,11 @@ class MainWindow(QMainWindow):
         self.tools_action.setObjectName("toolsAction")
         self.tools_action.triggered.connect(self._open_tools)
         settings_menu.addAction(self.tools_action)
+        self.editors_action = QAction("Editors…", self)
+        self.editors_action.setObjectName("editorsAction")
+        self.editors_action.setToolTip("Choose which editor Open in… lists first.")
+        self.editors_action.triggered.connect(self.editors_window.open)
+        settings_menu.addAction(self.editors_action)
 
         self.about_dialog = about_dialog(self)
         help_menu = self.menuBar().addMenu("&Help")
