@@ -9,7 +9,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 
-from editor_menu_helpers import all_ready
+from editor_menu_helpers import all_ready, offered, row_texts
 from editor_owner_helpers import outcome
 from editor_request_helpers import no_tools, settled
 from editor_tools_helpers import project_for
@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QComboBox
 from pytestqt.qtbot import QtBot
 
 from ctstudio.core.project import settings
+from ctstudio.core.tools.spec import CustomTool
 from ctstudio.gui.editor_launch import EditorLaunchService
 from ctstudio.gui.editor_settings import EditorKinds, EditorPreferencesService
 from ctstudio.gui.launch_controller import LaunchController
@@ -37,6 +38,7 @@ class HeldPreferences(EditorPreferencesService):
         self.threads: list[threading.Thread] = []
         self.loads = 0
         self.saves: list[tuple[str, str | None]] = []  # every save the page asked for
+        self.customs: list[tuple[str | None, CustomTool | None]] = []  # every custom save
 
     def load(self) -> EditorKinds:
         gate = self.gate  # tests swap the gate while a call waits
@@ -51,6 +53,13 @@ class HeldPreferences(EditorPreferencesService):
         self.saves.append((kind, tool))
         gate.wait(10)
         return super().save(kind, tool)
+
+    def save_custom(self, tool_id: str | None, tool: CustomTool | None) -> EditorKinds:
+        gate = self.gate
+        self.threads.append(threading.current_thread())
+        self.customs.append((tool_id, tool))
+        gate.wait(10)
+        return super().save_custom(tool_id, tool)
 
 
 def settings_file() -> Path:
@@ -95,6 +104,16 @@ def choose(qtbot: QtBot, page: EditorsPage, kind: str, text: str) -> None:
     box.setCurrentIndex(index)
     box.activated.emit(index)
     assert settled(qtbot, lambda: not page.busy), "the save never finished"
+
+
+def open_in_rows(qtbot: QtBot, window: MainWindow) -> list[str]:
+    """The rows of the course model's next Open in… choice dialog (then closed)."""
+    window.dashboard.cards["course_model"].open_action.trigger()
+    dialog = offered(qtbot, window.dashboard)
+    rows = row_texts(dialog)
+    dialog.reject()
+    assert settled(qtbot, lambda: not window.services.launch.busy), "the dialog never ended"
+    return rows
 
 
 def editors_page(window: MainWindow) -> EditorsPage:

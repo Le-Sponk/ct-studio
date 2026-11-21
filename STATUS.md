@@ -9,10 +9,19 @@
 **Last green commit:** `eef0b58` (P5-T07f1 exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next leaf P5-T07f2 (custom editor programs in Settings → Editors…). Carried
-  risks: `views/component_card.py` is at 397/400 lines; `main_window.py` (375/400) keeps
-  two pre-existing strict-pyright findings (`dashboard._sync()`), as does
-  `test_dashboard_assign.py` (deprecated contextmanager, private `_eligible`).
+- `P5-T07f2` Custom editor programs (Settings → Editors…). Plan: (1) the editor-settings
+  service also loads the custom tools and saves one add, edit or remove through
+  `UserSettings.with_custom_tool` (backup; unknown fields kept, also inside a record;
+  nothing written when unchanged); a new tool gets a fresh id from its name that never
+  takes a built-in or existing id; (2) an add/edit dialog (name, program with Browse…,
+  one argument per line) that checks the entry with `CustomTool`'s own rules and shows
+  the reason before anything is saved; (3) a Custom editors list with Add/Edit/Remove
+  in the Editors window, off while busy or when the file is damaged; (4) tests through
+  the real settings file and the next Open in…, keyboard, light/dark enlarged pictures.
+  Acceptance as in PHASE_05. Files: `gui/editor_settings.py`, `gui/views/editors_page.py`,
+  new `gui/views/custom_tools_box.py` and `custom_tool_dialog.py`, new tests. Risks:
+  `main_window.py` (375/400) and `test_dashboard_assign.py` keep pre-existing
+  strict-pyright findings; `views/component_card.py` is at 397/400.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2342,6 +2351,19 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   status workers to go idle (line 105) at 17% of the run; the 13 sibling cases passed. Same
   code had passed the implementation gate and the exact Check; gate rerun once per the rule.
   Log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e2-TD018/`.
+  Recorded instance (P5-T07f2 implementation gate, 2026-11-19): `test_dashboard_states.py::
+  test_settings_problem_is_visible_with_valid_statuses_then_clears` (untouched) timed out in
+  `overview`'s first 5 s wait for the dashboard to go idle (dashboard_helpers.py line 29), at
+  18% of the run, before the test body started. The change touches only Settings → Editors…;
+  gate rerun once per the rule. Log local-only in
+  `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07f2-TD018/`.
+  Second P5-T07f2 instance (2026-11-22), in a diagnostic rerun of the gate's selection
+  with `-rs` (not a gate; the gate itself had passed):
+  `test_dashboard_reconcile.py::test_action_faults_recover_disk_without_claiming_success
+  [error4-lock]` failed its `settled` idle wait, the same test family as the e2 closeout
+  instance. Logged in the same folder. That rerun also showed 4 more local skips than
+  before (10, not 6): this host no longer grants symlink creation (WinError 1314), so
+  four symlink tests skip locally; CI still runs them.
 - **TD-019 · P13-T06 · one very long folder name can widen Settings → Editors….** The
   damaged-settings banner names the settings file; it wraps after each backslash (added)
   and Qt wraps after "/" before a letter or digit, but a single folder name over about

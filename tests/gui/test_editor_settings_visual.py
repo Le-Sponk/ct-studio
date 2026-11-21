@@ -11,7 +11,7 @@ from pathlib import Path, PurePosixPath
 import pytest
 from editor_settings_helpers import combo, editors_window, write_settings
 from outside_visual_helpers import visual_style
-from PySide6.QtCore import QRect
+from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QComboBox, QDialog, QLabel, QWidget
 from pytestqt.qtbot import QtBot
 from wizard_fakes import SCREENS, shot
@@ -19,6 +19,9 @@ from wizard_fakes import SCREENS, shot
 from ctstudio.core.project import settings
 from ctstudio.core.project.settings import SettingsError
 from ctstudio.gui.editor_settings import KINDS
+from ctstudio.gui.views.editors_page import EditorsPage
+
+LONG_EXE = "C:/Program Files/Some Vendor/Paint Studio/bin/x64/paint-studio.exe"
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(120)]
 CASES = [
@@ -46,16 +49,45 @@ def assert_label_fits(label: QLabel, dialog: QDialog) -> None:
 def assert_readable(dialog: QDialog) -> None:
     """Every shown label and choice fits the window at full width; wrapped text fits; the
     choices line up under their labels."""
-    boxes = dialog.findChildren(QComboBox)
-    for box in boxes:
-        assert inside(box, dialog), f"{box.currentText()!r} is cut off"
-        assert box.width() >= box.minimumSizeHint().width(), f"{box.currentText()!r} clipped"
+    boxes = [box for box in dialog.findChildren(QComboBox) if box.isVisible()]
+    if boxes:  # hidden while the settings file cannot be used
+        assert_choices_fit(boxes, dialog)
     for label in dialog.findChildren(QLabel):
         if label.isVisible() and label.text():
             assert_label_fits(label, dialog)
     assert dialog.width() <= dialog.screen().availableGeometry().width()
+
+
+def assert_choices_fit(boxes: list[QComboBox], dialog: QDialog) -> None:
+    for box in boxes:
+        assert inside(box, dialog), f"{box.currentText()!r} is cut off"
+        assert box.width() >= box.minimumSizeHint().width(), f"{box.currentText()!r} clipped"
     lines = {(box.mapTo(dialog, box.rect().topLeft()).x(), box.width()) for box in boxes}
     assert len(boxes) == len(KINDS) and len(lines) == 1, f"the choices do not line up: {lines}"
+
+
+def assert_usable(page: EditorsPage) -> None:
+    """A healthy file: the saved choice shows, the long own-editor row is shortened in the
+    middle with the full text on hover, and every control is on."""
+    assert combo(page, ".kmp").currentText() == "KMP Cloud"
+    page.own.setCurrentRow(0)
+    row = page.own.item(0)
+    assert row.toolTip() == row.text() and LONG_EXE.split("/")[-1] in row.text()
+    assert not page.own.horizontalScrollBar().isVisible(), "rows scroll sideways"
+    middle = Qt.TextElideMode.ElideMiddle
+    assert page.own.textElideMode() == middle, "long rows are cut at the edge"
+    assert all(combo(page, kind).isEnabled() for kind in KINDS)
+    controls = (page.own, page.add_button, page.edit_button, page.remove_button)
+    assert all(control.isEnabled() for control in controls), "a control is off"
+
+
+def assert_locked(page: EditorsPage) -> None:
+    """A damaged file: the choices and own editors are off and hidden (the banner keeps the
+    room)."""
+    assert not any(combo(page, kind).isEnabled() for kind in KINDS)
+    assert not any(combo(page, kind).isVisible() for kind in KINDS), "choices show"
+    assert not page.own.isEnabled() and not page.add_button.isEnabled()
+    assert not page.own.isVisible(), "the own editors show on a damaged file"
 
 
 @pytest.mark.parametrize(
@@ -72,7 +104,14 @@ def test_editors_window_pictures(qtbot: QtBot, dark: bool, enlarged: bool, damag
     if damaged:
         write_settings("{damaged")
     else:
-        write_settings({"format": 1, "editor_preferences": {".kmp": "kmp_cloud"}})
+        own = {"name": "My long-named paint program", "exe": LONG_EXE, "args_template": ["{file}"]}
+        write_settings(
+            {
+                "format": 1,
+                "editor_preferences": {".kmp": "kmp_cloud"},
+                "custom_tools": {"custom-paint": own},
+            }
+        )
     name = (
         f"p5-t07f1-{'dark' if dark else 'light'}{'-big' if enlarged else ''}"
         f"{'-damaged' if damaged else ''}"
@@ -83,9 +122,10 @@ def test_editors_window_pictures(qtbot: QtBot, dark: bool, enlarged: bool, damag
         assert dialog is not None
         QApplication.processEvents()  # the window sizes itself; no adjustSize() here
         assert page.banner.isVisible() == damaged
-        if not damaged:
-            assert combo(page, ".kmp").currentText() == "KMP Cloud"
-        assert all(combo(page, kind).isEnabled() != damaged for kind in KINDS)
+        if damaged:
+            assert_locked(page)
+        else:
+            assert_usable(page)
         assert_readable(dialog)
         shot(dialog, f"{name}.png")
     assert (SCREENS / f"{name}.png").stat().st_size > 0

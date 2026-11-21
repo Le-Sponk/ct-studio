@@ -252,7 +252,7 @@ def test_a_failed_first_read_leaves_the_choices_off_until_a_good_read(
     with editors_window(qtbot, held) as (window, page):
         shown = page.banner.text()
         assert page.banner.isVisible(), "the failed read was not shown"
-        assert shown == "Could not read or save the editor choices: RuntimeError", shown
+        assert shown == "Could not read or save the editor settings: RuntimeError", shown
         assert not any(box.isEnabled() for box in page.combos.values()), "editable unread"
         combo(page, ".brres").activated.emit(2)  # past Qt's disabling: still no save
         assert settled(qtbot, lambda: not page.busy)

@@ -6,7 +6,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from editor_menu_helpers import offered, row_texts
 from editor_preparation_helpers import Finder, file_at
 from editor_request_helpers import settled
 from editor_settings_helpers import (
@@ -14,6 +13,7 @@ from editor_settings_helpers import (
     combo,
     editors_page,
     editors_window,
+    open_in_rows,
     project_window,
     settings_file,
     write_settings,
@@ -24,18 +24,8 @@ from PySide6.QtWidgets import QApplication, QComboBox
 from pytestqt.qtbot import QtBot
 
 from ctstudio.gui.editor_launch import EditorLaunchService
-from ctstudio.gui.main_window import MainWindow
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(60)]
-
-
-def open_in_rows(qtbot: QtBot, window: MainWindow) -> list[str]:
-    window.dashboard.cards["course_model"].open_action.trigger()
-    dialog = offered(qtbot, window.dashboard)
-    rows = row_texts(dialog)
-    dialog.reject()
-    assert settled(qtbot, lambda: not window.services.launch.busy), "the dialog never ended"
-    return rows
 
 
 def test_the_next_open_in_lists_the_chosen_editor_first(qtbot: QtBot, tmp_path: Path) -> None:
