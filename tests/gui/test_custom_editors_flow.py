@@ -4,6 +4,7 @@ editor files."""
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -32,7 +33,8 @@ def test_the_next_open_in_offers_an_added_editor(qtbot: QtBot, tmp_path: Path) -
     tools = tmp_path / "tools é"
     tools.mkdir()
     brawlcrate = str(file_at(tools, "brawlcrate.exe"))
-    mine = file_at(tools, "my paint é.exe")
+    # A native program: on Linux a Windows .exe needs a Wine prefix first (P5-T07f3).
+    mine = file_at(tools, "my paint é.exe" if sys.platform == "win32" else "my paint é")
     write_settings({"format": 1, "tools": {"brawlcrate": brawlcrate}})
     real = EditorLaunchService(settings_file(), discover_tool=Finder(tools))
     with project_window(qtbot, tmp_path / "board", real) as window:

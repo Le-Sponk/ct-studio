@@ -2312,6 +2312,10 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   with thread stacks armed at 90 s (not triggered), and `setup_label_generic` in four earlier
   runs. Still unproven (no stacks). Evidence local-only in
   `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07e2-TD017/`.
+  Possible further instance (P5-T07f2 repair, mutation run 9, 2026-11-22):
+  `list_enter_passes_on` hit the 600 s timeout after two test failures had printed (`FF`);
+  assertion-caught (2) in an isolated rerun and in eight earlier runs. Partial output kept
+  local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07f2-TD017/`.
 - **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
   load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
   once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-

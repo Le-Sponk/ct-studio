@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Signal
+from PySide6.QtGui import QShowEvent
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -114,6 +115,32 @@ class CustomToolDialog(QDialog):
         layout.addWidget(buttons)
         self.browser: QFileDialog | None = None
 
+    def _fit(self) -> None:
+        """Keep the window tall enough for its wrapped text at the narrowest width it may
+        take, so the help text and the reason are never cut short however the window is
+        resized. Qt's own minimum size for a window ignores how tall wrapped text gets (seen
+        on Ubuntu's wider fonts), and its first size is at most two thirds of the screen. On a
+        short screen the narrowest width is raised until the text fits the screen's height.
+        The minimum lets the arguments box shrink to its own minimum; Qt grows the window to
+        a raised minimum by itself. Done when shown and whenever a reason appears."""
+        layout = self.layout()
+        if layout is None:
+            return
+        layout.activate()
+        screen = self.screen().availableGeometry()
+        least = layout.minimumHeightForWidth  # includes the window's margins
+        narrowest = layout.minimumSize().width()
+        while least(narrowest) > screen.height() and narrowest < screen.width():
+            narrowest = min(narrowest + 20, screen.width())
+        self.setMinimumWidth(narrowest)
+        # Never taller than the screen (very wide fonts on a short screen): the buttons and
+        # fields then give up their spare space.
+        self.setMinimumHeight(min(least(narrowest), screen.height()))
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self._fit()
+
     def _browse(self) -> None:
         browser = QFileDialog(self, "Choose the editor program", self.program.text().strip())
         browser.setFileMode(QFileDialog.FileMode.ExistingFile)
@@ -128,6 +155,7 @@ class CustomToolDialog(QDialog):
         except ValueError as exc:
             self.problem.setText(str(exc))
             self.problem.show()
+            self._fit()
             return
         self.chosen.emit(tool)
         super().accept()
