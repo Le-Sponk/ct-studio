@@ -6,7 +6,7 @@ it, a list of the user's own editors with Add…, Edit… and Remove (a checked 
 removal asks first). Every change is saved at once on a worker (``EditorPreferencesService``)
 behind a busy bar, with every control off meanwhile; Open in… reads the file each time, so
 it applies without a restart. A damaged or newer settings file is shown in a banner and the
-controls stay off, so it is never overwritten; any other failure is shown and the window
+controls are hidden, so it is never overwritten; any other failure is shown and the window
 goes back to what is saved.
 """
 
@@ -115,7 +115,7 @@ class EditorsPage(QWidget):
         self._custom: Mapping[str, CustomTool] = {}
         self.tool_dialog: CustomToolDialog | None = None  # the open add/edit dialog
         self.question: QMessageBox | None = None  # the open "remove?" question
-        self._locked = False  # the file cannot be used: choices stay off (a save refuses it too)
+        self._locked = False  # the file cannot be used: controls hidden (a save refuses it too)
         self._focus: QWidget | None = None  # had the keyboard focus when a read or save began
         self._kept: str | None = None  # the editor to select when the list is shown again
         self.combos: dict[str, QComboBox] = {}

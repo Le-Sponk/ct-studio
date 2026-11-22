@@ -886,7 +886,7 @@ banners with controls off, busy state, keyboard reach, and the next Open in… o
 the preferred editor first without restarting; minimum-width/enlarged-font light/dark local
 screenshots inspected.
 
-##### [ ] P5-T07f2 — Custom editor programs
+##### [x] P5-T07f2 — Custom editor programs (commits `4558734`, repair `7a07831`)
 In the same window, add, edit and remove custom tools (name, program, argument template using
 only `{file}`, `{dir}`, `{project}`), with the model's own validation errors shown before
 anything is saved.

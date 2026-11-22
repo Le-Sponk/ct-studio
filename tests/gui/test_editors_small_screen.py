@@ -44,10 +44,17 @@ SHOW = (
 def _run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
     # A relative file name: Qt splits platform options at ":", so "C:\..." cannot be used.
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen:configfile=screen.json")
+    env["PYTHONIOENCODING"] = "utf-8"  # read back as UTF-8 whatever the system code page
     env.pop("PYTEST_ADDOPTS", None)
     env.pop("PYTEST_CURRENT_TEST", None)
     return subprocess.run(  # noqa: S603 - argv uses our own interpreter, no shell
-        [sys.executable, *args], cwd=cwd, env=env, capture_output=True, text=True, timeout=200
+        [sys.executable, *args],
+        cwd=cwd,
+        env=env,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=200,
     )
 
 
@@ -56,9 +63,11 @@ def test_editors_window_pictures_fit_an_800x600_screen(tmp_path: Path) -> None:
     shown = _run(["-c", SHOW], tmp_path)
     assert shown.stdout.split() == ["800", "600"], shown.stdout + shown.stderr
     # Deeper than a CI runner's temporary folder, so the banner has room to spare there.
-    basetemp = tmp_path / "second-level-folder" / "third-level-folder-abc" / "basetemp"
+    folder = tmp_path / "second-level-folder" / "third-level-folder-abc"
+    while len(str(folder)) < 90:  # also with a short --basetemp: add ordinary folders
+        folder = folder / "more-folder-depth"
+    basetemp = folder / "basetemp"
     basetemp.parent.mkdir(parents=True)  # pytest makes only the last folder
-    assert len(str(basetemp)) >= 100, basetemp
     pictures = [str(ROOT / name) for name in PICTURES]
     args = ["-m", "pytest", "-q", "-p", "no:cacheprovider", "--rootdir", str(ROOT)]
     result = _run([*args, "--basetemp", str(basetemp), *pictures], tmp_path)

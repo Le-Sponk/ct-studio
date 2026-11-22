@@ -117,8 +117,9 @@ class CustomToolDialog(QDialog):
 
     def _fit(self) -> None:
         """Keep the window tall enough for its wrapped text at the narrowest width it may
-        take, so the help text and the reason are never cut short however the window is
-        resized. Qt's own minimum size for a window ignores how tall wrapped text gets (seen
+        take, so the help text and the reason are not cut short however the window is resized
+        (unless even the whole screen height is too short; then the fields give up space
+        first). Qt's own minimum size for a window ignores how tall wrapped text gets (seen
         on Ubuntu's wider fonts), and its first size is at most two thirds of the screen. On a
         short screen the narrowest width is raised until the text fits the screen's height.
         The minimum lets the arguments box shrink to its own minimum; Qt grows the window to

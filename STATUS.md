@@ -4,27 +4,35 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07f2 — Custom editor programs
+**Next task:** P5-T07f3 — Wine-prefix choices and f acceptance
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `eef0b58` (P5-T07f1 exact Check, Windows + Ubuntu)
+**Last green commit:** `7a07831` (P5-T07f2 repair exact Check, Windows + Ubuntu)
 
 ## In progress
-- `P5-T07f2` Custom editor programs (Settings → Editors…). Plan: (1) the editor-settings
-  service also loads the custom tools and saves one add, edit or remove through
-  `UserSettings.with_custom_tool` (backup; unknown fields kept, also inside a record;
-  nothing written when unchanged); a new tool gets a fresh id from its name that never
-  takes a built-in or existing id; (2) an add/edit dialog (name, program with Browse…,
-  one argument per line) that checks the entry with `CustomTool`'s own rules and shows
-  the reason before anything is saved; (3) a Custom editors list with Add/Edit/Remove
-  in the Editors window, off while busy or when the file is damaged; (4) tests through
-  the real settings file and the next Open in…, keyboard, light/dark enlarged pictures.
-  Acceptance as in PHASE_05. Files: `gui/editor_settings.py`, `gui/views/editors_page.py`,
-  new `gui/views/custom_tools_box.py` and `custom_tool_dialog.py`, new tests. Risks:
-  `main_window.py` (375/400) and `test_dashboard_assign.py` keep pre-existing
-  strict-pyright findings; `views/component_card.py` is at 397/400.
+- None. Next leaf P5-T07f3 (Wine-prefix choices and the combined P5-T07f criterion map).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-22 `P5-T07f2` Custom editor programs (`4558734`, repair `7a07831`). Settings →
+  Editors… gains "Your own editors" with Add…/Edit…/Remove: an entry window (name,
+  program with Browse…, one argument per line, `{file}` prefilled) checks with the
+  `CustomTool` rules and shows a plain reason; Remove asks first (Cancel default). Each
+  change saves at once on a worker (backup; unknown fields kept, also in an edited record;
+  unchanged edit writes nothing); the next Open in… offers it without a restart. Fresh ids
+  `custom-<name>` (accents folded) never reuse a custom or Wine-prefix id; an editor
+  removed outside is not re-added by an edit. A damaged file hides the choices and the
+  list behind the banner; keys, focus and selection kept sane. Evidence: 45 tests through
+  the real main window and settings file, an 800x600 picture rerun, light/dark ×
+  normal/enlarged pictures inspected (local only), 71 mutants assertion-caught, strict
+  pyright 0 on Windows and Linux. Reviews: NEEDS_REVISION (banner cut short on a small
+  screen; 8 smaller points) → fixed; one cut off by a usage limit (its probes found two
+  more, fixed) → APPROVE. The first exact Check failed on Ubuntu only (a Windows `.exe`
+  custom program needs Wine on Linux; entry-window help text cut short with Ubuntu's
+  font): repair reviewed NEEDS_REVISION → fixed → APPROVE; a wide-font probe (five
+  families, 100-135%) passes on 800x800 and 800x600. Local gate 5098 passed / 10 skipped
+  / 178 deselected (four symlink tests now skip on this host). Exact Check for `7a07831`:
+  Windows 137058249002 (5093 / 15), Ubuntu 137058249231 (5094 / 14), 5108 selected;
+  artifacts 14734464925 / 14734673515 coverage.xml only. Deferred notes: TD-020.
 - 2026-11-19 `P5-T07f1` Default-editor choices (`eef0b58`). Settings → Editors… lists
   .brres, .szs and .kmp (kinds with more than one built-in editor): "Default order (X
   first)" or one editor, saved at once on a worker through the user settings file
@@ -2376,6 +2384,16 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   (`<profile>\AppData\Roaming\…`, `~/.config/…`) do not reach it. Phase 13: also break
   after `_`, `.` and `-` (or elide the path with the full one in a tooltip) and add a
   single-long-name test.
+- **TD-020 · P13-T06 · small Settings → Editors… polish (P5-T07f2 review notes).** None
+  loses or overwrites data. (1) A file damaged at open leaves the Editors window at its
+  first, taller size after the sections hide (`EditorsWindow._fit` only grows); (2) the
+  intro still says "Choose which editor…" while nothing can be chosen; (3) an add whose
+  fresh id was freed outside meanwhile is not selected afterwards; (4) if an identical
+  record appears outside during an add, the outside copy is selected (rows look the
+  same); (5) the entry window is sized for its narrowest width, so a wide window can show
+  up to ~270 px of empty space (letting the arguments box take spare height would fix
+  it); (6) the small-screen test's child writes its pictures over the normal ones in
+  `tests/artifacts/screens` (local only). Phase 13: fix each with a test.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

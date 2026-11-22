@@ -103,8 +103,8 @@ def test_entry_dialog_pictures(qtbot: QtBot, dark: bool, enlarged: bool) -> None
 
 def test_entry_dialog_stays_on_screen_at_a_very_wide_font(qtbot: QtBot) -> None:
     """At an enlarged font stretched much wider (wider than Ubuntu's), the window still fits the
-    screen and its text stays readable; on an 800x600 screen it needs its height cap (the
-    small-screen test runs this file there)."""
+    screen and its text stays readable; on an 800x600 screen with Segoe UI it needs its height
+    cap (the small-screen test runs this file there; Ubuntu's DejaVu Sans fits without it)."""
     app = QApplication.instance()
     assert isinstance(app, QApplication)
     write_settings({"format": 1})
