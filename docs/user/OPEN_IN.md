@@ -16,8 +16,9 @@ Choose an editor with the arrow keys or the mouse and press Enter or Open; Escap
 An editor that cannot be used is still listed, marked "(not found)" or "(cannot open this
 file)", with the reason and the next step below the list. For a missing built-in editor,
 "Set up … in Tools…" opens Settings → Tools with that program selected (with several missing,
-"Set up editors in Tools…" selects the first), so you can choose where it is or download it. In a read-only project you can see the choices and set up tools,
-but no editor can be started from it.
+"Set up editors in Tools…" selects the first), so you can choose where it is or download it.
+In a read-only project you can see the choices and set up tools, but no editor can be started
+from it.
 
 Each choice starts a new editor process with exactly one file. To edit two files, choose
 Open in… twice; you get two editor windows. CT Studio never sends a second file to an editor

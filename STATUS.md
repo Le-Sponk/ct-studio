@@ -4,30 +4,33 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07g — Original Open in… acceptance and guide
+**Next task:** P5-T08 — Settings dialog
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `27cc11d` (P5-T07f3 exact Check, Windows + Ubuntu)
+**Last green commit:** `0acdf00` (P5-T07g exact Check, Windows + Ubuntu)
 
 ## In progress
-- **P5-T07g — Original Open in… acceptance and guide** (closes P5-T07b, P5-T07c, P5-T07).
-  Plan: (1) test-first `tests/gui/test_open_in_defaults.py`: with no saved choice, the real
-  preparation offers every default target in the catalogue order (.brres/.szs BrawlCrate then
-  RiiStudio, .kmp Lorenzi then KMP Cloud, .blend Blender) with own editors after them for
-  any file (also .kcl, which has no built-in editor); (2) test-first
-  `tests/unit/test_open_in_guide.py` and a new user guide `docs/user/OPEN_IN.md` (Open in…,
-  defaults table checked against the code, launch-only wording, one file per new process,
-  exact course.kcl, Settings → Editors…, Linux/Wine prefixes, what only HC1 can check),
-  linked from README and the navigation guide; the Editors… menu tooltip names all three tabs;
-  (3) map `docs/reference/OPEN_IN_ACCEPTANCE.json` of every original P5-T07, T07b, T07c and
-  T07g criterion, then one combined run of all five editor maps (dispatch, owner, menu,
-  settings, Open in) with `check_map.py` on its JUnit.
-  Acceptance: executable original-criterion map, independent review, full gate, exact CI.
-  Risks: a map row whose tests do not put the app in the named state (check each guard);
-  real-tool integration tests are not in the Check selection, so they are cited only as
-  extra evidence, never as a map target.
+- None. Next task P5-T08 (Settings dialog: Tools, Build, Editors, Appearance, Advanced
+  pages). Settings → Tools and Settings → Editors… already exist as separate windows.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-23 `P5-T07g` Original Open in… acceptance and guide (`0acdf00`); **closes
+  P5-T07b, P5-T07c and P5-T07**. Map `docs/reference/OPEN_IN_ACCEPTANCE.json`: 18 original
+  criteria of P5-T07/b/c/g to 91 targets; one combined run of all five editor maps (1263
+  passed, 0 skipped) matched every target of every map. New user guide
+  `docs/user/OPEN_IN.md` (defaults table and quoted labels/wording tested against the code),
+  linked from README and the navigation guide; HC1 item 8 also asks for Settings → Editors…
+  and a Wine prefix; the Editors… tooltip names its three tabs. New tests prove every default
+  target through the real preparation (acceptance of existing behaviour, green at once).
+  9 source mutants assertion-caught by the two new files; strict pyright 0 on Windows and
+  Linux. Review: NEEDS_REVISION (the guide said own .exe editors find Wine like built-ins)
+  -> fixed with tests -> APPROVE; its two wording notes are in this closeout (docs only, no
+  behaviour change). First implementation gate stopped at 1200 s with the TD-017 signature
+  (untouched outside-edit test); rerun once: 5169 passed / 10 skipped / 178 deselected.
+  Exact Check: Windows 137235331108 (5164 / 15), Ubuntu 137235331252 (5165 / 14), 5179
+  selected; artifacts 14758566397 / 14758311531 coverage.xml only. Plan check: P5-T08's
+  Editors page and P5-T09's open-in step build on this; nothing else waited on P5-T07.
+  P5-HC1 still owns the real editor run.
 - 2026-11-22 `P5-T07f3` Wine-prefix choices and f acceptance (`27cc11d`); **closes
   P5-T07f**. Settings → Editors… now has three tabs (Order, Your editors, Wine (Linux)): a
   fourth section made one page taller than an 800x600 screen at the enlarged font. The

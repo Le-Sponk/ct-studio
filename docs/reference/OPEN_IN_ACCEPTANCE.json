@@ -106,7 +106,7 @@
   },
   {
    "id": "t07-hc1-manual-run",
-   "criterion": "Manual run noted for HC1: the checkpoint asks for a real Open in… run (including Settings → Editors… and a Wine prefix), and the guide names what only it can show (real loading, saving, Wine and desktop behaviour). TD-001's no-tty question and the native-Windows editor questions stay with HC1 item 9; the network-marked RiiStudio characterization is nightly-only, not a Check target.",
+   "criterion": "Manual run noted for HC1: the checkpoint asks for a real Open in… run (including Settings → Editors… and a Wine prefix), and the guide names what only it can show (real loading, saving, Wine and desktop behaviour). TD-001's no-tty question stays with HC1 and the native-Windows editor questions with HC1 item 9; the network-marked RiiStudio characterization is nightly-only, not a Check target.",
    "tests": [
     "tests/unit/test_open_in_guide.py::test_hc1_asks_for_the_manual_open_in_run",
     "tests/unit/test_open_in_guide.py::test_the_guide_says_what_only_the_human_checkpoint_checks"

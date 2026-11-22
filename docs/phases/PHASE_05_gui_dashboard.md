@@ -425,7 +425,7 @@ Add real watcher project switch/close coverage alongside deterministic late-even
 **Acceptance:** resolve acceptance-audit G02/G03, re-run all original criteria plus the new
 failure matrices, and close P5-T06 parents only after final independent review and exact CI.
 
-### [ ] P5-T07 — "Open in…" framework
+### [x] P5-T07 — "Open in…" framework (closed by g map, `0acdf00`)
 Mapping file-type → preferred tools (defaults: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP
 Cloud; szs → BrawlCrate, RiiStudio; blend → Blender; folders → system file manager; any → custom
 tools). Configurable in settings. Missing tool → dialog linking to Tools page. Uses launch contracts
@@ -464,7 +464,7 @@ host-flake diagnosis is claimed. Original failed log retained; no tests/time lim
 Final closeout 5cbf183 passed full local and exact Windows/Ubuntu Check, with coverage-only
 artifacts and clean matching main. P5-T07a is complete; the original timeout remains unexplained.
 
-#### [ ] P5-T07b — Built-in file dispatch and collision prerequisite
+#### [x] P5-T07b — Built-in file dispatch and collision prerequisite (closed by g map, `0acdf00`)
 Extend existing adapters for .szs, preserve OS argv/Wine/warnings/one-file/new-process rules,
 and enforce exact lowercase sibling course.kcl before offering Lorenzi. No process-liveness,
 window-title or RiiStudio stdout claim of successful document loading.
@@ -527,7 +527,7 @@ worker/menu proof in P5-T07d/e. Completing b2 alone leaves P5-T07b and P5-T07 op
 P5-T07c. Final T07g acceptance must rerun b1/b2 plus every original argv, refusal,
 two-request/real-runner and byte-preservation case. Native automated probes do not complete HC1.
 
-#### [ ] P5-T07c — Custom-tool and Wine-prefix preferences and dispatch
+#### [x] P5-T07c — Custom-tool and Wine-prefix preferences and dispatch (closed by g map, `0acdf00`)
 Persist custom editors using existing CustomTool argv templates and machine-specific Wine
 prefix choices. Validate damage, preserve unknown fields/backups, and execute only through
 core adapters with argv tokens, never shell parsing or another process owner.
@@ -908,13 +908,20 @@ skipped), and the exact Check for `27cc11d` passed on Windows and Ubuntu, so P5-
 complete. P5-T07 stays open (T07b, T07c, T07g); T07c's custom-tool and Wine-prefix settings
 now have their controls, but b and c still close only through T07g's original-criterion map.
 
-#### [ ] P5-T07g — Original Open in… acceptance and guide
+#### [x] P5-T07g — Original Open in… acceptance and guide (commit `0acdf00`)
 Re-run every original P5-T07 criterion across its leaves, including fake GUI tools on Windows
 and Linux, two-file/two-launch argument order, all default targets/custom choices, exact
 course.kcl eligibility, Tools guidance and configured next-launch behavior. Document launch-
 only wording, HC1 manual-run requirement and any unverified native-desktop behavior.
 **Acceptance:** executable original-criterion map, independent review, full gates and exact
 hosted CI. Only then close P5-T07; no original acceptance is removed by this split.
+
+Closure: `docs/reference/OPEN_IN_ACCEPTANCE.json` maps all eighteen original P5-T07, T07b,
+T07c and T07g criteria to 91 test targets; one combined run of all five editor maps (1263
+cases, none skipped) matched every target, and the exact Check for `0acdf00` passed on Windows
+and Ubuntu. P5-T07b, P5-T07c and P5-T07 are complete. The user guide is
+`docs/user/OPEN_IN.md`. Real editor loading/saving, real Wine loading and desktop appearance
+stay unverified by automation and are HC1's manual run (P5-HC1 stays open).
 
 ### [ ] P5-T08 — Settings dialog
 Pages: Tools (from P2-T07), Build (compression profiles, parallelism, `_d` variant default, auto-add),
