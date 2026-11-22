@@ -7,6 +7,9 @@ selected (P5-T07e2). ``EditorsWindow`` works the same way for the editor choices
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
+from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout, QWidget
 
 from ctstudio import __version__
@@ -46,6 +49,22 @@ class ToolsWindow:
             self.page.select(tool_id)
 
 
+class _FittingDialog(QDialog):
+    """Fits itself again whenever its layout asks for a new size: another tab shown, or a
+    label's text changed. Qt passes that request up one widget at a time over several event
+    turns, so it arrives here only once the whole window knows the new height."""
+
+    def __init__(self, fit: Callable[[], None], parent: QWidget) -> None:
+        super().__init__(parent)
+        self._fit = fit
+
+    def event(self, event: QEvent) -> bool:
+        handled = super().event(event)
+        if event.type() == QEvent.Type.LayoutRequest:
+            self._fit()
+        return handled
+
+
 class EditorsWindow:
     """Settings → Editors… (P5-T07f1): one window, made on first use, reread on reopen."""
 
@@ -57,12 +76,11 @@ class EditorsWindow:
 
     def open(self) -> None:
         if self.dialog is None or self.page is None:
-            dialog = QDialog(self._parent)
+            dialog = _FittingDialog(self._fit, self._parent)
             dialog.setObjectName("editorsDialog")
             dialog.setWindowTitle("Editors")
             layout = QVBoxLayout(dialog)
             self.page = EditorsPage(self._service, parent=dialog)
-            self.page.shown.connect(self._fit)  # a banner or note can need more height
             layout.addWidget(self.page)
             buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, parent=dialog)
             buttons.rejected.connect(dialog.reject)
@@ -70,8 +88,7 @@ class EditorsWindow:
             self.dialog = dialog
         else:
             self.page.reload()  # the file may have changed since; a running read is kept
-        self.dialog.open()
-        self._fit()
+        self.dialog.open()  # showing it asks the layout, which fits it (_FittingDialog)
 
     def _fit(self) -> None:
         """Make the window tall enough for its wrapped text at its width (``adjustSize`` does

@@ -1,13 +1,14 @@
-"""Settings → Editors…: which built-in editor Open in… lists first per file kind (P5-T07f1)
-and the user's own editor programs (P5-T07f2).
+"""Settings → Editors…: which built-in editor Open in… lists first per file kind (P5-T07f1),
+the user's own editor programs (P5-T07f2) and each Windows editor's Wine prefix (P5-T07f3).
 
-One choice per kind with more than one built-in editor: "Default order" or one editor. Below
-it, a list of the user's own editors with Add…, Edit… and Remove (a checked entry dialog; a
-removal asks first). Every change is saved at once on a worker (``EditorPreferencesService``)
-behind a busy bar, with every control off meanwhile; Open in… reads the file each time, so
-it applies without a restart. A damaged or newer settings file is shown in a banner and the
-controls are hidden, so it is never overwritten; any other failure is shown and the window
-goes back to what is saved.
+Three tabs keep the window inside a small screen. "Order": one choice per kind with more
+than one built-in editor ("Default order" or one editor). "Your editors": a list
+with Add…, Edit… and Remove (a checked entry dialog; a removal asks first). "Wine (Linux)":
+``WinePrefixSection``. Every change is saved at once on a worker
+(``EditorPreferencesService``) behind a busy bar, with every control off meanwhile; Open in…
+reads the file each time, so it applies without a restart. A damaged or newer settings file
+is shown in a banner and the tabs are hidden, so it is never overwritten; any other failure
+is shown and the window goes back to what is saved.
 """
 
 from __future__ import annotations
@@ -16,20 +17,20 @@ import logging
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from functools import partial
+from pathlib import Path
 from typing import cast
 
 from PySide6.QtCore import QObject, Qt, QThreadPool, Signal
-from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
     QHBoxLayout,
     QLabel,
-    QListWidget,
     QListWidgetItem,
     QMessageBox,
     QProgressBar,
     QPushButton,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -40,6 +41,14 @@ from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.core.tools.spec import CustomTool
 from ctstudio.gui.editor_settings import KIND_LABELS, KINDS, EditorKinds, EditorPreferencesService
 from ctstudio.gui.views.custom_tool_dialog import CustomToolDialog
+from ctstudio.gui.views.editors_parts import (
+    EnterList,
+    breakable,
+    choice_note,
+    custom_note,
+    error_text,
+)
+from ctstudio.gui.views.wine_prefix_section import WinePrefixSection
 
 _LOG = logging.getLogger(__name__)
 _ID = Qt.ItemDataRole.UserRole
@@ -65,45 +74,7 @@ class _Saved:
     added: CustomTool | None = None  # the editor this save added, to select it
 
 
-def _choice_note(kind: str, tool: str | None) -> str:
-    if tool is None:
-        return f"Saved. Open in… now uses the default order for {kind} files."
-    return f"Saved. Open in… now lists {TOOL_BY_ID[tool].name} first for {kind} files."
-
-
-def _custom_note(old: CustomTool | None, new: CustomTool) -> str:
-    if old is None:
-        return f"Added {new.name}. Open in… offers it next time."
-    return f"Saved {new.name}. Open in… uses the change next time."
-
-
-def _error_text(error: Exception) -> str:
-    return str(error) or type(error).__name__
-
-
-def _breakable(text: str) -> str:
-    """Let a Windows path wrap after each backslash (a zero-width space): a word-wrapped label
-    cannot break after a backslash, so the path would widen the window past the screen.
-    Qt already breaks after "/" when a letter or digit follows (not before "." or "-"),
-    which real Linux paths give often enough (tested with a long Linux-style path); one
-    folder name over about 65 characters can still widen the window (TD-019)."""
-    return text.replace("\\", "\\\u200b")
-
-
-class _EditorList(QListWidget):
-    """Enter on a row edits it and stops there: a plain list passes Enter on to the window,
-    which then also presses its default button (it would close the window, or save the
-    editor dialog just opened)."""
-
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        super().keyPressEvent(event)
-        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            event.accept()
-
-
 class EditorsPage(QWidget):
-    shown = Signal()  # a read or save finished and is shown
-
     def __init__(self, service: EditorPreferencesService, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.service = service
@@ -113,6 +84,7 @@ class EditorsPage(QWidget):
         self._running = False
         self._choices: Mapping[str, str | None] | None = None  # None until first read
         self._custom: Mapping[str, CustomTool] = {}
+        self._prefixes: Mapping[str, Path] = {}
         self.tool_dialog: CustomToolDialog | None = None  # the open add/edit dialog
         self.question: QMessageBox | None = None  # the open "remove?" question
         self._locked = False  # the file cannot be used: controls hidden (a save refuses it too)
@@ -124,9 +96,6 @@ class EditorsPage(QWidget):
 
     def _build(self) -> None:
         layout = QVBoxLayout(self)
-        intro = QLabel(_INTRO, self)
-        intro.setWordWrap(True)
-        layout.addWidget(intro)
         self.banner = QLabel(self)
         self.banner.setObjectName("editorsProblem")
         self.banner.setWordWrap(True)
@@ -140,34 +109,42 @@ class EditorsPage(QWidget):
         self.busy_bar.setMaximumHeight(6)
         self.busy_bar.hide()
         layout.addWidget(self.busy_bar)
-        # The choices and the own editors are hidden while the file cannot be used: they could
-        # do nothing then, and the damaged-file banner keeps the room on a small screen.
-        self.choices_section = QWidget(self)
+        # The tabs are hidden while the file cannot be used: they could do nothing then, and
+        # the damaged-file banner keeps the room on a small screen.
+        self.tabs = QTabWidget(self)
+        self.tabs.setObjectName("editorsTabs")
+        self.choices_section = QWidget(self.tabs)
         self.choices_section.setObjectName("editorChoicesSection")
         form = QFormLayout(self.choices_section)
-        form.setContentsMargins(0, 0, 0, 0)
         form.setObjectName("editorsForm")
         # Labels above their choices: the same at every font size, and never wider than the screen.
         form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
+        intro = QLabel(_INTRO, self.choices_section)  # this tab's own: the others explain theirs
+        intro.setWordWrap(True)
+        form.addRow(intro)
         for kind in KINDS:
             form.addRow(f"{KIND_LABELS[kind]}:", self._combo(kind))
-        layout.addWidget(self.choices_section)
-        self._build_own(layout)
+        self.tabs.addTab(self.choices_section, "&Order")
+        self._build_own()
+        self.tabs.addTab(self.own_section, "&Your editors")
+        self.wine = WinePrefixSection(self.tabs)
+        self.wine.chosen.connect(self._prefix_picked)
+        self.tabs.addTab(self.wine, "&Wine (Linux)")
+        layout.addWidget(self.tabs)
         self.note = QLabel(self)
         self.note.setObjectName("editorsNote")
         self.note.setWordWrap(True)
         layout.addWidget(self.note)
         layout.addStretch(1)
 
-    def _build_own(self, layout: QVBoxLayout) -> None:
-        self.own_section = QWidget(self)
+    def _build_own(self) -> None:
+        self.own_section = QWidget(self.tabs)
         self.own_section.setObjectName("customEditorsSection")
         section = QVBoxLayout(self.own_section)
-        section.setContentsMargins(0, 0, 0, 0)
         heading = QLabel(_OWN, self.own_section)
         heading.setWordWrap(True)
         section.addWidget(heading)
-        self.own = _EditorList(self.own_section)
+        self.own = EnterList(self.own_section)
         self.own.setObjectName("customEditors")
         self.own.setMinimumHeight(self.fontMetrics().lineSpacing() * 4)
         # Long program paths are shortened in the middle; the full row shows on hover.
@@ -189,7 +166,6 @@ class EditorsPage(QWidget):
             row.addWidget(button)
         row.addStretch(1)
         section.addLayout(row)
-        layout.addWidget(self.own_section)
 
     def _combo(self, kind: str) -> QComboBox:
         box = QComboBox(self)
@@ -219,7 +195,7 @@ class EditorsPage(QWidget):
         if not self._idle():
             return  # past Qt's own disabling: nothing is saved now
         tool = (None, *DEFAULT_EDITORS[kind])[index]
-        self._save(lambda service: service.save(kind, tool), _choice_note(kind, tool))
+        self._save(lambda service: service.save(kind, tool), choice_note(kind, tool))
 
     def selected_tool(self) -> str | None:
         items = self.own.selectedItems()
@@ -244,7 +220,7 @@ class EditorsPage(QWidget):
 
         def chosen(new: CustomTool) -> None:
             if self._idle():  # a read started meanwhile (not from the UI): save nothing
-                note = _custom_note(old, new)
+                note = custom_note(old, new)
                 added = new if tool_id is None else None
                 self._save(lambda service: service.save_custom(tool_id, new), note, added)
 
@@ -255,6 +231,15 @@ class EditorsPage(QWidget):
         dialog.chosen.connect(chosen)
         dialog.finished.connect(done)
         dialog.open()
+
+    def _prefix_picked(self, editor_id: str, prefix: Path | None) -> None:
+        if not self._idle():
+            return  # past Qt's own disabling: nothing is saved now
+        name = self.wine.name_of(editor_id)
+        note = f"Cleared the Wine prefix of {name}."
+        if prefix is not None:
+            note = f"Saved. On Linux, {name} now runs in the prefix {prefix}."
+        self._save(lambda service: service.save_prefix(editor_id, prefix, name=name), note)
 
     def remove_tool(self) -> None:
         tool_id = self.selected_tool()
@@ -317,20 +302,21 @@ class EditorsPage(QWidget):
         if isinstance(payload, _Saved):
             before = self._custom
             self._choices, self._custom = payload.kinds.choices, payload.kinds.custom
+            self._prefixes = payload.kinds.prefixes
             self.note.setText(payload.note)
             self._problem(None)
             self._select(payload.added, before)
         elif isinstance(payload, EditorKinds):
             self._choices, self._custom, self._locked = payload.choices, payload.custom, False
+            self._prefixes = payload.prefixes
             self._problem(None)
         elif isinstance(payload, SettingsError):
             self._locked = True
             self._problem(str(payload))
         elif isinstance(payload, Exception):
-            self._problem(f"Could not read or save the editor settings: {_error_text(payload)}")
+            self._problem(f"Could not read or save the editor settings: {error_text(payload)}")
         self._render()
         self._restore_focus()
-        self.shown.emit()
 
     def _select(self, added: CustomTool | None, before: Mapping[str, CustomTool]) -> None:
         """Select the editor this save added: the new id holding it. Editors added outside
@@ -352,7 +338,7 @@ class EditorsPage(QWidget):
             self.own.setFocus()  # it is off now (Remove with nothing selected): use the list
 
     def _problem(self, text: str | None) -> None:
-        self.banner.setText(_breakable(text or ""))
+        self.banner.setText(breakable(text or ""))
         self.banner.setVisible(bool(text))
 
     def _render(self) -> None:
@@ -363,8 +349,8 @@ class EditorsPage(QWidget):
             box.setCurrentIndex((None, *DEFAULT_EDITORS[kind]).index(choices.get(kind)))
             box.setEnabled(editable)
         self._render_own(editable)
-        for section in (self.choices_section, self.own_section):
-            section.setVisible(not self._locked)
+        self.wine.show_rows(self._prefixes, self._custom, editable)
+        self.tabs.setVisible(not self._locked)
         self.busy_bar.setVisible(self._running)
 
     def _render_own(self, editable: bool) -> None:

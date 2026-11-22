@@ -1,0 +1,143 @@
+{
+ "schema_version": 1,
+ "task": "P5-T07f3",
+ "phase_source": "docs/phases/PHASE_05_gui_dashboard.md",
+ "scope": [
+  "P5-T07f",
+  "P5-T07f1",
+  "P5-T07f2",
+  "P5-T07f3"
+ ],
+ "execution_rule": "Each listed function prefix must match passing, non-skipped collected cases in the final combined run. The mapping alone is not execution evidence or permission to close a parent.",
+ "requirements": [
+  {
+   "id": "f-save-reset-reopen",
+   "criterion": "Real UI save/reset/reopen through the settings file for all three forms: built-in order chosen and reset to the default, own editors added/edited/removed, Wine prefixes chosen and cleared, each shown again on reopen.",
+   "tests": [
+    "tests/gui/test_editor_settings.py::test_a_choice_is_saved_with_a_backup_and_every_unknown_field",
+    "tests/gui/test_editor_settings.py::test_default_order_resets_the_choice",
+    "tests/gui/test_editor_settings.py::test_reopening_reads_the_file_again",
+    "tests/gui/test_custom_editors.py::test_an_added_editor_is_saved_with_a_backup_and_unknown_fields",
+    "tests/gui/test_custom_editors.py::test_editing_keeps_the_id_and_unknown_record_fields",
+    "tests/gui/test_custom_editors.py::test_removing_asks_first_and_keeps_other_editors",
+    "tests/gui/test_custom_editors.py::test_reopening_shows_editors_changed_outside",
+    "tests/gui/test_wine_prefixes.py::test_choose_clear_and_reopen_keep_backups_and_unknown_fields"
+   ]
+  },
+  {
+   "id": "f-backups-unknown-fields",
+   "criterion": "Each save keeps a backup and every unknown field: top level, inside editor_preferences, inside a custom-tool record and inside a Wine-prefix record; a save that changes nothing writes nothing.",
+   "tests": [
+    "tests/gui/test_editor_settings.py::test_a_choice_is_saved_with_a_backup_and_every_unknown_field",
+    "tests/gui/test_editor_settings.py::test_choosing_what_is_saved_already_writes_nothing",
+    "tests/gui/test_custom_editors.py::test_an_added_editor_is_saved_with_a_backup_and_unknown_fields",
+    "tests/gui/test_custom_editors.py::test_editing_keeps_the_id_and_unknown_record_fields",
+    "tests/gui/test_custom_editors.py::test_an_unchanged_edit_writes_nothing",
+    "tests/gui/test_wine_prefixes.py::test_choose_clear_and_reopen_keep_backups_and_unknown_fields",
+    "tests/gui/test_wine_prefixes.py::test_an_unchanged_choice_writes_nothing"
+   ]
+  },
+  {
+   "id": "f-damaged-never-overwritten",
+   "criterion": "A damaged or newer settings file is shown, its controls are off and hidden, and it is never silently overwritten (also when it is damaged after being shown); a good reread allows changes again.",
+   "tests": [
+    "tests/gui/test_editor_settings.py::test_a_damaged_settings_file_is_shown_and_never_overwritten",
+    "tests/gui/test_editor_settings.py::test_a_file_damaged_after_it_was_shown_is_not_overwritten",
+    "tests/gui/test_editor_settings.py::test_fixing_a_damaged_file_and_reopening_allows_choosing",
+    "tests/gui/test_custom_editors.py::test_editors_stay_off_while_busy_and_on_a_damaged_file",
+    "tests/gui/test_custom_editors.py::test_a_save_refused_by_a_file_damaged_meanwhile_writes_nothing",
+    "tests/gui/test_wine_prefixes.py::test_a_damaged_file_hides_the_tabs_and_saves_nothing",
+    "tests/gui/test_wine_prefixes.py::test_a_file_damaged_after_it_was_shown_is_not_overwritten"
+   ]
+  },
+  {
+   "id": "f-error-handling",
+   "criterion": "Error handling: failed reads and saves are explained and the window goes back to what is saved; invalid entries are refused with a plain reason; an editor removed outside is neither re-added nor given a prefix.",
+   "tests": [
+    "tests/gui/test_editor_settings.py::test_a_failed_save_is_explained_and_the_choice_goes_back",
+    "tests/gui/test_editor_settings.py::test_a_failed_first_read_leaves_the_choices_off_until_a_good_read",
+    "tests/gui/test_custom_editors.py::test_an_invalid_entry_is_refused_with_the_reason",
+    "tests/gui/test_custom_editors.py::test_text_qt_cannot_carry_is_still_refused",
+    "tests/gui/test_custom_editors_edges.py::test_editing_an_editor_removed_outside_writes_nothing",
+    "tests/gui/test_wine_prefixes.py::test_a_failed_save_is_shown_and_the_rows_stay_saved",
+    "tests/gui/test_wine_prefixes.py::test_an_editor_removed_outside_gets_no_prefix"
+   ]
+  },
+  {
+   "id": "f-worker-busy",
+   "criterion": "Reads and saves run on a worker (never the UI thread); while one runs every control is off and nothing else is saved, also past Qt's own disabling.",
+   "tests": [
+    "tests/gui/test_editor_settings.py::test_choices_are_off_while_a_save_runs",
+    "tests/gui/test_editor_settings.py::test_a_reopen_during_a_read_starts_no_second_read",
+    "tests/gui/test_custom_editors.py::test_an_entry_saved_while_a_read_runs_starts_nothing",
+    "tests/gui/test_custom_editors_edges.py::test_a_remove_answered_while_a_read_runs_saves_nothing",
+    "tests/gui/test_wine_prefixes.py::test_while_saving_everything_is_off_and_nothing_else_is_saved"
+   ]
+  },
+  {
+   "id": "f-next-launch-no-restart",
+   "criterion": "Changes affect the next launch without restarting: the next Open in… lists the preferred editor first, offers a saved own editor, and (fake Linux platform) prepares a Windows editor with the saved prefix, built-in and own; clearing it makes the editor unready.",
+   "tests": [
+    "tests/gui/test_editor_settings_flow.py::test_the_next_open_in_lists_the_chosen_editor_first",
+    "tests/gui/test_custom_editors_flow.py::test_the_next_open_in_offers_an_added_editor",
+    "tests/gui/test_wine_prefixes_flow.py::test_the_next_open_in_on_linux_uses_the_chosen_prefix"
+   ]
+  },
+  {
+   "id": "f-keyboard",
+   "criterion": "Keyboard: every form is reachable and usable with real keys (tabs, Tab order, arrows, Enter, Space, Escape); Enter never presses a hidden default; focus stays put after a save.",
+   "tests": [
+    "tests/gui/test_editor_settings_flow.py::test_the_choices_work_from_the_keyboard",
+    "tests/gui/test_custom_editors_flow.py::test_own_editors_work_from_the_keyboard",
+    "tests/gui/test_custom_editors_edges.py::test_enter_outside_the_list_never_adds_or_edits",
+    "tests/gui/test_custom_editors_edges.py::test_the_focus_stays_put_after_a_keyboard_save",
+    "tests/gui/test_wine_prefixes_flow.py::test_the_wine_tab_works_from_the_keyboard"
+   ]
+  },
+  {
+   "id": "f-visual-evidence",
+   "criterion": "Minimum-width and enlarged-font light/dark local evidence for every tab and the entry dialog, long paths wrapping or shortened inside the screen, and the same pictures on a real 800x600 screen (pictures stay local and are inspected by eye).",
+   "tests": [
+    "tests/gui/test_editor_settings_visual.py::test_editors_window_pictures",
+    "tests/gui/test_editor_settings_visual.py::test_a_long_settings_path_wraps_inside_the_screen",
+    "tests/gui/test_editor_settings_visual.py::test_a_long_linux_style_path_wraps_inside_the_screen",
+    "tests/gui/test_custom_editors_visual.py::test_entry_dialog_pictures",
+    "tests/gui/test_custom_editors_visual.py::test_entry_dialog_stays_on_screen_at_a_very_wide_font",
+    "tests/gui/test_wine_prefixes_visual.py::test_wine_tab_pictures",
+    "tests/gui/test_editors_small_screen.py::test_editors_window_pictures_fit_an_800x600_screen",
+    "tests/gui/test_wine_prefixes_visual.py::test_wine_tab_stays_readable_at_a_very_wide_font"
+   ]
+  },
+  {
+   "id": "f1-built-in-defaults",
+   "criterion": "Built-in defaults: every file kind with more than one built-in editor offers the default order or one editor.",
+   "tests": [
+    "tests/gui/test_editor_settings.py::test_each_kind_with_a_choice_of_editors_is_listed"
+   ]
+  },
+  {
+   "id": "f2-custom-argv-templates",
+   "criterion": "Custom tools: name, program and an argument template using only {file}, {dir} and {project}, checked by the model's own rules before anything is saved; a new entry starts with {file}; new ids never reuse a taken one; Cancel saves nothing.",
+   "tests": [
+    "tests/gui/test_custom_editors.py::test_an_invalid_entry_is_refused_with_the_reason",
+    "tests/gui/test_custom_editors.py::test_a_new_entry_starts_with_the_file_argument",
+    "tests/gui/test_custom_editors.py::test_a_new_id_never_reuses_a_taken_one",
+    "tests/gui/test_custom_editors.py::test_fresh_ids_are_valid_and_free",
+    "tests/gui/test_custom_editors.py::test_no_built_in_id_looks_like_a_custom_one",
+    "tests/gui/test_custom_editors.py::test_cancel_saves_nothing",
+    "tests/gui/test_custom_editors_edges.py::test_browse_fills_in_the_chosen_program"
+   ]
+  },
+  {
+   "id": "f3-wine-prefixes",
+   "criterion": "Per-editor Wine-prefix folder choice and clear for built-in and own Windows editors, shown on every platform and explained as Linux-only, with how to make a prefix.",
+   "tests": [
+    "tests/gui/test_wine_prefixes.py::test_the_tab_lists_windows_editors_and_explains_it_is_for_linux",
+    "tests/gui/test_wine_prefixes.py::test_clear_is_off_without_a_prefix_and_the_how_to_follows_the_row",
+    "tests/gui/test_wine_prefixes.py::test_the_folder_dialog_starts_at_the_chosen_prefix_and_cancel_saves_nothing",
+    "tests/gui/test_wine_prefixes.py::test_a_removed_editor_s_prefix_can_still_be_cleared",
+    "tests/gui/test_wine_prefixes.py::test_the_tab_text_names_the_windows_editors_only"
+   ]
+  }
+ ]
+}

@@ -9,7 +9,26 @@
 **Last green commit:** `7a07831` (P5-T07f2 repair exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next leaf P5-T07f3 (Wine-prefix choices and the combined P5-T07f criterion map).
+- **P5-T07f3 — Wine-prefix choices and f acceptance** (started 2026-11-22). Plan:
+  1. Service: `EditorKinds.prefixes`; `save_prefix(editor_id, prefix, name=...)` read fresh,
+     nothing written when unchanged, through `UserSettings.with_wine_prefix` (backup, unknown
+     fields kept, also inside a prefix record); refuses a custom editor removed outside.
+  2. Settings → Editors… gets two tabs: "Open in…" (f1 choices + f2 own editors) and
+     "Wine (Linux)": built-in Windows editors (`PREFIX_RECIPES`) and own `.exe` editors, each
+     with its prefix or "no prefix chosen", Choose folder…/Clear, and how to make a prefix.
+     Shown on every system, explained as Linux-only. Tabs keep the window inside an 800x600
+     screen; a damaged file hides both tabs behind the banner.
+  3. Tests first: real window choose/clear/reopen, backup and unknown fields, unchanged choice
+     writes nothing, damaged file, save failure, busy state, keyboard, the next Open in… on a
+     fake Linux preparing a Windows editor with the saved prefix (built-in and own) without a
+     restart, light/dark normal/enlarged pictures plus the 800x600 rerun.
+  4. Combined map `docs/reference/EDITOR_SETTINGS_ACCEPTANCE.json` of every P5-T07f criterion
+     (f1-f3) checked with `check_map.py --ast` and against one combined JUnit run; closing it
+     closes P5-T07f too.
+  Files: `gui/editor_settings.py`, `gui/views/editors_page.py`, new
+  `gui/views/wine_prefix_section.py` (and a small helper move to stay under 400 lines), tests
+  under `tests/gui/`. Risks: window height on small screens; page file budget; the f1/f2
+  tests must still hold with the tabs.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2324,6 +2343,13 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   `list_enter_passes_on` hit the 600 s timeout after two test failures had printed (`FF`);
   assertion-caught (2) in an isolated rerun and in eight earlier runs. Partial output kept
   local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07f2-TD017/`.
+  Possible further instance (P5-T07f3, mutation run 2, 2026-11-22): `svc_prefixes_not_read`
+  (a new mutant) hit the 600 s timeout after 13 test failures had printed; assertion-caught
+  (13) in an isolated rerun with thread stacks armed at 90 s (not triggered). Partial output
+  kept local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07f3-TD017/`.
+  Possible further instance (P5-T07f3, mutation run 3, 2026-11-22): `sec_selection_lost`
+  hit the 600 s timeout after its first failure had printed; caught in runs 1 and 2 and in an
+  isolated rerun (see the P5-T07f3 commit). Partial output kept in the same folder.
 - **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
   load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
   once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-
@@ -2394,6 +2420,15 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   up to ~270 px of empty space (letting the arguments box take spare height would fix
   it); (6) the small-screen test's child writes its pictures over the normal ones in
   `tests/artifacts/screens` (local only). Phase 13: fix each with a test.
+- **TD-021 · P13-T06 · Settings → Editors… keyboard and small-screen limits (P5-T07f3
+  review).** None loses data. (1) Enter on a focused in-page button (Add…, Edit…, Remove,
+  Choose folder…, Clear) presses the window's Close instead of the button, because those
+  buttons are not auto-default (so Enter in a list or combo never presses them); Space works.
+  Fix: make Close the explicit default and let focused buttons take Enter, with a key test.
+  (2) The window only grows taller, never wider: on an 800x600 screen at the enlarged font a
+  failed-save banner naming a path of about 97+ characters cuts the Order intro (62 < 81 px),
+  ~140+ also the Wine tab's text; 800x800 fits. Before the tabs the window did not fit 600 px
+  at all. Fix: widen toward the screen width before capping the height, with that test.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

@@ -18,7 +18,11 @@ import pytest
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(240)]
 ROOT = Path(__file__).resolve().parents[2]
-PICTURES = ["tests/gui/test_editor_settings_visual.py", "tests/gui/test_custom_editors_visual.py"]
+PICTURES = [
+    "tests/gui/test_editor_settings_visual.py",
+    "tests/gui/test_custom_editors_visual.py",
+    "tests/gui/test_wine_prefixes_visual.py",
+]
 SCREEN = {
     "synchronousWindowSystemEvents": False,
     "windowFrameMargins": False,

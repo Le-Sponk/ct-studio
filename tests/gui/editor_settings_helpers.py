@@ -39,6 +39,7 @@ class HeldPreferences(EditorPreferencesService):
         self.loads = 0
         self.saves: list[tuple[str, str | None]] = []  # every save the page asked for
         self.customs: list[tuple[str | None, CustomTool | None]] = []  # every custom save
+        self.prefixes: list[tuple[str, Path | None]] = []  # every Wine-prefix save
 
     def load(self) -> EditorKinds:
         gate = self.gate  # tests swap the gate while a call waits
@@ -60,6 +61,13 @@ class HeldPreferences(EditorPreferencesService):
         self.customs.append((tool_id, tool))
         gate.wait(10)
         return super().save_custom(tool_id, tool)
+
+    def save_prefix(self, editor_id: str, prefix: Path | None, *, name: str) -> EditorKinds:
+        gate = self.gate
+        self.threads.append(threading.current_thread())
+        self.prefixes.append((editor_id, prefix))
+        gate.wait(10)
+        return super().save_prefix(editor_id, prefix, name=name)
 
 
 def settings_file() -> Path:

@@ -1,10 +1,11 @@
-"""Editor choices for Settings → Editors…: the built-in order per file kind (P5-T07f1) and
-the user's own editor programs (P5-T07f2).
+"""Editor choices for Settings → Editors…: the built-in order per file kind (P5-T07f1),
+the user's own editor programs (P5-T07f2) and each Windows editor's Wine prefix (P5-T07f3).
 
 A plain service: it reads the user's settings file and saves one change at a time through
-``UserSettings.with_editor`` or ``with_custom_tool``, so the file's backup and every unknown
-field (also inside a custom-tool record) are kept. Every call blocks; the page runs them on
-its worker. A damaged or newer file raises ``SettingsError`` and is never written.
+``UserSettings.with_editor``, ``with_custom_tool`` or ``with_wine_prefix``, so the file's
+backup and every unknown field (also inside a custom-tool or prefix record) are kept. Every
+call blocks; the page runs them on its worker. A damaged or newer file raises
+``SettingsError`` and is never written.
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ from types import MappingProxyType
 
 from ctstudio.core.project import settings
 from ctstudio.core.project.editor_preferences import DEFAULT_EDITORS, parse_preferences
+from ctstudio.core.tools.editors import PREFIX_RECIPES
 from ctstudio.core.tools.spec import CustomTool
 
 # Only kinds with more than one built-in editor have something to choose.
@@ -33,11 +35,12 @@ KIND_LABELS: MappingProxyType[str, str] = MappingProxyType(
 
 @dataclass(frozen=True)
 class EditorKinds:
-    """The saved choice for each kind in ``KINDS`` (None means the default order) and the
-    user's own editor programs by id."""
+    """The saved choice for each kind in ``KINDS`` (None means the default order), the
+    user's own editor programs by id, and the saved Wine prefixes by editor id."""
 
     choices: Mapping[str, str | None]
     custom: Mapping[str, CustomTool] = field(default_factory=dict[str, CustomTool])
+    prefixes: Mapping[str, Path] = field(default_factory=dict[str, Path])
 
 
 def _choices(loaded: settings.UserSettings) -> EditorKinds:
@@ -46,6 +49,7 @@ def _choices(loaded: settings.UserSettings) -> EditorKinds:
     return EditorKinds(
         {kind: tool if isinstance(tool, str) else None for kind, tool in picked.items()},
         loaded.custom_tools(),
+        loaded.wine_prefixes(),
     )
 
 
@@ -106,5 +110,19 @@ class EditorPreferencesService:
         elif tool_id not in tools:
             raise EditorGone(tool.name if tool else tool_id)
         updated = current.with_custom_tool(tool_id, tool)
+        settings.save(updated, self._settings_path)
+        return _choices(updated)
+
+    def save_prefix(self, editor_id: str, prefix: Path | None, *, name: str) -> EditorKinds:
+        """Set (or clear, ``prefix`` None) one editor's Wine prefix, read fresh from the
+        file; nothing is written when the file already says so. ``name`` names a custom
+        editor that was removed outside meanwhile (``EditorGone``: no orphan prefix)."""
+        current = settings.load(self._settings_path)
+        if current.wine_prefixes().get(editor_id) == prefix:
+            return _choices(current)
+        if prefix is not None and editor_id not in PREFIX_RECIPES:
+            if editor_id not in current.custom_tools():
+                raise EditorGone(name)
+        updated = current.with_wine_prefix(editor_id, prefix)
         settings.save(updated, self._settings_path)
         return _choices(updated)

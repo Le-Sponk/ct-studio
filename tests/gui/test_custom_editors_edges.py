@@ -54,6 +54,7 @@ def test_the_focus_stays_put_after_a_keyboard_save(qtbot: QtBot) -> None:
         dialog = window.editors_window.dialog
         assert dialog is not None
         _focused_window(dialog)
+        page.tabs.setCurrentWidget(page.own_section)
         page.add_button.setFocus()
         assert page.add_button.hasFocus(), "the probe needs the focus on Add…"
         QTest.keyClick(page.add_button, Qt.Key.Key_Space)

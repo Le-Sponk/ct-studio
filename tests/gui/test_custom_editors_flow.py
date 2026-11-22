@@ -77,8 +77,10 @@ def test_own_editors_work_from_the_keyboard(qtbot: QtBot) -> None:
         assert dialog is not None
         dialog.activateWindow()
         QApplication.processEvents()
-        page.combos[".kmp"].setFocus()
-        reached = _tab(4)
+        page.tabs.tabBar().setFocus()
+        QTest.keyClick(page.tabs.tabBar(), Qt.Key.Key_Right)
+        assert page.tabs.currentWidget() is page.own_section, "arrows do not reach the tab"
+        reached = _tab(3)
         assert reached[:2] == [page.own, page.add_button], f"Tab order: {reached}"
         page.add_button.setFocus()
         QTest.keyClick(page.add_button, Qt.Key.Key_Space)

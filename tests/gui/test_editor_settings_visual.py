@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path, PurePosixPath
 
 import pytest
+from editor_request_helpers import settled
 from editor_settings_helpers import combo, editors_window, write_settings
 from outside_visual_helpers import visual_style
 from PySide6.QtCore import QRect, Qt
@@ -46,6 +47,13 @@ def assert_label_fits(label: QLabel, dialog: QDialog) -> None:
         assert label.width() >= label.sizeHint().width(), f"{label.text()!r} is clipped"
 
 
+def wrapped_fit(dialog: QDialog) -> bool:
+    """Every shown word-wrapped label has the height its text needs."""
+    labels = [label for label in dialog.findChildren(QLabel) if label.isVisible()]
+    wrapped = [label for label in labels if label.wordWrap() and label.text()]
+    return all(label.height() >= label.heightForWidth(label.width()) for label in wrapped)
+
+
 def assert_readable(dialog: QDialog) -> None:
     """Every shown label and choice fits the window at full width; wrapped text fits; the
     choices line up under their labels."""
@@ -67,16 +75,21 @@ def assert_choices_fit(boxes: list[QComboBox], dialog: QDialog) -> None:
 
 
 def assert_usable(page: EditorsPage) -> None:
-    """A healthy file: the saved choice shows, the long own-editor row is shortened in the
-    middle with the full text on hover, and every control is on."""
+    """A healthy file, Order tab: the saved choice shows and every choice is on."""
     assert combo(page, ".kmp").currentText() == "KMP Cloud"
+    assert all(combo(page, kind).isEnabled() for kind in KINDS)
+
+
+def assert_own_usable(page: EditorsPage) -> None:
+    """Your editors tab: the long own-editor row is shortened in the middle with the full
+    text on hover, and every control is on."""
+    assert page.own.isVisible(), "the Your editors tab is not shown"
     page.own.setCurrentRow(0)
     row = page.own.item(0)
     assert row.toolTip() == row.text() and LONG_EXE.split("/")[-1] in row.text()
     assert not page.own.horizontalScrollBar().isVisible(), "rows scroll sideways"
     middle = Qt.TextElideMode.ElideMiddle
     assert page.own.textElideMode() == middle, "long rows are cut at the edge"
-    assert all(combo(page, kind).isEnabled() for kind in KINDS)
     controls = (page.own, page.add_button, page.edit_button, page.remove_button)
     assert all(control.isEnabled() for control in controls), "a control is off"
 
@@ -128,6 +141,12 @@ def test_editors_window_pictures(qtbot: QtBot, dark: bool, enlarged: bool, damag
             assert_usable(page)
         assert_readable(dialog)
         shot(dialog, f"{name}.png")
+        if not damaged:
+            page.tabs.setCurrentWidget(page.own_section)
+            settled(qtbot, lambda: wrapped_fit(dialog))  # it refits on later event turns
+            assert_own_usable(page)
+            assert_readable(dialog)
+            shot(dialog, f"{name}-own.png")
     assert (SCREENS / f"{name}.png").stat().st_size > 0
 
 
