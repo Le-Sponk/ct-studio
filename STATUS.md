@@ -9,8 +9,22 @@
 **Last green commit:** `27cc11d` (P5-T07f3 exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next leaf P5-T07g (original Open in… acceptance across every P5-T07 leaf, and the
-  guide); it closes P5-T07 together with T07b and T07c.
+- **P5-T07g — Original Open in… acceptance and guide** (closes P5-T07b, P5-T07c, P5-T07).
+  Plan: (1) test-first `tests/gui/test_open_in_defaults.py`: with no saved choice, the real
+  preparation offers every default target in the catalogue order (.brres/.szs BrawlCrate then
+  RiiStudio, .kmp Lorenzi then KMP Cloud, .blend Blender) with own editors after them for
+  any file (also .kcl, which has no built-in editor); (2) test-first
+  `tests/unit/test_open_in_guide.py` and a new user guide `docs/user/OPEN_IN.md` (Open in…,
+  defaults table checked against the code, launch-only wording, one file per new process,
+  exact course.kcl, Settings → Editors…, Linux/Wine prefixes, what only HC1 can check),
+  linked from README and the navigation guide; the Editors… menu tooltip names all three tabs;
+  (3) map `docs/reference/OPEN_IN_ACCEPTANCE.json` of every original P5-T07, T07b, T07c and
+  T07g criterion, then one combined run of all five editor maps (dispatch, owner, menu,
+  settings, Open in) with `check_map.py` on its JUnit.
+  Acceptance: executable original-criterion map, independent review, full gate, exact CI.
+  Risks: a map row whose tests do not put the app in the named state (check each guard);
+  real-tool integration tests are not in the Check selection, so they are cited only as
+  extra evidence, never as a map target.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2353,6 +2367,13 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   Possible further instance (P5-T07f3, mutation run 3, 2026-11-22): `sec_selection_lost`
   hit the 600 s timeout after its first failure had printed; caught in runs 1 and 2 and in an
   isolated rerun (see the P5-T07f3 commit). Partial output kept in the same folder.
+  Signature match (P5-T07g implementation gate, 2026-11-23): the full gate stopped at the
+  1200 s limit in the untouched `test_dashboard_outside_failures.py::test_native_
+  acknowledgement_fault_still_joins_real_write_and_recovery[discard]` (60 s faulthandler
+  dump): the GUI thread was inside a signal `connect` while building a dashboard card
+  (`component_card.py:142`) and the file-watcher thread was allocating in `watch.py`
+  `_variants` (where cyclic GC can run). 890 earlier cases passed, none failed. Rerun once
+  per the rule above; log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07g-TD017/`.
 - **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
   load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
   once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-

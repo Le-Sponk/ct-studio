@@ -9,7 +9,8 @@ EDITOR_PREFERENCES = "editor_preferences"
 DEFAULT_EDITORS: MappingProxyType[str, tuple[str, ...]] = MappingProxyType(
     {
         ".brres": ("brawlcrate", "riistudio"),
-        # Catalogue intent only: not a claim that existing adapters accept SZS.
+        # The adapters accept SZS (P5-T07b2, measured natively on Windows); loading through
+        # Wine on Linux is unmeasured.
         ".szs": ("brawlcrate", "riistudio"),
         ".kmp": ("kmp_editor_lorenzi", "kmp_cloud"),
         ".blend": ("blender",),

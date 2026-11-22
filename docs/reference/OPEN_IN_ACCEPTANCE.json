@@ -1,0 +1,213 @@
+{
+ "schema_version": 1,
+ "task": "P5-T07g",
+ "phase_source": "docs/phases/PHASE_05_gui_dashboard.md",
+ "scope": [
+  "P5-T07",
+  "P5-T07b",
+  "P5-T07c",
+  "P5-T07g"
+ ],
+ "execution_rule": "Each listed function prefix must match passing, non-skipped collected cases in the final combined run, which also runs every test of the leaf maps EDITOR_DISPATCH_ACCEPTANCE.json (c3), EDITOR_OWNER_ACCEPTANCE.json (d), EDITOR_MENU_ACCEPTANCE.json (e) and EDITOR_SETTINGS_ACCEPTANCE.json (f), each checked against the same JUnit. Real-tool integration tests are extra evidence, not targets. The mapping alone is not execution evidence or permission to close a parent.",
+ "requirements": [
+  {
+   "id": "t07-default-targets",
+   "criterion": "Default targets: brres → BrawlCrate, RiiStudio; kmp → Lorenzi, KMP Cloud; szs → BrawlCrate, RiiStudio; blend → Blender; folders → system file manager; any file → the user's custom tools (also a kind with no built-in editor).",
+   "tests": [
+    "tests/gui/test_open_in_defaults.py::test_each_kind_offers_its_default_editors_in_order",
+    "tests/gui/test_open_in_defaults.py::test_own_editors_follow_the_defaults_for_any_file",
+    "tests/unit/test_editor_preferences.py::test_exact_immutable_catalogue",
+    "tests/unit/test_editor_preferences.py::test_default_projection",
+    "tests/unit/test_folders.py::test_windows_dispatches_only_the_resolved_folder",
+    "tests/unit/test_folders.py::test_linux_resolves_which_result_and_watches_dispatch",
+    "tests/gui/test_blender_launch.py::test_default_opener_forwards_current_source_and_settings_to_core"
+   ]
+  },
+  {
+   "id": "t07-configurable-next-launch",
+   "criterion": "Configurable in settings; a saved built-in order, custom tool or Wine prefix is used by the next Open in… without restarting.",
+   "tests": [
+    "tests/unit/test_editor_preferences.py::test_override_reset_and_nonmutation",
+    "tests/gui/test_editor_settings_flow.py::test_the_next_open_in_lists_the_chosen_editor_first",
+    "tests/gui/test_custom_editors_flow.py::test_the_next_open_in_offers_an_added_editor",
+    "tests/gui/test_wine_prefixes_flow.py::test_the_next_open_in_on_linux_uses_the_chosen_prefix",
+    "tests/unit/test_saved_editor_routing.py::test_builtin_routes_fresh_settings"
+   ]
+  },
+  {
+   "id": "t07-missing-tool-guidance",
+   "criterion": "Missing tool → the choice dialog explains it and links to the Tools page with that tool selected; never for ineligible or custom editors.",
+   "tests": [
+    "tests/gui/test_editor_choices_tools.py::test_a_missing_builtin_editor_is_offered_in_tools",
+    "tests/gui/test_editor_choices_tools.py::test_only_missing_builtin_editors_lead_to_tools",
+    "tests/gui/test_editor_tools_flow.py::test_set_up_in_tools_opens_the_tools_window_at_that_editor",
+    "tests/gui/test_editor_choices.py::test_with_nothing_available_open_stays_off_and_says_why"
+   ]
+  },
+  {
+   "id": "t07-launch-contracts-wine",
+   "criterion": "Launch contracts from TOOLS.md: Windows-only editors run through Wine on Linux with a per-editor prefix (with how to make one when missing); Blender never runs in Wine.",
+   "tests": [
+    "tests/unit/test_editors.py::test_a_wine_editor_is_launched_through_the_wine_adapter",
+    "tests/unit/test_editors.py::test_a_wine_editor_without_a_prefix_says_which_prefix_to_make",
+    "tests/unit/test_editors.py::test_blender_is_never_run_through_wine",
+    "tests/unit/test_wine.py::test_launch_runs_the_editor_on_the_windows_path_with_options_after",
+    "tests/unit/test_saved_editor_owners.py::test_real_builtin_wine_route_keeps_owner_options",
+    "tests/unit/test_saved_choice_wine_process.py::test_saved_wine_two_fresh_requests"
+   ]
+  },
+  {
+   "id": "t07-one-file-new-process",
+   "criterion": "One file per launch and a new process every time: only single-file parts offer Open in… (never 'open both'), each request carries its own part and path, and two files produce two launches with independent receipts.",
+   "tests": [
+    "tests/gui/test_card_open_in.py::test_only_single_file_parts_offer_open_in",
+    "tests/gui/test_editor_menu_flow.py::test_the_card_asks_only_through_its_own_part_and_path",
+    "tests/unit/test_editor_prerequisites.py::test_two_eligible_requests_make_two_real_native_dispatches",
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_two_requests_have_distinct_real_launches_and_atomic_receipts",
+    "tests/unit/test_custom_editor_native.py::test_two_real_launches_keep_exact_argv_and_bytes",
+    "tests/unit/test_saved_choice_native_process.py::test_saved_native_two_fresh_requests"
+   ]
+  },
+  {
+   "id": "t07-launch-only",
+   "criterion": "The UI never claims the file opened: results say the editor was started and that CT Studio cannot tell whether it finished opening the file; a native editor's output is discarded (the launch takes no watch argument) and its receipt holds only tool, process, document and warnings. Through Wine the startup output is kept only to explain an early non-zero exit and the receipt is the process number; RiiStudio's File: line is never read (TD-001).",
+   "tests": [
+    "tests/gui/test_dashboard_editors.py::test_prepare_then_open_shows_launch_only_text_never_blender",
+    "tests/unit/test_editors.py::test_each_editor_gets_one_absolute_path_first_and_options_after",
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_cli_automatic_selection_preserves_launch_only_output",
+    "tests/unit/test_editor_szs_dispatch.py::test_open_help_names_szs_without_claiming_loaded_documents",
+    "tests/unit/test_open_in_guide.py::test_the_started_wording_is_the_app_s_own",
+    "tests/unit/test_wine.py::test_launch_runs_the_editor_on_the_windows_path_with_options_after",
+    "tests/unit/test_wine.py::test_other_early_failures_stay_tool_failed"
+   ]
+  },
+  {
+   "id": "t07-exact-course-kcl",
+   "criterion": "Before offering Lorenzi's editor for a KMP, an exact lowercase regular course.kcl must sit beside it (wrong case, folder or missing refused), checked again at dispatch.",
+   "tests": [
+    "tests/gui/test_editor_menu_lorenzi.py::test_lorenzi_is_offered_only_beside_an_exact_course_kcl",
+    "tests/gui/test_editor_preparation.py::test_lorenzi_requires_exact_regular_sibling_not_installation",
+    "tests/unit/test_editor_prerequisites.py::test_missing_lorenzi_collision_refuses_before_discovery_or_launch",
+    "tests/unit/test_editor_prerequisites.py::test_collision_is_rechecked_after_removal",
+    "tests/unit/test_editor_prerequisites.py::test_two_documents_have_independent_collision_eligibility"
+   ]
+  },
+  {
+   "id": "t07-argv-per-os-options-after-path",
+   "criterion": "Fake GUI tools verify argument construction per OS: one absolute document path first, options after it, cwd the document's folder, on the direct and the Wine branch.",
+   "tests": [
+    "tests/unit/test_editors.py::test_each_editor_gets_one_absolute_path_first_and_options_after",
+    "tests/unit/test_editors.py::test_a_configured_exe_on_linux_goes_through_wine",
+    "tests/unit/test_editors.py::test_other_configured_executables_run_directly",
+    "tests/unit/test_wine.py::test_launch_runs_the_editor_on_the_windows_path_with_options_after",
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_routes_preserve_path_first_options_after",
+    "tests/unit/test_saved_editor_owners.py::test_real_builtin_defaults_options_warnings_and_unused_metadata"
+   ]
+  },
+  {
+   "id": "t07-hc1-manual-run",
+   "criterion": "Manual run noted for HC1: the checkpoint asks for a real Open in… run (including Settings → Editors… and a Wine prefix), and the guide names what only it can show (real loading, saving, Wine and desktop behaviour). TD-001's no-tty question and the native-Windows editor questions stay with HC1 item 9; the network-marked RiiStudio characterization is nightly-only, not a Check target.",
+   "tests": [
+    "tests/unit/test_open_in_guide.py::test_hc1_asks_for_the_manual_open_in_run",
+    "tests/unit/test_open_in_guide.py::test_the_guide_says_what_only_the_human_checkpoint_checks"
+   ]
+  },
+  {
+   "id": "b-szs-dispatch",
+   "criterion": "P5-T07b: .szs dispatch through the existing BrawlCrate/RiiStudio adapters with their positional argv, a bounded immutable table and launch-only output.",
+   "tests": [
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_routes_preserve_path_first_options_after",
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_table_is_bounded_immutable_and_keeps_existing_order",
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_cli_automatic_selection_preserves_launch_only_output"
+   ]
+  },
+  {
+   "id": "b-refusals-unchanged-bytes",
+   "criterion": "P5-T07b: missing files, editors, prefixes and collision prerequisites are refused before dispatch with actionable errors and leave user files unchanged.",
+   "tests": [
+    "tests/unit/test_editor_szs_dispatch.py::test_szs_refusals_do_not_dispatch_or_change_user_bytes",
+    "tests/unit/test_editors.py::test_missing_document_and_folders_are_refused",
+    "tests/unit/test_editors.py::test_missing_editor_is_tool_not_found",
+    "tests/unit/test_editors.py::test_a_wine_editor_without_a_prefix_says_which_prefix_to_make",
+    "tests/unit/test_editor_prerequisites.py::test_missing_lorenzi_collision_refuses_before_discovery_or_launch",
+    "tests/unit/test_editor_prerequisites.py::test_collision_inspection_error_is_actionable_and_precedes_discovery"
+   ]
+  },
+  {
+   "id": "b-warnings-kept",
+   "criterion": "P5-T07b: existing warnings are preserved (RiiStudio warns about non-ASCII paths natively but still launches; not under Wine).",
+   "tests": [
+    "tests/unit/test_editors.py::test_riistudio_warns_about_non_ascii_paths_but_still_launches",
+    "tests/unit/test_editors.py::test_riistudio_under_wine_has_no_non_ascii_warning",
+    "tests/unit/test_editors.py::test_other_editors_take_non_ascii_paths_without_warning"
+   ]
+  },
+  {
+   "id": "c-persisted-preferences",
+   "criterion": "P5-T07c: custom tools (argv templates) and per-editor Wine prefixes persist in machine settings with backups and unknown fields kept; damaged data is refused before any write.",
+   "tests": [
+    "tests/unit/test_custom_tool_preferences.py::test_records_round_trip_with_extras_and_exact_backup",
+    "tests/unit/test_custom_tool_preferences.py::test_damaged_custom_tools_are_refused_on_load",
+    "tests/unit/test_custom_tool_preferences.py::test_refused_save_never_enters_replacement",
+    "tests/unit/test_wine_preferences.py::test_prefixes_round_trip_with_extensions_and_exact_backups",
+    "tests/unit/test_wine_preferences.py::test_damaged_wine_prefixes_are_refused_on_load",
+    "tests/unit/test_wine_preferences.py::test_refused_save_never_enters_replacement"
+   ]
+  },
+  {
+   "id": "c-core-owners-argv-tokens",
+   "criterion": "P5-T07c: custom tools run only through the core process/Wine owners with argv tokens, never shell parsing; only real placeholders are substituted (converted once for Wine).",
+   "tests": [
+    "tests/unit/test_custom_editor_native.py::test_tokens_are_inert",
+    "tests/unit/test_custom_editor_native.py::test_two_real_launches_keep_exact_argv_and_bytes",
+    "tests/unit/test_custom_editor_wine.py::test_only_actual_placeholders_are_converted_once",
+    "tests/unit/test_custom_wine_process_proof.py::test_two_public_requests_use_real_conversion_and_processes"
+   ]
+  },
+  {
+   "id": "c-explicit-choice-routes",
+   "criterion": "P5-T07c: an explicit custom choice selects only its own namespace (also for an id equal to a built-in) on native and Wine routes; unsafe text never dispatches.",
+   "tests": [
+    "tests/unit/test_saved_editor_routing.py::test_custom_collision_routes_fresh_record_only",
+    "tests/unit/test_saved_editor_contracts.py::test_choice_is_immutable_and_has_no_implicit_selection",
+    "tests/unit/test_custom_editor_wine.py::test_explicit_wine_preserves_custom_authority",
+    "tests/unit/test_custom_editor_native.py::test_unsafe_text_never_dispatches",
+    "tests/unit/test_custom_editor_wine.py::test_unsafe_text_never_reaches_helpers_or_editor"
+   ]
+  },
+  {
+   "id": "c-fail-closed",
+   "criterion": "P5-T07c: malformed or stale preferences fail closed: no fallback to another editor or a discovered program, no writes, no process after a refusal.",
+   "tests": [
+    "tests/unit/test_saved_editor_refusals.py::test_removed_custom_never_falls_back",
+    "tests/unit/test_saved_editor_contracts.py::test_corruption_after_success_refuses_without_writes",
+    "tests/unit/test_saved_editor_owners.py::test_removed_configured_executable_never_discovers_fallback",
+    "tests/unit/test_custom_wine_freshness.py::test_each_request_freshly_checks_deleted_paths",
+    "tests/unit/test_saved_choice_process_refusals.py::test_saved_choice_refusal_starts_no_additional_process"
+   ]
+  },
+  {
+   "id": "c-independent-receipts",
+   "criterion": "P5-T07c: independent launch receipts and separate processes for native and Wine custom and saved choices.",
+   "tests": [
+    "tests/unit/test_saved_choice_native_process.py::test_saved_native_two_fresh_requests",
+    "tests/unit/test_saved_choice_wine_process.py::test_saved_wine_two_fresh_requests",
+    "tests/unit/test_custom_wine_process_proof.py::test_two_public_requests_use_real_conversion_and_processes"
+   ]
+  },
+  {
+   "id": "g-user-guide",
+   "criterion": "P5-T07g: a user guide documents Open in…, the defaults (checked against the code), the launch-only wording, one file per new process, exact course.kcl, Tools guidance, Settings → Editors… and Linux/Wine, and is linked from the README.",
+   "tests": [
+    "tests/unit/test_open_in_guide.py::test_the_guide_is_linked_from_the_readme_and_the_navigation_guide",
+    "tests/unit/test_open_in_guide.py::test_the_defaults_table_matches_the_catalogue",
+    "tests/unit/test_open_in_guide.py::test_the_defaults_table_names_the_folder_and_own_editor_targets",
+    "tests/unit/test_open_in_guide.py::test_open_in_explains_one_file_new_processes_and_prerequisites",
+    "tests/unit/test_open_in_guide.py::test_the_editors_settings_section_explains_saving_and_arguments",
+    "tests/unit/test_open_in_guide.py::test_the_linux_section_names_every_windows_editor",
+    "tests/unit/test_open_in_guide.py::test_the_labels_the_guide_quotes_are_the_app_s_own",
+    "tests/unit/test_open_in_guide.py::test_the_linux_section_says_own_exe_editors_need_the_wine_program_set"
+   ]
+  }
+ ]
+}

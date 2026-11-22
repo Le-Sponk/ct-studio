@@ -157,7 +157,9 @@ class MainWindow(QMainWindow):
         settings_menu.addAction(self.tools_action)
         self.editors_action = QAction("Editors…", self)
         self.editors_action.setObjectName("editorsAction")
-        self.editors_action.setToolTip("Choose which editor Open in… lists first.")
+        self.editors_action.setToolTip(
+            "Choose editors for Open in…: their order, your own editors and Wine prefixes."
+        )
         self.editors_action.triggered.connect(self.editors_window.open)
         settings_menu.addAction(self.editors_action)
 

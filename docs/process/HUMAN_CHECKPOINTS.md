@@ -71,7 +71,10 @@ host against the Hermes Docker container's shared workspace
    not staged manually and confirm it is inserted. Temporarily disable the library and confirm the
    build warns clearly with the missing object name(s), rather than succeeding silently.
 8. Try "Open in…" for the BRRES and the KMP. Edit and save something in an editor; confirm the card
-   notices and the choices make sense.
+   notices and the choices make sense. In Settings → Editors…, change an order, add one of your own
+   editors and, on Linux, choose a Wine prefix; confirm the next Open in… uses them, that each
+   choice starts one editor with one file, and that CT Studio only says the editor was started
+   ([docs/user/OPEN_IN.md](../user/OPEN_IN.md)).
 9. From S7 (P0-T10), these are the editor behaviours only you can settle, on your own machines.
    **Native Windows is the reference for the Windows editors** (ADR-019), so these answers replace
    the Wine-derived rows in TOOLS.md rather than supplementing them:
