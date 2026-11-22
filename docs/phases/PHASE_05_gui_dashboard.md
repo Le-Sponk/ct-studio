@@ -864,7 +864,7 @@ Check for `16c27f2` passed on Windows and Ubuntu, so P5-T07e is complete. P5-T07
 exists (criterion e-no-false-lorenzi); b and c still close only through T07g's
 original-criterion map.
 
-#### [ ] P5-T07f — Usable editor-preference and custom-tool controls
+#### [x] P5-T07f — Usable editor-preference and custom-tool controls (closed by f3 map, `27cc11d`)
 Provide bounded controls for built-in defaults, custom argv templates and Wine prefixes during
 T07; P5-T08 still owns the complete multipage Settings shell. Damaged settings cannot be
 silently overwritten and changes must affect the next launch without restarting.
@@ -894,13 +894,19 @@ anything is saved.
 invalid name/program/template refused with the reason, damaged-file guard, keyboard and
 visual evidence, and the next Open in… offering the saved custom tool without restarting.
 
-##### [ ] P5-T07f3 — Wine-prefix choices and f acceptance
+##### [x] P5-T07f3 — Wine-prefix choices and f acceptance (commit `27cc11d`)
 Per-editor Wine-prefix folder choice and clear for built-in and custom Windows editors, shown
 on every platform but explained as Linux-only, then map and rerun every f criterion across
 f1–f3 before closing f.
 **Acceptance:** real choose/clear/reopen with backups and unknown fields kept, damaged-file
 guard, the next Linux-path preparation (fake platform) using the saved prefix without
 restarting, keyboard and visual evidence, and the combined executable f criterion map.
+
+Closure: `docs/reference/EDITOR_SETTINGS_ACCEPTANCE.json` maps all eleven P5-T07f criteria
+(f1-f3) to 58 test functions (90 collected cases, 88 matched, every one passing and none
+skipped), and the exact Check for `27cc11d` passed on Windows and Ubuntu, so P5-T07f is
+complete. P5-T07 stays open (T07b, T07c, T07g); T07c's custom-tool and Wine-prefix settings
+now have their controls, but b and c still close only through T07g's original-criterion map.
 
 #### [ ] P5-T07g — Original Open in… acceptance and guide
 Re-run every original P5-T07 criterion across its leaves, including fake GUI tools on Windows

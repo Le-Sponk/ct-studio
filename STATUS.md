@@ -4,34 +4,37 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T07f3 — Wine-prefix choices and f acceptance
+**Next task:** P5-T07g — Original Open in… acceptance and guide
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7a07831` (P5-T07f2 repair exact Check, Windows + Ubuntu)
+**Last green commit:** `27cc11d` (P5-T07f3 exact Check, Windows + Ubuntu)
 
 ## In progress
-- **P5-T07f3 — Wine-prefix choices and f acceptance** (started 2026-11-22). Plan:
-  1. Service: `EditorKinds.prefixes`; `save_prefix(editor_id, prefix, name=...)` read fresh,
-     nothing written when unchanged, through `UserSettings.with_wine_prefix` (backup, unknown
-     fields kept, also inside a prefix record); refuses a custom editor removed outside.
-  2. Settings → Editors… gets two tabs: "Open in…" (f1 choices + f2 own editors) and
-     "Wine (Linux)": built-in Windows editors (`PREFIX_RECIPES`) and own `.exe` editors, each
-     with its prefix or "no prefix chosen", Choose folder…/Clear, and how to make a prefix.
-     Shown on every system, explained as Linux-only. Tabs keep the window inside an 800x600
-     screen; a damaged file hides both tabs behind the banner.
-  3. Tests first: real window choose/clear/reopen, backup and unknown fields, unchanged choice
-     writes nothing, damaged file, save failure, busy state, keyboard, the next Open in… on a
-     fake Linux preparing a Windows editor with the saved prefix (built-in and own) without a
-     restart, light/dark normal/enlarged pictures plus the 800x600 rerun.
-  4. Combined map `docs/reference/EDITOR_SETTINGS_ACCEPTANCE.json` of every P5-T07f criterion
-     (f1-f3) checked with `check_map.py --ast` and against one combined JUnit run; closing it
-     closes P5-T07f too.
-  Files: `gui/editor_settings.py`, `gui/views/editors_page.py`, new
-  `gui/views/wine_prefix_section.py` (and a small helper move to stay under 400 lines), tests
-  under `tests/gui/`. Risks: window height on small screens; page file budget; the f1/f2
-  tests must still hold with the tabs.
+- None. Next leaf P5-T07g (original Open in… acceptance across every P5-T07 leaf, and the
+  guide); it closes P5-T07 together with T07b and T07c.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-22 `P5-T07f3` Wine-prefix choices and f acceptance (`27cc11d`); **closes
+  P5-T07f**. Settings → Editors… now has three tabs (Order, Your editors, Wine (Linux)): a
+  fourth section made one page taller than an 800x600 screen at the enlarged font. The
+  Wine tab lists the built-in Windows editors (those with a prefix recipe) and the user's
+  own .exe programs with their prefix; Choose folder… and Clear save at once on the worker
+  (backup, unknown fields kept, also in a prefix record; unchanged writes nothing), it says
+  Windows does not use these folders and shows how to make one. No prefix for an own editor
+  removed outside; a damaged file hides the tabs. The window refits on every layout request
+  (replacing the shown-signal fit). Evidence: fake-Linux preparation through the real
+  launch service uses the chosen prefix (built-in and own) without a restart and stops
+  after Clear; 40 mutants assertion-caught (two timeouts caught on isolated reruns, TD-017);
+  strict pyright 0 on Windows and Linux; light/dark normal/enlarged pictures inspected
+  (local only). Review: NEEDS_REVISION (no Wine save into a file damaged after showing) ->
+  test and mutant added, two small limits recorded as TD-021 -> APPROVE; the reviewer's
+  wider-font sweep fit every tab on 800x800 and 800x600. Combined map
+  `docs/reference/EDITOR_SETTINGS_ACCEPTANCE.json`: 11 criteria, 58 functions, 88 of 90
+  cases matched, none missing or skipped. Local gate 5118 passed / 10 skipped / 178
+  deselected. Exact Check: Windows 137163036295 (5113 / 15), Ubuntu 137163036139
+  (5114 / 14), 5128 selected; artifacts 14748443955 / 14748537885 coverage.xml only.
+  Plan check: P5-T07c's settings now have controls but b and c still close only through
+  P5-T07g's original-criterion map; no other task waited on P5-T07f.
 - 2026-11-22 `P5-T07f2` Custom editor programs (`4558734`, repair `7a07831`). Settings →
   Editors… gains "Your own editors" with Add…/Edit…/Remove: an entry window (name,
   program with Browse…, one argument per line, `{file}` prefilled) checks with the
