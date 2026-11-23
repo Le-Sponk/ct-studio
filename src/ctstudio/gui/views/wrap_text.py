@@ -5,7 +5,8 @@ unless a "." follows. A path with none of those, such as one long folder name or
 path (Qt cannot break after a backslash), would make the label, and so the window, wider
 than the screen. ``breakable`` adds zero-width spaces
 (U+200B): after each backslash, and inside every run of more than ``RUN`` characters Qt
-cannot break, never between a letter and a following combining accent. Use it only for text
+cannot break, never before a combining accent in the ranges below (other marks, such as
+Indic vowel signs, are not covered: TD-019). Use it only for text
 that is shown, never for a path the user can select and copy.
 """
 

@@ -4,32 +4,34 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08a — One Settings window with a page list
+**Next task:** P5-T08b — Build page: the project's build settings
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `2a5866b` (TD-017 GUI-thread garbage collection, exact Check)
+**Last green commit:** `54e37e3` (P5-T08a repair, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T08a repair (2026-11-23): the implementation commit `3f46b57` passed Windows' Check
-  (job 137520052581) and failed Ubuntu's (job 137520052812): the Editors damaged-file banner
-  with the deliberately long test paths made the Settings window 834/849 px wide on an
-  800 px screen, because the new page list takes width and one long folder name could not
-  wrap (TD-019). Fix: shared `breakable` (`gui/views/wrap_text.py`) breaks every run Qt
-  cannot break after 24 characters, used by the Editors and Tools banners; tests
-  `test_breakable_paths.py` and long-name picture tests for both pages. P5-T08a stays open
-  until the repair's exact Check passes.
-- P5-T08a — One Settings window with a page list. Plan: (1) tests first for a
-  `SettingsWindow` (`gui/settings_window.py`): page list on the left, pages made on first
-  show and refreshed on reopen, Settings… opens the last page, Tools…/Editors… and "Set up …
-  in Tools…" open their page; (2) `ToolsWindow`/`EditorsWindow` become thin views of it so
-  existing tests keep their `dialog`/`page` access; (3) one refit on LayoutRequest for the
-  whole window; (4) visual tests on a real 800×600 screen at enlarged fonts (the page list
-  takes width: the main risk); (5) mutation, review, gate, Check. Files: new
-  `gui/settings_window.py`, `gui/window_dialogs.py`, `gui/main_window.py`, new tests,
-  `tests/gui/test_tools_page_more.py` (dialog name). Risks: Editors visual tests at 800 px
-  width with the list beside them; lazy page creation must keep Tools' check-on-first-use.
+- None. Next task P5-T08b (Build page: the project's build settings: test and release
+  compression, the `_d` copy and auto-add, saved to `project.toml` on a worker). Owner
+  questions for P5-T08d (Appearance contents) and P5-T08e (reserved `extra_wszst_args`)
+  are still open; they are settled before those leaves start.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-23 `P5-T08a` One Settings window with a page list (`3f46b57`, repair `54e37e3`).
+  Settings → Settings… (Ctrl+,) opens one window at the last page shown; Tools… and
+  Editors… open their page; pages are made on first show and refreshed on reopen; Tab goes
+  list, page, Close; Close is the default; the list fits its names after font changes.
+  Existing Tools/Editors tests run unchanged through thin `ToolsWindow`/`EditorsWindow`
+  views. 20 mutants caught; reviews NEEDS_REVISION (Tab order; TD-022 wording) -> APPROVE.
+  The implementation Check failed on Ubuntu only (Windows 137520052581 passed; Ubuntu
+  137520052812: the two long-path Editors banner tests at 834/849 px and the 800x600 rerun
+  of them): one long folder name could not wrap beside the new page list (TD-019). Repair:
+  shared `gui/views/wrap_text.py` `breakable` for the Editors and Tools banners, break chances
+  measured with Qt's own line breaker; 9 mutants caught; review NEEDS_REVISION (Tools banner,
+  STATUS wording) -> APPROVE; gate 5206 / 10 / 178. Exact Check on `54e37e3`: Windows
+  137536454663 (5201 / 15), Ubuntu 137536454865 (5202 / 14), 5216 selected; artifacts
+  14797156215 / 14795949526 coverage.xml only. The repair review's wording notes are in this
+  closeout (TD-019 accent ranges, TD-022 Tools-banner cut range; docs only). Plan check:
+  P5-T08b-e add their pages to this window; P5-T08f maps all of them; nothing else waited.
 - 2026-11-23 TD-017 fix, pulled forward from P13-T06 (`2a5866b`): Python's cyclic garbage
   collection runs only on the GUI thread (`gui/gc_policy.py`, started by `gui/app.py`; the
   test session follows the same policy in `tests/conftest.py`). Not a planned task: README
@@ -2490,7 +2492,10 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   characters: 834 and 849 px > 800 at the enlarged font). The shared `gui/views/wrap_text.py`
   `breakable` now puts a zero-width space after each backslash and inside every run of more
   than 24 characters Qt's line breaker cannot break (no breaking space, "/" counts only when
-  no "." follows; never before a combining accent), measured with `QTextBoundaryFinder`.
+  no "." follows; never before a combining accent in the listed Unicode ranges: other
+  marks, such as Devanagari or Thai vowel signs and variation selectors, can still be split
+  off at a 24-character boundary; fix by skipping every mark category), measured with
+  `QTextBoundaryFinder`.
   Both banners that name the settings file use it (Editors and, new, Tools); tested with a
   100-character name (Editors 1385 px and Tools 2105 px before) and on a real 800x600 screen.
 - **TD-020 · P13-T06 · small Settings → Editors… polish (P5-T07f2 review notes).** None
@@ -2529,8 +2534,10 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   way at very wide fonts, tooltip or wrap cut cells, `setTabKeyNavigation(False)` on the
   table; test with a wider-font sweep of 132-162% stretch on both pages and a real Tab walk.
   Also: on an 800x600 screen at the enlarged font, the Tools page with a damaged settings
-  file named by a very long path (a 100-character folder below a deep folder) is taller than
-  the screen, so the banner's last lines are cut (its width now always fits; the repair's
+  file named by a long path is taller than the screen, so the banner's last lines are cut
+  (reviewer, DejaVu Sans as Ubuntu's font: the 100-character name from a 129-character
+  temporary folder, the CI's 48+34-character names from 184; Windows' default font at 130:
+  nothing cut) (its width now always fits; the repair's
   Tools picture test checks width and wrapping only). Fix with the same pass: hide the
   table's empty space or let the page scroll when the banner is long.
 ## Blocked tasks

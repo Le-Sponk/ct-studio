@@ -933,7 +933,7 @@ Split 2026-11-23 (owner's choice: one Settings window with a page list on the le
 all five pages; the existing Tools and Editors windows move into it). The original text and
 acceptance above stay; P5-T08 closes only through P5-T08f's map.
 
-#### [ ] P5-T08a — One Settings window with a page list
+#### [x] P5-T08a — One Settings window with a page list (commits `3f46b57`, repair `54e37e3`)
 One `Settings` window: a page list on the left and the pages on the right, Tools and Editors
 for now (Build, Appearance and Advanced join in b-e, in the order of the original text).
 Settings → Settings… (standard Preferences shortcut) opens it at the last page shown;
