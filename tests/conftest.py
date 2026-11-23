@@ -7,18 +7,34 @@ see installed tools. Each test gets its own call log.
 
 from __future__ import annotations
 
+import gc
 import json
 import os
 import sys
+from collections.abc import Generator
 from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 
+from ctstudio.gui.gc_policy import collect_if_due
+
 sys.path.insert(0, str(Path(__file__).resolve().parent / "fakes"))
 
 import install as fake_install
 from fake_runtime import LOG_ENV
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """As in the app (TD-017): no automatic collection, so no worker thread frees Qt objects."""
+    gc.disable()
+
+
+@pytest.fixture(autouse=True)
+def gui_thread_garbage_collection() -> Generator[None]:
+    """Collect what each test left, when due, on the main thread (``gc_policy``)."""
+    yield
+    collect_if_due()
 
 
 @dataclass(frozen=True)

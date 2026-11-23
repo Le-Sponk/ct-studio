@@ -10,6 +10,7 @@ from PySide6.QtCore import QBuffer, QIODevice
 from PySide6.QtWidgets import QApplication
 
 from ctstudio.core.errors import ProjectError
+from ctstudio.gui.gc_policy import GuiThreadCollector
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.watchdog import dev_watchdog
 
@@ -52,6 +53,8 @@ def run_gui(smoke_path: Path | None = None) -> int:
     """Launch the app, or render and save one offscreen frame for CI."""
     app = QApplication([])
     app.setApplicationName("CT Studio")
+    collector = GuiThreadCollector()  # TD-017: garbage is collected on this thread only
+    collector.start()
     window = MainWindow()
     watching = dev_watchdog(window)  # CTSTUDIO_DEV=1 only
     try:
@@ -67,3 +70,6 @@ def run_gui(smoke_path: Path | None = None) -> int:
     finally:
         if watching is not None:
             watching.stop(1.0)
+        # Leave automatic collection off: worker threads may still be finishing, and
+        # Python's own exit clean-up collects on this thread.
+        collector.stop(restore=False)

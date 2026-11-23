@@ -9,8 +9,15 @@
 **Last green commit:** `0acdf00` (P5-T07g exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08 (Settings dialog: Tools, Build, Editors, Appearance, Advanced
-  pages). Settings → Tools and Settings → Editors… already exist as separate windows.
+- TD-017 fix pulled forward from P13-T06 (owner asked for a bounded investigation,
+  2026-11-23): Python's cyclic garbage collection runs only on the GUI thread. New
+  `gui/gc_policy.py` (`GuiThreadCollector`: automatic collection off while the app runs, a
+  200 ms GUI-thread timer collects by Python's own generation thresholds); `gui/app.py` starts
+  and stops it; `tests/conftest.py` applies the same policy to the test session (off at
+  start, collect when due after each test). Tests: `tests/gui/test_gc_policy.py`. Acceptance:
+  quality + mutation, independent review, full gate, exact Check. P13-T06 stays open (TD-017
+  is closed only after the hang stops recurring; TD-018 and TD-021 are separate). Next task
+  after this: P5-T08 (Settings dialog).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2377,6 +2384,27 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   (`component_card.py:142`) and the file-watcher thread was allocating in `watch.py`
   `_variants` (where cyclic GC can run). 890 earlier cases passed, none failed. Rerun once
   per the rule above; log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T07g-TD017/`.
+  Signature match (P5-T07g closeout Check `c252f3d`, Windows job 137242715048): 1200 s limit
+  in `test_dashboard_outside_failures.py::test_actual_write_then_unreadable_recovery_
+  quarantines_without_losing_lock[False-lock]`, GUI thread in `dashboard.set_project`, watcher
+  thread in `watch.py` `_variants` path resolve. The one job rerun passed (137248670883).
+  **Probable cause reproduced, fix in progress (2026-11-23).** A synthetic script (QObjects in
+  reference cycles whose signals are connected to plain Python methods; the GUI thread keeps
+  connecting signals; two worker threads allocate) crashed or froze in 8 of 8 runs within 2-9
+  rounds: 6 access violations or heap corruption, 1 freeze in the TD-017 shape (GUI thread in
+  `connect`, workers at an allocation), 1 "Fatal Python error: Aborted" (the CI crash in
+  TD-016's family). Without the workers: 3 of 3 clean (about 6500 rounds each). With automatic
+  collection off and a full `gc.collect()` on the GUI thread every 50 ms: 3 of 3 clean over 20
+  s (about 35 rounds each, slower because of the collections); the shipped threshold policy
+  (`GuiThreadCollector`): 3 of 3 clean over 20 s (23-39 rounds, reviewer's runs). The real
+  outside-edit files under frequent collection did not reproduce in 2 runs (nonreproduction,
+  not proof either way). Fix: `gui/gc_policy.py` (see In progress). **Not covered:** a worker
+  dropping the last plain reference to a GUI-thread Qt object reaches the same PySide clean-up
+  without any collection (the reviewer's variant of the script crashed 3 of 3 under the shipped
+  policy). Candidates to audit in P13-T06: `status_service.py` `_Work.relay` and the watcher
+  closures capturing `relay` in `watcher_bridge.py`. Recurrence rule: one more TD-017 hang
+  after this fix reopens the investigation, starting with that uncovered path.
+  Script and logs local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/TD017-fix-20261123/`.
 - **TD-018 · P13-T06 · outside-edit failure test can miss its 5 s idle wait under full-suite
   load.** The P5-T07d1 closeout gate (docs-only change, same code that passed every check) failed
   once: `test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-
