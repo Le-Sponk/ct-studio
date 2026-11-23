@@ -4,13 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08 — Settings dialog
+**Next task:** P5-T08a — One Settings window with a page list
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `2a5866b` (TD-017 GUI-thread garbage collection, exact Check)
 
 ## In progress
-- None. Next task P5-T08 (Settings dialog: Tools, Build, Editors, Appearance, Advanced
-  pages). Settings → Tools and Settings → Editors… already exist as separate windows.
+- P5-T08a — One Settings window with a page list. Plan: (1) tests first for a
+  `SettingsWindow` (`gui/settings_window.py`): page list on the left, pages made on first
+  show and refreshed on reopen, Settings… opens the last page, Tools…/Editors… and "Set up …
+  in Tools…" open their page; (2) `ToolsWindow`/`EditorsWindow` become thin views of it so
+  existing tests keep their `dialog`/`page` access; (3) one refit on LayoutRequest for the
+  whole window; (4) visual tests on a real 800×600 screen at enlarged fonts (the page list
+  takes width: the main risk); (5) mutation, review, gate, Check. Files: new
+  `gui/settings_window.py`, `gui/window_dialogs.py`, `gui/main_window.py`, new tests,
+  `tests/gui/test_tools_page_more.py` (dialog name). Risks: Editors visual tests at 800 px
+  width with the list beside them; lazy page creation must keep Tools' check-on-first-use.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1665,6 +1673,14 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-23: Split P5-T08 (Settings dialog) into a (one Settings window with a page list,
+  Tools and Editors moved into it, the owner's choice), b (Build page: the project's build
+  settings), c (Build page: parallel steps on this computer), d (Appearance), e (Advanced) and
+  f (original-criterion map and guide). Five pages, two storage places (project file and
+  settings file) and the window move exceed one ~400-line leaf. Open owner questions, asked
+  2026-11-23 and unanswered: Appearance contents (d) and whether the reserved
+  `extra_wszst_args` appears before P7-T06 (e); both are settled before those leaves start.
+  The original text stays above the children; P5-T08 closes only through f's map.
 - 2026-11-19: Split P5-T07f into f1 (default-editor choices in a new Settings → Editors…
   window), f2 (custom editor programs) and f3 (Wine-prefix choices plus the combined f
   criterion map). Each is its own form, validation and visual evidence over the same
@@ -2487,6 +2503,22 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   failed-save banner naming a path of about 97+ characters cuts the Order intro (62 < 81 px),
   ~140+ also the Wine tab's text; 800x800 fits. Before the tabs the window did not fit 600 px
   at all. Fix: widen toward the screen width before capping the height, with that test.
+- **TD-022 · P5-T10 · Settings window width with very wide fonts, Tools table (P5-T08a
+  review).** Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
+  an 800 px screen with fonts wider than the tested enlarged one. All eight Settings pictures
+  fit 800 px at the tested enlarged font (150% size, 120% stretch) in Segoe UI, Verdana and
+  Tahoma (tightest: Tools in Verdana, 762 px). Wider, measured in Verdana: Tools about 806 px
+  at 132% stretch and 965 px at 162%, set by the Tools page's single button row ("Open
+  download page" alone needs 267-350 px); Editors exactly 800 px at 132%, 802 px at 144% and
+  884 px at 162%, set by the Editors tabs (702 px) plus the page list (136 px). At 144-162%
+  the page list itself pushes windows past 800 px that fitted before (without it: Tools 755,
+  Editors 742 px). Separately, older than P5-T08a: at the enlarged font the Tools table's
+  "Used for" column is shortened with "…" (161 px; with Verdana it scrolls sideways; the old
+  Tools window was 900 px wide, past an 800 px screen), and Tab cannot leave the Tools table
+  (Qt's default tab-key navigation moves between its cells; Shift+Tab from Close and Esc
+  work). Fix: wrap the Tools buttons into two rows, let the page list or the Editors tabs give
+  way at very wide fonts, tooltip or wrap cut cells, `setTabKeyNavigation(False)` on the
+  table; test with a wider-font sweep of 132-162% stretch on both pages and a real Tab walk.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

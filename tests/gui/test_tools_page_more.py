@@ -143,7 +143,7 @@ def test_settings_tools_opens_the_page(
     assert action is not None and action.text() == "Tools…"
     assert doctor.calls == []  # nothing is checked until the page is opened
     action.trigger()
-    dialog = window.findChild(QDialog, "toolsDialog")
+    dialog = window.findChild(QDialog, "settingsDialog")
     assert dialog is not None and dialog.isVisible()
     page = dialog.findChild(ToolsPage)
     assert page is not None
@@ -151,7 +151,7 @@ def test_settings_tools_opens_the_page(
     assert len(rows(page)) == 3
     dialog.close()
     action.trigger()  # the same page again, checked once more
-    assert window.findChild(QDialog, "toolsDialog") is dialog
+    assert window.findChild(QDialog, "settingsDialog") is dialog
     qtbot.waitUntil(lambda: len(doctor.calls) == 2 and not page.busy, timeout=WAIT)
 
 

@@ -929,6 +929,53 @@ Editors (Open-in mapping, custom tools), Appearance, Advanced (show commands, ex
 retention, dev mode).
 **Acceptance:** settings persist; changing compression profile changes the next build's command.
 
+Split 2026-11-23 (owner's choice: one Settings window with a page list on the left holding
+all five pages; the existing Tools and Editors windows move into it). The original text and
+acceptance above stay; P5-T08 closes only through P5-T08f's map.
+
+#### [ ] P5-T08a — One Settings window with a page list
+One `Settings` window: a page list on the left and the pages on the right, Tools and Editors
+for now (Build, Appearance and Advanced join in b-e, in the order of the original text).
+Settings → Settings… (standard Preferences shortcut) opens it at the last page shown;
+Settings → Tools… and Settings → Editors… open it at that page, and a choice dialog's
+"Set up … in Tools…" still selects that tool. A page is made the first time it is shown
+(Tools starts its check then) and refreshed, as before, each time it is opened again. The
+window keeps fitting an 800×600 screen at enlarged fonts and still refits on LayoutRequest.
+**Acceptance:** every existing Tools and Editors test passes through the new window (helpers
+updated, no assertion weakened); page list, keyboard and menu tests; visual tests of both
+pages on a real 800×600 screen; mutation proof; review; full gate; exact Check.
+
+#### [ ] P5-T08b — Build page: the project's build settings
+Test and release compression, the `_d` copy and auto-add for the open project, saved to
+`project.toml` on a worker with the same stale-input checks as Project details (unknown keys
+and comments kept, backups, read-only and busy projects refused; no project: explained).
+**Acceptance:** settings persist across reopen; changing the test compression changes the
+next test build's `wszst create` command (fake tool argv), and the release one likewise.
+
+#### [ ] P5-T08c — Build page: parallel steps on this computer
+How many build steps may run at once (machine setting in `settings.json`, default
+`min(4, cpu count)` as today), used by GUI builds and by `ctstudio build`.
+**Acceptance:** setting persists; the next build's runner uses it (GUI and CLI); a damaged
+or newer settings file is refused, never overwritten.
+
+#### [ ] P5-T08d — Appearance page
+Contents to be confirmed by the owner before this leaf starts (offered: colour scheme only;
+plus text size; plus window size/position memory).
+**Acceptance:** the chosen settings persist and apply at the next start (and immediately
+where Qt allows), with light/dark and enlarged-font evidence.
+
+#### [ ] P5-T08e — Advanced page
+Show tool commands in the build log, log-file retention and dev mode (the stall watchdog,
+today `CTSTUDIO_DEV=1`). Whether the reserved `[build] extra_wszst_args` (wired by P7-T06)
+appears here is to be confirmed by the owner before this leaf starts.
+**Acceptance:** each setting persists and takes effect (build log rows, old log files
+removed beyond the retention, watchdog at the next start).
+
+#### [ ] P5-T08f — Original Settings acceptance and guide
+Map every original P5-T08 criterion and each leaf's acceptance to executable tests, rerun
+them together, and write `docs/user/SETTINGS.md` (tested against the code like the Open in…
+guide). **Acceptance:** criterion map, review, full gate, exact Check; only then close P5-T08.
+
 ### [ ] P5-T09 — GUI end-to-end test & screenshot review
 pytest-qt: new project → assign fixture files (manual mode) → build with fakes → Ready statuses →
 issue shown → open-in invoked. Save screenshots to `tests/artifacts/screens/`. If your model accepts

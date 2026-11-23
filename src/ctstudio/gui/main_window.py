@@ -7,7 +7,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtGui import QAction, QCloseEvent, QFontDatabase
+from PySide6.QtGui import QAction, QCloseEvent, QFontDatabase, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
@@ -23,6 +23,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.gui.recent_projects import RecentProjects
 from ctstudio.gui.services import AppServices
+from ctstudio.gui.settings_window import SettingsWindow
 from ctstudio.gui.views.dashboard import Dashboard
 from ctstudio.gui.views.new_project import NewProjectWizard
 from ctstudio.gui.views.project_details import ProjectDetailsDialog
@@ -90,8 +91,11 @@ class MainWindow(QMainWindow):
         _ensure_offscreen_font()
         super().__init__()
         self.services = services if services is not None else AppServices()
-        self.tools_window = ToolsWindow(self.services.tools, self)
-        self.editors_window = EditorsWindow(self.services.editor_settings, self)
+        self.settings_window = SettingsWindow(
+            self.services.tools, self.services.editor_settings, self
+        )
+        self.tools_window = ToolsWindow(self.settings_window)
+        self.editors_window = EditorsWindow(self.settings_window)
         self._make_wizard = new_project
         self._make_details = edit_project
         self._make_mode = edit_component
@@ -151,6 +155,11 @@ class MainWindow(QMainWindow):
         self.services.launch.busy_changed.connect(self._navigation)
 
         settings_menu = self.menuBar().addMenu("&Settings")
+        self.settings_action = QAction("Settings…", self)
+        self.settings_action.setObjectName("settingsAction")
+        self.settings_action.setShortcut(QKeySequence("Ctrl+,"))
+        self.settings_action.triggered.connect(self._open_settings)
+        settings_menu.addAction(self.settings_action)
         self.tools_action = QAction("Tools…", self)
         self.tools_action.setObjectName("toolsAction")
         self.tools_action.triggered.connect(self._open_tools)
@@ -364,6 +373,10 @@ class MainWindow(QMainWindow):
             self.dashboard.set_project(project, changed=True)
         self._navigation()
         self.dashboard._sync()
+
+    def _open_settings(self) -> None:
+        """Settings → Settings…: the Settings window at the page shown last."""
+        self.settings_window.open()
 
     def _open_tools(self) -> None:
         """Settings → Tools: made on first use (checking starts then), checked again later."""
