@@ -174,4 +174,3 @@ def test_the_app_starts_the_collector_before_its_window_and_leaves_collection_of
         gc.disable()  # the test session's policy (tests/conftest.py)
     assert calls == ["start", "window", "stop restore=False"], "collector order is wrong"
     assert not left_on, "the app turned automatic collection back on at exit"
-    assert not gc.isenabled(), "the app left the session's collection policy changed"

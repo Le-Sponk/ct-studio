@@ -6,21 +6,24 @@
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
 **Next task:** P5-T08 — Settings dialog
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `0acdf00` (P5-T07g exact Check, Windows + Ubuntu)
+**Last green commit:** `2a5866b` (TD-017 GUI-thread garbage collection, exact Check)
 
 ## In progress
-- TD-017 fix pulled forward from P13-T06 (owner asked for a bounded investigation,
-  2026-11-23): Python's cyclic garbage collection runs only on the GUI thread. New
-  `gui/gc_policy.py` (`GuiThreadCollector`: automatic collection off while the app runs, a
-  200 ms GUI-thread timer collects by Python's own generation thresholds); `gui/app.py` starts
-  and stops it; `tests/conftest.py` applies the same policy to the test session (off at
-  start, collect when due after each test). Tests: `tests/gui/test_gc_policy.py`. Acceptance:
-  quality + mutation, independent review, full gate, exact Check. P13-T06 stays open (TD-017
-  is closed only after the hang stops recurring; TD-018 and TD-021 are separate). Next task
-  after this: P5-T08 (Settings dialog).
+- None. Next task P5-T08 (Settings dialog: Tools, Build, Editors, Appearance, Advanced
+  pages). Settings → Tools and Settings → Editors… already exist as separate windows.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-23 TD-017 fix, pulled forward from P13-T06 (`2a5866b`): Python's cyclic garbage
+  collection runs only on the GUI thread (`gui/gc_policy.py`, started by `gui/app.py`; the
+  test session follows the same policy in `tests/conftest.py`). Not a planned task: README
+  progress unchanged. Probable cause reproduced with a local synthetic script (see TD-017);
+  14 source mutants assertion-caught; review NEEDS_REVISION (recurrence rule overclaimed)
+  -> fixed -> APPROVE; full gate 5174 passed / 10 skipped / 178 deselected, same 12 min.
+  Exact Check: Windows 137456886035 (5169 / 15), Ubuntu 137456886215 (5170 / 14), 5184
+  selected; artifacts 14786471624 / 14786272527 coverage.xml only. The reviewer's last note
+  (one test assertion that could never fail) is removed in this closeout (test only).
+  P13-T06 and TD-017 stay open: the last-reference path is not covered.
 - 2026-11-23 `P5-T07g` Original Open in… acceptance and guide (`0acdf00`); **closes
   P5-T07b, P5-T07c and P5-T07**. Map `docs/reference/OPEN_IN_ACCEPTANCE.json`: 18 original
   criteria of P5-T07/b/c/g to 91 targets; one combined run of all five editor maps (1263
