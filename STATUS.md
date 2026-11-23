@@ -9,6 +9,14 @@
 **Last green commit:** `2a5866b` (TD-017 GUI-thread garbage collection, exact Check)
 
 ## In progress
+- P5-T08a repair (2026-11-23): the implementation commit `3f46b57` passed Windows' Check
+  (job 137520052581) and failed Ubuntu's (job 137520052812): the Editors damaged-file banner
+  with the deliberately long test paths made the Settings window 834/849 px wide on an
+  800 px screen, because the new page list takes width and one long folder name could not
+  wrap (TD-019). Fix: shared `breakable` (`gui/views/wrap_text.py`) breaks every run Qt
+  cannot break after 24 characters, used by the Editors and Tools banners; tests
+  `test_breakable_paths.py` and long-name picture tests for both pages. P5-T08a stays open
+  until the repair's exact Check passes.
 - P5-T08a — One Settings window with a page list. Plan: (1) tests first for a
   `SettingsWindow` (`gui/settings_window.py`): page list on the left, pages made on first
   show and refreshed on reopen, Settings… opens the last page, Tools…/Editors… and "Set up …
@@ -2476,14 +2484,15 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   instance. Logged in the same folder. That rerun also showed 4 more local skips than
   before (10, not 6): this host no longer grants symlink creation (WinError 1314), so
   four symlink tests skip locally; CI still runs them.
-- **TD-019 · P13-T06 · one very long folder name can widen Settings → Editors….** The
-  damaged-settings banner names the settings file; it wraps after each backslash (added)
-  and Qt wraps after "/" before a letter or digit, but a single folder name over about
-  65 characters at an enlarged font still makes the window wider than an 800 px screen
-  (reviewer probe: 844 px with a 68-character name). Real settings paths
-  (`<profile>\AppData\Roaming\…`, `~/.config/…`) do not reach it. Phase 13: also break
-  after `_`, `.` and `-` (or elide the path with the full one in a tooltip) and add a
-  single-long-name test.
+- **TD-019 · resolved by the P5-T08a repair (2026-11-23).** One very long folder name in a
+  damaged-settings banner widened the window; with the P5-T08a page list beside the page,
+  Ubuntu's Check hit it with the deliberately long test paths (folder names of 48 and 56
+  characters: 834 and 849 px > 800 at the enlarged font). The shared `gui/views/wrap_text.py`
+  `breakable` now puts a zero-width space after each backslash and inside every run of more
+  than 24 characters Qt's line breaker cannot break (no breaking space, "/" counts only when
+  no "." follows; never before a combining accent), measured with `QTextBoundaryFinder`.
+  Both banners that name the settings file use it (Editors and, new, Tools); tested with a
+  100-character name (Editors 1385 px and Tools 2105 px before) and on a real 800x600 screen.
 - **TD-020 · P13-T06 · small Settings → Editors… polish (P5-T07f2 review notes).** None
   loses or overwrites data. (1) A file damaged at open leaves the Editors window at its
   first, taller size after the sections hide (`EditorsWindow._fit` only grows); (2) the
@@ -2519,6 +2528,11 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   work). Fix: wrap the Tools buttons into two rows, let the page list or the Editors tabs give
   way at very wide fonts, tooltip or wrap cut cells, `setTabKeyNavigation(False)` on the
   table; test with a wider-font sweep of 132-162% stretch on both pages and a real Tab walk.
+  Also: on an 800x600 screen at the enlarged font, the Tools page with a damaged settings
+  file named by a very long path (a 100-character folder below a deep folder) is taller than
+  the screen, so the banner's last lines are cut (its width now always fits; the repair's
+  Tools picture test checks width and wrapping only). Fix with the same pass: hide the
+  table's empty space or let the page scroll when the banner is long.
 ## Blocked tasks
 <!-- Task ID · what was tried · what's needed -->
 _none_

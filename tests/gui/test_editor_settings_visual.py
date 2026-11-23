@@ -173,6 +173,25 @@ def test_a_long_settings_path_wraps_inside_the_screen(
         assert_readable(dialog)
 
 
+def test_one_very_long_folder_name_wraps_inside_the_screen(
+    qtbot: QtBot, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TD-019: a single folder name with no space, "/" or punctuation still wraps, beside
+    the Settings page list at the enlarged font (Ubuntu's wider fonts cut it at ~50)."""
+    app = QApplication.instance()
+    assert isinstance(app, QApplication)
+    deep = tmp_path / ("onefoldernamewithnobreaks" * 4)
+    monkeypatch.setattr(settings, "default_path", lambda: deep / "settings.json")
+    write_settings("{damaged")
+    assert len(deep.name) == 100, "the folder name is not long enough"
+    with visual_style(app, False, True), editors_window(qtbot) as (window, page):
+        dialog = window.editors_window.dialog
+        assert dialog is not None
+        QApplication.processEvents()
+        assert page.banner.isVisible() and "settings.json" in page.banner.text()
+        assert_readable(dialog)
+
+
 class _LinuxPathError(SettingsError):
     """A damaged-file error that names a Linux path, whichever system runs the test."""
 

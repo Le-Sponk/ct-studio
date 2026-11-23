@@ -45,7 +45,8 @@ def test_a_damaged_settings_file_is_shown_and_never_overwritten(
     settings_file.write_text("{not json", encoding="utf-8")
     page = make_page(qtbot, doctor, settings_file, opened, chosen)
     banner = label(page, "settingsProblem")
-    assert banner.isVisible() and str(settings_file) in banner.text()
+    shown = banner.text().replace("​", "")  # break chances inside the path
+    assert banner.isVisible() and str(settings_file) in shown
     assert "Fix or delete that file" in banner.text()
     assert len(rows(page)) == 3 and doctor.calls == [{"force": False, "configured": {}}]
     select(page, "wszst")

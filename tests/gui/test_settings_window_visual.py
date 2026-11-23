@@ -116,3 +116,35 @@ def test_settings_window_pictures(
         QApplication.processEvents()
         assert_readable(dialog)
     assert (SCREENS / f"{name}.png").stat().st_size > 0
+
+
+@pytest.mark.parametrize(
+    "folder",
+    ["onefoldernamewithnobreaks" * 4, "a_long_folder_name_without_any_spaces_0123456789"],
+    ids=["one-long-name", "underscored"],
+)
+def test_the_tools_page_banner_wraps_a_long_settings_path(
+    qtbot: QtBot, doctor: FakeDoctor, tmp_path: Path, folder: str
+) -> None:
+    """The Tools page names a damaged settings file too; beside the page list at the
+    enlarged font its path must wrap inside the screen width (P5-T08a repair). Height is not
+    checked: on an 800x600 screen the Tools page with a very long path is taller than the
+    screen (TD-022)."""
+    app = QApplication.instance()
+    assert isinstance(app, QApplication)
+    damaged = tmp_path / folder / "settings.json"
+    damaged.parent.mkdir(parents=True)
+    damaged.write_text("{damaged", encoding="utf-8")
+    with visual_style(app, False, True), main_window(qtbot, doctor, damaged) as (window, _):
+        action(window, "toolsAction").trigger()
+        dialog = settings_dialog(window)
+        tools = window.tools_window.page
+        assert tools is not None
+        assert settled(qtbot, lambda: not tools.busy), "the Tools check never ended"
+        banners = [b for b in dialog.findChildren(QLabel, "settingsProblem") if b.isVisible()]
+        assert len(banners) == 1 and "settings.json" in banners[0].text(), "no damaged-file banner"
+        screen = dialog.screen().availableGeometry()
+        assert dialog.width() <= screen.width(), f"{dialog.width()} > {screen.width()}"
+        assert_list_readable(page_list(dialog))
+        line = banners[0].fontMetrics().lineSpacing()
+        assert banners[0].heightForWidth(banners[0].width()) > 2 * line, "the path did not wrap"

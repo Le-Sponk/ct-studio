@@ -35,6 +35,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.tools.doctor import STATUS_LABELS, ToolCheck, found_how
 from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.gui.services import ToolsResult, ToolsService
+from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
 ChooseFile = Callable[[QWidget, str], Path | None]
@@ -293,7 +294,7 @@ class ToolsPage(QWidget):
             self._table.setItem(row, column, item)
 
     def _problem(self, text: str | None) -> None:
-        self._banner.setText(text or "")
+        self._banner.setText(breakable(text or ""))  # names the settings file
         self._banner.setVisible(bool(text))
 
     def _selected(self) -> str | None:

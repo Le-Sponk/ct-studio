@@ -43,12 +43,12 @@ from ctstudio.gui.editor_settings import KIND_LABELS, KINDS, EditorKinds, Editor
 from ctstudio.gui.views.custom_tool_dialog import CustomToolDialog
 from ctstudio.gui.views.editors_parts import (
     EnterList,
-    breakable,
     choice_note,
     custom_note,
     error_text,
 )
 from ctstudio.gui.views.wine_prefix_section import WinePrefixSection
+from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
 _ID = Qt.ItemDataRole.UserRole
