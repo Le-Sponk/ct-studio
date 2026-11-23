@@ -945,7 +945,7 @@ window keeps fitting an 800×600 screen at enlarged fonts and still refits on La
 updated, no assertion weakened); page list, keyboard and menu tests; visual tests of both
 pages on a real 800×600 screen; mutation proof; review; full gate; exact Check.
 
-#### [ ] P5-T08b — Build page: the project's build settings
+#### [x] P5-T08b — Build page: the project's build settings (commits `01e326f`, repair `a6d7e85`)
 Test and release compression, the `_d` copy and auto-add for the open project, saved to
 the project file `ctstudio.toml` on a joined worker with the same stale-input checks as
 Project details (unknown keys kept; comments are not kept, as on every save (ADR-020);

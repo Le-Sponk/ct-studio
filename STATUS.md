@@ -4,38 +4,40 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08b — Build page: the project's build settings
+**Next task:** P5-T08c — Build page: parallel steps on this computer
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `54e37e3` (P5-T08a repair, exact Check, Windows + Ubuntu)
+**Last green commit:** `a6d7e85` (P5-T08b repair, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T08b repair (2026-11-23): the implementation commit `01e326f` passed Ubuntu's Check
-  (job 137673631574) and failed Windows' (job 137673632043): one new test,
-  `test_build_window.py::test_every_opening_rereads_the_build_page`, wrote the project file
-  without naming UTF-8, so the runner's default code page wrote the "é" of the project name
-  as one byte and the file could not be read. This computer runs Python in UTF-8 mode, which
-  hid it; reproduced locally with `PYTHONUTF8=0` (RED) and fixed by writing UTF-8 (GREEN; the
-  new test files all pass with `PYTHONUTF8=0`). Test-only; P5-T08b stays open until the
-  repair's exact Check passes.
-- P5-T08b — Build page: the project's build settings. Plan: (1) tests first for a
-  `BuildSettingsService` (`gui/build_settings.py`): load/save through Project details'
-  `persist_snapshot` (stale live manifest or disk bytes refused, read-only refused, unknown
-  keys kept, a backup per save, no-op save writes nothing, an unknown compression refused);
-  (2) `BuildPage` (`gui/views/build_page.py`): two compression choices, the `_d` copy and
-  auto-add, Save and Undo changes, a joined worker for load and save that owns
-  `services.editing` while it runs, Save off during a build or launch, no project or a
-  read-only project explained; a save publishes the manifest and refreshes the dashboard;
-  (3) the Settings window gets the page between Tools and Editors and asks Save / Discard /
-  Cancel when closed with unsaved changes; (4) acceptance: after a save, the next GUI test
-  and release builds run fake `wszst create` with the new compression flag; (5) visual tests
-  on a real 800x600 screen at enlarged fonts; mutation, review, gate, Check. Files: new
-  `gui/build_settings.py`, `gui/views/build_page.py`, `gui/settings_window.py`,
-  `gui/main_window.py`, new tests, page-row tests switched to page names. Risks: main_window
-  is at 390 of 400 lines; the close question must not lose a running save; a build that
-  starts from before the window opened must turn Save off.
+- None. Next task P5-T08c (Build page: how many build steps may run at once on this
+  computer, a machine setting in `settings.json`, used by GUI builds and `ctstudio build`).
+  Carry from P5-T08b: the Build page so far shows only the open project's settings; the
+  machine setting is a separate section that does not need a project (shown and saved with
+  no project open), saved through the same refuse-a-damaged-or-newer-file rule as Tools and
+  Editors; keep labels above their fields (the page must stay narrower than Tools, test
+  `test_the_build_page_needs_no_more_width_than_the_tools_page`); run new tests once with
+  `PYTHONUTF8=0` before pushing.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-23 `P5-T08b` Build page: the project's build settings (`01e326f`, repair
+  `a6d7e85`). Settings → Build (between Tools and Editors) shows the open project's test and
+  release compression, `_d` copy and auto-add, read on a joined worker at every opening;
+  Save writes `ctstudio.toml` through Project details' stale-input checks (one backup per
+  save), Undo changes restores; Save is off during a build or launch, on a read-only project
+  and after an outside edit (explained; reopen the project); no project: explained. A save
+  refreshes the dashboard; closing with unsaved changes asks Save / Discard / Cancel (only
+  Discard / Cancel when Save cannot work). Acceptance: after a save, the next GUI test and
+  release builds run the fake `wszst create` with the new flag. 48 mutants caught; reviews
+  NEEDS_REVISION (825 px with DejaVu Sans; a wrong tooltip; close flag; outside edits) ->
+  NEEDS_REVISION (the page locked itself after each save) -> APPROVE; gate 5249 / 10 / 178.
+  The implementation Check failed on Windows only (Ubuntu 137673631574 passed; Windows
+  137673632043): a new test wrote the project file without UTF-8 and the runner's cp1252
+  broke the "é" in its name (hidden locally by Python's UTF-8 mode). Repair: test-only,
+  reviewed, gate 5249 / 10 / 178. Exact Check on `a6d7e85`: Windows 137688280123
+  (5244 / 15), Ubuntu 137688280662 (5245 / 14), 5259 selected; artifacts 14819255948 /
+  14816864857 coverage.xml only. Plan check: P5-T08c adds the machine setting to this page;
+  P5-T08e shows `[build] extra_wszst_args` read-only; P5-T08f maps all leaves.
 - 2026-11-23 `P5-T08a` One Settings window with a page list (`3f46b57`, repair `54e37e3`).
   Settings → Settings… (Ctrl+,) opens one window at the last page shown; Tools… and
   Editors… open their page; pages are made on first show and refreshed on reopen; Tab goes
