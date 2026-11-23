@@ -226,7 +226,8 @@ def test_every_opening_rereads_the_build_page(qtbot: QtBot, tmp_path: Path) -> N
         assert project is not None
         text = project.manifest_path.read_text(encoding="utf-8")
         assert "auto_add = true" in text, "the file does not say auto_add as expected"
-        project.manifest_path.write_text(text.replace("auto_add = true", "auto_add = false"))
+        changed = text.replace("auto_add = true", "auto_add = false")
+        project.manifest_path.write_text(changed, encoding="utf-8")
         project.manifest = manifest_io.load(project.manifest_path)  # as a reload would
         action(window, "toolsAction").trigger()
         assert shown_page(dialog) == "Tools"

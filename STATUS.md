@@ -9,6 +9,14 @@
 **Last green commit:** `54e37e3` (P5-T08a repair, exact Check, Windows + Ubuntu)
 
 ## In progress
+- P5-T08b repair (2026-11-23): the implementation commit `01e326f` passed Ubuntu's Check
+  (job 137673631574) and failed Windows' (job 137673632043): one new test,
+  `test_build_window.py::test_every_opening_rereads_the_build_page`, wrote the project file
+  without naming UTF-8, so the runner's default code page wrote the "é" of the project name
+  as one byte and the file could not be read. This computer runs Python in UTF-8 mode, which
+  hid it; reproduced locally with `PYTHONUTF8=0` (RED) and fixed by writing UTF-8 (GREEN; the
+  new test files all pass with `PYTHONUTF8=0`). Test-only; P5-T08b stays open until the
+  repair's exact Check passes.
 - P5-T08b — Build page: the project's build settings. Plan: (1) tests first for a
   `BuildSettingsService` (`gui/build_settings.py`): load/save through Project details'
   `persist_snapshot` (stale live manifest or disk bytes refused, read-only refused, unknown
