@@ -17,6 +17,8 @@ from tools_fakes import FakeDoctor
 
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.services import AppServices, ToolsService
+from ctstudio.gui.settings_window import PAGES
+from ctstudio.gui.views.build_page import BuildPage
 from ctstudio.gui.views.editors_page import EditorsPage
 from ctstudio.gui.views.tools_page import ToolsPage
 
@@ -72,6 +74,11 @@ def shown_page(dialog: QDialog) -> str:
     current = pages.currentItem()
     assert current is not None and current.isSelected(), "no page is highlighted"
     widget = stack(dialog).currentWidget()
-    expected = {"Tools": ToolsPage, "Editors": EditorsPage}[current.text()]
+    expected = {"Tools": ToolsPage, "Build": BuildPage, "Editors": EditorsPage}[current.text()]
     assert isinstance(widget, expected), f"{current.text()} highlighted but {widget!r} shown"
     return current.text()
+
+
+def go(dialog: QDialog, name: str) -> None:
+    """Pick page ``name`` in the list, as a click would."""
+    page_list(dialog).setCurrentRow(PAGES.index(name))

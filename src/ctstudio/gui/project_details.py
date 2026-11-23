@@ -74,33 +74,34 @@ class ProjectDetailsService:
 
 
 def persist_snapshot(
-    project: Project, snapshot: DetailsSnapshot, manifest: Manifest
+    project: Project, snapshot: DetailsSnapshot, manifest: Manifest, *, what: str = "details"
 ) -> DetailsSnapshot:
     """Commit an edited snapshot; callers wrap disk errors and join before publishing.
 
     No-op saves still verify ownership, live state and exact disk bytes. Staging uses
     the same expected-content commit check as other edits; no generated/manual files move.
+    ``what`` names the edited settings in refusals ("details", "build settings").
     """
-    _check_editable(project, snapshot)
+    _check_editable(project, snapshot, what)
     raw = tomli_w.dumps(manifest_io.as_data(manifest)).encode("utf-8")
     if project.manifest_path.read_bytes() != snapshot.raw:
-        raise _conflict("The project file changed after loading details; nothing was saved.")
+        raise _conflict(f"The project file changed after loading {what}; nothing was saved.", what)
     if manifest == snapshot.manifest:
         return replace(snapshot, backup=None)
     backup = fsutil.replace_with_backup(project.manifest_path, raw, expected=snapshot.raw)
     return DetailsSnapshot(snapshot.root, manifest, raw, backup)
 
 
-def _check_editable(project: Project, snapshot: DetailsSnapshot) -> None:
+def _check_editable(project: Project, snapshot: DetailsSnapshot, what: str = "details") -> None:
     if project.read_only:
         raise ProjectError(
-            "The project is read-only or closed; its details were not saved.",
+            f"The project is read-only or closed; its {what} were not saved.",
             hint=f"{project.read_only_reason or 'No project write lock'}. Reopen it for editing.",
         )
     if project.root.resolve() != snapshot.root:
-        raise _conflict("These details belong to a different project folder.")
+        raise _conflict(f"These {what} belong to a different project folder.", what)
     if project.manifest != snapshot.manifest:
-        raise _conflict("The current project settings changed; its details were not saved.")
+        raise _conflict(f"The current project settings changed; its {what} were not saved.", what)
 
 
 def _blend_text(root: Path, blend: Path | None) -> str | None:
@@ -126,5 +127,5 @@ def _blend_text(root: Path, blend: Path | None) -> str | None:
     return str(absolute)
 
 
-def _conflict(message: str) -> ProjectError:
-    return ProjectError(message, hint="Close and reopen the project before editing its details.")
+def _conflict(message: str, what: str = "details") -> ProjectError:
+    return ProjectError(message, hint=f"Close and reopen the project before editing its {what}.")

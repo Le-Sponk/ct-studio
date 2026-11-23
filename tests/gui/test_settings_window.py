@@ -1,4 +1,4 @@
-"""P5-T08a: one Settings window with a page list on the left (Tools and Editors so far).
+"""P5-T08a: one Settings window with a page list on the left (Tools, Build, Editors so far).
 
 Settings → Settings… opens it at the last page shown; Settings → Tools… and Settings →
 Editors… open it at their page. A page is made the first time it is shown (Tools starts its
@@ -19,6 +19,7 @@ from PySide6.QtWidgets import QApplication, QDialog, QPushButton, QWidget
 from pytestqt.qtbot import QtBot
 from settings_window_helpers import (
     action,
+    go,
     main_window,
     page_list,
     settings_dialog,
@@ -26,6 +27,8 @@ from settings_window_helpers import (
     stack,
 )
 from tools_fakes import FakeDoctor, doctor, settings_file
+
+from ctstudio.gui.settings_window import PAGES
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(60)]
 __all__ = ["doctor", "settings_file"]  # fixtures used by name
@@ -42,7 +45,8 @@ def test_settings_opens_one_window_with_a_page_list(
         dialog = settings_dialog(window)
         assert dialog.isVisible() and dialog.windowTitle() == "Settings"
         pages = page_list(dialog)
-        assert [pages.item(i).text() for i in range(pages.count())] == ["Tools", "Editors"]
+        names = [pages.item(i).text() for i in range(pages.count())]
+        assert names == ["Tools", "Build", "Editors"], "not the original P5-T08 order"
         assert shown_page(dialog) == "Tools", "Settings… did not start at the first page"
         stacked = stack(dialog)
         left = pages.mapTo(dialog, pages.rect().topRight()).x()
@@ -74,14 +78,14 @@ def test_a_page_is_made_only_when_first_shown(
         assert settled(qtbot, lambda: preferences.loads == 1), "the Editors page did not read"
         assert window.tools_window.page is None, "the Tools page was made unasked"
         assert doctor.calls == [], "tools were checked before the Tools page was shown"
-        page_list(dialog).setCurrentRow(0)
+        go(dialog, "Tools")
         assert shown_page(dialog) == "Tools"
         tools = window.tools_window.page
         assert tools is not None, "showing Tools made no page"
         assert settled(qtbot, lambda: len(doctor.calls) == 1 and not tools.busy)
         assert preferences.loads == 1, "switching pages reread the Editors settings"
-        page_list(dialog).setCurrentRow(1)
-        page_list(dialog).setCurrentRow(0)
+        go(dialog, "Editors")
+        go(dialog, "Tools")
         assert shown_page(dialog) == "Tools"
         assert settled(qtbot, lambda: not tools.busy)
         assert len(doctor.calls) == 1, "switching back to Tools checked the tools again"
@@ -119,7 +123,7 @@ def test_settings_reopens_at_the_last_page_shown(
         dialog.close()
         action(window, "settingsAction").trigger()
         assert dialog.isVisible() and shown_page(dialog) == "Editors"
-        page_list(dialog).setCurrentRow(0)  # a page picked in the list counts too
+        go(dialog, "Tools")  # a page picked in the list counts too
         dialog.close()
         action(window, "settingsAction").trigger()
         assert dialog.isVisible() and shown_page(dialog) == "Tools"
@@ -137,9 +141,11 @@ def test_the_page_list_follows_the_keyboard(
         pages.setFocus()
         assert pages.hasFocus(), "the page list did not take focus"
         QTest.keyClick(pages, Qt.Key.Key_Down)
+        assert shown_page(dialog) == "Build", "Down did not show the next page"
+        QTest.keyClick(pages, Qt.Key.Key_Down)
         assert shown_page(dialog) == "Editors", "Down did not show the next page"
         QTest.keyClick(pages, Qt.Key.Key_Up)
-        assert shown_page(dialog) == "Tools", "Up did not show the previous page"
+        assert shown_page(dialog) == "Build", "Up did not show the previous page"
         QTest.keyClick(pages, Qt.Key.Key_Return)
         assert dialog.isVisible(), "Enter in the page list closed the window"
         assert pages.accessibleName() == "Settings pages"
@@ -158,8 +164,8 @@ def test_tab_goes_from_the_list_into_the_page_and_ends_at_close(
         action(window, first).trigger()
         dialog = settings_dialog(window)
         pages = page_list(dialog)
-        for row in (1, 0) if first == "toolsAction" else (0, 1):
-            pages.setCurrentRow(row)  # both pages made, in either order
+        for name in ("Editors", "Tools") if first == "toolsAction" else ("Tools", "Editors"):
+            go(dialog, name)  # both pages made, in either order (Build: test_build_window.py)
             dialog.activateWindow()
             qtbot.waitUntil(dialog.isActiveWindow, timeout=5000)
             pages.setFocus()
@@ -192,7 +198,7 @@ def test_the_page_list_widens_with_a_larger_font(
         font = QFont(pages.font())
         font.setPointSizeF(font.pointSizeF() * 2)
         pages.setFont(font)
-        needed = max(pages.fontMetrics().horizontalAdvance(name) for name in ("Tools", "Editors"))
+        needed = max(pages.fontMetrics().horizontalAdvance(name) for name in PAGES)
         assert pages.viewport().width() >= needed, "a page name is cut short after a font change"
 
 

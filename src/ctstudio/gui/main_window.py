@@ -91,9 +91,7 @@ class MainWindow(QMainWindow):
         _ensure_offscreen_font()
         super().__init__()
         self.services = services if services is not None else AppServices()
-        self.settings_window = SettingsWindow(
-            self.services.tools, self.services.editor_settings, self
-        )
+        self.settings_window = SettingsWindow(self.services, self, build_saved=self._republish)
         self.tools_window = ToolsWindow(self.settings_window)
         self.editors_window = EditorsWindow(self.settings_window)
         self._make_wizard = new_project
@@ -367,12 +365,16 @@ class MainWindow(QMainWindow):
 
     def _details_finished(self, _result: int) -> None:
         dialog, self._details = self._details, None
-        project = self.services.project
-        if dialog is not None and dialog.saved and project is not None:
-            self.services.status.clear()
-            self.dashboard.set_project(project, changed=True)
+        if dialog is not None and dialog.saved:
+            self._republish()
         self._navigation()
         self.dashboard._sync()
+
+    def _republish(self) -> None:
+        """The open project's manifest was saved (Project details, Settings → Build)."""
+        if (project := self.services.project) is not None:
+            self.services.status.clear()
+            self.dashboard.set_project(project, changed=True)
 
     def _open_settings(self) -> None:
         """Settings → Settings…: the Settings window at the page shown last."""

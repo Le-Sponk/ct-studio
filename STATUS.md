@@ -9,10 +9,22 @@
 **Last green commit:** `54e37e3` (P5-T08a repair, exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08b (Build page: the project's build settings: test and release
-  compression, the `_d` copy and auto-add, saved to `project.toml` on a worker). Owner
-  questions for P5-T08d (Appearance contents) and P5-T08e (reserved `extra_wszst_args`)
-  are still open; they are settled before those leaves start.
+- P5-T08b — Build page: the project's build settings. Plan: (1) tests first for a
+  `BuildSettingsService` (`gui/build_settings.py`): load/save through Project details'
+  `persist_snapshot` (stale live manifest or disk bytes refused, read-only refused, unknown
+  keys kept, a backup per save, no-op save writes nothing, an unknown compression refused);
+  (2) `BuildPage` (`gui/views/build_page.py`): two compression choices, the `_d` copy and
+  auto-add, Save and Undo changes, a joined worker for load and save that owns
+  `services.editing` while it runs, Save off during a build or launch, no project or a
+  read-only project explained; a save publishes the manifest and refreshes the dashboard;
+  (3) the Settings window gets the page between Tools and Editors and asks Save / Discard /
+  Cancel when closed with unsaved changes; (4) acceptance: after a save, the next GUI test
+  and release builds run fake `wszst create` with the new compression flag; (5) visual tests
+  on a real 800x600 screen at enlarged fonts; mutation, review, gate, Check. Files: new
+  `gui/build_settings.py`, `gui/views/build_page.py`, `gui/settings_window.py`,
+  `gui/main_window.py`, new tests, page-row tests switched to page names. Risks: main_window
+  is at 390 of 400 lines; the close question must not lose a running save; a build that
+  starts from before the window opened must turn Save off.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1683,6 +1695,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-23: Owner answers for P5-T08 (asked at the split): P5-T08d Appearance offers the
+  colour scheme only (Follow system, Light, Dark); P5-T08e shows the reserved
+  `[build] extra_wszst_args` read-only, labelled not used yet (P7-T06 wires it). P5-T08b's
+  text corrected: the project file is `ctstudio.toml` and saves never keep comments
+  (ADR-020); the page saves explicitly (one backup per save).
 - 2026-11-23: Split P5-T08 (Settings dialog) into a (one Settings window with a page list,
   Tools and Editors moved into it, the owner's choice), b (Build page: the project's build
   settings), c (Build page: parallel steps on this computer), d (Appearance), e (Advanced) and

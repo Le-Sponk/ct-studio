@@ -36,6 +36,9 @@ default, so a missing setting means "use the default".
 
 ## The settings
 
+Settings → Build changes the test and release compression, `make_d_variant` and `auto_add`
+of the open project without editing this file by hand; it saves on Save, with a backup.
+
 | Setting | What it means | Allowed values (default first) |
 |---|---|---|
 | `schema_version` | The version of this file's layout. Do not change it. | `1` |

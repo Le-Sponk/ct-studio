@@ -23,6 +23,7 @@ PICTURES = [
     "tests/gui/test_custom_editors_visual.py",
     "tests/gui/test_wine_prefixes_visual.py",
     "tests/gui/test_settings_window_visual.py",
+    "tests/gui/test_build_page_visual.py",
 ]
 SCREEN = {
     "synchronousWindowSystemEvents": False,

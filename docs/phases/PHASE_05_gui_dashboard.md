@@ -947,8 +947,11 @@ pages on a real 800×600 screen; mutation proof; review; full gate; exact Check.
 
 #### [ ] P5-T08b — Build page: the project's build settings
 Test and release compression, the `_d` copy and auto-add for the open project, saved to
-`project.toml` on a worker with the same stale-input checks as Project details (unknown keys
-and comments kept, backups, read-only and busy projects refused; no project: explained).
+the project file `ctstudio.toml` on a joined worker with the same stale-input checks as
+Project details (unknown keys kept; comments are not kept, as on every save (ADR-020);
+a backup per save; read-only and busy projects refused; no project: explained). The page
+has explicit Save and Undo changes (one backup per save, not per click); closing the window
+with unsaved changes asks Save / Discard / Cancel. Page order: Tools, Build, Editors.
 **Acceptance:** settings persist across reopen; changing the test compression changes the
 next test build's `wszst create` command (fake tool argv), and the release one likewise.
 
@@ -959,15 +962,16 @@ How many build steps may run at once (machine setting in `settings.json`, defaul
 or newer settings file is refused, never overwritten.
 
 #### [ ] P5-T08d — Appearance page
-Contents to be confirmed by the owner before this leaf starts (offered: colour scheme only;
-plus text size; plus window size/position memory).
+Colour scheme only (owner's choice, 2026-11-23): Follow system, Light or Dark. Text size
+and window size/position memory are not part of this leaf.
 **Acceptance:** the chosen settings persist and apply at the next start (and immediately
 where Qt allows), with light/dark and enlarged-font evidence.
 
 #### [ ] P5-T08e — Advanced page
 Show tool commands in the build log, log-file retention and dev mode (the stall watchdog,
-today `CTSTUDIO_DEV=1`). Whether the reserved `[build] extra_wszst_args` (wired by P7-T06)
-appears here is to be confirmed by the owner before this leaf starts.
+today `CTSTUDIO_DEV=1`). The open project's reserved `[build] extra_wszst_args` is shown
+read-only and labelled as not used yet (owner's choice, 2026-11-23); P7-T06 wires it and
+makes it editable.
 **Acceptance:** each setting persists and takes effect (build log rows, old log files
 removed beyond the retention, watchdog at the next start).
 
