@@ -4,23 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08f — Original Settings acceptance and guide
+**Next task:** P5-T09 — GUI end-to-end test & screenshot review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `efa4add` (P5-T08e3, exact Check, Windows + Ubuntu)
+**Last green commit:** `3d9690b` (P5-T08f, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T08f — Original Settings acceptance and guide. `docs/reference/SETTINGS_ACCEPTANCE.json`
-  maps the original P5-T08 criteria (pages, settings persist, compression changes the next
-  build's command, Editors, Advanced's show commands / extra args / log retention / dev mode)
-  and each leaf's acceptance (a, b, c, d, e1-e3) plus the guide: 14 requirements, 119 test
-  targets. Combined run with the Editors page's own map (EDITOR_SETTINGS_ACCEPTANCE.json): 42
-  files, 503 passed, none skipped; both maps rc 0 (205 and 88 matched cases). User guide
-  `docs/user/SETTINGS.md`, checked against the code by `tests/gui/test_settings_guide.py`
-  and linked from README and the navigation guide. No product change. Then review, full gate,
-  exact Check; only then close P5-T08.
+- None. Next task P5-T09 (GUI end-to-end test & screenshot review): new project → assign
+  fixture files (manual mode) → build with fakes → Ready statuses → issue shown → open-in
+  invoked, with screenshots in `tests/artifacts/screens/` reviewed against the UI checklist.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-25 `P5-T08f` Settings acceptance map and user guide (`3d9690b`); closes P5-T08.
+  `docs/reference/SETTINGS_ACCEPTANCE.json`: 14 requirements, 119 test targets (original
+  P5-T08 criteria and every leaf's acceptance); one combined run with the Editors page's map:
+  42 files, 503 passed, 0 skipped, both maps rc 0. Guide `docs/user/SETTINGS.md`, checked
+  against the code by `tests/gui/test_settings_guide.py` (24 cases; keys derived from the
+  code). Review NEEDS_REVISION (keys table, damaged-file section, weak guide test), fixed,
+  delta APPROVE. Gate 5479 / 10 / 178. Exact Check on `3d9690b`: Windows 138599051635
+  (5474 / 15), Ubuntu 138599052138 (5475 / 14), 5489 selected; artifacts 14941434011 /
+  14941743466 coverage.xml only. Integration not required (docs and tests only).
 - 2026-11-25 `P5-T08e3` Advanced page: developer mode (`efa4add`); closes P5-T08e (e1-e3).
   `settings.json` key `developer_mode` (true/false, absent = off); `gui/watchdog.dev_watchdog`
   reads it once at start and runs the stall watchdog when it is on or `CTSTUDIO_DEV=1` (a
@@ -2634,6 +2637,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   overridden user folders the P5-T08e3 start test uses, and add a session check that the real
   log folder is unchanged. The in-process leak (the no-argument entry-point test) was fixed in
   P5-T08e3.
+- **TD-024 · P13-T06 · the damaged-settings build notice does not mention auto-add (P5-T08f
+  review).** With a damaged settings file, builds in CT Studio and `ctstudio build` run with
+  empty settings, so the auto-add library is not used and no missing object files are added,
+  even with Auto-add on. `BUILD_IGNORED` names tool paths, build steps and build logs only;
+  the Settings guide states the auto-add consequence. Fix: name it in the notice (and the
+  guide test's quote follows).
 - **TD-022 · P5-T10 · Settings window width with very wide fonts, Tools table (P5-T08a
   review).** Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
   an 800 px screen with fonts wider than the tested enlarged one. All eight Settings pictures

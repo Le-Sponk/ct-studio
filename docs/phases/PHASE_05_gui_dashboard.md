@@ -923,7 +923,7 @@ and Ubuntu. P5-T07b, P5-T07c and P5-T07 are complete. The user guide is
 `docs/user/OPEN_IN.md`. Real editor loading/saving, real Wine loading and desktop appearance
 stay unverified by automation and are HC1's manual run (P5-HC1 stays open).
 
-### [ ] P5-T08 — Settings dialog
+### [x] P5-T08 — Settings dialog (closed by f map, `3d9690b`)
 Pages: Tools (from P2-T07), Build (compression profiles, parallelism, `_d` variant default, auto-add),
 Editors (Open-in mapping, custom tools), Appearance, Advanced (show commands, extra args, log
 retention, dev mode).
@@ -1001,10 +1001,19 @@ A machine setting that turns the stall watchdog on from the next start (today on
 **Acceptance:** the setting persists; the next start runs the watchdog when it is on and
 not when it is off (without `CTSTUDIO_DEV`).
 
-#### [ ] P5-T08f — Original Settings acceptance and guide
+#### [x] P5-T08f — Original Settings acceptance and guide (commit `3d9690b`)
 Map every original P5-T08 criterion and each leaf's acceptance to executable tests, rerun
 them together, and write `docs/user/SETTINGS.md` (tested against the code like the Open in…
 guide). **Acceptance:** criterion map, review, full gate, exact Check; only then close P5-T08.
+
+Closure: `docs/reference/SETTINGS_ACCEPTANCE.json` maps the original P5-T08 criteria (all five
+pages, settings persist, the compression profile changes the next build's command, Advanced's
+show commands, extra args, log retention and dev mode) and every leaf's acceptance (a-e3) plus
+the guide: 14 requirements, 119 test targets. One combined run with
+`EDITOR_SETTINGS_ACCEPTANCE.json` (42 files, 503 cases, none skipped) matched every target, and
+the exact Check for `3d9690b` passed on Windows and Ubuntu, so P5-T08 is complete. The user
+guide is `docs/user/SETTINGS.md`. Owner choices kept: Appearance is the colour scheme only, and
+`extra_wszst_args` is shown read-only until P7-T06.
 
 ### [ ] P5-T09 — GUI end-to-end test & screenshot review
 pytest-qt: new project → assign fixture files (manual mode) → build with fakes → Ready statuses →
