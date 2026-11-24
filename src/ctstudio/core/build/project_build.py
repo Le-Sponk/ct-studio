@@ -7,7 +7,7 @@ silently replaced, then PATH, the usual folders and a checkout's ``.tools/``. A 
 unusable tool stops the build before anything runs, naming it. ``only`` keeps one part's
 steps (the other parts need not be buildable) and does not pack the track.
 ``build_project`` runs a plan; ``force`` forgets what was built before, for the steps in the
-plan only.
+plan only, and ``jobs`` (the user's machine setting, P5-T08c) caps the steps run at once.
 """
 
 from __future__ import annotations
@@ -87,12 +87,14 @@ def build_project(
     *,
     cancel: CancelToken,
     force: bool = False,
+    jobs: int | None = None,
 ) -> BuildSummary:
+    """Run ``plan``; ``jobs`` None lets the runner choose how many steps run at once."""
     cache = BuildCache.load(plan.graph.root)
     if force:
         for node in plan.graph.nodes:
             cache.invalidate(node.id)
-    return run_build(plan.graph, cache, plan.request, on_event, cancel=cancel)
+    return run_build(plan.graph, cache, plan.request, on_event, cancel=cancel, jobs=jobs)
 
 
 def _just(part: str, make: MakePart) -> MakePart:

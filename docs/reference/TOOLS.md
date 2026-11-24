@@ -1414,7 +1414,9 @@ it wins over PATH and the usual folders (`source: "setting"`, probed like any di
 a set `.exe` editor on Linux runs through Wine); a set path that is not a program is
 `missing` with the path and "Choose another, or clear it…" — no silent fallback, because
 the chosen program is what the adapters would run. `ctstudio doctor` reads the file; a
-damaged one prints a warning on stderr and the check runs without the set paths.
+damaged one prints a warning on stderr and the check runs without the set paths. A build
+(GUI or `ctstudio build`) with a damaged file warns that tool paths and the number of build
+steps at once (`build_jobs`, P5-T08c) are ignored, and runs with neither.
 
 **Custom-tool records (P5-T07c1, pure settings only).** The same machine file accepts
 `custom_tools: {id: {name, exe, args_template, ...}}`; ids are exact lowercase slugs.

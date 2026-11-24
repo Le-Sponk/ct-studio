@@ -34,6 +34,7 @@ from ctstudio.core.build.events import (
 )
 from ctstudio.core.errors import BuildGraphError, ProjectError, ToolNotFound
 from ctstudio.core.project.project import Project
+from ctstudio.core.project.settings import BUILD_IGNORED
 from ctstudio.gui.build_controller import BuildController
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(30)]
@@ -163,7 +164,7 @@ def test_a_damaged_settings_file_is_reported_and_the_build_goes_on(
     assert fake.planned[0]["configured"] == {}
     assert fake.planned[0]["library"] is None
     assert len(seen.notices) == 1
-    assert "paths set in ct studio are ignored for this build" in seen.notices[0].lower()
+    assert BUILD_IGNORED in seen.notices[0], seen.notices[0]
 
 
 def test_running_is_true_from_start_until_the_result_is_shown(

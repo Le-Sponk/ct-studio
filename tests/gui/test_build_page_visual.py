@@ -81,7 +81,8 @@ def test_build_page_pictures(
         dialog = settings_dialog(window)
         go(dialog, "Build")
         page = window.settings_window.build_page
-        assert page is not None and settled(qtbot, lambda: not page.busy)
+        assert page is not None
+        assert settled(qtbot, lambda: not page.busy and not page.jobs.busy)
         assert shown_page(dialog) == "Build"
         assert page.fields.isHidden() is (state == "none")
         if state == "read-only":

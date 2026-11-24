@@ -1,9 +1,10 @@
 """The user's machine settings: ``settings.json`` in the user config folder (P2-T07a).
 
-Machine-specific choices (for now, tool paths set in CT Studio) live here and never in a
-project (ARCHITECTURE §6). The file is the user's: a damaged or newer one is reported and
-never overwritten by a load, keys CT Studio does not know survive a save, and each save
-keeps a backup of the previous file (``fsutil.replace_with_backup``).
+Machine-specific choices (tool paths set in CT Studio, editor choices, how many build steps
+may run at once) live here and never in a project (ARCHITECTURE §6). The file is the user's:
+a damaged or newer one is reported and never overwritten by a load, keys CT Studio does not
+know survive a save, and each save keeps a backup of the previous file
+(``fsutil.replace_with_backup``).
 """
 
 from __future__ import annotations
@@ -37,6 +38,12 @@ from ctstudio.core.tools.spec import CustomTool
 FORMAT = 1
 FILE_NAME = "settings.json"
 AUTO_ADD_LIBRARY = "auto_add_library"  # folder built by `wszst autoadd` from the own disc
+BUILD_JOBS = "build_jobs"  # build steps at once on this computer; absent: the runner chooses
+MAX_BUILD_JOBS = 64
+# What a build does without the settings file (damaged: reported, then left out).
+BUILD_IGNORED = (
+    "Tool paths and the number of build steps at once set in CT Studio are ignored for this build."
+)
 
 
 class SettingsError(ProjectError):
@@ -110,6 +117,19 @@ class UserSettings:
             other[AUTO_ADD_LIBRARY] = str(path)
         return UserSettings(self.tools, other)
 
+    def build_jobs(self) -> int | None:
+        """How many build steps may run at once (P5-T08c); None: the runner's own default."""
+        if BUILD_JOBS not in self.other:
+            return None
+        return _jobs(self.other[BUILD_JOBS])
+
+    def with_build_jobs(self, jobs: int | None) -> UserSettings:
+        """A copy with that number of build steps at once, or automatic when ``jobs`` is None."""
+        other = {key: value for key, value in self.other.items() if key != BUILD_JOBS}
+        if jobs is not None:
+            other[BUILD_JOBS] = _jobs(jobs)
+        return UserSettings(self.tools, other)
+
     def with_tool(self, tool_id: str, path: Path | None) -> UserSettings:
         """A copy with ``tool_id`` set to ``path``, or cleared when ``path`` is None."""
         if tool_id not in TOOL_BY_ID:
@@ -118,6 +138,13 @@ class UserSettings:
         if path is not None:
             tools[tool_id] = str(path)
         return UserSettings(tools, self.other)
+
+
+def _jobs(value: object) -> int:
+    """``value`` as a number of build steps; ValueError unless a whole number in range."""
+    if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= MAX_BUILD_JOBS:
+        raise ValueError(f'"{BUILD_JOBS}" must be a whole number from 1 to {MAX_BUILD_JOBS}')
+    return value
 
 
 def default_path() -> Path:
@@ -149,6 +176,7 @@ def _parse(target: Path, data: object) -> UserSettings:
     _check_preferences(target, other)
     _check_custom_tools(target, other)
     _check_wine_prefixes(target, other)
+    _check_build_jobs(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
@@ -176,6 +204,17 @@ def _check_wine_prefixes(target: Path, other: Mapping[str, object]) -> None:
         raise SettingsError(target, "Wine prefixes are invalid", details=str(exc)) from exc
 
 
+def _check_build_jobs(target: Path, other: Mapping[str, object]) -> None:
+    try:
+        UserSettings(other=other).build_jobs()
+    except ValueError as exc:
+        raise SettingsError(
+            target,
+            f'"{BUILD_JOBS}" is not a whole number from 1 to {MAX_BUILD_JOBS}',
+            details=str(exc),
+        ) from exc
+
+
 def _check_format(target: Path, version: object) -> None:
     if not isinstance(version, int) or isinstance(version, bool):
         raise SettingsError(target, '"format" is not a number')
@@ -199,6 +238,7 @@ def save(settings: UserSettings, path: Path | None = None) -> None:
     _check_preferences(target, settings.other)
     _check_custom_tools(target, settings.other)
     _check_wine_prefixes(target, settings.other)
+    _check_build_jobs(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

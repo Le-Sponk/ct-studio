@@ -36,8 +36,10 @@ default, so a missing setting means "use the default".
 
 ## The settings
 
-Settings → Build changes the test and release compression, `make_d_variant` and `auto_add`
-of the open project without editing this file by hand; it saves on Save, with a backup.
+Settings → Build → This project changes the test and release compression, `make_d_variant`
+and `auto_add` of the open project without editing this file by hand; it saves on Save, with a
+backup. How many build steps may run at once is not in this file: it is a setting of your
+computer, the same for every project (Settings → Build → This computer).
 
 | Setting | What it means | Allowed values (default first) |
 |---|---|---|

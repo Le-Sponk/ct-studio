@@ -215,6 +215,10 @@ post_build = ""
 ```
 Machine-specific settings (tool paths, game files folder, recent projects, theme) live in the
 user settings file under `platformdirs.user_config_dir("ctstudio")`, never in the project.
+P5-T08c adds `build_jobs` there: how many build steps may run at once on this computer, a
+whole number 1-64 (`MAX_BUILD_JOBS`); absent means automatic (the runner's `min(4, CPUs)`).
+`UserSettings.build_jobs()` / `with_build_jobs(n or None)`; any other value refuses load and
+save like other damaged settings. Settings → Build → This computer shows and saves it.
 
 P5-T07a adds the pure built-in catalogue in `core/project/editor_preferences.py` and the
 machine-settings object `editor_preferences` (`kind -> preferred built-in tool id`).
@@ -403,7 +407,8 @@ template/manual ─────────────────────�
   jobs)`. The calling thread schedules and delivers events (`build/events.py`: `BuildStarted`,
   `NodeStarted`, `LogLine`, `CommandRun`, `NodeSkipped`, `NodeFinished`, `NodeFailed`,
   `BuildFinished`) one
-  at a time; steps run in a `ThreadPoolExecutor` of `jobs` threads (default `min(4, CPUs)`),
+  at a time; steps run in a `ThreadPoolExecutor` of `jobs` threads (default `min(4, CPUs)`;
+  GUI builds and `ctstudio build` pass the user's `build_jobs` through `build_project`),
   closed before return. A step starts when every step it needs ran or was skipped and none
   of its `resources` is held; a waiting step does not hold up later ready ones. Fresh in the
   cache → `NodeSkipped`; after a run the outputs are stored, and the cache is saved at the

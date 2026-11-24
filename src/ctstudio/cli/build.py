@@ -41,7 +41,7 @@ from ctstudio.core.build.project_build import (
 from ctstudio.core.components.registry import COMPONENT_BY_ID, COMPONENTS
 from ctstudio.core.project import settings
 from ctstudio.core.project.project import Project
-from ctstudio.core.project.settings import SettingsError, UserSettings
+from ctstudio.core.project.settings import BUILD_IGNORED, SettingsError, UserSettings
 from ctstudio.core.project.slots import find
 from ctstudio.core.tools.process import CancelToken
 from ctstudio.core.validation.issues import Issue
@@ -91,7 +91,8 @@ def run(args: argparse.Namespace) -> int:
                 library=user.auto_add_library(),
             )
             show = _json_printer(root) if args.json_events else _TextPrinter(root, plan)
-            summary = _run(plan, _until_closed(show, cancel), cancel, force=args.force)
+            shown = _until_closed(show, cancel)
+            summary = _run(plan, shown, cancel, force=args.force, jobs=user.build_jobs())
     except KeyboardInterrupt:
         print("\nBuild cancelled before it started.", file=sys.stderr)
         return CANCELLED
@@ -140,14 +141,19 @@ def _user_settings() -> UserSettings:
         return settings.load()
     except SettingsError as exc:
         print(
-            f"Warning: {exc.user_message}\nPaths set in CT Studio are ignored for this build.",
+            f"Warning: {exc.user_message}\n{BUILD_IGNORED}",
             file=sys.stderr,
         )
         return UserSettings()
 
 
 def _run(
-    plan: BuildPlan, show: Callable[[BuildEvent], None], cancel: CancelToken, *, force: bool
+    plan: BuildPlan,
+    show: Callable[[BuildEvent], None],
+    cancel: CancelToken,
+    *,
+    force: bool,
+    jobs: int | None,
 ) -> BuildSummary:
     """Run the build on its own thread; Ctrl+C (KeyboardInterrupt here) cancels it."""
     result: list[BuildSummary] = []
@@ -155,7 +161,7 @@ def _run(
 
     def work() -> None:
         try:
-            result.append(build_project(plan, show, cancel=cancel, force=force))
+            result.append(build_project(plan, show, cancel=cancel, force=force, jobs=jobs))
         except BaseException as exc:  # handed to the main thread and raised there
             failure.append(exc)
 

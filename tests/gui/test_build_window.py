@@ -255,12 +255,20 @@ def test_tab_goes_from_the_list_into_the_build_page_and_ends_at_close(
         pages.setFocus()
         QTest.keyClick(pages, Qt.Key.Key_Tab)
         inside = focused(dialog)
-        assert inside is page.test_compression, f"Tab from the list went to {inside!r}"
+        assert inside is page.tabs.tabBar(), f"Tab from the list went to {inside!r}"
+        QTest.keyClick(page.tabs.tabBar(), Qt.Key.Key_Tab)
+        inside = focused(dialog)
+        assert inside is page.test_compression, f"Tab from the tabs went to {inside!r}"
         closes = [b for b in dialog.findChildren(QPushButton) if b.text() == "Close"]
         assert len(closes) == 1 and closes[0].isDefault(), "Close is not the default"
         page.save_button.setFocus()
         QTest.keyClick(page.save_button, Qt.Key.Key_Tab)
         assert focused(dialog) is closes[0], "Tab from Save did not go to Close"
+        page.tabs.setCurrentWidget(page.jobs)
+        page.jobs.combo.setFocus()
+        QTest.keyClick(page.jobs.combo, Qt.Key.Key_Tab)
+        assert focused(dialog) is closes[0], "Tab from this computer's choice did not go to Close"
+        page.tabs.setCurrentWidget(page.project_tab)
         page.undo()  # nothing unsaved left for the teardown
 
 

@@ -9,14 +9,21 @@
 **Last green commit:** `a6d7e85` (P5-T08b repair, exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08c (Build page: how many build steps may run at once on this
-  computer, a machine setting in `settings.json`, used by GUI builds and `ctstudio build`).
-  Carry from P5-T08b: the Build page so far shows only the open project's settings; the
-  machine setting is a separate section that does not need a project (shown and saved with
-  no project open), saved through the same refuse-a-damaged-or-newer-file rule as Tools and
-  Editors; keep labels above their fields (the page must stay narrower than Tools, test
-  `test_the_build_page_needs_no_more_width_than_the_tools_page`); run new tests once with
-  `PYTHONUTF8=0` before pushing.
+- P5-T08c — Build page: parallel steps on this computer. Plan: (1) `settings.json` key
+  `build_jobs` (whole number 1-64; absent = automatic, `min(4, CPUs)`), read by
+  `UserSettings.build_jobs()`, set by `with_build_jobs()`; a bad value refuses load and save
+  like other damaged settings. (2) `build_project(..., jobs=)` hands it to the runner; GUI
+  builds (`build_controller._Work`) and `ctstudio build` read it fresh per build (a damaged
+  file: warned, automatic used). (3) Settings → Build gets a "This computer" section, shown
+  with or without a project: one choice (Automatic or a number), saved at once on a worker
+  through a fresh read (no write when unchanged); a damaged or newer file is shown and
+  refused, never overwritten. The page gets two tabs (This project / This computer): both
+  parts together were 632 px tall on a 600 px screen at the enlarged font. Acceptance: setting persists; the next GUI and CLI build's
+  runner gets it; damaged/newer file refused. Files: `core/project/settings.py`,
+  `core/build/project_build.py`, `cli/build.py`, `gui/build_controller.py`,
+  `gui/build_settings.py`, new `gui/views/build_jobs.py`, `gui/views/build_page.py`, docs
+  (ARCHITECTURE §6/§7), tests. Risks: the Build page must stay narrower than Tools and fit
+  800x600 at the enlarged font (labels above fields); new tests once with `PYTHONUTF8=0`.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2513,6 +2520,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   instance. Logged in the same folder. That rerun also showed 4 more local skips than
   before (10, not 6): this host no longer grants symlink creation (WinError 1314), so
   four symlink tests skip locally; CI still runs them.
+  Recorded instance (P5-T08c implementation gate, 2026-11-24): `test_issues_panel.py::
+  test_enter_on_a_finding_goes_to_its_card` (untouched) timed out in `issues_dashboard`'s
+  first 5 s wait for the dashboard and status check to go idle (issues_helpers.py line 108),
+  at 25% of the run, before the test body started. The same gate's other failure was this
+  task's own (the 800x600 picture test, fixed test-first), so one TD-018 instance; gate rerun
+  once per the rule. Log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T08c-TD018/`.
 - **TD-019 · resolved by the P5-T08a repair (2026-11-23).** One very long folder name in a
   damaged-settings banner widened the window; with the P5-T08a page list beside the page,
   Ubuntu's Check hit it with the deliberately long test paths (folder names of 48 and 56

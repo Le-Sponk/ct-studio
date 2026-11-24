@@ -30,7 +30,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project import settings
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.project import Project
-from ctstudio.core.project.settings import SettingsError, UserSettings
+from ctstudio.core.project.settings import BUILD_IGNORED, SettingsError, UserSettings
 from ctstudio.core.tools.process import CancelToken
 
 _LOG = logging.getLogger(__name__)
@@ -228,7 +228,8 @@ class _Work:
                 configured=user.configured(),
                 library=user.auto_add_library(),
             )
-            summary = self.build(planned, self._send, cancel=cancel, force=options.force)
+            jobs = user.build_jobs()
+            summary = self.build(planned, self._send, cancel=cancel, force=options.force, jobs=jobs)
         except CTStudioError as exc:
             error = exc
         except BaseException as exc:  # interrupts must also release ownership on the UI thread
@@ -244,6 +245,6 @@ class _Work:
         try:
             return settings.load(self.settings_path)
         except SettingsError as exc:
-            text = f"{exc.user_message} Paths set in CT Studio are ignored for this build."
+            text = f"{exc.user_message} {BUILD_IGNORED}"
             self.relay.notice.emit(self.generation, text)
             return UserSettings()

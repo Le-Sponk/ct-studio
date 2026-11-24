@@ -11,7 +11,9 @@ the file no longer matches the project as opened (edited outside CT Studio), the
 and stays read-only: the next build uses the opened project until it is reopened. Why Save is
 off is shown apart from the last result or error (``blocked`` vs ``problem``). A save
 publishes the new manifest to the open project on the GUI thread, after joining, and emits
-``saved``; the next build uses it.
+``saved``; the next build uses it. All of that is the "This project" tab; the "This computer"
+tab (``BuildJobsSection``, P5-T08c) shows and saves how many build steps may run at once,
+with or without a project.
 """
 
 from __future__ import annotations
@@ -29,6 +31,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QProgressBar,
     QPushButton,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -36,9 +39,10 @@ from PySide6.QtWidgets import (
 from ctstudio.core.project import manifest_io
 from ctstudio.core.project.manifest import COMPRESSIONS
 from ctstudio.core.project.project import Project
-from ctstudio.gui.build_settings import BuildChoices, BuildSettingsService
+from ctstudio.gui.build_settings import BuildChoices, BuildJobsService, BuildSettingsService
 from ctstudio.gui.project_details import DetailsSnapshot
 from ctstudio.gui.services import AppServices
+from ctstudio.gui.views.build_jobs import BuildJobsSection
 from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
@@ -71,6 +75,7 @@ class BuildPage(QWidget):
         services: AppServices,
         *,
         service: BuildSettingsService | None = None,
+        jobs_service: BuildJobsService | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
@@ -85,13 +90,18 @@ class BuildPage(QWidget):
         self._worker: threading.Thread | None = None
         self._relay = _Relay(self)
         self._relay.done.connect(self._completed)
-        self._build()
+        self._build(jobs_service or BuildJobsService())
         services.build.running_changed.connect(self._render)
         services.launch.busy_changed.connect(self._render)
         self.reload()
 
-    def _build(self) -> None:
-        layout = QVBoxLayout(self)
+    def _build(self, jobs_service: BuildJobsService) -> None:
+        # Two tabs: both parts together are taller than a 600 px screen at large fonts.
+        self.tabs = QTabWidget(self)
+        self.tabs.setObjectName("buildTabs")
+        QVBoxLayout(self).addWidget(self.tabs)
+        self.project_tab = QWidget(self.tabs)
+        layout = QVBoxLayout(self.project_tab)
         self.note = QLabel(self)
         self.note.setObjectName("buildNote")
         self.note.setTextFormat(Qt.TextFormat.PlainText)
@@ -117,6 +127,10 @@ class BuildPage(QWidget):
         form.addRow(self.auto_add)
         layout.addWidget(self.fields)
         self._footer(layout)
+        self.tabs.addTab(self.project_tab, "This &project")
+        self.jobs = BuildJobsSection(jobs_service, self.tabs)
+        self.jobs.keyboard_lost.connect(self.tabs.tabBar().setFocus)
+        self.tabs.addTab(self.jobs, "This co&mputer")
 
     def _compression(self, name: str) -> QComboBox:
         combo = QComboBox(self.fields)
@@ -186,7 +200,9 @@ class BuildPage(QWidget):
         )
 
     def reload(self) -> None:
-        """Read the open project's saved choices again (not while reading or saving)."""
+        """Read the open project's saved choices and this computer's setting again (each not
+        while it reads or saves)."""
+        self.jobs.reload()
         if self._busy:
             return
         project = self.services.project

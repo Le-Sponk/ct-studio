@@ -1,4 +1,7 @@
-"""The Build page's project settings on disk (P5-T08b); blocking, call from a joined worker.
+"""The Build page's settings on disk; blocking, call from a worker.
+
+``BuildSettingsService`` (P5-T08b) reads and saves the open project's build settings;
+``BuildJobsService`` (P5-T08c) the machine setting for how many build steps may run at once.
 
 The four choices the page shows (test and release compression, the ``_d`` copy, auto-add)
 are saved into the project file's ``[build]`` table through Project details' stale-input
@@ -11,8 +14,10 @@ publishes the manifest: the page does that on the GUI thread after joining the w
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from pathlib import Path
 
 from ctstudio.core.errors import ProjectError
+from ctstudio.core.project import settings
 from ctstudio.core.project.manifest import COMPRESSIONS, BuildSettings, Compression
 from ctstudio.core.project.project import Project
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService, persist_snapshot
@@ -70,3 +75,25 @@ class BuildSettingsService:
                 hint="Check the project folder's permissions and free disk space, then try again.",
                 details=str(exc),
             ) from exc
+
+
+class BuildJobsService:
+    """How many build steps may run at once on this computer, in ``settings.json``.
+
+    Each call reads the file fresh; a damaged or newer file raises ``SettingsError`` and is
+    never written. Saving what the file already says writes nothing (no backup).
+    """
+
+    def __init__(self, *, settings_path: Path | None = None) -> None:
+        self._settings_path = settings_path
+
+    def load(self) -> int | None:
+        """The saved number; None for automatic."""
+        return settings.load(self._settings_path).build_jobs()
+
+    def save(self, jobs: int | None) -> int | None:
+        """Save ``jobs`` (None: automatic) and return it."""
+        current = settings.load(self._settings_path)
+        if current.build_jobs() != jobs:
+            settings.save(current.with_build_jobs(jobs), self._settings_path)
+        return jobs
