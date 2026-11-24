@@ -4,29 +4,37 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08c — Build page: parallel steps on this computer
+**Next task:** P5-T08d — Appearance page
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `a6d7e85` (P5-T08b repair, exact Check, Windows + Ubuntu)
+**Last green commit:** `02f849a` (P5-T08c, exact Check and Integration, Windows + Ubuntu)
 
 ## In progress
-- P5-T08c — Build page: parallel steps on this computer. Plan: (1) `settings.json` key
-  `build_jobs` (whole number 1-64; absent = automatic, `min(4, CPUs)`), read by
-  `UserSettings.build_jobs()`, set by `with_build_jobs()`; a bad value refuses load and save
-  like other damaged settings. (2) `build_project(..., jobs=)` hands it to the runner; GUI
-  builds (`build_controller._Work`) and `ctstudio build` read it fresh per build (a damaged
-  file: warned, automatic used). (3) Settings → Build gets a "This computer" section, shown
-  with or without a project: one choice (Automatic or a number), saved at once on a worker
-  through a fresh read (no write when unchanged); a damaged or newer file is shown and
-  refused, never overwritten. The page gets two tabs (This project / This computer): both
-  parts together were 632 px tall on a 600 px screen at the enlarged font. Acceptance: setting persists; the next GUI and CLI build's
-  runner gets it; damaged/newer file refused. Files: `core/project/settings.py`,
-  `core/build/project_build.py`, `cli/build.py`, `gui/build_controller.py`,
-  `gui/build_settings.py`, new `gui/views/build_jobs.py`, `gui/views/build_page.py`, docs
-  (ARCHITECTURE §6/§7), tests. Risks: the Build page must stay narrower than Tools and fit
-  800x600 at the enlarged font (labels above fields); new tests once with `PYTHONUTF8=0`.
+- None. Next task P5-T08d (Appearance page: colour scheme only, Follow system / Light /
+  Dark; persists in `settings.json` and applies at the next start, and at once where Qt
+  allows). Carry from P5-T08c: a machine setting is saved at once on a worker through a
+  fresh read (no write when unchanged), and a damaged or newer file is shown and never
+  overwritten, with the useless controls (and their intro) hidden so the reason fits a
+  600 px screen; make the visual test actually show the new page or tab before measuring
+  (an earlier small-screen pass was vacuous); give the keyboard back after a pick (not to
+  Close); labels above fields; run new tests once with `PYTHONUTF8=0`.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-24 `P5-T08c` Build page: build steps at once on this computer (`02f849a`).
+  `settings.json` key `build_jobs` (1-64; absent = automatic, `min(4, CPUs)`); any other value
+  refuses load and save. `build_project(..., jobs=)` hands it to the runner; GUI builds and
+  `ctstudio build` read it fresh per build (damaged file: warned, automatic). Settings → Build
+  now has two tabs, This project / This computer (both together were 632 px on a 600 px
+  screen): Automatic or a number, saved at once on a worker, unchanged picks write nothing,
+  damaged/newer files explained and never overwritten. 44 mutants caught; reviews APPROVE ->
+  keyboard fix NEEDS_REVISION -> APPROVE -> 800x600 fix (reason cut short, 271 < 297 px) ->
+  APPROVE with a basetemp sweep (first cut beyond ~360 characters). Implementation gate:
+  that picture failure plus one TD-018 instance (recorded); rerun 5295 / 10 / 178. Exact CI
+  on `02f849a`: Check Windows 138164230292 (5290 / 15), Ubuntu 138164230539 (5291 / 14),
+  5305 selected; Integration Windows 138164230327 (128 passed, 21 expected skips), Ubuntu
+  138164229958 (132 / 17); Check artifacts 14883696853 / 14883197641 coverage.xml only.
+  Plan check: P5-T08d (Appearance) and P5-T08e (Advanced, `extra_wszst_args` read-only) still
+  open; P5-T08f maps every leaf.
 - 2026-11-23 `P5-T08b` Build page: the project's build settings (`01e326f`, repair
   `a6d7e85`). Settings → Build (between Tools and Editors) shows the open project's test and
   release compression, `_d` copy and auto-add, read on a joined worker at every opening;

@@ -955,7 +955,7 @@ with unsaved changes asks Save / Discard / Cancel. Page order: Tools, Build, Edi
 **Acceptance:** settings persist across reopen; changing the test compression changes the
 next test build's `wszst create` command (fake tool argv), and the release one likewise.
 
-#### [ ] P5-T08c — Build page: parallel steps on this computer
+#### [x] P5-T08c — Build page: parallel steps on this computer (commit `02f849a`)
 How many build steps may run at once (machine setting in `settings.json`, default
 `min(4, cpu count)` as today), used by GUI builds and by `ctstudio build`.
 **Acceptance:** setting persists; the next build's runner uses it (GUI and CLI); a damaged
