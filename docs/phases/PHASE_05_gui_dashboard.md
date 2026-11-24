@@ -967,7 +967,7 @@ and window size/position memory are not part of this leaf.
 **Acceptance:** the chosen settings persist and apply at the next start (and immediately
 where Qt allows), with light/dark and enlarged-font evidence.
 
-#### [ ] P5-T08e — Advanced page
+#### [x] P5-T08e — Advanced page (closed by e1-e3, `efa4add`)
 Show tool commands in the build log, log-file retention and dev mode (the stall watchdog,
 today `CTSTUDIO_DEV=1`). The open project's reserved `[build] extra_wszst_args` is shown
 read-only and labelled as not used yet (owner's choice, 2026-11-23); P7-T06 wires it and
@@ -995,7 +995,7 @@ A machine setting for how many `.ctstudio/logs/build-*.log` files each project k
 **Acceptance:** the setting persists; after the next build (GUI and CLI) only that many
 build logs remain; a damaged settings file keeps the default.
 
-##### [ ] P5-T08e3 — Advanced page: developer mode
+##### [x] P5-T08e3 — Advanced page: developer mode (commit `efa4add`)
 A machine setting that turns the stall watchdog on from the next start (today only
 `CTSTUDIO_DEV=1`, which keeps working).
 **Acceptance:** the setting persists; the next start runs the watchdog when it is on and

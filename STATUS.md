@@ -4,22 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08e3 — Advanced page: developer mode
+**Next task:** P5-T08f — Original Settings acceptance and guide
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `eea0bc0` (P5-T08e2, exact Check + Integration, Windows + Ubuntu)
+**Last green commit:** `efa4add` (P5-T08e3, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T08e3 — Advanced page: developer mode. Plan: `settings.json` key `developer_mode`
-  (true/false, absent = off); `gui/watchdog.dev_watchdog` reads it once at start and runs the
-  stall watchdog when it is on or `CTSTUDIO_DEV=1` (a damaged file: off, logged), logging
-  when it starts; Advanced → This computer's third choice, Off/On, note "from the next
-  start". Acceptance: the setting persists; the next start (a new `python -m ctstudio
-  --offscreen-smoke` process with its own user folders) runs the watchdog when it is on and
-  not when off or absent, without `CTSTUDIO_DEV`. Check only (gui/ and settings.py). 800x600
-  sweep rerun: unchanged (111/176/240, both fonts, 0 px slack only in the damaged case).
+- None. Next task P5-T08f (original Settings acceptance and guide): map every original P5-T08
+  criterion and each leaf's acceptance (P5-T08a-e3) to executable tests, rerun them together,
+  write `docs/user/SETTINGS.md` tested against the code like the Open in… guide; review, full
+  gate, exact Check; only then close P5-T08.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-25 `P5-T08e3` Advanced page: developer mode (`efa4add`); closes P5-T08e (e1-e3).
+  `settings.json` key `developer_mode` (true/false, absent = off); `gui/watchdog.dev_watchdog`
+  reads it once at start and runs the stall watchdog when it is on or `CTSTUDIO_DEV=1` (a
+  damaged file: off, logged); the app log says when the watchdog starts. Advanced → This
+  computer's third choice. Acceptance by a real `python -m ctstudio --offscreen-smoke` start
+  in its own user folders. Review APPROVE (a real start logged a 350 ms stall); fixed the
+  tooltip and a test that attached the developer's real ctstudio.log; delta APPROVE. 20
+  mutants caught. Gate 5455 / 10 / 178. Exact Check on `efa4add`: Windows 138554191588
+  (5450 / 15), Ubuntu 138554190588 (5451 / 14), 5465 selected; artifacts 14938175072 /
+  14937090672 coverage.xml only. Integration not required (gui/ and settings.py only).
 - 2026-11-25 `P5-T08e2` Advanced page: how many build logs are kept (`eea0bc0`).
   `settings.json` key `build_logs_kept` (1-1000; absent = 20); `run_build` / `build_project`
   `keep_logs`; GUI builds and `ctstudio build` read it fresh; a damaged file keeps 20 (the
@@ -2615,6 +2621,14 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   failed-save banner naming a path of about 97+ characters cuts the Order intro (62 < 81 px),
   ~140+ also the Wine tab's text; 800x800 fits. Before the tabs the window did not fit 600 px
   at all. Fix: widen toward the screen width before capping the height, with that test.
+- **TD-023 · P13-T06 · test runs write to the developer's real CT Studio log (P5-T08e3
+  review).** `tests/gui/test_shell.py`'s `--offscreen-smoke` subprocess tests start CT Studio
+  with the developer's real user folders, so `configure_logging` appends to the real
+  `ctstudio.log` (seen during a mutation run). Harmless today (a few lines, no settings
+  written), but a test should never touch the user's folders. Fix: give those children the
+  overridden user folders the P5-T08e3 start test uses, and add a session check that the real
+  log folder is unchanged. The in-process leak (the no-argument entry-point test) was fixed in
+  P5-T08e3.
 - **TD-022 · P5-T10 · Settings window width with very wide fonts, Tools table (P5-T08a
   review).** Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
   an 800 px screen with fonts wider than the tested enlarged one. All eight Settings pictures
