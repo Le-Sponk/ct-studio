@@ -1,8 +1,8 @@
 """The user's machine settings: ``settings.json`` in the user config folder (P2-T07a).
 
 Machine-specific choices (tool paths set in CT Studio, editor choices, how many build steps
-may run at once, how many build logs a project keeps, the colour scheme, the Advanced
-page's choices) live here and never in a
+may run at once, how many build logs a project keeps, the colour scheme, developer mode,
+the Advanced page's choices) live here and never in a
 project (ARCHITECTURE §6). The file is the user's: a damaged or newer one is reported and
 never overwritten by a load, keys CT Studio does not know survive a save, and each save
 keeps a backup of the previous file (``fsutil.replace_with_backup``).
@@ -46,6 +46,7 @@ COLOUR_SCHEMES = ("light", "dark")
 SHOW_TOOL_COMMANDS = "show_tool_commands"  # dashboard build log; absent: shown (P5-T08e1)
 BUILD_LOGS_KEPT = "build_logs_kept"  # build logs each project keeps; absent: 20 (P5-T08e2)
 MAX_BUILD_LOGS_KEPT = 1000
+DEVELOPER_MODE = "developer_mode"  # the stall watchdog from the next start; absent: off (e3)
 # What a build does without the settings file (damaged: reported, then left out).
 BUILD_IGNORED = (
     "Tool paths, the number of build steps at once and the number of build logs kept set in"
@@ -154,13 +155,13 @@ class UserSettings:
         """Whether the dashboard's build log shows tool commands (P5-T08e1); absent: shown."""
         if SHOW_TOOL_COMMANDS not in self.other:
             return True
-        return _flag(self.other[SHOW_TOOL_COMMANDS])
+        return _flag(SHOW_TOOL_COMMANDS, self.other[SHOW_TOOL_COMMANDS])
 
     def with_show_tool_commands(self, shown: bool | None) -> UserSettings:
         """A copy that shows or hides tool commands; None goes back to the default (shown)."""
         other = {key: value for key, value in self.other.items() if key != SHOW_TOOL_COMMANDS}
         if shown is not None:
-            other[SHOW_TOOL_COMMANDS] = _flag(shown)
+            other[SHOW_TOOL_COMMANDS] = _flag(SHOW_TOOL_COMMANDS, shown)
         return UserSettings(self.tools, other)
 
     def build_logs_kept(self) -> int | None:
@@ -174,6 +175,19 @@ class UserSettings:
         other = {key: value for key, value in self.other.items() if key != BUILD_LOGS_KEPT}
         if kept is not None:
             other[BUILD_LOGS_KEPT] = _kept(kept)
+        return UserSettings(self.tools, other)
+
+    def developer_mode(self) -> bool:
+        """Whether the GUI runs the stall watchdog from its next start (P5-T08e3); absent: off."""
+        if DEVELOPER_MODE not in self.other:
+            return False
+        return _flag(DEVELOPER_MODE, self.other[DEVELOPER_MODE])
+
+    def with_developer_mode(self, on: bool | None) -> UserSettings:
+        """A copy with developer mode on or off; None goes back to the default (off)."""
+        other = {key: value for key, value in self.other.items() if key != DEVELOPER_MODE}
+        if on is not None:
+            other[DEVELOPER_MODE] = _flag(DEVELOPER_MODE, on)
         return UserSettings(self.tools, other)
 
     def with_tool(self, tool_id: str, path: Path | None) -> UserSettings:
@@ -209,10 +223,10 @@ def _scheme(value: object) -> str:
     return value
 
 
-def _flag(value: object) -> bool:
-    """``value`` as ``show_tool_commands``; ValueError unless true or false."""
+def _flag(key: str, value: object) -> bool:
+    """``value`` as the true/false setting ``key``; ValueError unless true or false."""
     if not isinstance(value, bool):
-        raise ValueError(f'"{SHOW_TOOL_COMMANDS}" must be true or false, not {value!r}')
+        raise ValueError(f'"{key}" must be true or false, not {value!r}')
     return value
 
 
@@ -249,6 +263,7 @@ def _parse(target: Path, data: object) -> UserSettings:
     _check_colour_scheme(target, other)
     _check_show_tool_commands(target, other)
     _check_build_logs_kept(target, other)
+    _check_developer_mode(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
@@ -303,6 +318,14 @@ def _check_show_tool_commands(target: Path, other: Mapping[str, object]) -> None
         raise SettingsError(target, reason, details=str(exc)) from exc
 
 
+def _check_developer_mode(target: Path, other: Mapping[str, object]) -> None:
+    try:
+        UserSettings(other=other).developer_mode()
+    except ValueError as exc:
+        reason = f'"{DEVELOPER_MODE}" is not true or false'
+        raise SettingsError(target, reason, details=str(exc)) from exc
+
+
 def _check_build_logs_kept(target: Path, other: Mapping[str, object]) -> None:
     try:
         UserSettings(other=other).build_logs_kept()
@@ -338,6 +361,7 @@ def save(settings: UserSettings, path: Path | None = None) -> None:
     _check_colour_scheme(target, settings.other)
     _check_show_tool_commands(target, settings.other)
     _check_build_logs_kept(target, settings.other)
+    _check_developer_mode(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

@@ -6,7 +6,9 @@ Agent-maintained developer notes created during the build:
 
 ## Dev mode
 
-Set `CTSTUDIO_DEV=1` before starting `ctstudio` to watch for UI freezes (P5-T01b). Each
-time the window stops responding for more than 100 ms, one warning with the UI thread's
-stack goes to the CT Studio log (`ctstudio.log` in the user log folder). Any other value,
-or no value, leaves it off.
+Set `CTSTUDIO_DEV=1` before starting `ctstudio` to watch for UI freezes (P5-T01b), or turn
+on Settings → Advanced → Developer mode, which takes effect from the next start (P5-T08e3).
+Each time the window stops responding for more than 100 ms, one warning with the UI thread's
+stack goes to the CT Studio log (`ctstudio.log` in the user log folder); the log also says
+when the watchdog starts. Any other value of the variable, with the setting off, leaves it
+off.

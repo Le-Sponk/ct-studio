@@ -171,4 +171,6 @@ def test_tab_goes_from_the_list_to_the_tabs_the_choices_then_close(
         QTest.keyClick(page.computer.combo, Qt.Key.Key_Tab)
         assert focused(dialog) is page.computer.logs, f"Tab went to {focused(dialog)!r}"
         QTest.keyClick(page.computer.logs, Qt.Key.Key_Tab)
+        assert focused(dialog) is page.computer.developer, f"Tab went to {focused(dialog)!r}"
+        QTest.keyClick(page.computer.developer, Qt.Key.Key_Tab)
         assert focused(dialog) is close, f"Tab went to {focused(dialog)!r}, not Close"

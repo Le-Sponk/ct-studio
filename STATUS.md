@@ -9,11 +9,14 @@
 **Last green commit:** `eea0bc0` (P5-T08e2, exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08e3 (Advanced page: developer mode; a machine setting that runs the
-  stall watchdog from the next start, `CTSTUDIO_DEV=1` keeps working). Read once at start by
-  `gui/watchdog.dev_watchdog`, so only `gui/**` and `core/project/settings.py`: Check only, no
-  Integration. Third row on Advanced → This computer (one section, one banner); rerun the
-  800x600 sweep, the tab grows by one row when the file is usable.
+- P5-T08e3 — Advanced page: developer mode. Plan: `settings.json` key `developer_mode`
+  (true/false, absent = off); `gui/watchdog.dev_watchdog` reads it once at start and runs the
+  stall watchdog when it is on or `CTSTUDIO_DEV=1` (a damaged file: off, logged), logging
+  when it starts; Advanced → This computer's third choice, Off/On, note "from the next
+  start". Acceptance: the setting persists; the next start (a new `python -m ctstudio
+  --offscreen-smoke` process with its own user folders) runs the watchdog when it is on and
+  not when off or absent, without `CTSTUDIO_DEV`. Check only (gui/ and settings.py). 800x600
+  sweep rerun: unchanged (111/176/240, both fonts, 0 px slack only in the damaged case).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

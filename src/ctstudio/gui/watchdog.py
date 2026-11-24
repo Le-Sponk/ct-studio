@@ -3,7 +3,9 @@
 ``StallWatchdog`` keeps a heartbeat on the UI thread (a timer) and a named watcher thread
 (``ctstudio-watchdog``). When the heartbeat is older than ``threshold`` (100 ms), the watcher
 logs where the UI thread is stuck, once per stall. ``dev_watchdog(window)`` starts one only
-when ``CTSTUDIO_DEV=1`` and stops it when the window goes.
+in developer mode and stops it when the window goes. Developer mode is ``CTSTUDIO_DEV=1`` or
+the machine setting ``developer_mode`` (Settings → Advanced, P5-T08e3), read once at start: a
+damaged or newer settings file is logged and counts as off. The app log says when it starts.
 """
 
 from __future__ import annotations
@@ -15,12 +17,16 @@ import threading
 import time
 import traceback
 from collections.abc import Callable
+from pathlib import Path
 
 from PySide6.QtCore import QObject, Qt, QTimer
+
+from ctstudio.core.project import settings
 
 _LOG = logging.getLogger(__name__)
 WATCHDOG_THREAD = "ctstudio-watchdog"
 DEV_FLAG = "CTSTUDIO_DEV"
+WATCHDOG_ON = "Developer mode: the stall watchdog is on"
 
 
 class StallWatchdog:
@@ -75,7 +81,8 @@ class StallWatchdog:
                 self._report(self._where())
 
     def _where(self) -> str:
-        frame = sys._current_frames().get(self._ui)  # the documented way to see it
+        # sys._current_frames is documented CPython API despite its name (strict pyright).
+        frame = sys._current_frames().get(self._ui)  # pyright: ignore[reportPrivateUsage]
         stack = "".join(traceback.format_stack(frame)) if frame is not None else "(unknown)\n"
         limit = f"{self.threshold * 1000:.0f} ms"
         return f"The UI thread has not responded for over {limit}. It was here:\n{stack}"
@@ -85,11 +92,22 @@ def _log(text: str) -> None:
     _LOG.warning(text)
 
 
-def dev_watchdog(window: QObject) -> StallWatchdog | None:
-    """A started watchdog in dev mode (``CTSTUDIO_DEV=1``), stopped with ``window``."""
-    if os.environ.get(DEV_FLAG) != "1":
+def dev_watchdog(window: QObject, *, settings_path: Path | None = None) -> StallWatchdog | None:
+    """A started watchdog in developer mode, stopped with ``window``."""
+    if not _developer_mode(settings_path):
         return None
     made = StallWatchdog()
     made.start()
     window.destroyed.connect(lambda: made.stop(1.0))
+    _LOG.info(WATCHDOG_ON)
     return made
+
+
+def _developer_mode(path: Path | None) -> bool:
+    if os.environ.get(DEV_FLAG) == "1":
+        return True
+    try:
+        return settings.load(path).developer_mode()
+    except settings.SettingsError:
+        _LOG.warning("Developer mode is off: the settings cannot be used", exc_info=True)
+        return False

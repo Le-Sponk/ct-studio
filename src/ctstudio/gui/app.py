@@ -58,7 +58,7 @@ def run_gui(smoke_path: Path | None = None) -> int:
     collector.start()
     apply_saved()  # the chosen colour scheme (P5-T08d), before any window is drawn
     window = MainWindow()
-    watching = dev_watchdog(window)  # CTSTUDIO_DEV=1 only
+    watching = dev_watchdog(window)  # developer mode only (CTSTUDIO_DEV=1 or the setting)
     try:
         window.show()
         if smoke_path is None:

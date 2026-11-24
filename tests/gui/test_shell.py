@@ -25,7 +25,11 @@ SCREENS = REPO_ROOT / "tests" / "artifacts" / "screens"
 
 
 def test_no_argument_entry_point_dispatches_to_gui(monkeypatch: pytest.MonkeyPatch) -> None:
+    from ctstudio.core import logging as log_module
     from ctstudio.gui import app as gui_app
+
+    # The real call would attach the developer's own ctstudio.log for the rest of the run.
+    monkeypatch.setattr(log_module, "configure_logging", lambda: None)
 
     called: list[Path | None] = []
 

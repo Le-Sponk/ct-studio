@@ -1,13 +1,15 @@
-"""Settings → Advanced (P5-T08e1, P5-T08e2): tool commands in the build log, build logs kept,
-and the open project's reserved Wiimm arguments.
+"""Settings → Advanced (P5-T08e1, e2, e3): tool commands in the build log, build logs kept,
+developer mode, and the open project's reserved Wiimm arguments.
 
-Tab This computer holds two machine settings in ``settings.json``, in one section so a
+Tab This computer holds three machine settings in ``settings.json``, in one section so a
 damaged file is explained once. "Tool commands in the build log" (``show_tool_commands``):
 Shown (the default) or Hidden; the next GUI build reads it, and the build log file on disk
 always lists the commands. "Build logs kept per project" (``build_logs_kept``): 20 (the
 default) or another number; after the next build, in CT Studio or by ``ctstudio build``,
-only that many ``.ctstudio/logs/build-*.log`` remain in the project built. Saving, damaged
-files and the keyboard work as in every machine choice (``machine_choice``).
+only that many ``.ctstudio/logs/build-*.log`` remain in the project built. "Developer mode"
+(``developer_mode``): Off (the default) or On; from the next start CT Studio runs the stall
+watchdog, which logs where its window got stuck (``CTSTUDIO_DEV=1`` also turns it on). Saving,
+damaged files and the keyboard work as in every machine choice (``machine_choice``).
 
 The open project's ``[build] extra_wszst_args`` is reserved: CT Studio does not pass it to
 Wiimm's SZS Tools yet (P7-T06 will). It is shown read-only, from the project as CT Studio
@@ -27,7 +29,12 @@ from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 from ctstudio.core.build.build_log import KEEP
 from ctstudio.core.project.project import Project
 from ctstudio.core.tools.commands import command_text
-from ctstudio.gui.advanced import BUILD_LOGS_KEPT, TOOL_COMMANDS, AdvancedService
+from ctstudio.gui.advanced import (
+    BUILD_LOGS_KEPT,
+    DEVELOPER_MODE,
+    TOOL_COMMANDS,
+    AdvancedService,
+)
 from ctstudio.gui.views.machine_choice import ChoiceRow, ChoiceTexts, MachineChoiceSection
 from ctstudio.gui.views.wrap_text import breakable
 
@@ -48,6 +55,15 @@ LOGS = ChoiceRow(
     ),
     choices=((f"{KEEP} (default)", None), ("5", 5), ("10", 10), ("50", 50), ("100", 100)),
 )
+DEVELOPER = ChoiceRow(
+    name=DEVELOPER_MODE,
+    label="&Developer mode",
+    tooltip=(
+        "From the next start, CT Studio's log (ctstudio.log) records where its window got"
+        " stuck for over 100 ms, for bug reports. Setting CTSTUDIO_DEV=1 also turns it on."
+    ),
+    choices=(("Off", False), ("On", True)),
+)
 RESERVED_TITLE = "Extra arguments for wszst (not used yet)"
 NO_PROJECT = "Open a project to see the extra wszst arguments saved in it."
 NONE_SAVED = "None saved in this project."
@@ -58,12 +74,13 @@ RESERVED_NOTE = (
 
 
 class ComputerSection(MachineChoiceSection):
-    """Tab This computer: tool commands in the build log, then build logs kept."""
+    """Tab This computer: tool commands in the build log, build logs kept, developer mode."""
 
     def __init__(self, service: AdvancedService, parent: QWidget | None = None) -> None:
         self.service = service
-        super().__init__(COMMANDS, COMMAND_CHOICES, parent, more=(LOGS,))
+        super().__init__(COMMANDS, COMMAND_CHOICES, parent, more=(LOGS, DEVELOPER))
         self.logs = self.rows[BUILD_LOGS_KEPT][1]
+        self.developer = self.rows[DEVELOPER_MODE][1]
 
     def _load(self) -> Callable[[], Mapping[str, object]]:
         return self.service.load
@@ -73,6 +90,9 @@ class ComputerSection(MachineChoiceSection):
         if name == BUILD_LOGS_KEPT:
             kept = cast("int | None", value)
             return lambda: service.save_build_logs_kept(kept)
+        if name == DEVELOPER_MODE:
+            on = cast("bool", value)
+            return lambda: service.save_developer_mode(on)
         shown = cast("bool", value)
         return lambda: service.save_tool_commands(shown)
 
@@ -81,6 +101,10 @@ class ComputerSection(MachineChoiceSection):
             kept = KEEP if value is None else value
             logs = "build log" if kept == 1 else f"{kept} build logs"
             return f"Saved. After the next build each project keeps only its newest {logs}."
+        if name == DEVELOPER_MODE:
+            if value:
+                return "Saved. From the next start CT Studio logs where its window gets stuck."
+            return "Saved. From the next start developer mode is off (unless CTSTUDIO_DEV=1)."
         if value:
             return "Saved. The next build's log shows the tool commands."
         return "Saved. The next build's log leaves the tool commands out."

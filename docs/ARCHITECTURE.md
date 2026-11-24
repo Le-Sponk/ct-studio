@@ -232,6 +232,10 @@ and `ctstudio build` read it fresh and hand it to the runner, which prunes the p
 build logs after the build; a damaged file keeps 20. It is the second choice in Advanced →
 This computer: one `machine_choice` section may hold several choices, read together, saved
 one at a time, with one damaged-file explanation.
+P5-T08e3 adds `developer_mode` (true/false; absent means off), Advanced → This computer's
+third choice: `gui/watchdog.dev_watchdog` reads it once at start and runs the stall watchdog
+when it is on or `CTSTUDIO_DEV=1`; a damaged file counts as off (logged). The app log says
+"Developer mode: the stall watchdog is on" when it starts.
 
 P5-T07a adds the pure built-in catalogue in `core/project/editor_preferences.py` and the
 machine-settings object `editor_preferences` (`kind -> preferred built-in tool id`).
@@ -649,7 +653,8 @@ worker thread, never during a build.
   worker thread for builds). Results return via signals.
 - `gui/services.py` owns the current `Project`, the build controller, the watcher bridge and the
   tool registry; views get what they need by injection, not globals.
-- Dev mode (`CTSTUDIO_DEV=1`) runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
+- Dev mode (`CTSTUDIO_DEV=1`, or Settings → Advanced → Developer mode from the next start)
+  runs a watchdog that logs UI-thread stalls > 100 ms with a stack.
 - Log view is virtualised and capped (e.g. last 20k lines in memory; full log on disk).
   P5-T03e31 provides `gui/build_log_model.py`, a Qt list model used by the dashboard log
   panel (e32). It retains the newest 20,000 physical rows under a separate
@@ -759,7 +764,7 @@ gives one run; a request while a run is going gives exactly one more run afterwa
 newest project. `updated` carries a `StatusResult` (root, statuses, settings problem) and
 `failed` the exception, both on the UI thread; `clear` (project closed) drops a result still to
 come. `AppServices` asks for statuses when a project opens and after every build, finished or
-failed. `gui/watchdog.py` `StallWatchdog` (started by `run_gui` only when `CTSTUDIO_DEV=1`) beats
+failed. `gui/watchdog.py` `StallWatchdog` (started by `run_gui` only in developer mode) beats
 a 25 ms precise timer on the UI thread; a named watcher thread (`ctstudio-watchdog`) logs a
 warning with the UI thread's stack (`sys._current_frames`) once per stall longer than 100 ms.
 
