@@ -4,23 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08e2 — Advanced page: how many build logs are kept
+**Next task:** P5-T08e3 — Advanced page: developer mode
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `fa93f6c` (P5-T08e1, exact Check, Windows + Ubuntu)
+**Last green commit:** `eea0bc0` (P5-T08e2, exact Check + Integration, Windows + Ubuntu)
 
 ## In progress
-- P5-T08e2 — Advanced page: how many build logs are kept. Plan: `settings.json` key
-  `build_logs_kept` (1-1000, absent = 20); `run_build(keep_logs=)` / `build_project` prune to
-  it; GUI builds and `ctstudio build` read it fresh (damaged file: 20, with the existing
-  notice, whose text now names the build logs). `machine_choice` holds several choices in one
-  section (one banner); Advanced → This computer adds "Build logs kept per project": 20
-  (default), 5, 10, 50, 100, a saved number outside the list offered in order. Acceptance: the
-  setting persists; after the next GUI and CLI build only that many build logs remain; a
-  damaged settings file keeps the default. 800x600 sweep rerun: the damaged reason still fits
-  at basetemp 176/240 with both fonts (the rows are hidden then, one banner).
+- None. Next task P5-T08e3 (Advanced page: developer mode; a machine setting that runs the
+  stall watchdog from the next start, `CTSTUDIO_DEV=1` keeps working). Read once at start by
+  `gui/watchdog.dev_watchdog`, so only `gui/**` and `core/project/settings.py`: Check only, no
+  Integration. Third row on Advanced → This computer (one section, one banner); rerun the
+  800x600 sweep, the tab grows by one row when the file is usable.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-25 `P5-T08e2` Advanced page: how many build logs are kept (`eea0bc0`).
+  `settings.json` key `build_logs_kept` (1-1000; absent = 20); `run_build` / `build_project`
+  `keep_logs`; GUI builds and `ctstudio build` read it fresh; a damaged file keeps 20 (the
+  notice names build logs). Pruning always keeps the current build's log (review finding:
+  names sorting after it could delete it at small numbers). `machine_choice` sections hold
+  several choices with one banner; Advanced → This computer adds "Build logs kept per
+  project". 35 mutants caught; review APPROVE, delta re-review APPROVE. Gate: one TD-018
+  instance (recorded), rerun 5432 / 10 / 178. Exact CI on `eea0bc0`: Check Windows
+  138504457703 (5427 / 15), Ubuntu 138504458242 (5428 / 14), 5442 selected; Integration
+  Windows 138504458220 (128 passed, 21 expected skips), Ubuntu 138504458486 (132 / 17); Check
+  artifacts 14930066889 / 14929190626 coverage.xml only. Plan check: P5-T08e3, f open.
 - 2026-11-24 `P5-T08e1` Advanced page: tool commands in the build log (`fa93f6c`). Split
   P5-T08e into e1/e2/e3 (204 -> 206 planned). Settings → Advanced (last in the page list),
   tab This computer: Shown/Hidden, `settings.json` key `show_tool_commands` (absent =

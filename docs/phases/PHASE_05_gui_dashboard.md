@@ -989,7 +989,7 @@ read-only, labelled as not used yet; no project: explained.
 rows while the build log file still has them, and with it on they show; a damaged or newer
 settings file is refused, never overwritten; the reserved arguments are shown as saved.
 
-##### [ ] P5-T08e2 — Advanced page: how many build logs are kept
+##### [x] P5-T08e2 — Advanced page: how many build logs are kept (commit `eea0bc0`)
 A machine setting for how many `.ctstudio/logs/build-*.log` files each project keeps
 (today a fixed 20), used by GUI builds and `ctstudio build`.
 **Acceptance:** the setting persists; after the next build (GUI and CLI) only that many
