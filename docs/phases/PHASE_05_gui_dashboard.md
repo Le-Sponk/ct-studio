@@ -979,7 +979,7 @@ Split 2026-11-24 into three leaves, one setting each (each needs its own taking-
 proof, and the build-log one changes core build code); the text above stays and closes
 with e3.
 
-##### [ ] P5-T08e1 — Advanced page: tool commands in the build log
+##### [x] P5-T08e1 — Advanced page: tool commands in the build log (commit `fa93f6c`)
 Settings → Advanced (page list: Tools, Build, Editors, Appearance, Advanced). A machine
 setting in `settings.json` decides whether the dashboard's build log shows the tool command
 rows (shown, as today, unless turned off); the build log file on disk always has them. Read

@@ -4,29 +4,34 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08e1 — Advanced page: tool commands in the build log
+**Next task:** P5-T08e2 — Advanced page: how many build logs are kept
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `7004c29` (P5-T08d, exact Check, Windows + Ubuntu)
+**Last green commit:** `fa93f6c` (P5-T08e1, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T08e1 — Advanced page: tool commands in the build log. Plan: (1) `settings.json` key
-  `show_tool_commands` (true/false; absent = shown, as today); `UserSettings.
-  show_tool_commands()` / `with_show_tool_commands()`; any other value refuses load and save.
-  (2) `build_controller._Work` reads it fresh per build and, when off, does not pass the
-  `CommandRun` events to the GUI (the runner's build log file still writes them). (3)
-  Settings → Advanced, a new page after Appearance: a `machine_choice` section "Tool commands
-  in the build log": Shown / Hidden, saved at once on its worker; below it the open
-  project's `[build] extra_wszst_args`, read-only from the project in memory, labelled "not
-  used yet (P7-T06)", refreshed at every opening; no project: explained. Acceptance: setting
-  persists; off: the next GUI build's log has no command rows while the build log file
-  still has them; on: they show; damaged/newer file refused; reserved arguments shown as
-  saved. Files: `core/project/settings.py`, `gui/build_controller.py`, new
-  `gui/advanced.py` (service) and `gui/views/advanced_page.py`, `gui/settings_window.py`,
-  docs, tests. Risks: the page list order and width (Advanced is shorter than Appearance);
-  the page with two parts must fit 800x600 at the enlarged font (Ubuntu-like fonts too).
+- None. Next task P5-T08e2 (Advanced page: how many build logs each project keeps; today a
+  fixed 20 in `core/build/build_log.KEEP`, pruned by the runner after every build; used by
+  GUI builds and `ctstudio build`, so Integration runs). Carry from P5-T08e1: it joins the
+  Advanced page's This computer tab, which already holds the tool-commands choice; two
+  separate `machine_choice` sections would each show the same long damaged-file reason, so
+  let one section hold several choices with one banner (or give each its own tab). The
+  Advanced damaged-file reason is the tightest height in the window: first cut at a basetemp
+  of 241-250 characters with the default font (266-280 with DejaVu) on 800x600 enlarged;
+  rerun that sweep after adding to the tab. The every-page width test covers the new page.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-24 `P5-T08e1` Advanced page: tool commands in the build log (`fa93f6c`). Split
+  P5-T08e into e1/e2/e3 (204 -> 206 planned). Settings → Advanced (last in the page list),
+  tab This computer: Shown/Hidden, `settings.json` key `show_tool_commands` (absent =
+  shown), saved at once on a worker; GUI builds read it fresh and, when hidden, keep
+  `CommandRun` events from the dashboard while the build log file still has them. Tab This
+  project: the open project's reserved `extra_wszst_args`, read-only, "not used yet". Two
+  tabs because both parts overflowed 800x600. `settings_window._refresh` simplified (CC 12).
+  26 mutants caught; review APPROVE first round. Gate 5398 / 10 / 178. Exact Check on
+  `fa93f6c`: Windows 138421427900 (5393 / 15), Ubuntu 138421428156 (5394 / 14), 5408
+  selected; artifacts 14916823921 / 14917212221 coverage.xml only. Integration not required
+  (no path in its filter). Plan check: P5-T08e2, e3, f still open.
 - 2026-11-24 `P5-T08d` Appearance page: colour scheme (`7004c29`). Settings → Appearance
   offers Follow system / Light / Dark: `settings.json` key `colour_scheme` ("light"/"dark";
   absent = follow the system; any other value refuses load and save), saved at once on a
