@@ -961,7 +961,7 @@ How many build steps may run at once (machine setting in `settings.json`, defaul
 **Acceptance:** setting persists; the next build's runner uses it (GUI and CLI); a damaged
 or newer settings file is refused, never overwritten.
 
-#### [ ] P5-T08d — Appearance page
+#### [x] P5-T08d — Appearance page (commit `7004c29`)
 Colour scheme only (owner's choice, 2026-11-23): Follow system, Light or Dark. Text size
 and window size/position memory are not part of this leaf.
 **Acceptance:** the chosen settings persist and apply at the next start (and immediately

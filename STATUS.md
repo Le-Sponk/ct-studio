@@ -4,38 +4,40 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08d — Appearance page
+**Next task:** P5-T08e — Advanced page
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `02f849a` (P5-T08c, exact Check and Integration, Windows + Ubuntu)
+**Last green commit:** `7004c29` (P5-T08d, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T08d — Appearance page (colour scheme only). Plan: (1) `settings.json` key
-  `colour_scheme`, `"light"` or `"dark"`; absent = follow the system. Read by
-  `UserSettings.colour_scheme()`, set by `with_colour_scheme()`; any other value refuses
-  load and save like other damaged settings. (2) `gui/appearance.py`: `AppearanceService`
-  (fresh read per call, no write when unchanged) and `apply_scheme()` through Qt's
-  `QStyleHints.setColorScheme` (Qt 6.8+; measured on Qt 6.11.2: the Windows platform
-  switches at once and Follow system goes back to the system's scheme; the offscreen
-  platform ignores it). `run_gui` applies the saved scheme before the main window exists;
-  a damaged file is logged and the system's scheme kept. (3) Settings → Appearance (page
-  list order Tools, Build, Editors, Appearance): one choice, Follow system / Light / Dark,
-  saved at once on a worker and applied straight away; where the system does not let Qt
-  change it, the note says so. The save-on-pick section of P5-T08c moves into a shared
-  `views/machine_choice.py` used by both pages (no copy of its worker, banner and keyboard
-  rules; the P5-T08c tests stay unchanged). Acceptance: the choice persists and applies at
-  the next start (and at once where Qt allows), with light/dark and enlarged-font pictures,
-  also on a real 800x600 screen; damaged/newer file refused, never overwritten. Files:
-  `core/project/settings.py`, new `gui/appearance.py`, `gui/app.py`,
-  `gui/settings_window.py`, new `gui/views/machine_choice.py`, `gui/views/build_jobs.py`,
-  docs (ARCHITECTURE §6/§10), tests. Risks: a wider page list ("Appearance") narrows every
-  page beside it, so rerun the long-path pictures with Ubuntu-like fonts; Linux desktop
-  colour switching is not measured here (CI is offscreen). Review 1: the wider page list put
-  the window at 829 px with Ubuntu-like fonts (DejaVu) on an 800 px screen; the Tools page's
-  button row set the width, so its "Open download page" button is now "Download page"
-  (760 px, 40 spare); the colour scheme's access key is S (Alt+C may be Close on Linux).
+- None. Next task P5-T08e (Advanced page: show tool commands in the build log, log-file
+  retention, dev mode (the stall watchdog, today `CTSTUDIO_DEV=1`); the open project's
+  reserved `[build] extra_wszst_args` shown read-only and labelled "not used yet"). Carry
+  from P5-T08d: one-choice machine settings reuse `gui/views/machine_choice.py`; every page
+  beside the page list must fit an 800 px screen with Ubuntu-like fonts (window 760 px with
+  DejaVu enlarged; `test_every_page_fits_the_screen_width_with_a_wider_font` covers every
+  page in `PAGES`, so add the new page there and rerun the DejaVu sweep); picture tests wait
+  through `settings_visual_helpers.wrapped_fit`; Build → This computer's damaged-file reason
+  is first cut at a basetemp of 241-300 characters with the default font (CI and the gate use
+  ~111-180), so a page that adds height beside it needs the 800x600 sweep too.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-24 `P5-T08d` Appearance page: colour scheme (`7004c29`). Settings → Appearance
+  offers Follow system / Light / Dark: `settings.json` key `colour_scheme` ("light"/"dark";
+  absent = follow the system; any other value refuses load and save), saved at once on a
+  worker and applied straight away through `QStyleHints.setColorScheme`, with a note when the
+  system does not honour it; `run_gui` applies the saved scheme before the main window (a
+  damaged file: logged, system scheme kept). Measured Qt 6.11.2: Windows repaints at once,
+  offscreen ignores the request; Linux desktop not measured. The save-on-pick section is now
+  shared (`machine_choice.py`). The wider page list made the window 829 px with DejaVu, so
+  Tools' "Open download page" is now "Download page" (760 px). Test-only: picture fit checks
+  moved to `settings_visual_helpers.py`, whose `wrapped_fit` now waits for the window's own
+  refit (a race the narrower pages exposed). 73 mutants caught; reviews NEEDS_REVISION ->
+  NEEDS_REVISION (the width test stretched DejaVu too) -> APPROVE. Gate 5356 / 10 / 178.
+  Exact Check on `7004c29`: Windows 138370211287 (5351 / 15), Ubuntu 138370210763 (5352 /
+  14), 5366 selected; artifacts 14910632189 / 14909409903 coverage.xml only. The closeout
+  makes the width test stretch only Segoe UI (test only, reviewer's suggestion: Arial on a
+  machine with neither font missed by 1 px). Plan check: P5-T08e and P5-T08f still open.
 - 2026-11-24 `P5-T08c` Build page: build steps at once on this computer (`02f849a`).
   `settings.json` key `build_jobs` (1-64; absent = automatic, `min(4, CPUs)`); any other value
   refuses load and save. `build_project(..., jobs=)` hands it to the runner; GUI builds and

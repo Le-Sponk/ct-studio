@@ -116,8 +116,9 @@ def test_every_page_fits_the_screen_width_with_a_wider_font(
 ) -> None:
     """Ubuntu's fonts are wider than the Windows ones these pictures use: with the page list
     beside them (as wide as "Appearance" since P5-T08d), the widest page must still leave the
-    window inside an 800 px screen at the enlarged font. On Windows the font is stretched a
-    further 15% to stand in for Ubuntu's; DejaVu Sans (Linux) is already that wide. The Tools
+    window inside an 800 px screen at the enlarged font. Segoe UI (Windows) is stretched a
+    further 15% to stand in for Ubuntu's; any other font (DejaVu Sans on Linux) is measured
+    as it is. The Tools
     page's button row set the width ("Open download page": 845 px on Windows, 829 with
     DejaVu)."""
     app = QApplication.instance()
@@ -129,7 +130,7 @@ def test_every_page_fits_the_screen_width_with_a_wider_font(
             _preferences,
         ),
     ):
-        if family != "DejaVu Sans":  # stand in for Ubuntu's wider font
+        if family == "Segoe UI":  # stand in for Ubuntu's wider font
             font = QFont(app.font())
             font.setStretch(font.stretch() * 115 // 100)
             app.setFont(font)
