@@ -1,10 +1,13 @@
-"""Settings → Advanced (P5-T08e1): tool commands in the build log, and the open project's
-reserved Wiimm arguments.
+"""Settings → Advanced (P5-T08e1, P5-T08e2): tool commands in the build log, build logs kept,
+and the open project's reserved Wiimm arguments.
 
-"Tool commands in the build log" is a machine setting in ``settings.json``
-(``show_tool_commands``): Shown (the default) or Hidden. Saving, damaged files and the
-keyboard work as in every machine choice (``machine_choice``); the next GUI build reads it.
-The build log file on disk always lists the commands.
+Tab This computer holds two machine settings in ``settings.json``, in one section so a
+damaged file is explained once. "Tool commands in the build log" (``show_tool_commands``):
+Shown (the default) or Hidden; the next GUI build reads it, and the build log file on disk
+always lists the commands. "Build logs kept per project" (``build_logs_kept``): 20 (the
+default) or another number; after the next build, in CT Studio or by ``ctstudio build``,
+only that many ``.ctstudio/logs/build-*.log`` remain in the project built. Saving, damaged
+files and the keyboard work as in every machine choice (``machine_choice``).
 
 The open project's ``[build] extra_wszst_args`` is reserved: CT Studio does not pass it to
 Wiimm's SZS Tools yet (P7-T06 will). It is shown read-only, from the project as CT Studio
@@ -15,26 +18,36 @@ taller than a 600 px screen at large fonts when the settings file's path is long
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import cast
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 
+from ctstudio.core.build.build_log import KEEP
 from ctstudio.core.project.project import Project
 from ctstudio.core.tools.commands import command_text
-from ctstudio.gui.advanced import ToolCommandsService
-from ctstudio.gui.views.machine_choice import ChoiceTexts, MachineChoiceSection
+from ctstudio.gui.advanced import BUILD_LOGS_KEPT, TOOL_COMMANDS, AdvancedService
+from ctstudio.gui.views.machine_choice import ChoiceRow, ChoiceTexts, MachineChoiceSection
 from ctstudio.gui.views.wrap_text import breakable
 
 COMMANDS = ChoiceTexts(
-    name="toolCommands",
+    name=TOOL_COMMANDS,
     intro="The same for every project on this computer; a choice is saved at once.",
     label="&Tool commands in the build log",
     tooltip="The build log file in the project's .ctstudio/logs folder always lists them.",
-    subject="the tool commands setting",
+    subject="the Advanced settings",
 )
 COMMAND_CHOICES: tuple[tuple[str, object], ...] = (("Shown", True), ("Hidden", False))
+LOGS = ChoiceRow(
+    name=BUILD_LOGS_KEPT,
+    label="&Build logs kept per project",
+    tooltip=(
+        "After each build, in CT Studio and by ctstudio build, older build logs in the"
+        " project's .ctstudio/logs folder are deleted."
+    ),
+    choices=((f"{KEEP} (default)", None), ("5", 5), ("10", 10), ("50", 50), ("100", 100)),
+)
 RESERVED_TITLE = "Extra arguments for wszst (not used yet)"
 NO_PROJECT = "Open a project to see the extra wszst arguments saved in it."
 NONE_SAVED = "None saved in this project."
@@ -44,31 +57,50 @@ RESERVED_NOTE = (
 )
 
 
-class ToolCommandsSection(MachineChoiceSection):
-    def __init__(self, service: ToolCommandsService, parent: QWidget | None = None) -> None:
-        self.service = service
-        super().__init__(COMMANDS, COMMAND_CHOICES, parent)
+class ComputerSection(MachineChoiceSection):
+    """Tab This computer: tool commands in the build log, then build logs kept."""
 
-    def _load(self) -> Callable[[], object]:
+    def __init__(self, service: AdvancedService, parent: QWidget | None = None) -> None:
+        self.service = service
+        super().__init__(COMMANDS, COMMAND_CHOICES, parent, more=(LOGS,))
+        self.logs = self.rows[BUILD_LOGS_KEPT][1]
+
+    def _load(self) -> Callable[[], Mapping[str, object]]:
         return self.service.load
 
-    def _save(self, value: object) -> Callable[[], object]:
-        service, shown = self.service, cast("bool", value)
-        return lambda: service.save(shown)
+    def _save(self, name: str, value: object) -> Callable[[], object]:
+        service = self.service
+        if name == BUILD_LOGS_KEPT:
+            kept = cast("int | None", value)
+            return lambda: service.save_build_logs_kept(kept)
+        shown = cast("bool", value)
+        return lambda: service.save_tool_commands(shown)
 
-    def _saved(self, value: object) -> str:
+    def _saved(self, name: str, value: object) -> str:
+        if name == BUILD_LOGS_KEPT:
+            kept = KEEP if value is None else value
+            logs = "build log" if kept == 1 else f"{kept} build logs"
+            return f"Saved. After the next build each project keeps only its newest {logs}."
         if value:
             return "Saved. The next build's log shows the tool commands."
         return "Saved. The next build's log leaves the tool commands out."
 
+    def _offer(self, name: str, value: object) -> None:
+        """A saved number of build logs outside the list is offered too, in order."""
+        if name != BUILD_LOGS_KEPT or not isinstance(value, int) or self.logs.findData(value) >= 0:
+            return
+        numbers = [self.logs.itemData(i) for i in range(1, self.logs.count())]
+        at = 1 + sum(1 for number in numbers if isinstance(number, int) and number < value)
+        self.logs.insertItem(at, str(value), value)
+
 
 class AdvancedPage(QWidget):
-    """The page: a tab for the machine choice, a tab for the open project's arguments."""
+    """The page: a tab for the machine choices, a tab for the open project's arguments."""
 
     def __init__(
         self,
         project: Callable[[], Project | None],
-        service: ToolCommandsService,
+        service: AdvancedService,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
@@ -77,10 +109,10 @@ class AdvancedPage(QWidget):
         self.tabs = QTabWidget(self)
         self.tabs.setObjectName("advancedTabs")
         QVBoxLayout(self).addWidget(self.tabs)
-        self.commands = ToolCommandsSection(service, self.tabs)
-        # A refused keyboard pick hides the choice: the keyboard goes to the tabs, not Close.
-        self.commands.keyboard_lost.connect(self.tabs.tabBar().setFocus)
-        self.tabs.addTab(self.commands, "This co&mputer")
+        self.computer = ComputerSection(service, self.tabs)
+        # A refused keyboard pick hides the choices: the keyboard goes to the tabs, not Close.
+        self.computer.keyboard_lost.connect(self.tabs.tabBar().setFocus)
+        self.tabs.addTab(self.computer, "This co&mputer")
         self.project_tab = QWidget(self.tabs)
         layout = QVBoxLayout(self.project_tab)
         title = QLabel(RESERVED_TITLE, self.project_tab)
@@ -102,11 +134,11 @@ class AdvancedPage(QWidget):
 
     @property
     def busy(self) -> bool:
-        return self.commands.busy
+        return self.computer.busy
 
     def reload(self) -> None:
-        """Read the setting again and show the open project's reserved arguments."""
-        self.commands.reload()
+        """Read the settings again and show the open project's reserved arguments."""
+        self.computer.reload()
         project = self._project()
         self.reserved_note.setHidden(project is None)
         if project is None:

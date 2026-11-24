@@ -64,12 +64,12 @@ def test_the_page_offers_shown_and_hidden_and_starts_at_shown(
 ) -> None:
     with main_window(qtbot, doctor, settings_file) as (window, _preferences):
         page = open_advanced(qtbot, window)
-        combo = page.commands.combo
+        combo = page.computer.combo
         offered = [(combo.itemText(i), combo.itemData(i)) for i in range(combo.count())]
         assert offered == [("Shown", True), ("Hidden", False)]
         assert combo.currentData() is True, "no saved choice must mean shown"
         assert combo.isEnabled() and combo.isVisible()
-        label = page.commands.label
+        label = page.computer.label
         assert label.text() == "&Tool commands in the build log" and label.buddy() is combo
 
 
@@ -80,14 +80,14 @@ def test_a_pick_is_saved_at_once_and_read_back(
     with main_window(qtbot, doctor, settings_file) as (window, _preferences):
         page = open_advanced(qtbot, window)
         pick(page, False)
-        assert settled(qtbot, lambda: not page.busy and bool(page.commands.note.text()))
+        assert settled(qtbot, lambda: not page.busy and bool(page.computer.note.text()))
         assert saved() == {"format": 1, "future": [1], SHOW_TOOL_COMMANDS: False, "tools": {}}
-        note = page.commands.note.text()
+        note = page.computer.note.text()
         assert note == "Saved. The next build's log leaves the tool commands out.", note
         pick(page, True)
-        assert settled(qtbot, lambda: not page.busy and "shows" in page.commands.note.text())
+        assert settled(qtbot, lambda: not page.busy and "shows" in page.computer.note.text())
         assert saved()[SHOW_TOOL_COMMANDS] is True
-        assert page.commands.note.text() == "Saved. The next build's log shows the tool commands."
+        assert page.computer.note.text() == "Saved. The next build's log shows the tool commands."
 
 
 def test_a_file_damaged_after_reading_is_refused_and_the_keyboard_kept_near(
@@ -99,14 +99,14 @@ def test_a_file_damaged_after_reading_is_refused_and_the_keyboard_kept_near(
         write(DAMAGED)
         dialog.activateWindow()
         qtbot.waitUntil(dialog.isActiveWindow, timeout=5000)
-        combo = page.commands.combo
+        combo = page.computer.combo
         combo.setFocus()
         assert combo.hasFocus(), "the choice could not take the focus"
         QTest.keyClick(combo, Qt.Key.Key_Down)
         assert settled(qtbot, lambda: not page.busy and combo.isHidden())
         assert settings.default_path().read_text(encoding="utf-8") == DAMAGED
         assert len(list(settings.default_path().parent.iterdir())) == 1, "a backup was made"
-        assert "cannot be used" in page.commands.banner.text()
+        assert "cannot be used" in page.computer.banner.text()
         where = focused(dialog)
         assert where is page.tabs.tabBar(), f"the keyboard went to {where!r}, not the tabs"
 
@@ -128,7 +128,7 @@ def test_the_open_projects_reserved_arguments_are_shown_as_saved(
     with main_window(qtbot, doctor, settings_file) as (window, _preferences):
         opened(qtbot, window, tmp_path, ARGUMENTS)
         page = open_advanced(qtbot, window)
-        assert page.tabs.currentWidget() is page.commands, "the page did not start at its choice"
+        assert page.tabs.currentWidget() is page.computer, "the page did not start at its choice"
         page.tabs.setCurrentWidget(page.project_tab)
         assert page.tabs.tabText(1) == "This &project" and page.tabs.tabText(0) == "This co&mputer"
         assert reserved_text(window) == command_text(ARGUMENTS)
@@ -153,7 +153,7 @@ def test_every_opening_shows_the_current_projects_arguments(
         assert reserved_text(window) == command_text(("--x",))
 
 
-def test_tab_goes_from_the_list_to_the_tabs_the_choice_then_close(
+def test_tab_goes_from_the_list_to_the_tabs_the_choices_then_close(
     qtbot: QtBot, doctor: FakeDoctor, settings_file: Path
 ) -> None:
     with main_window(qtbot, doctor, settings_file) as (window, _preferences):
@@ -167,6 +167,8 @@ def test_tab_goes_from_the_list_to_the_tabs_the_choice_then_close(
         QTest.keyClick(pages, Qt.Key.Key_Tab)
         assert focused(dialog) is page.tabs.tabBar(), f"Tab went to {focused(dialog)!r}"
         QTest.keyClick(page.tabs.tabBar(), Qt.Key.Key_Tab)
-        assert focused(dialog) is page.commands.combo, f"Tab went to {focused(dialog)!r}"
-        QTest.keyClick(page.commands.combo, Qt.Key.Key_Tab)
+        assert focused(dialog) is page.computer.combo, f"Tab went to {focused(dialog)!r}"
+        QTest.keyClick(page.computer.combo, Qt.Key.Key_Tab)
+        assert focused(dialog) is page.computer.logs, f"Tab went to {focused(dialog)!r}"
+        QTest.keyClick(page.computer.logs, Qt.Key.Key_Tab)
         assert focused(dialog) is close, f"Tab went to {focused(dialog)!r}, not Close"

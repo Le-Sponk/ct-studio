@@ -231,7 +231,10 @@ class _Work:
             jobs = user.build_jobs()
             # Hidden tool commands stay out of the dashboard; the build log file keeps them.
             send = self._send if user.show_tool_commands() else self._send_no_commands
-            summary = self.build(planned, send, cancel=cancel, force=options.force, jobs=jobs)
+            kept = user.build_logs_kept()
+            summary = self.build(
+                planned, send, cancel=cancel, force=options.force, jobs=jobs, keep_logs=kept
+            )
         except CTStudioError as exc:
             error = exc
         except BaseException as exc:  # interrupts must also release ownership on the UI thread

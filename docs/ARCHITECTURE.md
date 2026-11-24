@@ -227,6 +227,11 @@ build log shows the tool command rows. `build_controller._Work` reads it fresh p
 when off, keeps `CommandRun` events from the GUI; the runner's build log file
 (`.ctstudio/logs`) still writes them. Settings → Advanced (tab This computer) saves it; its
 tab This project shows the open project's reserved `[build] extra_wszst_args` read-only.
+P5-T08e2 adds `build_logs_kept` (a whole number from 1 to 1000; absent means 20): GUI builds
+and `ctstudio build` read it fresh and hand it to the runner, which prunes the project's
+build logs after the build; a damaged file keeps 20. It is the second choice in Advanced →
+This computer: one `machine_choice` section may hold several choices, read together, saved
+one at a time, with one damaged-file explanation.
 
 P5-T07a adds the pure built-in catalogue in `core/project/editor_preferences.py` and the
 machine-settings object `editor_preferences` (`kind -> preferred built-in tool id`).
@@ -537,8 +542,9 @@ template/manual ─────────────────────�
   a step skipped as unchanged reports them again (`NodeSkipped.issues`, the summary, the
   log marked "found before"). Old cache files without issues read as none.
 - **Build log** (P4-T03b, `build/build_log.py`): `.ctstudio/logs/build-<UTC time>.log`, one
-  UTC-stamped plain line per event, flushed as it goes; then only the newest 20 `build-*.log`
-  are kept. A log that cannot be written is reported in the app log, never fails the build;
+  UTC-stamped plain line per event, flushed as it goes; then only the newest `build-*.log`
+  are kept: 20 (`KEEP`), or the user's `build_logs_kept` (P5-T08e2), which `build_project`
+  hands to `run_build` as `keep_logs`. A log that cannot be written is reported in the app log, never fails the build;
   `BuildSummary.log` is then `None`.
 - **Outputs** are written to a temp path then atomically replaced.
 - **One Blender launch** exports everything the build needs (Blender start-up costs seconds).

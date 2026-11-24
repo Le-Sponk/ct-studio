@@ -33,7 +33,7 @@ from PySide6.QtWidgets import (
 )
 
 from ctstudio.core.project.project import Project
-from ctstudio.gui.advanced import ToolCommandsService
+from ctstudio.gui.advanced import AdvancedService
 from ctstudio.gui.appearance import AppearanceService
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.advanced_page import AdvancedPage
@@ -217,7 +217,7 @@ class SettingsWindow:
                 self.appearance_page.keyboard_lost.connect(self.pages.setFocus)
             self.appearance_page.reload()
             return self.appearance_page
-        self.advanced_page = AdvancedPage(self._current_project, ToolCommandsService(), dialog)
+        self.advanced_page = AdvancedPage(self._current_project, AdvancedService(), dialog)
         self.advanced_page.reload()
         return self.advanced_page
 

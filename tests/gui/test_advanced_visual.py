@@ -75,12 +75,12 @@ def test_advanced_pictures(
         page = open_advanced(qtbot, window)
         dialog = settings_dialog(window)
         if state == "damaged":
-            assert page.commands.banner.isVisible() and page.commands.combo.isHidden()
+            assert page.computer.banner.isVisible() and page.computer.combo.isHidden()
         else:
-            assert page.commands.combo.isVisible()
+            assert page.computer.combo.isVisible()
         if state == "picked":
             pick(page, False)
-            assert settled(qtbot, lambda: "Saved" in page.commands.note.text())
+            assert settled(qtbot, lambda: "Saved" in page.computer.note.text())
         if state in ("none", "project"):
             page.tabs.setCurrentWidget(page.project_tab)  # measured only when shown
             assert page.reserved.isVisible()

@@ -9,7 +9,7 @@ saved scheme again (``run_gui``).
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import cast
 
 from PySide6.QtWidgets import QWidget
@@ -43,14 +43,15 @@ class AppearanceSection(MachineChoiceSection):
         self._apply = apply
         super().__init__(TEXTS, CHOICES, parent)
 
-    def _load(self) -> Callable[[], object]:
-        return self.service.load
+    def _load(self) -> Callable[[], Mapping[str, object]]:
+        load = self.service.load
+        return lambda: {TEXTS.name: load()}
 
-    def _save(self, value: object) -> Callable[[], object]:
+    def _save(self, name: str, value: object) -> Callable[[], object]:
         service, scheme = self.service, cast("str | None", value)
         return lambda: service.save(scheme)
 
-    def _saved(self, value: object) -> str:
+    def _saved(self, name: str, value: object) -> str:
         scheme = cast("str | None", value)
         if not self._apply(scheme):
             return "Saved, but this system does not let CT Studio change its colour scheme."

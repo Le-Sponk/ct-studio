@@ -9,15 +9,15 @@
 **Last green commit:** `fa93f6c` (P5-T08e1, exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08e2 (Advanced page: how many build logs each project keeps; today a
-  fixed 20 in `core/build/build_log.KEEP`, pruned by the runner after every build; used by
-  GUI builds and `ctstudio build`, so Integration runs). Carry from P5-T08e1: it joins the
-  Advanced page's This computer tab, which already holds the tool-commands choice; two
-  separate `machine_choice` sections would each show the same long damaged-file reason, so
-  let one section hold several choices with one banner (or give each its own tab). The
-  Advanced damaged-file reason is the tightest height in the window: first cut at a basetemp
-  of 241-250 characters with the default font (266-280 with DejaVu) on 800x600 enlarged;
-  rerun that sweep after adding to the tab. The every-page width test covers the new page.
+- P5-T08e2 — Advanced page: how many build logs are kept. Plan: `settings.json` key
+  `build_logs_kept` (1-1000, absent = 20); `run_build(keep_logs=)` / `build_project` prune to
+  it; GUI builds and `ctstudio build` read it fresh (damaged file: 20, with the existing
+  notice, whose text now names the build logs). `machine_choice` holds several choices in one
+  section (one banner); Advanced → This computer adds "Build logs kept per project": 20
+  (default), 5, 10, 50, 100, a saved number outside the list offered in order. Acceptance: the
+  setting persists; after the next GUI and CLI build only that many build logs remain; a
+  damaged settings file keeps the default. 800x600 sweep rerun: the damaged reason still fits
+  at basetemp 176/240 with both fonts (the rows are hidden then, one banner).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -2567,6 +2567,13 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   at 25% of the run, before the test body started. The same gate's other failure was this
   task's own (the 800x600 picture test, fixed test-first), so one TD-018 instance; gate rerun
   once per the rule. Log local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T08c-TD018/`.
+  Recorded instance (P5-T08e2 implementation gate, 2026-11-25): `test_outside_canonical_
+  failures.py::test_postwrite_canonical_failure_keeps_errors_bytes_and_real_ownership[both-
+  RuntimeError-lock-relative]` (untouched; the original TD-018 test family) failed
+  `failure_flow`'s 5 s wait for the dashboard to go idle with Lock enabled
+  (outside_failure_helpers.py line 67), at 28% of the run; its sibling cases passed. The change
+  touches build logs and Settings → Advanced only; gate rerun once per the rule. Log
+  local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T08e2-TD018/`.
 - **TD-019 · resolved by the P5-T08a repair (2026-11-23).** One very long folder name in a
   damaged-settings banner widened the window; with the P5-T08a page list beside the page,
   Ubuntu's Check hit it with the deliberately long test paths (folder names of 48 and 56

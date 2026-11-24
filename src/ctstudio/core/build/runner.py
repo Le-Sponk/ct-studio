@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Literal
 
 from ctstudio.core.build.backups import back_up
-from ctstudio.core.build.build_log import BuildLog, prune
+from ctstudio.core.build.build_log import KEEP, BuildLog, prune
 from ctstudio.core.build.cache import BuildCache
 from ctstudio.core.build.events import (
     BuildEvent,
@@ -71,8 +71,11 @@ def run_build(
     *,
     cancel: CancelToken,
     jobs: int | None = None,
+    keep_logs: int | None = None,
 ) -> BuildSummary:
     """Run every step of ``graph`` that is not fresh in ``cache``, then save the cache.
+
+    Afterwards only the newest ``keep_logs`` build logs remain (None: ``build_log.KEEP``).
 
     An exception from ``on_event`` stops the build: running steps finish, then it propagates.
     Their queued results and logs are recorded before saving cache and part state;
@@ -81,7 +84,10 @@ def run_build(
     workers = default_jobs() if jobs is None else jobs
     if workers < 1:
         raise ValueError("jobs must be at least 1")
-    return _Build(graph, cache, request, on_event, cancel, workers).run()
+    keep = KEEP if keep_logs is None else keep_logs
+    if isinstance(keep, bool) or keep < 1:  # the new build's own log always stays
+        raise ValueError("keep_logs must be a whole number of at least 1")
+    return _Build(graph, cache, request, on_event, cancel, workers, keep).run()
 
 
 @dataclass(frozen=True)
@@ -101,9 +107,10 @@ class _Build:
         on_event: Callable[[BuildEvent], None],
         cancel: CancelToken,
         jobs: int,
+        keep: int = KEEP,
     ) -> None:
         self.graph, self.cache, self.request = graph, cache, request
-        self.on_event, self.cancel, self.jobs = on_event, cancel, jobs
+        self.on_event, self.cancel, self.jobs, self.keep = on_event, cancel, jobs, keep
         self._queue: queue.SimpleQueue[BuildEvent | _Done] = queue.SimpleQueue()
         self._waiting = list(graph.nodes)
         self._running: dict[str, Node] = {}
@@ -132,7 +139,7 @@ class _Build:
             self._emit(BuildFinished(summary))
         finally:
             self._log.close()
-            prune(self.graph.root)
+            prune(self.graph.root, self.keep, self._log.path)
         return summary
 
     def _emit(self, event: BuildEvent) -> None:

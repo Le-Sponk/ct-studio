@@ -92,7 +92,10 @@ def run(args: argparse.Namespace) -> int:
             )
             show = _json_printer(root) if args.json_events else _TextPrinter(root, plan)
             shown = _until_closed(show, cancel)
-            summary = _run(plan, shown, cancel, force=args.force, jobs=user.build_jobs())
+            kept = user.build_logs_kept()
+            summary = _run(
+                plan, shown, cancel, force=args.force, jobs=user.build_jobs(), keep_logs=kept
+            )
     except KeyboardInterrupt:
         print("\nBuild cancelled before it started.", file=sys.stderr)
         return CANCELLED
@@ -154,6 +157,7 @@ def _run(
     *,
     force: bool,
     jobs: int | None,
+    keep_logs: int | None,
 ) -> BuildSummary:
     """Run the build on its own thread; Ctrl+C (KeyboardInterrupt here) cancels it."""
     result: list[BuildSummary] = []
@@ -161,7 +165,10 @@ def _run(
 
     def work() -> None:
         try:
-            result.append(build_project(plan, show, cancel=cancel, force=force, jobs=jobs))
+            summary = build_project(
+                plan, show, cancel=cancel, force=force, jobs=jobs, keep_logs=keep_logs
+            )
+            result.append(summary)
         except BaseException as exc:  # handed to the main thread and raised there
             failure.append(exc)
 

@@ -88,13 +88,17 @@ def build_project(
     cancel: CancelToken,
     force: bool = False,
     jobs: int | None = None,
+    keep_logs: int | None = None,
 ) -> BuildSummary:
-    """Run ``plan``; ``jobs`` None lets the runner choose how many steps run at once."""
+    """Run ``plan``; ``jobs`` None lets the runner choose how many steps run at once, and
+    ``keep_logs`` None keeps the default number of build logs."""
     cache = BuildCache.load(plan.graph.root)
     if force:
         for node in plan.graph.nodes:
             cache.invalidate(node.id)
-    return run_build(plan.graph, cache, plan.request, on_event, cancel=cancel, jobs=jobs)
+    return run_build(
+        plan.graph, cache, plan.request, on_event, cancel=cancel, jobs=jobs, keep_logs=keep_logs
+    )
 
 
 def _just(part: str, make: MakePart) -> MakePart:

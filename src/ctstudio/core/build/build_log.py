@@ -1,8 +1,10 @@
 """The per-build log: ``.ctstudio/logs/build-<UTC time>.log`` (ARCHITECTURE §14).
 
 One readable line per build event, time-stamped in UTC, so a user can send the file when
-asking for help. After each build only the newest ``KEEP`` logs are kept. The log is a help,
-not part of the build: when it cannot be written, it says so in the app log and stops.
+asking for help. After each build only the newest logs are kept: ``KEEP`` unless the user
+chose another number (``settings.build_logs_kept``, P5-T08e2, handed in by the caller). The
+log is a help, not part of the build: when it cannot be written, it says so in the app log
+and stops.
 """
 
 from __future__ import annotations
@@ -72,12 +74,15 @@ class BuildLog:
                 _LOG.warning("could not finish the build log %s: %s", self.path, exc)
 
 
-def prune(root: Path, keep: int = KEEP) -> None:
-    """Delete all but the newest ``keep`` build logs (names sort by time)."""
+def prune(root: Path, keep: int = KEEP, current: Path | None = None) -> None:
+    """Delete all but the newest ``keep`` build logs (names sort by time). The ``current``
+    build's log is always kept and counts as one of them: a name can sort after it (a log
+    from a clock set ahead, a hand-named file, a second log in the same microsecond)."""
     folder = root / LOG_DIR
     try:
-        old = sorted(folder.glob(_PATTERN))[:-keep]
-        for path in old:
+        others = sorted(path for path in folder.glob(_PATTERN) if path != current)
+        room = keep - 1 if current is not None else keep
+        for path in others[: max(0, len(others) - room)]:
             path.unlink(missing_ok=True)
     except OSError as exc:
         _LOG.warning("could not remove old build logs in %s: %s", folder, exc)

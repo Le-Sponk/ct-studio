@@ -42,8 +42,17 @@ def open_advanced(qtbot: QtBot, window: MainWindow) -> AdvancedPage:
 
 def pick(page: AdvancedPage, shown: bool) -> None:
     """Choose Shown or Hidden as a user would (Qt emits ``activated`` for user picks only)."""
-    combo = page.commands.combo
+    combo = page.computer.combo
     index = combo.findData(shown)
     assert index >= 0, f"{shown!r} is not offered"
+    combo.setCurrentIndex(index)
+    combo.activated.emit(index)
+
+
+def pick_logs(page: AdvancedPage, kept: int | None) -> None:
+    """Choose a number of build logs kept (None: the default) as a user would."""
+    combo = page.computer.logs
+    index = combo.findData(kept)
+    assert index >= 0, f"{kept!r} is not offered"
     combo.setCurrentIndex(index)
     combo.activated.emit(index)

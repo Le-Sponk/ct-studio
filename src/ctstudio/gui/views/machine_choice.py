@@ -1,19 +1,23 @@
-"""One machine setting chosen in a list and saved at once (P5-T08c, shared since P5-T08d).
+"""Machine settings chosen in lists and saved at once (P5-T08c; shared since P5-T08d; several
+choices in one section since P5-T08e2).
 
-Settings → Build → This computer (build steps at once) and Settings → Appearance (colour
-scheme) each show one choice of a setting in ``settings.json``, the same for every project.
-A pick is saved at once on the section's worker through a fresh read; the subclass's service
-writes nothing when the file already says so. A damaged or newer file is shown and never
-overwritten: the choice, its label and the intro are hidden until a reread finds the file
-usable (every save also re-reads and refuses it), so the reason gets the room on a short
-screen. After a keyboard pick the keyboard goes back to the choice.
+Settings → Build → This computer (build steps at once), Settings → Appearance (colour
+scheme) and Settings → Advanced → This computer (tool commands, build logs kept) show
+choices of settings in ``settings.json``, the same for every project. One section reads all
+its choices together; a pick saves that one choice at once on the section's worker through a
+fresh read, and the subclass's service writes nothing when the file already says so. A
+damaged or newer file is shown once and never overwritten: every choice, its label and the
+intro are hidden until a reread finds the file usable (every save also re-reads and refuses
+it), so the reason gets the room on a short screen. After a keyboard pick the keyboard goes
+back to that choice.
 """
 
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from functools import partial
 
 from PySide6.QtCore import QObject, Qt, QThreadPool, Signal
 from PySide6.QtWidgets import QComboBox, QLabel, QProgressBar, QVBoxLayout, QWidget
@@ -26,9 +30,10 @@ _LOG = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class ChoiceTexts:
-    """What a section shows. ``name`` starts every object name (``<name>Section``, the
-    choice ``<name>``, ``<name>Problem``, ``<name>Note``, ``<name>Busy``); ``subject`` ends
-    "Could not save …" (for example "the build steps setting")."""
+    """What a section shows. ``name`` starts every object name (``<name>Section``, the first
+    choice ``<name>``, ``<name>Problem``, ``<name>Note``, ``<name>Busy``); ``label`` and
+    ``tooltip`` belong to the first choice; ``subject`` ends "Could not save …" (for example
+    "the build steps setting")."""
 
     name: str
     intro: str
@@ -38,9 +43,19 @@ class ChoiceTexts:
 
 
 @dataclass(frozen=True)
+class ChoiceRow:
+    """A further choice in the same section; ``name`` is its object name and its key."""
+
+    name: str
+    label: str
+    tooltip: str
+    choices: tuple[tuple[str, object], ...]
+
+
+@dataclass(frozen=True)
 class _Result:
-    value: object
-    saved: bool
+    values: Mapping[str, object]
+    saved: str | None  # the choice saved, None for a read
 
 
 class _Relay(QObject):
@@ -48,10 +63,10 @@ class _Relay(QObject):
 
 
 class MachineChoiceSection(QWidget):
-    """The shared section; a subclass reads and saves through its service (``_load``,
-    ``_save``) and words the note after a save (``_saved``)."""
+    """The shared section; a subclass reads all its choices (``_load``), saves one
+    (``_save``) and words the note after a save (``_saved``)."""
 
-    # The choice had the keyboard but is hidden now (the file became unusable): the owner
+    # A choice had the keyboard but is hidden now (the file became unusable): the owner
     # gives it to something useful, or it stays on Close, which Enter or Space would press.
     keyboard_lost = Signal()
 
@@ -60,6 +75,8 @@ class MachineChoiceSection(QWidget):
         texts: ChoiceTexts,
         choices: Sequence[tuple[str, object]],
         parent: QWidget | None = None,
+        *,
+        more: Sequence[ChoiceRow] = (),
     ) -> None:
         super().__init__(parent)
         self.setObjectName(f"{texts.name}Section")
@@ -68,29 +85,34 @@ class MachineChoiceSection(QWidget):
         self._relay = _Relay(self)
         self._relay.done.connect(self._finished)
         self._running = False
-        self._value: object = None
+        self._values: dict[str, object] = {}
         self._read = False  # a usable file has been read
-        self._locked = False  # the file cannot be used: the choice is hidden
-        self._focus = False  # the choice had the keyboard when a save began
+        self._locked = False  # the file cannot be used: the choices are hidden
+        self._focus: QComboBox | None = None  # the choice that had the keyboard at a pick
         self._saving = False  # the running work is a save, not a read
-        self._build(choices)
+        first = ChoiceRow(texts.name, texts.label, texts.tooltip, tuple(choices))
+        self._build((first, *more))
         self._render()
 
-    def _build(self, choices: Sequence[tuple[str, object]]) -> None:
+    def _build(self, rows: Sequence[ChoiceRow]) -> None:
         layout = QVBoxLayout(self)
         self.intro = QLabel(self._texts.intro, self)
         self.intro.setWordWrap(True)
         layout.addWidget(self.intro)
-        self.label = QLabel(self._texts.label, self)  # above its choice: narrow
-        layout.addWidget(self.label)
-        self.combo = QComboBox(self)
-        self.combo.setObjectName(self._texts.name)
-        for text, value in choices:
-            self.combo.addItem(text, value)
-        self.combo.setToolTip(self._texts.tooltip)
-        self.combo.activated.connect(self._picked)
-        self.label.setBuddy(self.combo)
-        layout.addWidget(self.combo)
+        self.rows: dict[str, tuple[QLabel, QComboBox]] = {}
+        for row in rows:
+            label = QLabel(row.label, self)  # above its choice: narrow
+            layout.addWidget(label)
+            combo = QComboBox(self)
+            combo.setObjectName(row.name)
+            for text, value in row.choices:
+                combo.addItem(text, value)
+            combo.setToolTip(row.tooltip)
+            combo.activated.connect(partial(self._picked, row.name))
+            label.setBuddy(combo)
+            layout.addWidget(combo)
+            self.rows[row.name] = (label, combo)
+        self.label, self.combo = self.rows[self._texts.name]
         self.banner = self._text(f"{self._texts.name}Problem", layout)
         self.note = self._text(f"{self._texts.name}Note", layout)
         self.busy_bar = QProgressBar(self)
@@ -109,37 +131,38 @@ class MachineChoiceSection(QWidget):
         layout.addWidget(label)
         return label
 
-    def _load(self) -> Callable[[], object]:
-        """The read to run on the worker (taken on the GUI thread)."""
+    def _load(self) -> Callable[[], Mapping[str, object]]:
+        """The read of every choice (by name) to run on the worker (taken on the GUI thread)."""
         raise NotImplementedError
 
-    def _save(self, value: object) -> Callable[[], object]:
-        """The save of ``value`` to run on the worker; it returns the value saved."""
+    def _save(self, name: str, value: object) -> Callable[[], object]:
+        """The save of choice ``name`` to run on the worker; it returns the value saved."""
         raise NotImplementedError
 
-    def _saved(self, value: object) -> str:
-        """The note after ``value`` was saved (on the GUI thread)."""
+    def _saved(self, name: str, value: object) -> str:
+        """The note after choice ``name`` was saved as ``value`` (on the GUI thread)."""
         raise NotImplementedError
 
-    def _offer(self, value: object) -> None:
-        """Make ``value`` choosable (a saved value may be outside the usual list)."""
+    def _offer(self, name: str, value: object) -> None:
+        """Make ``value`` choosable in ``name`` (a saved value may be outside the list)."""
 
     @property
     def busy(self) -> bool:
         return self._running
 
     def reload(self) -> None:
-        """Read the setting again (not while a read or save runs)."""
+        """Read the settings again (not while a read or save runs)."""
         if not self._running:
             load = self._load()
-            self._start(lambda: _Result(load(), saved=False))
+            self._start(lambda: _Result(load(), saved=None))
 
-    def _picked(self, index: int) -> None:
+    def _picked(self, name: str, index: int) -> None:
         if self._running or not self._read:
             return  # past Qt's own disabling: nothing is saved now
-        save = self._save(self.combo.itemData(index))
-        self._focus = self.combo.hasFocus()
-        self._start(lambda: _Result(save(), saved=True), saving=True)
+        combo = self.rows[name][1]
+        save = self._save(name, combo.itemData(index))
+        self._focus = combo if combo.hasFocus() else None
+        self._start(lambda: _Result({name: save()}, saved=name), saving=True)
 
     def _start(self, work: Callable[[], _Result], *, saving: bool = False) -> None:
         relay, subject = self._relay, self._texts.subject
@@ -160,10 +183,11 @@ class MachineChoiceSection(QWidget):
     def _finished(self, payload: object) -> None:
         self._running = False
         if isinstance(payload, _Result):
-            self._value, self._read, self._locked = payload.value, True, False
+            self._values.update(payload.values)
+            self._read, self._locked = True, False
             self._problem("")
-            if payload.saved:
-                self.note.setText(self._saved(payload.value))
+            if payload.saved is not None:
+                self.note.setText(self._saved(payload.saved, payload.values[payload.saved]))
         elif isinstance(payload, SettingsError):
             self._locked = True
             self._problem(str(payload))
@@ -175,23 +199,26 @@ class MachineChoiceSection(QWidget):
         self._return_keyboard()
 
     def _return_keyboard(self) -> None:
-        """Give the keyboard back after a pick: turning the choice off moved it on."""
-        if self._focus and self.combo.isEnabled() and self.combo.isVisible():
-            self.combo.setFocus()
-        elif self._focus and self.isVisible():  # the choice is hidden: file unusable
+        """Give the keyboard back after a pick: turning the choices off moved it on."""
+        combo = self._focus
+        if combo is not None and combo.isEnabled() and combo.isVisible():
+            combo.setFocus()
+        elif combo is not None and self.isVisible():  # the choice is hidden: file unusable
             self.keyboard_lost.emit()
-        self._focus = False
+        self._focus = None
 
     def _problem(self, text: str) -> None:
         self.banner.setText(breakable(text))
         self.banner.setHidden(not text)
 
     def _render(self) -> None:
-        self._offer(self._value)
-        self.combo.setCurrentIndex(self.combo.findData(self._value))
-        self.combo.setEnabled(not self._running and self._read)  # hidden when locked
         # Locked: only the reason is shown; it may be long, and the screen only 600 px tall.
         self.intro.setHidden(self._locked)
-        self.label.setHidden(self._locked)
-        self.combo.setHidden(self._locked)
+        for name, (label, combo) in self.rows.items():
+            value = self._values.get(name)
+            self._offer(name, value)
+            combo.setCurrentIndex(combo.findData(value))
+            combo.setEnabled(not self._running and self._read)  # hidden when locked
+            label.setHidden(self._locked)
+            combo.setHidden(self._locked)
         self.busy_bar.setVisible(self._running)

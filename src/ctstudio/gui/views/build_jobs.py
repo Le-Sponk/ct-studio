@@ -9,7 +9,7 @@ builds and ``ctstudio build`` read the setting fresh, so the next build uses it.
 from __future__ import annotations
 
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import cast
 
 from PySide6.QtWidgets import QWidget
@@ -35,21 +35,22 @@ class BuildJobsSection(MachineChoiceSection):
         self.service = service
         automatic = (f"Automatic ({default_jobs()} on this computer)", None)
         super().__init__(TEXTS, [automatic], parent)
-        self._offer(OFFERED)
+        self._offer(TEXTS.name, OFFERED)
 
-    def _load(self) -> Callable[[], object]:
-        return self.service.load
+    def _load(self) -> Callable[[], Mapping[str, object]]:
+        load = self.service.load
+        return lambda: {TEXTS.name: load()}
 
-    def _save(self, value: object) -> Callable[[], object]:
+    def _save(self, name: str, value: object) -> Callable[[], object]:
         service, jobs = self.service, cast("int | None", value)
         return lambda: service.save(jobs)
 
-    def _saved(self, value: object) -> str:
+    def _saved(self, name: str, value: object) -> str:
         if value is None:
             return "Saved. The next build chooses how many steps run at once."
         return f"Saved. The next build runs up to {value} steps at once."
 
-    def _offer(self, value: object) -> None:
+    def _offer(self, name: str, value: object) -> None:
         """Offer every number up to ``value`` (a saved number may be above the usual list)."""
         if isinstance(value, int):
             for jobs in range(self.combo.count(), value + 1):

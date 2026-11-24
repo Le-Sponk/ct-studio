@@ -136,8 +136,9 @@ class Runner:
         *,
         cancel: CancelToken,
         jobs: int | None = None,
+        keep_logs: int | None = None,
     ) -> BuildSummary:
-        assert not cancel.cancelled
+        assert not cancel.cancelled and keep_logs is None
         self.jobs.append(jobs)
         return DONE
 
