@@ -25,6 +25,7 @@ PICTURES = [
     "tests/gui/test_settings_window_visual.py",
     "tests/gui/test_build_page_visual.py",
     "tests/gui/test_build_jobs_visual.py",
+    "tests/gui/test_appearance_visual.py",
 ]
 SCREEN = {
     "synchronousWindowSystemEvents": False,

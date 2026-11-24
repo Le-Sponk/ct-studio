@@ -219,6 +219,9 @@ P5-T08c adds `build_jobs` there: how many build steps may run at once on this co
 whole number 1-64 (`MAX_BUILD_JOBS`); absent means automatic (the runner's `min(4, CPUs)`).
 `UserSettings.build_jobs()` / `with_build_jobs(n or None)`; any other value refuses load and
 save like other damaged settings. Settings → Build → This computer shows and saves it.
+P5-T08d adds `colour_scheme`: `"light"` or `"dark"`; absent means follow the system.
+`UserSettings.colour_scheme()` / `with_colour_scheme(name or None)`; any other value refuses
+load and save. Settings → Appearance shows and saves it (`gui/appearance.py`, §10).
 
 P5-T07a adds the pure built-in catalogue in `core/project/editor_preferences.py` and the
 machine-settings object `editor_preferences` (`kind -> preferred built-in tool id`).
@@ -947,7 +950,16 @@ header/cards and requests fresh statuses. Cancel retains the existing cards. No 
 P1-T06 shell (now extended by P5-T02/P5-T03b): `ctstudio` with no arguments opens the Qt Widgets welcome;
 Help → About shows package version, GPL-3.0-or-later and an explicit third-party-notices
 placeholder. Widgets keep Qt's native palette (no hard-coded stylesheet), so a system palette
-change reaches open windows. `ctstudio --offscreen-smoke <png>` forces offscreen before importing
+change reaches open windows. P5-T08d: the colour scheme chosen in Settings → Appearance is
+asked of Qt through `QStyleHints.setColorScheme` (Qt 6.8+; `Unknown` follows the system):
+`run_gui` applies the saved one before the main window exists (a damaged settings file is
+logged and the system's scheme kept), and the page applies a new choice once it is saved,
+reading back `colorScheme()` to tell whether the system honoured it. Measured on Qt 6.11.2:
+the Windows platform repaints at once; the offscreen platform ignores the request, so tests
+use a recording stand-in and the pictures' light/dark comes from the test palette. Linux
+desktop behaviour is not measured. Both one-choice machine settings (build steps at once,
+colour scheme) share `gui/views/machine_choice.py`: read and saved on the section's worker,
+damaged files shown and never overwritten, the keyboard returned after a pick. `ctstudio --offscreen-smoke <png>` forces offscreen before importing
 Qt, renders a PNG and exits without the event loop; it refuses an existing destination rather
 than overwriting user work. `--version`/`--help` remain Qt-free. On Windows the offscreen plugin
 can enumerate zero system fonts; only in that case the shell loads the installed Segoe UI font

@@ -9,14 +9,30 @@
 **Last green commit:** `02f849a` (P5-T08c, exact Check and Integration, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08d (Appearance page: colour scheme only, Follow system / Light /
-  Dark; persists in `settings.json` and applies at the next start, and at once where Qt
-  allows). Carry from P5-T08c: a machine setting is saved at once on a worker through a
-  fresh read (no write when unchanged), and a damaged or newer file is shown and never
-  overwritten, with the useless controls (and their intro) hidden so the reason fits a
-  600 px screen; make the visual test actually show the new page or tab before measuring
-  (an earlier small-screen pass was vacuous); give the keyboard back after a pick (not to
-  Close); labels above fields; run new tests once with `PYTHONUTF8=0`.
+- P5-T08d — Appearance page (colour scheme only). Plan: (1) `settings.json` key
+  `colour_scheme`, `"light"` or `"dark"`; absent = follow the system. Read by
+  `UserSettings.colour_scheme()`, set by `with_colour_scheme()`; any other value refuses
+  load and save like other damaged settings. (2) `gui/appearance.py`: `AppearanceService`
+  (fresh read per call, no write when unchanged) and `apply_scheme()` through Qt's
+  `QStyleHints.setColorScheme` (Qt 6.8+; measured on Qt 6.11.2: the Windows platform
+  switches at once and Follow system goes back to the system's scheme; the offscreen
+  platform ignores it). `run_gui` applies the saved scheme before the main window exists;
+  a damaged file is logged and the system's scheme kept. (3) Settings → Appearance (page
+  list order Tools, Build, Editors, Appearance): one choice, Follow system / Light / Dark,
+  saved at once on a worker and applied straight away; where the system does not let Qt
+  change it, the note says so. The save-on-pick section of P5-T08c moves into a shared
+  `views/machine_choice.py` used by both pages (no copy of its worker, banner and keyboard
+  rules; the P5-T08c tests stay unchanged). Acceptance: the choice persists and applies at
+  the next start (and at once where Qt allows), with light/dark and enlarged-font pictures,
+  also on a real 800x600 screen; damaged/newer file refused, never overwritten. Files:
+  `core/project/settings.py`, new `gui/appearance.py`, `gui/app.py`,
+  `gui/settings_window.py`, new `gui/views/machine_choice.py`, `gui/views/build_jobs.py`,
+  docs (ARCHITECTURE §6/§10), tests. Risks: a wider page list ("Appearance") narrows every
+  page beside it, so rerun the long-path pictures with Ubuntu-like fonts; Linux desktop
+  colour switching is not measured here (CI is offscreen). Review 1: the wider page list put
+  the window at 829 px with Ubuntu-like fonts (DejaVu) on an 800 px screen; the Tools page's
+  button row set the width, so its "Open download page" button is now "Download page"
+  (760 px, 40 spare); the colour scheme's access key is S (Alt+C may be Close on Linux).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

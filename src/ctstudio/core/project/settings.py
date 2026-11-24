@@ -1,9 +1,9 @@
 """The user's machine settings: ``settings.json`` in the user config folder (P2-T07a).
 
 Machine-specific choices (tool paths set in CT Studio, editor choices, how many build steps
-may run at once) live here and never in a project (ARCHITECTURE §6). The file is the user's:
-a damaged or newer one is reported and never overwritten by a load, keys CT Studio does not
-know survive a save, and each save keeps a backup of the previous file
+may run at once, the colour scheme) live here and never in a project (ARCHITECTURE §6). The
+file is the user's: a damaged or newer one is reported and never overwritten by a load, keys
+CT Studio does not know survive a save, and each save keeps a backup of the previous file
 (``fsutil.replace_with_backup``).
 """
 
@@ -40,6 +40,8 @@ FILE_NAME = "settings.json"
 AUTO_ADD_LIBRARY = "auto_add_library"  # folder built by `wszst autoadd` from the own disc
 BUILD_JOBS = "build_jobs"  # build steps at once on this computer; absent: the runner chooses
 MAX_BUILD_JOBS = 64
+COLOUR_SCHEME = "colour_scheme"  # absent: follow the system's colour scheme (P5-T08d)
+COLOUR_SCHEMES = ("light", "dark")
 # What a build does without the settings file (damaged: reported, then left out).
 BUILD_IGNORED = (
     "Tool paths and the number of build steps at once set in CT Studio are ignored for this build."
@@ -130,6 +132,19 @@ class UserSettings:
             other[BUILD_JOBS] = _jobs(jobs)
         return UserSettings(self.tools, other)
 
+    def colour_scheme(self) -> str | None:
+        """``"light"`` or ``"dark"`` (P5-T08d); None: follow the system's colour scheme."""
+        if COLOUR_SCHEME not in self.other:
+            return None
+        return _scheme(self.other[COLOUR_SCHEME])
+
+    def with_colour_scheme(self, scheme: str | None) -> UserSettings:
+        """A copy with that colour scheme, or following the system when ``scheme`` is None."""
+        other = {key: value for key, value in self.other.items() if key != COLOUR_SCHEME}
+        if scheme is not None:
+            other[COLOUR_SCHEME] = _scheme(scheme)
+        return UserSettings(self.tools, other)
+
     def with_tool(self, tool_id: str, path: Path | None) -> UserSettings:
         """A copy with ``tool_id`` set to ``path``, or cleared when ``path`` is None."""
         if tool_id not in TOOL_BY_ID:
@@ -144,6 +159,13 @@ def _jobs(value: object) -> int:
     """``value`` as a number of build steps; ValueError unless a whole number in range."""
     if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= MAX_BUILD_JOBS:
         raise ValueError(f'"{BUILD_JOBS}" must be a whole number from 1 to {MAX_BUILD_JOBS}')
+    return value
+
+
+def _scheme(value: object) -> str:
+    """``value`` as a colour scheme; ValueError unless one of ``COLOUR_SCHEMES``."""
+    if not isinstance(value, str) or value not in COLOUR_SCHEMES:
+        raise ValueError(f'"{COLOUR_SCHEME}" must be "light" or "dark", not {value!r}')
     return value
 
 
@@ -177,6 +199,7 @@ def _parse(target: Path, data: object) -> UserSettings:
     _check_custom_tools(target, other)
     _check_wine_prefixes(target, other)
     _check_build_jobs(target, other)
+    _check_colour_scheme(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
@@ -215,6 +238,14 @@ def _check_build_jobs(target: Path, other: Mapping[str, object]) -> None:
         ) from exc
 
 
+def _check_colour_scheme(target: Path, other: Mapping[str, object]) -> None:
+    try:
+        UserSettings(other=other).colour_scheme()
+    except ValueError as exc:
+        reason = f'"{COLOUR_SCHEME}" is not "light" or "dark"'
+        raise SettingsError(target, reason, details=str(exc)) from exc
+
+
 def _check_format(target: Path, version: object) -> None:
     if not isinstance(version, int) or isinstance(version, bool):
         raise SettingsError(target, '"format" is not a number')
@@ -239,6 +270,7 @@ def save(settings: UserSettings, path: Path | None = None) -> None:
     _check_custom_tools(target, settings.other)
     _check_wine_prefixes(target, settings.other)
     _check_build_jobs(target, settings.other)
+    _check_colour_scheme(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

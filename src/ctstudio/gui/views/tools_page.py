@@ -3,7 +3,7 @@
 Shows the doctor report as a table with a status chip per tool and, for the selected tool,
 where it is, how it was found, the fix and any note. Browse… and Clear change the path
 saved in the user's settings (P2-T07a), then check again; Re-check probes versions anew;
-Open download page opens the tool's official page. Every check and save runs in a worker
+Download page opens the tool's official page. Every check and save runs in a worker
 thread (ARCHITECTURE §10) behind a busy bar, and only the newest check is shown. A damaged
 settings file is shown in a banner and Browse/Clear stay off, so it is never overwritten.
 """
@@ -172,7 +172,11 @@ class ToolsPage(QWidget):
         self._browse = self._button("browseButton", "Browse…", self._browse_clicked, row)
         self._clear = self._button("clearButton", "Clear", self._clear_clicked, row)
         self._download = self._button(
-            "downloadButton", "Open download page", self._download_clicked, row
+            # Short: with the page list beside it, the row sets the window's width (P5-T08d)
+            "downloadButton",
+            "Download page",
+            self._download_clicked,
+            row,
         )
         row.addStretch(1)
         self._recheck = self._button(

@@ -1447,7 +1447,8 @@ checks via the existing adapters; no new third-party flag or platform capability
 `ctstudio doctor`, in the same words, with a coloured status per tool (green ready or not
 needed; amber optional and not ready; red required and not ready). Browse… sets a tool's
 path in `settings.json` and checks again; Clear removes it; Re-check runs the version probes
-again; Open download page opens the official page from the registry. Checks run in a
+again; Download page ("Open download page" before P5-T08d) opens the official page
+from the registry. Checks run in a
 background thread, so the window never freezes. A damaged `settings.json` is shown in a
 banner and the page will not change it until it is fixed or deleted.
 

@@ -18,9 +18,9 @@ from editor_request_helpers import settled
 from outside_visual_helpers import visual_style
 from PySide6.QtWidgets import QApplication
 from pytestqt.qtbot import QtBot
+from settings_visual_helpers import assert_readable, wrapped_fit
 from settings_window_helpers import action, go, settings_dialog, shown_page
 from test_build_window import Checks, no_tools
-from test_settings_window_visual import assert_readable, wrapped_fit
 from wizard_fakes import SCREENS, shot
 
 from ctstudio.core.project.project import Project

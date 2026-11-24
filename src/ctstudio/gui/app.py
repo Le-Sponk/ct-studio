@@ -10,6 +10,7 @@ from PySide6.QtCore import QBuffer, QIODevice
 from PySide6.QtWidgets import QApplication
 
 from ctstudio.core.errors import ProjectError
+from ctstudio.gui.appearance import apply_saved
 from ctstudio.gui.gc_policy import GuiThreadCollector
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.watchdog import dev_watchdog
@@ -55,6 +56,7 @@ def run_gui(smoke_path: Path | None = None) -> int:
     app.setApplicationName("CT Studio")
     collector = GuiThreadCollector()  # TD-017: garbage is collected on this thread only
     collector.start()
+    apply_saved()  # the chosen colour scheme (P5-T08d), before any window is drawn
     window = MainWindow()
     watching = dev_watchdog(window)  # CTSTUDIO_DEV=1 only
     try:

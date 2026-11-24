@@ -13,11 +13,13 @@ import pytest
 from editor_request_helpers import settled
 from editor_settings_helpers import write_settings
 from outside_visual_helpers import visual_style
-from PySide6.QtCore import QRect
-from PySide6.QtWidgets import QApplication, QDialog, QLabel, QListWidget, QPushButton, QWidget
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QApplication, QLabel
 from pytestqt.qtbot import QtBot
+from settings_visual_helpers import assert_list_readable, assert_readable, wrapped_fit
 from settings_window_helpers import (
     action,
+    go,
     main_window,
     page_list,
     settings_dialog,
@@ -25,6 +27,8 @@ from settings_window_helpers import (
 )
 from tools_fakes import FakeDoctor, doctor, settings_file
 from wizard_fakes import SCREENS, shot
+
+from ctstudio.gui.settings_window import PAGES
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(120)]
 __all__ = ["doctor", "settings_file"]  # fixtures used by name
@@ -34,49 +38,6 @@ CASES = [
     for dark in (False, True)
     for enlarged in (False, True)
 ]
-
-
-def inside(child: QWidget, parent: QWidget) -> bool:
-    top_left = child.mapTo(parent, child.rect().topLeft())
-    return parent.rect().contains(QRect(top_left, child.size()))
-
-
-def wrapped_fit(dialog: QDialog) -> bool:
-    labels = [label for label in dialog.findChildren(QLabel) if label.isVisible()]
-    wrapped = [label for label in labels if label.wordWrap() and label.text()]
-    return all(label.height() >= label.heightForWidth(label.width()) for label in wrapped)
-
-
-def assert_list_readable(pages: QListWidget) -> None:
-    """Every page name shows whole inside the list, which shows whole in the window."""
-    view = pages.viewport().rect()
-    for row in range(pages.count()):
-        item = pages.item(row)
-        rect = pages.visualItemRect(item)
-        needed = pages.fontMetrics().horizontalAdvance(item.text())
-        assert view.contains(rect), f"{item.text()!r} is outside the page list"
-        assert rect.width() >= needed, f"{item.text()!r} is cut short ({rect.width()} < {needed})"
-    assert not pages.horizontalScrollBar().isVisible(), "the page list scrolls sideways"
-
-
-def assert_readable(dialog: QDialog) -> None:
-    screen = dialog.screen().availableGeometry()
-    assert dialog.width() <= screen.width(), f"{dialog.width()} > {screen.width()}"
-    assert dialog.height() <= screen.height(), f"{dialog.height()} > {screen.height()}"
-    assert_list_readable(page_list(dialog))
-    assert_controls_fit(dialog)
-
-
-def assert_controls_fit(dialog: QDialog) -> None:
-    """Every shown button is whole inside the window; wrapped text has its height."""
-    for button in dialog.findChildren(QPushButton):
-        if button.isVisible():
-            assert inside(button, dialog), f"{button.text()!r} is cut off"
-            assert button.width() >= button.minimumSizeHint().width(), f"{button.text()!r}"
-    for label in dialog.findChildren(QLabel):
-        if label.isVisible() and label.text() and label.wordWrap():
-            needed = label.heightForWidth(label.width())
-            assert label.height() >= needed, f"{label.text()[:40]!r} is cut short"
 
 
 @pytest.mark.parametrize(
@@ -148,3 +109,37 @@ def test_the_tools_page_banner_wraps_a_long_settings_path(
         assert_list_readable(page_list(dialog))
         line = banners[0].fontMetrics().lineSpacing()
         assert banners[0].heightForWidth(banners[0].width()) > 2 * line, "the path did not wrap"
+
+
+def test_every_page_fits_the_screen_width_with_a_wider_font(
+    qtbot: QtBot, doctor: FakeDoctor, settings_file: Path
+) -> None:
+    """Ubuntu's fonts are wider than the Windows ones these pictures use: with the page list
+    beside them (as wide as "Appearance" since P5-T08d), the widest page must still leave the
+    window inside an 800 px screen at the enlarged font. On Windows the font is stretched a
+    further 15% to stand in for Ubuntu's; DejaVu Sans (Linux) is already that wide. The Tools
+    page's button row set the width ("Open download page": 845 px on Windows, 829 with
+    DejaVu)."""
+    app = QApplication.instance()
+    assert isinstance(app, QApplication)
+    with (
+        visual_style(app, False, True) as family,
+        main_window(qtbot, doctor, settings_file) as (
+            window,
+            _preferences,
+        ),
+    ):
+        if family != "DejaVu Sans":  # stand in for Ubuntu's wider font
+            font = QFont(app.font())
+            font.setStretch(font.stretch() * 115 // 100)
+            app.setFont(font)
+        action(window, "settingsAction").trigger()
+        dialog = settings_dialog(window)
+        for page in PAGES:
+            go(dialog, page)
+            QApplication.processEvents()
+        screen = dialog.screen().availableGeometry()
+        assert settled(qtbot, lambda: dialog.width() <= screen.width()), (
+            f"{dialog.width()} > {screen.width()}"
+        )
+        assert_list_readable(page_list(dialog))
