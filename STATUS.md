@@ -9,10 +9,15 @@
 **Last green commit:** `efa4add` (P5-T08e3, exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08f (original Settings acceptance and guide): map every original P5-T08
-  criterion and each leaf's acceptance (P5-T08a-e3) to executable tests, rerun them together,
-  write `docs/user/SETTINGS.md` tested against the code like the Open in… guide; review, full
-  gate, exact Check; only then close P5-T08.
+- P5-T08f — Original Settings acceptance and guide. `docs/reference/SETTINGS_ACCEPTANCE.json`
+  maps the original P5-T08 criteria (pages, settings persist, compression changes the next
+  build's command, Editors, Advanced's show commands / extra args / log retention / dev mode)
+  and each leaf's acceptance (a, b, c, d, e1-e3) plus the guide: 14 requirements, 119 test
+  targets. Combined run with the Editors page's own map (EDITOR_SETTINGS_ACCEPTANCE.json): 42
+  files, 503 passed, none skipped; both maps rc 0 (205 and 88 matched cases). User guide
+  `docs/user/SETTINGS.md`, checked against the code by `tests/gui/test_settings_guide.py`
+  and linked from README and the navigation guide. No product change. Then review, full gate,
+  exact Check; only then close P5-T08.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)

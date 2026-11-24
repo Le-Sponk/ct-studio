@@ -60,7 +60,8 @@ opened successfully remains open, and its dashboard is still available from View
 Project details can edit the slot and source; component cards can change supported modes as
 described below. Open in Blender, Open folder, building and using your own file for a part are
 described below; Open in… for a part's file is described in
-[Opening part files in editors](OPEN_IN.md). Automatic generation is still under development.
+[Opening part files in editors](OPEN_IN.md). Every setting is described in
+[Settings](SETTINGS.md). Automatic generation is still under development.
 
 ## Building from the dashboard
 

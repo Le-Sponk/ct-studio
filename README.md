@@ -27,7 +27,8 @@ track slot and Blender source; component cards can change supported modes, with 
 The dashboard can launch Blender, request component folders, and run test/release builds from
 supplied component files, with cancellation, live part progress and a collapsible live build log.
 Component cards can start your editors with a part's file, chosen in Settings → Editors…
-([opening part files in editors](docs/user/OPEN_IN.md)).
+([opening part files in editors](docs/user/OPEN_IN.md)). One Settings window holds the tools,
+the project's build settings and this computer's choices ([settings](docs/user/SETTINGS.md)).
 GUI file assignment, automatic generation and trusted command copying are still under development.
 It supports a Qt-free `--version` and `--help`, plus an offscreen PNG smoke command.
 On the command line, `ctstudio new`, `status` and `open` make a project, show what each part
