@@ -975,6 +975,32 @@ makes it editable.
 **Acceptance:** each setting persists and takes effect (build log rows, old log files
 removed beyond the retention, watchdog at the next start).
 
+Split 2026-11-24 into three leaves, one setting each (each needs its own taking-effect
+proof, and the build-log one changes core build code); the text above stays and closes
+with e3.
+
+##### [ ] P5-T08e1 — Advanced page: tool commands in the build log
+Settings → Advanced (page list: Tools, Build, Editors, Appearance, Advanced). A machine
+setting in `settings.json` decides whether the dashboard's build log shows the tool command
+rows (shown, as today, unless turned off); the build log file on disk always has them. Read
+fresh for every GUI build. The open project's reserved `[build] extra_wszst_args` is shown
+read-only, labelled as not used yet; no project: explained.
+**Acceptance:** the setting persists; with it off the next GUI build's log shows no command
+rows while the build log file still has them, and with it on they show; a damaged or newer
+settings file is refused, never overwritten; the reserved arguments are shown as saved.
+
+##### [ ] P5-T08e2 — Advanced page: how many build logs are kept
+A machine setting for how many `.ctstudio/logs/build-*.log` files each project keeps
+(today a fixed 20), used by GUI builds and `ctstudio build`.
+**Acceptance:** the setting persists; after the next build (GUI and CLI) only that many
+build logs remain; a damaged settings file keeps the default.
+
+##### [ ] P5-T08e3 — Advanced page: developer mode
+A machine setting that turns the stall watchdog on from the next start (today only
+`CTSTUDIO_DEV=1`, which keeps working).
+**Acceptance:** the setting persists; the next start runs the watchdog when it is on and
+not when it is off (without `CTSTUDIO_DEV`).
+
 #### [ ] P5-T08f — Original Settings acceptance and guide
 Map every original P5-T08 criterion and each leaf's acceptance to executable tests, rerun
 them together, and write `docs/user/SETTINGS.md` (tested against the code like the Open in…

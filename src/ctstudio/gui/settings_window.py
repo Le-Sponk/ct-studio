@@ -5,7 +5,8 @@ Editors… open it at their page. A page is made the first time it is shown (Too
 check then) and refreshed each time the window is opened at it again: Tools checks again
 unless a check runs, Editors rereads the settings file. The Build page (P5-T08b) belongs to
 the open project, which may have changed since, so every opening rereads it; Appearance
-(P5-T08d) rereads the settings file like Editors. Switching pages in the list only shows
+(P5-T08d) rereads the settings file like Editors, and Advanced (P5-T08e1) does too and shows
+the open project's reserved Wiimm arguments again. Switching pages in the list only shows
 them. Closing the window with unsaved Build changes asks Save / Discard / Cancel; Save closes
 it once the save is done. The window fits itself again whenever its layout asks
 (``_FittingDialog``).
@@ -31,8 +32,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ctstudio.core.project.project import Project
+from ctstudio.gui.advanced import ToolCommandsService
 from ctstudio.gui.appearance import AppearanceService
 from ctstudio.gui.services import AppServices
+from ctstudio.gui.views.advanced_page import AdvancedPage
 from ctstudio.gui.views.appearance_section import AppearanceSection
 from ctstudio.gui.views.build_page import BuildPage
 from ctstudio.gui.views.editors_page import EditorsPage
@@ -42,7 +46,8 @@ TOOLS = "Tools"
 BUILD = "Build"
 EDITORS = "Editors"
 APPEARANCE = "Appearance"
-PAGES = (TOOLS, BUILD, EDITORS, APPEARANCE)  # the original P5-T08 order; Advanced follows
+ADVANCED = "Advanced"
+PAGES = (TOOLS, BUILD, EDITORS, APPEARANCE, ADVANCED)  # the original P5-T08 order
 FIRST_SIZE = (900, 560)  # the old Tools window's size, kept within the screen
 
 
@@ -124,6 +129,7 @@ class SettingsWindow:
         self.build_page: BuildPage | None = None
         self.editors_page: EditorsPage | None = None
         self.appearance_page: AppearanceSection | None = None
+        self.advanced_page: AdvancedPage | None = None
 
     def open(self, name: str | None = None) -> None:
         """Show the window at page ``name`` (default: the last one shown), refreshed."""
@@ -165,8 +171,9 @@ class SettingsWindow:
             TOOLS: self.tools_page,
             BUILD: self.build_page,
             EDITORS: self.editors_page,
+            APPEARANCE: self.appearance_page,
         }
-        return made.get(name, self.appearance_page)
+        return made.get(name, self.advanced_page)
 
     def _show(self, row: int) -> None:
         if not 0 <= row < len(PAGES) or self.stack is None or self.dialog is None:
@@ -204,21 +211,29 @@ class SettingsWindow:
         if name == EDITORS:
             self.editors_page = EditorsPage(self._services.editor_settings, parent=dialog)
             return self.editors_page
-        self.appearance_page = AppearanceSection(AppearanceService(), dialog)
-        if self.pages is not None:  # a refused pick hides the choice: keep the keyboard near
-            self.appearance_page.keyboard_lost.connect(self.pages.setFocus)
-        self.appearance_page.reload()
-        return self.appearance_page
+        if name == APPEARANCE:
+            self.appearance_page = AppearanceSection(AppearanceService(), dialog)
+            if self.pages is not None:  # a refused pick hides the choice: keep the keyboard near
+                self.appearance_page.keyboard_lost.connect(self.pages.setFocus)
+            self.appearance_page.reload()
+            return self.appearance_page
+        self.advanced_page = AdvancedPage(self._current_project, ToolCommandsService(), dialog)
+        self.advanced_page.reload()
+        return self.advanced_page
+
+    def _current_project(self) -> Project | None:
+        return self._services.project
 
     def _refresh(self, name: str) -> None:
-        if name == TOOLS and self.tools_page is not None and not self.tools_page.busy:
-            self.tools_page.recheck(force=False)
-        elif name == BUILD and self.build_page is not None:
-            self.build_page.reload()  # a running read or save is kept
-        elif name == EDITORS and self.editors_page is not None:
-            self.editors_page.reload()  # the file may have changed since; a running read is kept
-        elif name == APPEARANCE and self.appearance_page is not None:
-            self.appearance_page.reload()  # likewise
+        if name == TOOLS:
+            if self.tools_page is not None and not self.tools_page.busy:
+                self.tools_page.recheck(force=False)
+            return
+        page = self._made(name)
+        # Build: the project may have changed; Editors, Appearance, Advanced: the settings file
+        # (and for Advanced the project) may have. Each keeps a read or save that is running.
+        if isinstance(page, (BuildPage, EditorsPage, AppearanceSection, AdvancedPage)):
+            page.reload()
 
     def _saved(self) -> None:
         if self._build_saved is not None:

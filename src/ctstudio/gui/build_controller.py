@@ -19,7 +19,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal
 
-from ctstudio.core.build.events import BuildEvent, BuildSummary
+from ctstudio.core.build.events import BuildEvent, BuildSummary, CommandRun
 from ctstudio.core.build.project_build import (
     BuildPlan,
     build_project,
@@ -229,7 +229,9 @@ class _Work:
                 library=user.auto_add_library(),
             )
             jobs = user.build_jobs()
-            summary = self.build(planned, self._send, cancel=cancel, force=options.force, jobs=jobs)
+            # Hidden tool commands stay out of the dashboard; the build log file keeps them.
+            send = self._send if user.show_tool_commands() else self._send_no_commands
+            summary = self.build(planned, send, cancel=cancel, force=options.force, jobs=jobs)
         except CTStudioError as exc:
             error = exc
         except BaseException as exc:  # interrupts must also release ownership on the UI thread
@@ -239,6 +241,10 @@ class _Work:
 
     def _send(self, event: BuildEvent) -> None:
         self.relay.build_event.emit(self.generation, event)
+
+    def _send_no_commands(self, event: BuildEvent) -> None:
+        if not isinstance(event, CommandRun):
+            self._send(event)
 
     def _user_settings(self) -> UserSettings:
         """CT Studio's settings; a damaged file is reported, then left out."""

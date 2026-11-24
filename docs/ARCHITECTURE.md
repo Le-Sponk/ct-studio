@@ -222,6 +222,11 @@ save like other damaged settings. Settings → Build → This computer shows and
 P5-T08d adds `colour_scheme`: `"light"` or `"dark"`; absent means follow the system.
 `UserSettings.colour_scheme()` / `with_colour_scheme(name or None)`; any other value refuses
 load and save. Settings → Appearance shows and saves it (`gui/appearance.py`, §10).
+P5-T08e1 adds `show_tool_commands` (true/false; absent means shown): whether the dashboard's
+build log shows the tool command rows. `build_controller._Work` reads it fresh per build and,
+when off, keeps `CommandRun` events from the GUI; the runner's build log file
+(`.ctstudio/logs`) still writes them. Settings → Advanced (tab This computer) saves it; its
+tab This project shows the open project's reserved `[build] extra_wszst_args` read-only.
 
 P5-T07a adds the pure built-in catalogue in `core/project/editor_preferences.py` and the
 machine-settings object `editor_preferences` (`kind -> preferred built-in tool id`).

@@ -4,21 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T08e — Advanced page
+**Next task:** P5-T08e1 — Advanced page: tool commands in the build log
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `7004c29` (P5-T08d, exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T08e (Advanced page: show tool commands in the build log, log-file
-  retention, dev mode (the stall watchdog, today `CTSTUDIO_DEV=1`); the open project's
-  reserved `[build] extra_wszst_args` shown read-only and labelled "not used yet"). Carry
-  from P5-T08d: one-choice machine settings reuse `gui/views/machine_choice.py`; every page
-  beside the page list must fit an 800 px screen with Ubuntu-like fonts (window 760 px with
-  DejaVu enlarged; `test_every_page_fits_the_screen_width_with_a_wider_font` covers every
-  page in `PAGES`, so add the new page there and rerun the DejaVu sweep); picture tests wait
-  through `settings_visual_helpers.wrapped_fit`; Build → This computer's damaged-file reason
-  is first cut at a basetemp of 241-300 characters with the default font (CI and the gate use
-  ~111-180), so a page that adds height beside it needs the 800x600 sweep too.
+- P5-T08e1 — Advanced page: tool commands in the build log. Plan: (1) `settings.json` key
+  `show_tool_commands` (true/false; absent = shown, as today); `UserSettings.
+  show_tool_commands()` / `with_show_tool_commands()`; any other value refuses load and save.
+  (2) `build_controller._Work` reads it fresh per build and, when off, does not pass the
+  `CommandRun` events to the GUI (the runner's build log file still writes them). (3)
+  Settings → Advanced, a new page after Appearance: a `machine_choice` section "Tool commands
+  in the build log": Shown / Hidden, saved at once on its worker; below it the open
+  project's `[build] extra_wszst_args`, read-only from the project in memory, labelled "not
+  used yet (P7-T06)", refreshed at every opening; no project: explained. Acceptance: setting
+  persists; off: the next GUI build's log has no command rows while the build log file
+  still has them; on: they show; damaged/newer file refused; reserved arguments shown as
+  saved. Files: `core/project/settings.py`, `gui/build_controller.py`, new
+  `gui/advanced.py` (service) and `gui/views/advanced_page.py`, `gui/settings_window.py`,
+  docs, tests. Risks: the page list order and width (Advanced is shorter than Appearance);
+  the page with two parts must fit 800x600 at the enlarged font (Ubuntu-like fonts too).
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1738,6 +1743,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-24: Split P5-T08e (Advanced page) into e1 (tool commands in the build log, plus
+  the reserved `extra_wszst_args` shown read-only), e2 (how many build logs each project
+  keeps) and e3 (developer mode: the stall watchdog from the next start). One setting per
+  leaf, each with its own taking-effect proof; e2 changes core build code. Planned tasks
+  204 -> 206.
 - 2026-11-23: Owner answers for P5-T08 (asked at the split): P5-T08d Appearance offers the
   colour scheme only (Follow system, Light, Dark); P5-T08e shows the reserved
   `[build] extra_wszst_args` read-only, labelled not used yet (P7-T06 wires it). P5-T08b's

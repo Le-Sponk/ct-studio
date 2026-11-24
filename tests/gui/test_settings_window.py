@@ -46,7 +46,9 @@ def test_settings_opens_one_window_with_a_page_list(
         assert dialog.isVisible() and dialog.windowTitle() == "Settings"
         pages = page_list(dialog)
         names = [pages.item(i).text() for i in range(pages.count())]
-        assert names == ["Tools", "Build", "Editors", "Appearance"], "not the P5-T08 order"
+        assert names == ["Tools", "Build", "Editors", "Appearance", "Advanced"], (
+            "not the P5-T08 order"
+        )
         assert shown_page(dialog) == "Tools", "Settings… did not start at the first page"
         stacked = stack(dialog)
         left = pages.mapTo(dialog, pages.rect().topRight()).x()

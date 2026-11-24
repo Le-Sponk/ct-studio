@@ -18,6 +18,7 @@ from tools_fakes import FakeDoctor
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.services import AppServices, ToolsService
 from ctstudio.gui.settings_window import PAGES
+from ctstudio.gui.views.advanced_page import AdvancedPage
 from ctstudio.gui.views.appearance_section import AppearanceSection
 from ctstudio.gui.views.build_page import BuildPage
 from ctstudio.gui.views.editors_page import EditorsPage
@@ -80,6 +81,7 @@ def shown_page(dialog: QDialog) -> str:
         "Build": BuildPage,
         "Editors": EditorsPage,
         "Appearance": AppearanceSection,
+        "Advanced": AdvancedPage,
     }[current.text()]
     assert isinstance(widget, expected), f"{current.text()} highlighted but {widget!r} shown"
     return current.text()
