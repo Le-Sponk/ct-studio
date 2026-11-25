@@ -4,20 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T09b — End-to-end flow: Open in… and screenshot review
+**Next task:** P5-T10 — UX polish pass
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `98f2b9d` (P5-T09a, exact Check, Windows + Ubuntu)
+**Last green commit:** `fe528f9` (P5-T09b, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T09b — End-to-end flow: Open in… and screenshot review. Plan: continue the T09a flow in
-  `tests/gui/test_end_to_end.py` (or a sibling module sharing `e2e_helpers`): add a harmless
-  test program as an editor through Settings → Editors… (`install_program`, custom editor
-  helpers), open Collision's file through Open in… and assert the program received exactly
-  the project's course.kcl and the dashboard says it was started; dark and enlarged-font
-  pictures (`visual_style`); review p5-t09-*.png against REVIEW_CHECKLIST.md §5 (with the
-  T09a review's picture notes in the phase file) and list them for HC1.
+- P5-T10 — UX polish pass. Empty states, error dialogs with "Copy details", plain-language
+  tooltips, focus order, window size/position persistence, high-DPI check, no truncation at
+  1280×720; starts from `docs/reviews/P5_T09_SCREENSHOTS.md` (its list is in the phase
+  file). Acceptance: checklist items ticked in the phase review doc. To be split into leaves
+  before any code (one vertical change each), reading every claim against the code first.
 
 ## Done (newest first)
+- 2026-11-25 `P5-T09b` End-to-end Open in… and screenshot review (`fe528f9`); closes
+  P5-T09 with T09a. `tests/gui/test_end_to_end_open_in.py`: an editor added in Settings →
+  Editors… (a real test program, native on Linux) is started by Open in… on Collision with
+  exactly the project's course.kcl; dark / enlarged / 1280×720 pictures.
+  `docs/reviews/P5_T09_SCREENSHOTS.md`: 13 pictures against REVIEW_CHECKLIST §5, listed for
+  HC1 (step 10), feeding P5-T10. Mutants 3/3. Review NEEDS_REVISION ×3 (doc accuracy; a
+  longer test folder would break Windows' 260-character limit, reverted), then APPROVE.
+  Gate 5481 / 10 / 178. Exact Check on `fe528f9`: Windows 139126961644 (5476 / 15), Ubuntu
+  139126962012 (5477 / 14), 5491 selected; artifacts 15012590877 / 15012440450 coverage.xml
+  only. P5-T09's original criteria: new project, manual assignment, build with fakes,
+  statuses and issues (T09a `test_end_to_end.py`), Open in… and screenshots (T09b), both
+  green headless on Windows and Ubuntu CI; no other open task waits on P5-T09.
 - 2026-11-25 `P5-T09a` End-to-end flow from a new project to its issues (`98f2b9d`).
   `tests/gui/test_end_to_end.py` + `e2e_helpers.py` on the real MainWindow: wizard →
   Choose file… (kcl) and drop (kmp) → Test build (real stage/assemble/validate on the fake

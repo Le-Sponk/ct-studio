@@ -1015,7 +1015,7 @@ the exact Check for `3d9690b` passed on Windows and Ubuntu, so P5-T08 is complet
 guide is `docs/user/SETTINGS.md`. Owner choices kept: Appearance is the colour scheme only, and
 `extra_wszst_args` is shown read-only until P7-T06.
 
-### [ ] P5-T09 — GUI end-to-end test & screenshot review
+### [x] P5-T09 — GUI end-to-end test & screenshot review (closed by T09a + T09b, `fe528f9`)
 pytest-qt: new project → assign fixture files (manual mode) → build with fakes → Ready statuses →
 issue shown → open-in invoked. Save screenshots to `tests/artifacts/screens/`. If your model accepts
 images, review the screenshots against the UI checklist in REVIEW_CHECKLIST.md; otherwise list them
@@ -1041,7 +1041,7 @@ issues panel show the new check. Light-theme screenshots `p5-t09-*.png`.
 assigned parts show "your own file", Objects "ready" and the other cards their pinned
 statuses; the issues panel shows the check's findings grouped by part.
 
-#### [ ] P5-T09b — End-to-end flow: Open in… and screenshot review
+#### [x] P5-T09b — End-to-end flow: Open in… and screenshot review (commit `fe528f9`)
 The same flow continues: an editor added in Settings → Editors… (a harmless test program) is
 started with Collision's file through Open in…; dark and enlarged-font screenshots; the
 screenshots reviewed against REVIEW_CHECKLIST.md §5 and listed for HC1.
