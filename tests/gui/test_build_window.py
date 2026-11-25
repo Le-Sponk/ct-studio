@@ -19,10 +19,17 @@ from editor_owner_helpers import outcome
 from editor_request_helpers import settled
 from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QFormLayout, QMessageBox, QPushButton, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QFormLayout,
+    QMessageBox,
+    QPushButton,
+    QWidget,
+)
 from pytestqt.qtbot import QtBot
 from settings_window_helpers import action, go, settings_dialog, shown_page
 from test_build_page import HeldSettings
+from wide_font_helpers import WIDE, wide_font
 
 from ctstudio.core.components.status import ComponentStatus
 from ctstudio.core.project import manifest_io
@@ -319,17 +326,20 @@ def test_a_save_whose_thread_cannot_start_does_not_close_later(
         assert dialog.isVisible(), "an ordinary Save closed the window"
 
 
-def test_the_build_page_needs_no_more_width_than_the_tools_page(
-    qtbot: QtBot, tmp_path: Path
+@pytest.mark.parametrize("stretch", WIDE[:1])  # 162 %: 815 px, TD-022 (P13-T06)
+def test_the_build_page_fits_800_px_with_a_wide_font(
+    qtbot: QtBot, tmp_path: Path, stretch: int
 ) -> None:
-    """Font-independent: Tools fits Ubuntu's wider fonts on 800 px; Build must not be wider."""
-    with window_with_project(qtbot, tmp_path) as (window, _services, _checks):
+    """The widest fonts TD-022 measured: Settings with the Build page fits 800 px. It used to
+    borrow the Tools page's width as the limit, until P5-T10i made Tools narrower; wider
+    stretches stay TD-022's (P13-T06)."""
+    with wide_font(stretch), window_with_project(qtbot, tmp_path) as (window, _s, _c):
         page = open_build(qtbot, window)
-        go(settings_dialog(window), "Tools")
-        tools = window.settings_window.tools_page
-        assert tools is not None and settled(qtbot, lambda: not tools.busy)
-        needed, tools_needs = page.minimumSizeHint().width(), tools.minimumSizeHint().width()
-        assert needed <= tools_needs, f"Build needs {needed} px, Tools {tools_needs} px"
+        # The window's own minimum: Build is the widest page at this size (Tools fits too),
+        # and it also counts a minimum width set on the page itself.
+        needed = settings_dialog(window).minimumSizeHint().width()
+        page_needs = page.minimumSizeHint().width()
+        assert needed <= 800, f"Settings needs {needed} px (Build {page_needs} px) at {stretch} %"
         form = page.fields.layout()
         assert isinstance(form, QFormLayout)
         for combo in (page.test_compression, page.release_compression):

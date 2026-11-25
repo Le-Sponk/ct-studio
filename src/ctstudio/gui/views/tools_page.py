@@ -158,6 +158,7 @@ class ToolsPage(QWidget):
         table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.setTabKeyNavigation(False)  # Tab moves on to the buttons, not to the next cell
         table.verticalHeader().hide()
         header = table.horizontalHeader()
         for column in range(3):
@@ -167,22 +168,23 @@ class ToolsPage(QWidget):
         self._table = table
         return table
 
-    def _make_buttons(self) -> QHBoxLayout:
-        row = QHBoxLayout()
-        self._browse = self._button("browseButton", "Browse…", self._browse_clicked, row)
-        self._clear = self._button("clearButton", "Clear", self._clear_clicked, row)
+    def _make_buttons(self) -> QVBoxLayout:
+        # Two rows: one row of all four set the window's width with wide fonts (TD-022).
+        rows = QVBoxLayout()
+        first, second = QHBoxLayout(), QHBoxLayout()
+        self._browse = self._button("browseButton", "Browse…", self._browse_clicked, first)
+        self._clear = self._button("clearButton", "Clear", self._clear_clicked, first)
+        first.addStretch(1)
         self._download = self._button(
-            # Short: with the page list beside it, the row sets the window's width (P5-T08d)
-            "downloadButton",
-            "Download page",
-            self._download_clicked,
-            row,
+            "downloadButton", "Download page", self._download_clicked, second
         )
-        row.addStretch(1)
+        second.addStretch(1)
         self._recheck = self._button(
-            "recheckButton", "Re-check", lambda: self.recheck(force=True), row
+            "recheckButton", "Re-check", lambda: self.recheck(force=True), second
         )
-        return row
+        rows.addLayout(first)
+        rows.addLayout(second)
+        return rows
 
     def _button(
         self, name: str, text: str, slot: Callable[[], object], row: QHBoxLayout
@@ -295,6 +297,8 @@ class ToolsPage(QWidget):
         status.setFont(font)
         cells = (name, status, QTableWidgetItem(check.version or "-"))
         for column, item in enumerate((*cells, QTableWidgetItem(check.used_for))):
+            if column != 1:  # the status cell explains its colour instead
+                item.setToolTip(item.text())  # a narrow column cuts the text with "…"
             self._table.setItem(row, column, item)
 
     def _problem(self, text: str | None) -> None:

@@ -2477,7 +2477,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   releases in the security review. Permissions are already least-privilege. (P2-GATE.)
 - **TD-007 · P5-T09 · Tools page screenshots are small.** Only 900×520 with a 3-tool stub;
   add 1280×720 with the full registry and one at 150 % scaling in the GUI screenshot review
-  (REVIEW_CHECKLIST 5). (P2-GATE.)
+  (REVIEW_CHECKLIST 5). (P2-GATE.) Resolved by P5-T10i: `tests/gui/test_tools_page_wide.py`
+  pictures Settings → Tools at 1280×720, normal and enlarged, with every tool CT Studio knows
+  (15 rows), and asserts the list does not scroll sideways there and that the tool, status
+  and version cells are never shortened. With the enlarged font on Linux (DejaVu Sans) the
+  "Used for" column gives way by a few pixels; those cells show their whole text as a
+  tooltip, which the test also asserts.
 - **TD-008 · Deep Clean #1 · two gate scripts at complexity C.** `scripts/bootstrap_tools.py`
   `unpack` and `scripts/check.py` `run_step` are C(12); xenon only gates `core`. Split them in
   the next Deep Clean. (P2-GATE; pre-existing.)
@@ -2695,7 +2700,23 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   the Settings guide states the auto-add consequence. Fix: name it in the notice (and the
   guide test's quote follows).
 - **TD-022 · P5-T10i (core) and P13-T06 (widest-font sweep) · Settings window width with
-  very wide fonts, Tools table (P5-T08a review).** Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
+  very wide fonts, Tools table (P5-T08a review).** Core resolved by P5-T10i: the Tools
+  buttons sit in two rows (the page's minimum width in Verdana at the enlarged font fell
+  from 797 to 573 px at 132 % stretch and is 685 px at 162 %), Tab leaves the Tools table,
+  and every cell that can be shortened has its whole text as a tooltip
+  (`tests/gui/test_tools_page_wide.py`). Still open for P13-T06: the Editors tabs and the
+  page list at 144-162 %; the Tools list in an 800 px window at the enlarged font, which is
+  wider than its view by 41 px (Segoe UI) / 368 px (DejaVu Sans) with "Used for" shortened
+  (the window fits; the list inside scrolls sideways; whole text in each tooltip), and more
+  so at 162 % stretch; "Used for" shortened (89-99 % shown) at 1280x720 with the enlarged
+  font in DejaVu Sans; Settings with a project open at 162 % stretch, 815 px wide in
+  Verdana (817 px in DejaVu Sans) because of the Build page (575 px) beside the page list
+  (it fits at 132 %,
+  `test_the_build_page_fits_800_px_with_a_wide_font`, which replaced the test that
+  borrowed the Tools page's width as Build's limit); and the 800x600 damaged-settings
+  banner below. Measure list overflow
+  as total column width minus the visible width (the list scrolls a column at a time, so
+  its scroll bar counts columns). Original entry: Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
   an 800 px screen with fonts wider than the tested enlarged one. All eight Settings pictures
   fit 800 px at the tested enlarged font (150% size, 120% stretch) in Segoe UI, Verdana and
   Tahoma (tightest: Tools in Verdana, 762 px). Wider, measured in Verdana: Tools about 806 px
