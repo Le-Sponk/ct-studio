@@ -4,21 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T09 — GUI end-to-end test & screenshot review
+**Next task:** P5-T09b — End-to-end flow: Open in… and screenshot review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `3d9690b` (P5-T08f, exact Check, Windows + Ubuntu)
+**Last green commit:** `98f2b9d` (P5-T09a, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T09a — End-to-end flow: new project to issues. Plan: `tests/gui/e2e_helpers.py` and
-  `tests/gui/test_end_to_end.py` on the real MainWindow with real StatusService,
-  LaunchController and BuildController(build_project) on a plan of the assigned parts' stage
-  steps + assemble + validate (fake Wiimm tools; analyze/check replay recorded real output);
-  wizard → Choose file… (kcl) and drop (kmp) → test build → statuses and issues. Acceptance as
-  in the phase file. Owner decision 2026-11-25: "Ready statuses" = assigned parts "your own
-  file", Objects "ready", every other card pinned exactly.
+- P5-T09b — End-to-end flow: Open in… and screenshot review. Plan: continue the T09a flow in
+  `tests/gui/test_end_to_end.py` (or a sibling module sharing `e2e_helpers`): add a harmless
+  test program as an editor through Settings → Editors… (`install_program`, custom editor
+  helpers), open Collision's file through Open in… and assert the program received exactly
+  the project's course.kcl and the dashboard says it was started; dark and enlarged-font
+  pictures (`visual_style`); review p5-t09-*.png against REVIEW_CHECKLIST.md §5 (with the
+  T09a review's picture notes in the phase file) and list them for HC1.
 
-<!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
+- 2026-11-25 `P5-T09a` End-to-end flow from a new project to its issues (`98f2b9d`).
+  `tests/gui/test_end_to_end.py` + `e2e_helpers.py` on the real MainWindow: wizard →
+  Choose file… (kcl) and drop (kmp) → Test build (real stage/assemble/validate on the fake
+  Wiimm tools; analyze/check/KMP objects replay recorded real 2.42a output) → statuses
+  pinned (owner decision: assigned "your own file", Objects "ready") → issues panel. Mutants
+  7/7 (plus the masked assign recheck caught by test_dashboard_assign). Review
+  NEEDS_REVISION (layout check passed before layout caught up), fixed, delta APPROVE. Gate
+  5480 / 10 / 178. Exact Check on `98f2b9d`: Windows 139087019634 (5475 / 15), Ubuntu
+  139087019888 (5476 / 14), 5490 selected; artifacts 15005364585 / 15006917333
+  coverage.xml only. Integration not required (tests and docs only).
 - 2026-11-25 `P5-T08f` Settings acceptance map and user guide (`3d9690b`); closes P5-T08.
   `docs/reference/SETTINGS_ACCEPTANCE.json`: 14 requirements, 119 test targets (original
   P5-T08 criteria and every leaf's acceptance); one combined run with the Editors page's map:

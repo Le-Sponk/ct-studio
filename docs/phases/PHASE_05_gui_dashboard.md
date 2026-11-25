@@ -1032,7 +1032,7 @@ validate steps on the fake Wiimm tools for the assigned parts (the full plan nee
 part manual, and the fakes cannot analyse or check an archive, so analyze/check replay the
 recorded real output for the same committed course.kcl and course.kmp).
 
-#### [ ] P5-T09a — End-to-end flow: new project to issues
+#### [x] P5-T09a — End-to-end flow: new project to issues (commit `98f2b9d`)
 One pytest-qt test on the real main window: the New project wizard creates a project in a
 test folder; Collision is assigned through Choose file… and Course data by a drop (manual
 mode, committed fixture files); a test build runs on the fake tools; the statuses and the
