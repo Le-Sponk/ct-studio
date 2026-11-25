@@ -1079,7 +1079,7 @@ its title and heading; tooltips for Refresh, Copy project folder and the two bui
 **Acceptance:** tests on each text and tooltip in each state, and every visible dashboard
 button has a non-empty tooltip.
 
-#### [ ] P5-T10b — Build buttons always visible (owner decision D1)
+#### [x] P5-T10b — Build buttons always visible (owner decision D1) (commit `139595d`)
 A build bar pinned to the bottom of the dashboard (Build test, Build release, Cancel and the
 build's progress), outside the scrolling card area. **Acceptance:** at 1280×720 and 800×600,
 normal and enlarged, the build buttons are inside the window without scrolling; shortcuts,

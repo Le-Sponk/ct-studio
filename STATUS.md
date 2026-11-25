@@ -4,17 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10b — Build buttons always visible
+**Next task:** P5-T10c — Long paths never cut off
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `1008740` (P5-T10i repair, exact Check, Windows + Ubuntu)
+**Last green commit:** `139595d` (P5-T10b, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10b — Build buttons always visible (owner decision D1): a build bar pinned to the
-  bottom of the dashboard, outside the scrolling cards. Acceptance: at 1280×720 and
-  800×600, normal and enlarged, Build test / Build release / Cancel are inside the window
-  without scrolling.
+- P5-T10c — Long paths never cut off (owner decision D2): paths on one line shortened in
+  the middle with the whole path on hover and in Copy; the started notice names the file
+  relative to the project. Acceptance: a 300-character path with no break points stays
+  inside its card at 800 px; tooltip and Copy give the whole path.
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10b` Build bar pinned to the bottom of the dashboard (`139595d`, owner
+  decision D1): DashboardPage holds the scrolling cards and, below them, the build bar
+  (Build test / Build release / Cancel, progress, messages); empty message lines hidden so
+  an idle bar is one row; the whole page is disabled while the welcome page is busy.
+  Mutants 5/5. Review APPROVE. Gate 5504 / 10 / 178. Exact Check on `139595d`: Windows
+  139332156487 (5499 / 15), Ubuntu 139332156726 (5500 / 14), 5514 selected;
+  artifacts 15041576258 / 15039394865 coverage.xml only. Integration not required (gui and tests).
 - 2026-11-26 `P5-T10i` Settings → Tools at wide fonts (`93ebd8c`): Tools buttons in two
   rows (573 px instead of 797 px at 132 % stretch in Verdana, enlarged), Tab leaves the
   Tools table, whole text of shortenable cells as tooltips; 1280×720 pictures of all 15
@@ -2673,6 +2680,12 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   (outside_failure_helpers.py line 67), at 28% of the run; its sibling cases passed. The change
   touches build logs and Settings → Advanced only; gate rerun once per the rule. Log
   local-only in `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T08e2-TD018/`.
+  Recorded instance (P5-T10b, a full GUI run before review, 2026-11-26):
+  `test_dashboard_outside_flow.py::test_real_dashboard_tab_path_reaches_and_activates_lock`
+  (a standalone dashboard, untouched by the build bar) failed its 5 s wait for launch, status
+  and page to go idle after Lock (line 116); 1593 others passed. Passed 3/3 alone and 3/3 in
+  the review copy; the implementation gate then passed. Log local-only in
+  `%LOCALAPPDATA%/ct-studio-diagnostics/P5-T10b-TD018/`.
 - **TD-019 · resolved by the P5-T08a repair (2026-11-23).** One very long folder name in a
   damaged-settings banner widened the window; with the P5-T08a page list beside the page,
   Ubuntu's Check hit it with the deliberately long test paths (folder names of 48 and 56
