@@ -1079,21 +1079,44 @@ its title and heading; tooltips for Refresh, Copy project folder and the two bui
 **Acceptance:** tests on each text and tooltip in each state, and every visible dashboard
 button has a non-empty tooltip.
 
-#### [ ] P5-T10b — Build buttons always visible (owner question D1)
-#### [ ] P5-T10c — Long paths never cut off (owner question D2)
+#### [ ] P5-T10b — Build buttons always visible (owner decision D1)
+A build bar pinned to the bottom of the dashboard (Build test, Build release, Cancel and the
+build's progress), outside the scrolling card area. **Acceptance:** at 1280×720 and 800×600,
+normal and enlarged, the build buttons are inside the window without scrolling; shortcuts,
+tooltips and enabled states unchanged.
+
+#### [ ] P5-T10c — Long paths never cut off (owner decision D2)
+Paths on one line, shortened in the middle (`C:\Users\…\course.kcl`), the full path on hover
+and in Copy; the started notice names the file relative to the project. **Acceptance:** a
+path of 300 characters with no break points stays inside its card at 800 px; tooltip and
+Copy give the whole path.
+
 #### [ ] P5-T10d — Compact header
 The access line only for read-only projects, one row of header buttons, no stale "Statuses
 checked." **Acceptance:** at 1280×720 with the enlarged font the first card starts within
 about 40 % of the height (about 70 % today). After T10b and T10c.
 
-#### [ ] P5-T10e — Card notes and actions (owner question D3)
-#### [ ] P5-T10f — Error details and unexpected errors (owner question D4)
-#### [ ] P5-T10g — Remember window size and position (owner question D5)
+#### [ ] P5-T10e — Card notes and actions (owner decision D3)
+A card's note says only what is new ("using …" is not repeated as "Now using …") and stays
+until that card changes; the duplicate "Copy path" button goes, one way to copy remains.
+**Acceptance:** no card shows the same fact twice; a note survives other cards' changes and
+clears when its own card changes; one copy action per card.
+
+#### [ ] P5-T10f — Error details and unexpected errors (owner decision D4)
+Inline error messages stay, with "Copy details" when the error has details (a
+`CTStudioError`'s details reach the GUI); a dialog only for unexpected crashes (an exception
+nothing handled), also with Copy details, and logged. **Acceptance:** a failing build and an
+unreadable settings file offer Copy details with the details text; an unhandled exception
+in a slot shows one dialog, is logged, and the app keeps running.
+
+#### P5-T10g — Remember window size and position: moved to P13-T09 (owner decision D5)
+Not for now; the owner wants to decide after hands-on testing.
+
 #### [ ] P5-T10h — High-DPI evidence
 Populated dashboard and Settings pictures at 1.5× and 2×. **Acceptance:** no clipped labels;
 status icons drawn at least at the scale. Tests only unless something turns up.
 
-#### [ ] P5-T10i — Settings → Tools at wide fonts (TD-022 core)
+#### [x] P5-T10i — Settings → Tools at wide fonts (TD-022 core) (commits `93ebd8c`, `1008740`)
 Tools buttons in two rows, Tab leaves the Tools table, tooltips on shortened cells, and the
 1280×720 / 150 % Tools pictures TD-007 asked for. **Acceptance:** a real Tab walk; Tools fits
 800 px at 132 % stretch in Verdana. The widest-font sweep stays TD-022 → P13-T06.

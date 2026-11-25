@@ -4,18 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10i — Settings → Tools at wide fonts
+**Next task:** P5-T10b — Build buttons always visible
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `6cde29b` (P5-T10a, exact Check, Windows + Ubuntu)
+**Last green commit:** `1008740` (P5-T10i repair, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10i — Settings → Tools at wide fonts (TD-022 core): the Tools page's buttons in two
-  rows, Tab leaves the Tools table (`setTabKeyNavigation(False)`), tooltips on shortened
-  cells, and TD-007's 1280×720 / 150 % Tools pictures. Acceptance: a real Tab walk; Tools
-  fits 800 px at 132 % stretch in Verdana. Taken before T10d (which waits on T10b/T10c, and
-  those on owner questions D1/D2); T10e/f/g wait on D3-D5.
+- P5-T10b — Build buttons always visible (owner decision D1): a build bar pinned to the
+  bottom of the dashboard, outside the scrolling cards. Acceptance: at 1280×720 and
+  800×600, normal and enlarged, Build test / Build release / Cancel are inside the window
+  without scrolling.
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10i` Settings → Tools at wide fonts (`93ebd8c`): Tools buttons in two
+  rows (573 px instead of 797 px at 132 % stretch in Verdana, enlarged), Tab leaves the
+  Tools table, whole text of shortenable cells as tooltips; 1280×720 pictures of all 15
+  tools. TD-007 resolved, TD-022 core resolved (remainder measured for P13-T06). The Build
+  width test now checks 800 px itself instead of borrowing the Tools page's width. Mutants
+  5/5. Review NEEDS_REVISION, three delta NEEDS_REVISION (Linux font, loose check, scroll
+  bar counts columns), final APPROVE. Ubuntu Check on `93ebd8c` failed two enlarged
+  pictures of test_editor_tools_visual (the chosen tool scrolled out of view once the list
+  got shorter); repair `1008740` keeps the selected row in view when the list's height
+  changes (new test failed first; review APPROVE). Gate 5497 / 10 / 178. Exact Check on
+  `1008740`: Windows 139287720295 (5492 / 15), Ubuntu 139287719495
+  (5493 / 14), 5507 selected; artifacts 15034054116 / 15034966844 coverage.xml only.
+  Integration not required.
 - 2026-11-25 `P5-T10a` Plain words on the dashboard (`6cde29b`): "Replaces" names the
   track (file in tooltip and description); Open in Blender says why it is off; the Open in…
   dialog names the part (carried with the card's request) and file; tooltips on every
@@ -1803,6 +1815,13 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-26 Owner answered D1-D5: D1 pin a build bar to the window bottom (T10b); D2 one
+  line shortened in the middle, full path on hover and Copy, the started notice relative to
+  the project (T10c); D3 a card's note says only what is new and stays until that card
+  changes, the duplicate "Copy path" button goes (T10e); D4 inline messages plus "Copy
+  details" when details exist, a dialog only for unexpected crashes (T10f); D5 not for now:
+  P5-T10g leaves Phase 5 and becomes P13-T09, which asks the owner again after hands-on
+  testing (216 planned tasks unchanged).
 - 2026-11-25 P5-T10 split into T10a-T10j (207 → 216 planned tasks). Open owner questions,
   asked 2026-11-25, unanswered; each gates its leaf (recommended first):
   D1 (T10b) build buttons: pin a build bar to the window bottom / put them in the header

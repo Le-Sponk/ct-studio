@@ -29,6 +29,11 @@ TD-017 first).
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.
+### [ ] P13-T09 — Remember window size and position? (ask the owner again)
+Asked before the release candidate (P13-T08). Owner decision D5 (2026-11-26) was "not for
+now", to be asked again once the owner has used CT Studio hands-on. Ask first (remember in
+settings.json, clamped onto the screen / in Qt's store / no); build only what is chosen,
+with tests for an off-screen or vanished monitor.
 ### [ ] P13-T08 — Release candidate
 Changelog, version bump, docs pass, final HC-lite smoke test request to the human.
 ### [ ] P13-DEEPCLEAN — Deep Clean #3 (extended checklist)
