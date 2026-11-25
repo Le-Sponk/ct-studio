@@ -1022,6 +1022,37 @@ images, review the screenshots against the UI checklist in REVIEW_CHECKLIST.md; 
 for the human at HC1.
 **Acceptance:** test green headless on Linux and Windows CI.
 
+Split 2026-11-25 into two leaves (one flow is about 340 lines with screenshots and review).
+"Ready statuses", as the owner decided on 2026-11-25: a part you assign shows "your own
+file" (manual parts are never judged Ready), Objects shows "ready", and every other card's
+status is pinned exactly. The parts CT Studio generates (course model, minimap, skybox,
+post-effects) and Track info (no window sets an author yet) reach Ready in the phases that
+add them, whose own end-to-end tests check it. The build uses the real stage, assemble and
+validate steps on the fake Wiimm tools for the assigned parts (the full plan needs every
+part manual, and the fakes cannot analyse or check an archive, so analyze/check replay the
+recorded real output for the same committed course.kcl and course.kmp).
+
+#### [ ] P5-T09a — End-to-end flow: new project to issues
+One pytest-qt test on the real main window: the New project wizard creates a project in a
+test folder; Collision is assigned through Choose file… and Course data by a drop (manual
+mode, committed fixture files); a test build runs on the fake tools; the statuses and the
+issues panel show the new check. Light-theme screenshots `p5-t09-*.png`.
+**Acceptance:** the flow test passes headless on Linux and Windows CI; after the build the
+assigned parts show "your own file", Objects "ready" and the other cards their pinned
+statuses; the issues panel shows the check's findings grouped by part.
+
+#### [ ] P5-T09b — End-to-end flow: Open in… and screenshot review
+The same flow continues: an editor added in Settings → Editors… (a harmless test program) is
+started with Collision's file through Open in…; dark and enlarged-font screenshots; the
+screenshots reviewed against REVIEW_CHECKLIST.md §5 and listed for HC1.
+**Acceptance:** the program receives exactly the project's course.kcl and the dashboard says
+it was started; review notes recorded; Linux and Windows CI green.
+Already noted by the P5-T09a review for this one, from its pictures: the wizard summary
+wraps the project folder straight after "C:"; the wizard says "Replaces: Luigi Circuit
+(Mushroom Cup, track 1)" while the dashboard says "Replaces beginner_course.szs"; a card just
+assigned shows both "using files/course.kmp" and "Now using files/course.kmp (a copy of
+course.kmp)"; the first card's note disappears when a second card is assigned.
+
 ### [ ] P5-T10 — UX polish pass
 Empty states, error dialogs with "Copy details", plain-language tooltips for every component, focus
 order, window size/position persistence, high-DPI check, no text truncation at 1280×720.

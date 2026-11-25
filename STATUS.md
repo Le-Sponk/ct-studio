@@ -9,9 +9,13 @@
 **Last green commit:** `3d9690b` (P5-T08f, exact Check, Windows + Ubuntu)
 
 ## In progress
-- None. Next task P5-T09 (GUI end-to-end test & screenshot review): new project → assign
-  fixture files (manual mode) → build with fakes → Ready statuses → issue shown → open-in
-  invoked, with screenshots in `tests/artifacts/screens/` reviewed against the UI checklist.
+- P5-T09a — End-to-end flow: new project to issues. Plan: `tests/gui/e2e_helpers.py` and
+  `tests/gui/test_end_to_end.py` on the real MainWindow with real StatusService,
+  LaunchController and BuildController(build_project) on a plan of the assigned parts' stage
+  steps + assemble + validate (fake Wiimm tools; analyze/check replay recorded real output);
+  wizard → Choose file… (kcl) and drop (kmp) → test build → statuses and issues. Acceptance as
+  in the phase file. Owner decision 2026-11-25: "Ready statuses" = assigned parts "your own
+  file", Objects "ready", every other card pinned exactly.
 
 <!-- Task ID, one-line plan, acceptance criteria restated, files expected to change -->
 ## Done (newest first)
@@ -1772,6 +1776,11 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-25 P5-T09 split into T09a (flow to issues) and T09b (Open in… and screenshot
+  review): about 340 lines in one leaf. 206 → 207 planned tasks (the parent now counts
+  through its two leaves).
+  Owner answered the same day: "Ready statuses" for now = assigned parts "your own file",
+  Objects "ready", every other card pinned; full Ready waits for the generation phases.
 - 2026-11-24: Split P5-T08e (Advanced page) into e1 (tool commands in the build log, plus
   the reserved `extra_wszst_args` shown read-only), e2 (how many build logs each project
   keeps) and e3 (developer mode: the stall watchdog from the next start). One setting per
