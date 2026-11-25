@@ -90,7 +90,8 @@ def test_integrated_build_dashboard_screenshots(
 
 
 def test_result_reveal_waits_for_queued_footer_growth(qtbot: QtBot, tmp_path: Path) -> None:
-    """A late multi-line notice reaches the scroll range only after several layout passes."""
+    """A late multi-line notice is sized only after several layout passes; it stays in the
+    window (the pinned build bar, P5-T10b)."""
     app = QApplication.instance()
     assert isinstance(app, QApplication)
     old_font = app.font()
@@ -103,7 +104,7 @@ def test_result_reveal_waits_for_queued_footer_growth(qtbot: QtBot, tmp_path: Pa
             view.dashboard.builds.controls.test_button.click()
             started(qtbot, view, fake)
             finished(qtbot, view, fake)
-            _reveal_footer(qtbot, view)
+            _settle_footer(qtbot, view)
             controls = view.dashboard.builds.controls
             controls.show_error(RuntimeError("Cannot read the collision source.\nCheck the file."))
             QApplication.processEvents()
@@ -136,42 +137,38 @@ def _busy(qtbot: QtBot, view: MainWindow, project: Project, fake: FakeBuilds) ->
 
 
 def _check_result_visible(qtbot: QtBot, view: MainWindow) -> None:
-    viewport = _reveal_footer(qtbot, view).viewport()
+    """The build's messages sit in the pinned build bar (P5-T10b): inside the window."""
+    _settle_footer(qtbot, view)
     controls = view.dashboard.builds.controls
-    notice_top = controls.notice.mapTo(viewport, controls.notice.rect().topLeft())
-    result_bottom = controls.last_result.mapTo(viewport, controls.last_result.rect().bottomLeft())
-    assert viewport.rect().contains(notice_top)
-    assert viewport.rect().contains(result_bottom)
+    notice_top = controls.notice.mapTo(view, controls.notice.rect().topLeft())
+    result_bottom = controls.last_result.mapTo(view, controls.last_result.rect().bottomLeft())
+    assert view.rect().contains(notice_top)
+    assert view.rect().contains(result_bottom)
 
 
-def _layout_settled(view: MainWindow, scroll: QScrollArea) -> bool:
-    """Footer text changes take several queued layout passes to reach the scroll range."""
-    controls, page = view.dashboard.builds.controls, view.dashboard
-    layout = page.layout()
-    assert layout is not None
-    labels_sized = all(
+def footer_settled(view: MainWindow) -> bool:
+    """Build bar text changes take several queued layout passes to size the labels."""
+    controls = view.dashboard.builds.controls
+    return all(
         not label.text()
         or label.height() == min(label.maximumHeight(), label.heightForWidth(label.width()))
         for label in (controls.activity, controls.notice, controls.last_result)
     )
-    wanted = max(layout.totalHeightForWidth(page.width()), scroll.viewport().height())
-    return labels_sized and page.height() == wanted
 
 
-def _reveal_footer(qtbot: QtBot, view: MainWindow) -> QScrollArea:
+def _settle_footer(qtbot: QtBot, view: MainWindow) -> QScrollArea:
     scroll = view.findChild(QScrollArea, "dashboardScroll")
     assert scroll is not None
-    eventually(qtbot, lambda: _layout_settled(view, scroll), "dashboard layout did not settle")
-    scroll.ensureWidgetVisible(view.dashboard.builds.controls)
+    eventually(qtbot, lambda: footer_settled(view), "build bar layout did not settle")
     QApplication.processEvents()
     return scroll
 
 
 def _check_layout(qtbot: QtBot, view: MainWindow) -> None:
-    scroll = _reveal_footer(qtbot, view)
+    scroll = _settle_footer(qtbot, view)
     controls = view.dashboard.builds.controls
     assert view.dashboard.width() <= scroll.viewport().width()
-    assert controls.geometry().right() <= view.dashboard.width()
+    assert controls.mapTo(view, controls.rect().bottomRight()).x() < view.width()
     assert controls.progress.maximum() == 3 and controls.progress.value() == 1
     for button in (controls.test_button, controls.release_button, controls.cancel_button):
         assert button.width() >= button.sizeHint().width()

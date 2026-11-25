@@ -82,6 +82,7 @@ class BuildControls(QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignTop)
         label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         label.setMaximumHeight(label.fontMetrics().lineSpacing() * 4 + 8)
+        label.hide()  # shown with its first text
         return label
 
     def begin(self, release: bool) -> None:
@@ -168,6 +169,7 @@ class BuildControls(QWidget):
     @staticmethod
     def _present(label: QLabel, text: str, details: str | None = None) -> None:
         label.setText(text)
+        label.setVisible(bool(text))  # an empty line takes no room in the pinned bar
         complete = text if details is None else details
         label.setToolTip(complete)
         label.setAccessibleDescription(complete)

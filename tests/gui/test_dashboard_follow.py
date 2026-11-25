@@ -8,7 +8,7 @@ from build_window_helpers import build_window, eventually, finished, started
 from PySide6.QtGui import QPalette
 from PySide6.QtWidgets import QApplication, QScrollArea, QWidget
 from pytestqt.qtbot import QtBot
-from test_build_dashboard_visual import _layout_settled, _palette
+from test_build_dashboard_visual import _palette, footer_settled
 from wizard_fakes import shot
 
 from ctstudio.core.build.events import BuildFinished, LogLine, NodeFailed
@@ -22,6 +22,15 @@ def _area(view: MainWindow) -> QScrollArea:
     area = view.findChild(QScrollArea, "dashboardScroll")
     assert area is not None
     return area
+
+
+def _layout_settled(view: MainWindow, scroll: QScrollArea) -> bool:
+    """The cards' layout reached the scroll range, and the build bar's labels are sized."""
+    page = view.dashboard
+    layout = page.layout()
+    assert layout is not None
+    wanted = max(layout.totalHeightForWidth(page.width()), scroll.viewport().height())
+    return footer_settled(view) and page.height() == wanted
 
 
 def _settle(qtbot: QtBot, view: MainWindow) -> QScrollArea:
@@ -40,6 +49,13 @@ def _bottom_in_view(area: QScrollArea, widget: QWidget) -> bool:
 
 def _top_in_view(area: QScrollArea, widget: QWidget) -> bool:
     return area.viewport().rect().contains(widget.mapTo(area.viewport(), widget.rect().topLeft()))
+
+
+def _in_window(view: MainWindow, widget: QWidget) -> bool:
+    """The build bar is pinned below the cards (P5-T10b): its parts are always in the window."""
+    top = widget.mapTo(view, widget.rect().topLeft())
+    bottom = widget.mapTo(view, widget.rect().bottomLeft())
+    return view.rect().contains(top) and view.rect().contains(bottom)
 
 
 def _fail(view: MainWindow) -> None:
@@ -63,7 +79,7 @@ def test_build_scrolls_to_newest_output_without_moving_focus(
             log.toggle.click()
             area = _settle(qtbot, view)
             area.verticalScrollBar().setValue(0)
-            assert not _bottom_in_view(area, controls)
+            assert not _bottom_in_view(area, log)
             controls.test_button.click()
             started(qtbot, view, fake)
             focus = QApplication.focusWidget()
@@ -76,7 +92,7 @@ def test_build_scrolls_to_newest_output_without_moving_focus(
             bar = area.verticalScrollBar()
             assert bar.maximum() > 0 and bar.value() == bar.maximum()
             assert _top_in_view(area, log.view) and _bottom_in_view(area, log.view)
-            assert _bottom_in_view(area, controls.cancel_button)
+            assert _in_window(view, controls.cancel_button)
             assert QApplication.focusWidget() is focus
             shot(view, f"p5-t03e34-follow-{'dark' if dark else 'light'}.png")
     finally:
@@ -92,13 +108,13 @@ def test_late_result_and_error_stay_visible_as_layout_grows(qtbot: QtBot, tmp_pa
         _fail(view)
         fake.events[-1] = BuildFinished(summary("failed", ran=(), failed=("stage:kcl",)))
         finished(qtbot, view, fake)
-        area = _settle(qtbot, view)
+        _settle(qtbot, view)
         assert "Check the file" in controls.notice.text()
-        assert _top_in_view(area, controls.notice)
-        assert _bottom_in_view(area, controls.last_result)
+        assert _in_window(view, controls.notice)
+        assert _in_window(view, controls.last_result)
         controls.show_notice("Line one\nLine two\nLine three")  # growth after the result
-        area = _settle(qtbot, view)
-        assert _bottom_in_view(area, controls.last_result)
+        _settle(qtbot, view)
+        assert _in_window(view, controls.last_result)
 
 
 def test_reader_scrolling_up_is_respected_until_back_at_end(qtbot: QtBot, tmp_path: Path) -> None:
@@ -111,14 +127,19 @@ def test_reader_scrolling_up_is_respected_until_back_at_end(qtbot: QtBot, tmp_pa
         assert bar.value() == bar.maximum() > 0
         bar.setValue(0)  # the reader scrolls up to the component cards
         _fail(view)
-        area = _settle(qtbot, view)
+        _settle(qtbot, view)
         assert bar.value() == 0
-        assert not _bottom_in_view(area, controls.notice)
+        assert _in_window(view, controls.notice)  # the message is seen without following
         bar.setValue(bar.maximum())  # back at the end: follow again
-        controls.show_notice("Another\nmulti-line\nwarning")
-        area = _settle(qtbot, view)
+        before = bar.maximum()
+        log = view.dashboard.builds.log
+        if not log.view.isVisible():
+            log.toggle.click()
+        view.services.build.build_event.emit(LogLine("stage:kcl", "\n".join(map(str, range(40)))))
+        eventually(qtbot, log.view.isVisible, "log output was never shown")
+        _settle(qtbot, view)
+        assert bar.maximum() > before, "the cards area did not grow"
         assert bar.value() == bar.maximum()
-        assert _bottom_in_view(area, controls.notice)
 
 
 def test_no_scrolling_before_a_build_or_after_rebinding(qtbot: QtBot, tmp_path: Path) -> None:

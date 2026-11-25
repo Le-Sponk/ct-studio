@@ -108,11 +108,15 @@ def _check_log(window: MainWindow) -> None:
 
 
 def _assert_in_view(window: MainWindow, widget: QWidget) -> None:
+    """The build buttons sit in the bar pinned below the cards (P5-T10b): in the window."""
     QApplication.processEvents()
     area = window.findChild(QScrollArea, "dashboardScroll")
     assert area is not None
-    bottom = widget.mapTo(area.viewport(), widget.rect().bottomLeft())
-    assert area.viewport().rect().contains(bottom)
+    if area.isAncestorOf(widget):
+        bottom = widget.mapTo(area.viewport(), widget.rect().bottomLeft())
+        assert area.viewport().rect().contains(bottom)
+    else:
+        assert window.rect().contains(widget.mapTo(window, widget.rect().bottomLeft()))
 
 
 def test_native_tab_from_log_to_cancel_and_build_after_collapse(

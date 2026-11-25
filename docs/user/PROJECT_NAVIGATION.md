@@ -65,7 +65,8 @@ described below; Open in… for a part's file is described in
 
 ## Building from the dashboard
 
-At the bottom of a writable project's dashboard, choose Build test (Ctrl+B) or Build release
+In the build bar pinned along the bottom of a writable project's dashboard (it stays on screen
+while the cards scroll), choose Build test (Ctrl+B) or Build release
 (Ctrl+Shift+B). Release builds fail on validation errors; a successful test build is not proof
 that a track is playable. The existing manual-mode builder still needs the project's supplied
 files and required tools. Missing inputs or tools produce an explanation and a next step.

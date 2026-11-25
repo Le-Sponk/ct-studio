@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QMainWindow,
-    QScrollArea,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
@@ -25,6 +24,7 @@ from ctstudio.gui.recent_projects import RecentProjects
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.settings_window import SettingsWindow
 from ctstudio.gui.views.dashboard import Dashboard
+from ctstudio.gui.views.dashboard_page import DashboardPage
 from ctstudio.gui.views.new_project import NewProjectWizard
 from ctstudio.gui.views.project_details import ProjectDetailsDialog
 from ctstudio.gui.views.welcome_page import WelcomePage, choose_project
@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
         self.new_project_action.setEnabled(available)
         self.open_project_action.setEnabled(available)
         self.welcome.setEnabled(not building and not self.services.editing and not launching)
-        self.dashboard.setEnabled(not self.welcome.busy)
+        self.dashboard_page.setEnabled(not self.welcome.busy)  # the cards and the build bar
         self.home_action.setEnabled(navigating)
         self.dashboard_action.setEnabled(self.services.project is not None and navigating)
 
@@ -297,19 +297,16 @@ class MainWindow(QMainWindow):
         self._home()
         self.welcome.show_problem(text)
 
-    def _route_dashboard(self) -> QScrollArea:
-        scroll = QScrollArea(self.pages)
-        scroll.setObjectName("dashboardScroll")
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(self.dashboard)
-        self.dashboard.builds.follow.attach(scroll)
+    def _route_dashboard(self) -> DashboardPage:
+        self.dashboard_page = DashboardPage(self.dashboard, self.pages)
+        self.dashboard.builds.follow.attach(self.dashboard_page.cards_area)
         self.dashboard.builds.can_start = lambda: not self.welcome.busy
         self.dashboard.edit_requested.connect(self._edit_project)
         self.dashboard.mode_requested.connect(self._edit_component)
         self.dashboard.blender_requested.connect(self._open_blender)
         self.dashboard.reveal_requested.connect(self._launch)
         self.dashboard.tools_requested.connect(self._show_tools)
-        return scroll
+        return self.dashboard_page
 
     def _edit_project(self) -> None:
         if not self._can_edit():
