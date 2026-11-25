@@ -166,6 +166,8 @@ class ToolsPage(QWidget):
         header.setStretchLastSection(True)
         table.itemSelectionChanged.connect(self._update)
         self._table = table
+        # A shorter list (smaller window, taller buttons) must not hide the chosen tool.
+        table.verticalScrollBar().rangeChanged.connect(self._keep_selection_shown)
         return table
 
     def _make_buttons(self) -> QVBoxLayout:
@@ -214,6 +216,11 @@ class ToolsPage(QWidget):
                 self._table.scrollToItem(item)  # a long list may hide the row otherwise
                 return True
         return False
+
+    def _keep_selection_shown(self) -> None:
+        rows = self._table.selectionModel().selectedRows()
+        if rows:
+            self._table.scrollTo(rows[0])
 
     def recheck(self, *, force: bool) -> None:
         """Check every tool again in a worker; ``force`` re-runs the version probes."""

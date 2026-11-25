@@ -28,6 +28,7 @@ from wizard_fakes import shot
 
 from ctstudio.core.tools.doctor import Report, ToolCheck
 from ctstudio.core.tools.registry import TOOL_SPECS
+from ctstudio.gui.views.tools_page import ToolsPage
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(120)]
 __all__ = ["doctor", "settings_file"]  # fixtures used by name
@@ -123,6 +124,29 @@ def test_the_tools_page_fits_800_px_with_a_wide_font(
         assert need <= 800, f"{need} px > 800 at {stretch} %"
         assert settled(qtbot, lambda: dialog.width() <= 800), f"{dialog.width()} > 800"
         shot(dialog, f"p5-t10i-tools-wide-{stretch}.png")
+
+
+def test_the_selected_tool_stays_in_view_when_the_window_shrinks(
+    qtbot: QtBot, settings_file: Path
+) -> None:
+    """A tool chosen from elsewhere (Open in…'s "Set up…") is scrolled into view; when the
+    window then gets shorter (the taller two-row buttons, a small screen), it must stay
+    there. Ubuntu CI caught the row scrolled out (P5-T10i)."""
+    with tools_page(qtbot, FullDoctor(), settings_file) as (dialog, table):
+        assert settled(qtbot, lambda: table.rowCount() == len(TOOL_SPECS))
+        page = dialog.findChild(ToolsPage)
+        assert page is not None
+        dialog.resize(1000, 900)
+        qtbot.waitUntil(lambda: table.viewport().height() > 0)
+        page.select(TOOL_SPECS[-1].id)
+        row = table.selectionModel().selectedRows()[0].row()
+        dialog.resize(1000, dialog.minimumSizeHint().height())
+
+        def in_view() -> bool:
+            cell = table.visualRect(table.model().index(row, 0))
+            return table.viewport().rect().contains(cell)
+
+        assert settled(qtbot, in_view), "the selected tool is scrolled out of view"
 
 
 @pytest.mark.parametrize("enlarged", [False, True], ids=["normal", "enlarged"])
