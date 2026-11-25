@@ -85,6 +85,11 @@ host against the Hermes Docker container's shared workspace
    - **Save behaviour** in Lorenzi's editor and BrawlCrate: does saving rewrite in place, write a
      temp file and rename, or leave a backup? P5-T06's change detection depends on the answer.
    - Whether BrawlCrate's model preview works at all in your setup (native, or Wine with a real GPU).
+10. Look through the end-to-end pictures and the agent's notes in
+    [docs/reviews/P5_T09_SCREENSHOTS.md](../reviews/P5_T09_SCREENSHOTS.md) (made by
+    `uv run pytest tests/gui/test_end_to_end.py tests/gui/test_end_to_end_open_in.py` into
+    `tests/artifacts/screens/`, also on the Mint host for Ubuntu fonts); say which notes you
+    agree with and what they missed.
 Report: anything confusing, slow, ugly, or wrong; screenshots welcome.
 
 ## HC2 — Course model automation (≈25 min, end of Phase 7)

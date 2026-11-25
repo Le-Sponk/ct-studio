@@ -1056,6 +1056,13 @@ course.kmp)"; the first card's note disappears when a second card is assigned.
 ### [ ] P5-T10 — UX polish pass
 Empty states, error dialogs with "Copy details", plain-language tooltips for every component, focus
 order, window size/position persistence, high-DPI check, no text truncation at 1280×720.
+Starts from the P5-T09b picture review (`docs/reviews/P5_T09_SCREENSHOTS.md`): card action
+weight and the build buttons out of view at 1280×720, "Replaces" naming the file instead of
+the track, long folder paths cut off when a folder name has no space or hyphen (wizard
+summary, dashboard "Project folder", launch notice), the header's height at 150 %, the repeated "using …"/
+"Now using …" lines, the assign note cleared by the next assignment, "Open in Blender"
+disabled without a reason, and the Open in… dialog naming the file only in its title bar
+and never the part.
 **Acceptance:** checklist items ticked in the phase review doc.
 
 ### [ ] P5-GATE — Phase review
