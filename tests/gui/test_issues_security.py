@@ -9,7 +9,7 @@ from pytestqt.qtbot import QtBot
 from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.validation.issues import Issue
 from ctstudio.core.validation.report import group_issues
-from ctstudio.gui.views.issues_panel import IssuesPanel
+from ctstudio.gui.views.issues_panel import NO_HELP_PAGE, IssuesPanel
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(60)]
 
@@ -47,7 +47,7 @@ def test_a_help_link_cannot_launch_anything_but_the_wiki(
     panel.tree.setCurrentItem(finding(panel.tree, 0, 0))
     if component == "archive":
         assert not panel.help_button.isEnabled()
-        assert panel.help_button.toolTip() == ""
+        assert panel.help_button.toolTip() == NO_HELP_PAGE
         panel.help_button.click()
         assert opened == []
     else:

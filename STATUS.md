@@ -4,16 +4,21 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10 — UX polish pass
+**Next task:** P5-T10a — Plain words on the dashboard
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
 **Last green commit:** `fe528f9` (P5-T09b, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10 — UX polish pass. Empty states, error dialogs with "Copy details", plain-language
-  tooltips, focus order, window size/position persistence, high-DPI check, no truncation at
-  1280×720; starts from `docs/reviews/P5_T09_SCREENSHOTS.md` (its list is in the phase
-  file). Acceptance: checklist items ticked in the phase review doc. To be split into leaves
-  before any code (one vertical change each), reading every claim against the code first.
+- P5-T10a — Plain words on the dashboard. "Replaces" names the track (`slots.find(...)
+  .label`, file in the tooltip, the file name for an unknown slot); Open in Blender's
+  tooltip and description say why it is off (read-only reason, or no Blender file: choose
+  one in Project details…); the Open in… dialog names the part and file in its title,
+  heading and list description (`EditorChoices(part=)`, from the card showing the file);
+  tooltips for Refresh, Copy project folder, Build test/release/Cancel (what each does),
+  and the issues panel's help button says why it is off (its page kept apart from the
+  tooltip). Tests `tests/gui/test_dashboard_words.py`; old expectations updated in
+  test_dashboard, test_project_details_window, test_editor_choices, test_issues_details,
+  test_issues_security. P5-T10b/c/e/f/g wait for owner questions D1-D5 (Plan changes).
 
 ## Done (newest first)
 - 2026-11-25 `P5-T09b` End-to-end Open in… and screenshot review (`fe528f9`); closes
@@ -1795,6 +1800,21 @@
   Xvfb, no Python 3.12 yet. [ENVIRONMENT.md](docs/dev/ENVIRONMENT.md) — commit b69cc17
 
 ## Plan changes
+- 2026-11-25 P5-T10 split into T10a-T10j (207 → 216 planned tasks). Open owner questions,
+  asked 2026-11-25, unanswered; each gates its leaf (recommended first):
+  D1 (T10b) build buttons: pin a build bar to the window bottom / put them in the header
+  row / leave as is. D2 (T10c) long paths: one line shortened in the middle with the full
+  path on hover and Copy, the started notice relative to the project / wrap at folder
+  separators (no longer selectable) / wrap only the notice. D3 (T10e) cards: note says only
+  what is new and stays until that card changes, and drop the duplicate "Copy path" button /
+  fix the note, keep both buttons / fix only the wording / leave to Phase 13. D4 (T10f)
+  errors: inline messages plus "Copy details" when details exist, a dialog only for
+  unexpected crashes / a dialog for every failure / only the crash dialog. D5 (T10g) window
+  size and position: remember in settings.json, clamped onto the screen / in Qt's store
+  (Windows registry) / no. TD-022's owner moves: its core (Tools buttons in two rows, Tab
+  leaving the Tools table, 132 % stretch) to P5-T10i, the widest-font sweep (144-162 %,
+  page list and Editors tabs) to P13-T06. Decided by the agent (low stakes): the closing review goes in
+  `docs/reviews/P5_T10_UX.md`, linked from the P5-GATE review.
 - 2026-11-25 P5-T09 split into T09a (flow to issues) and T09b (Open in… and screenshot
   review): about 340 lines in one leaf. 206 → 207 planned tasks (the parent now counts
   through its two leaves).
@@ -2671,8 +2691,8 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   even with Auto-add on. `BUILD_IGNORED` names tool paths, build steps and build logs only;
   the Settings guide states the auto-add consequence. Fix: name it in the notice (and the
   guide test's quote follows).
-- **TD-022 · P5-T10 · Settings window width with very wide fonts, Tools table (P5-T08a
-  review).** Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
+- **TD-022 · P5-T10i (core) and P13-T06 (widest-font sweep) · Settings window width with
+  very wide fonts, Tools table (P5-T08a review).** Extra scope for P5-T10 beyond its "no text truncation at 1280×720" criterion:
   an 800 px screen with fonts wider than the tested enlarged one. All eight Settings pictures
   fit 800 px at the tested enlarged font (150% size, 120% stretch) in Segoe UI, Verdana and
   Tahoma (tightest: Tools in Verdana, 762 px). Wider, measured in Verdana: Tools about 806 px

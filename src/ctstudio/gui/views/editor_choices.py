@@ -41,23 +41,26 @@ class EditorChoices(QDialog):
         *,
         can_open: bool,
         why_not: str | None = None,
+        part: str | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.setObjectName("editorChoices")
-        self.setWindowTitle(f"Open {prepared.document.name} in…")
+        what = f"{part} ({prepared.document.name})" if part else prepared.document.name
+        self.setWindowTitle(f"Open {what} in…")
         self.chosen: EditorChoice | None = None
         self.setup: str | None = None  # a missing built-in editor to set up in Tools
         self._options = prepared.options
         self._can_open = can_open
         self._why_not = why_not
         layout = QVBoxLayout(self)
-        heading = QLabel("&Choose an editor:", self)
+        heading = QLabel(f"&Choose an editor for {what}:", self)
         layout.addWidget(heading)
         self.choices = QListWidget(self)
         heading.setBuddy(self.choices)
         self.choices.setObjectName("editorChoiceList")
         self.choices.setAccessibleName("Editors")
+        self.choices.setAccessibleDescription(f"Editors for {what}")
         for option in self._options:
             item = QListWidgetItem(option.label + _SUFFIX[option.state], self.choices)
             item.setToolTip(_reason(option))

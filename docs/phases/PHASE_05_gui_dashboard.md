@@ -1065,6 +1065,44 @@ disabled without a reason, and the Open in… dialog naming the file only in its
 and never the part.
 **Acceptance:** checklist items ticked in the phase review doc.
 
+Split 2026-11-25 into leaves (research against HEAD `a1fd1a1`: window size/position is
+not remembered anywhere; there are no error dialogs and errors' details never reach the
+GUI; empty states and focus order are mostly done). Leaves marked "owner question" wait for
+the owner's answer (asked 2026-11-25, unanswered; options in STATUS Plan changes) and are
+written to be confirmed before they start.
+
+#### [ ] P5-T10a — Plain words on the dashboard
+"Replaces" names the track (Luigi Circuit, Mushroom Cup) with the file in the tooltip;
+"Open in Blender" says why it is off (no Blender file: choose one in Project details…;
+read-only: why); the Open in… dialog names the part ("Open Collision (course.kcl) in…") in
+its title and heading; tooltips for Refresh, Copy project folder and the two build buttons.
+**Acceptance:** tests on each text and tooltip in each state, and every visible dashboard
+button has a non-empty tooltip.
+
+#### [ ] P5-T10b — Build buttons always visible (owner question D1)
+#### [ ] P5-T10c — Long paths never cut off (owner question D2)
+#### [ ] P5-T10d — Compact header
+The access line only for read-only projects, one row of header buttons, no stale "Statuses
+checked." **Acceptance:** at 1280×720 with the enlarged font the first card starts within
+about 40 % of the height (about 70 % today). After T10b and T10c.
+
+#### [ ] P5-T10e — Card notes and actions (owner question D3)
+#### [ ] P5-T10f — Error details and unexpected errors (owner question D4)
+#### [ ] P5-T10g — Remember window size and position (owner question D5)
+#### [ ] P5-T10h — High-DPI evidence
+Populated dashboard and Settings pictures at 1.5× and 2×. **Acceptance:** no clipped labels;
+status icons drawn at least at the scale. Tests only unless something turns up.
+
+#### [ ] P5-T10i — Settings → Tools at wide fonts (TD-022 core)
+Tools buttons in two rows, Tab leaves the Tools table, tooltips on shortened cells, and the
+1280×720 / 150 % Tools pictures TD-007 asked for. **Acceptance:** a real Tab walk; Tools fits
+800 px at 132 % stretch in Verdana. The widest-font sweep stays TD-022 → P13-T06.
+
+#### [ ] P5-T10j — Close the UX pass
+Rerun the §5 pictures (light/dark, 1280×720, 150 %) into `docs/reviews/P5_T10_UX.md`, which
+P5-GATE's phase review links. **Acceptance:** every REVIEW_CHECKLIST §5 row is "Yes" or names
+its later owner task.
+
 ### [ ] P5-GATE — Phase review
 ### [ ] P5-HC1 — Human checkpoint 1 (see HUMAN_CHECKPOINTS.md)
 ### [ ] P5-DEEPCLEAN — Deep Clean #1 (REVIEW_CHECKLIST.md)

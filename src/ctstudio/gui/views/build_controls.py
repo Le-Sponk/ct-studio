@@ -23,6 +23,11 @@ from ctstudio.core.build.events import (
     NodeStarted,
 )
 
+_TEST = "Build a track to try in the game, with the test compression"
+_RELEASE = (
+    "Build the track to share, with the release compression; an error in the final check stops it"
+)
+
 
 class BuildControls(QWidget):
     """Render build state without starting work or deciding worker ownership."""
@@ -45,14 +50,14 @@ class BuildControls(QWidget):
         self.test_button = QPushButton("Build test", self)
         self.release_button = QPushButton("Build release", self)
         self.cancel_button = QPushButton("Cancel build", self)
-        for button, name, shortcut in (
-            (self.test_button, "buildTest", "Ctrl+B"),
-            (self.release_button, "buildRelease", "Ctrl+Shift+B"),
-            (self.cancel_button, "cancelBuild", "Esc"),
+        for button, name, shortcut, does in (
+            (self.test_button, "buildTest", "Ctrl+B", _TEST),
+            (self.release_button, "buildRelease", "Ctrl+Shift+B", _RELEASE),
+            (self.cancel_button, "cancelBuild", "Esc", "Stop the running build"),
         ):
             button.setObjectName(name)
             button.setShortcut(shortcut)
-            button.setToolTip(f"{button.text()} ({shortcut})")
+            button.setToolTip(f"{does} ({shortcut})")
             button.setAccessibleDescription(button.toolTip())
             buttons.addWidget(button)
         self.test_button.clicked.connect(lambda: self.build_requested.emit(False))

@@ -153,7 +153,8 @@ def test_the_list_is_labelled_and_every_row_describes_itself(qtbot: QtBot) -> No
     dialog = EditorChoices(MIXED, can_open=True)
     qtbot.addWidget(dialog)
     labels = [label for label in dialog.findChildren(QLabel) if label.buddy() is dialog.choices]
-    assert [label.text() for label in labels] == ["&Choose an editor:"]
+    shown = [label.text() for label in labels]
+    assert shown == [f"&Choose an editor for {MIXED.document.name}:"]  # no part: the file
     for row, option in enumerate(MIXED.options):
         described = dialog.choices.item(row).data(Qt.ItemDataRole.AccessibleDescriptionRole)
         assert described == dialog.choices.item(row).toolTip() and option.explanation in described

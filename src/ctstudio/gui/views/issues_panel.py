@@ -37,6 +37,7 @@ from ctstudio.core.validation.report import (
 OpenUrl = Callable[[str], object]
 NOT_CHECKED = "Not checked yet: build the track to check it for problems."
 PICK = "Select a finding to see its next step and file."
+NO_HELP_PAGE = "Select a finding that has a help page to open it."
 _ENTRY = Qt.ItemDataRole.UserRole
 
 
@@ -114,6 +115,7 @@ class IssuesPanel(QWidget):
         row.addStretch()
         self.help_button = QPushButton("Open help page", self)
         self.help_button.setObjectName("issuesHelp")
+        self._help: str | None = None
         self.help_button.clicked.connect(self._open_help)
         row.addWidget(self.help_button)
         self.copy_button = QPushButton("Copy report", self)
@@ -181,8 +183,10 @@ class IssuesPanel(QWidget):
         self.detail.setText(text)
         self.detail.setToolTip(text)
         self.detail.setAccessibleDescription(text)
+        self._help = page
         self.help_button.setEnabled(page is not None)
-        self.help_button.setToolTip(page or "")
+        self.help_button.setToolTip(page or NO_HELP_PAGE)  # the page it opens, or why not
+        self.help_button.setAccessibleDescription(page or NO_HELP_PAGE)
 
     def _describe(self, group: IssueGroup, issue: Issue | None) -> str:
         if issue is None:
@@ -202,7 +206,7 @@ class IssuesPanel(QWidget):
             self.part_requested.emit(entry[0].part)
 
     def _open_help(self) -> None:
-        page = self.help_button.toolTip()
+        page = self._help
         if self.help_button.isEnabled() and page:
             self.open_url(page)
 

@@ -12,7 +12,7 @@ from pytestqt.qtbot import QtBot
 
 from ctstudio.core.validation.issues import Issue
 from ctstudio.core.validation.report import group_issues
-from ctstudio.gui.views.issues_panel import IssuesPanel
+from ctstudio.gui.views.issues_panel import NO_HELP_PAGE, IssuesPanel
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(60)]
 
@@ -58,7 +58,7 @@ def test_clearing_a_selected_finding_clears_all_its_details(qtbot: QtBot, tmp_pa
             == panel.detail.accessibleDescription()
             == ""
         )
-        assert panel.help_button.toolTip() == ""
+        assert panel.help_button.toolTip() == NO_HELP_PAGE
         assert not panel.help_button.isEnabled()
         assert not panel.copy_button.isEnabled()
         QApplication.clipboard().setText("unchanged")

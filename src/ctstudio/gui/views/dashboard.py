@@ -23,6 +23,8 @@ from PySide6.QtWidgets import (
 from ctstudio.core.components.registry import COMPONENTS
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
+from ctstudio.core.project.slots import UnknownSlot
+from ctstudio.core.project.slots import find as find_slot
 from ctstudio.gui.dashboard_assign import DashboardAssign
 from ctstudio.gui.dashboard_builds import DashboardBuilds
 from ctstudio.gui.dashboard_editors import DashboardEditors
@@ -35,6 +37,12 @@ from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
 from ctstudio.gui.views.dashboard_watch import DashboardWatch
 from ctstudio.gui.views.issues_panel import IssuesPanel
+
+
+def _explain(widget: QWidget, text: str) -> None:
+    """The tooltip and the screen reader's description say the same thing."""
+    widget.setToolTip(text)
+    widget.setAccessibleDescription(text)
 
 
 def _label(name: str, parent: QWidget) -> QLabel:
@@ -112,7 +120,13 @@ class Dashboard(QWidget):
         info = project.manifest.project
         self.name_label.setText(info.name)
         self.folder_label.setText(str(project.root))
-        self.slot_label.setText(f"{info.slot}.szs")
+        try:
+            track = find_slot(info.slot)
+            self.slot_label.setText(track.label)
+            _explain(self.slot_label, f"{info.slot}.szs")
+        except UnknownSlot:  # a hand-edited manifest: the file name is all there is
+            self.slot_label.setText(f"{info.slot}.szs")
+            _explain(self.slot_label, "")
         source = project.root / info.blend if info.blend else None
         self.source_label.setText(str(source) if source else "No Blender file chosen")
         access = (
@@ -153,6 +167,7 @@ class Dashboard(QWidget):
         self.refresh_button = QPushButton("Refresh statuses", self)
         self.refresh_button.setObjectName("refreshStatuses")
         self.refresh_button.setEnabled(False)
+        _explain(self.refresh_button, "Check every part's files and the tools again.")
         self.refresh_button.clicked.connect(self.refresh)
         # Two columns retain full native labels with wider desktop fonts at minimum width.
         controls = QGridLayout()
@@ -160,6 +175,7 @@ class Dashboard(QWidget):
         self.copy_project = QPushButton("Copy project folder", self)
         self.copy_project.setObjectName("copyProjectFolder")
         self.copy_project.setEnabled(False)
+        _explain(self.copy_project, "Copy this project's folder path to the clipboard.")
         self.copy_project.clicked.connect(self._copy_project)
         controls.addWidget(self.copy_project, 0, 1)
         self.edit_button = QPushButton("Project details…", self)
@@ -169,8 +185,6 @@ class Dashboard(QWidget):
         controls.addWidget(self.edit_button, 1, 0)
         self.open_blender = QPushButton("Open in Blender", self)
         self.open_blender.setObjectName("openInBlender")
-        self.open_blender.setToolTip("Start Blender with this project's source file.")
-        self.open_blender.setAccessibleDescription(self.open_blender.toolTip())
         self.open_blender.clicked.connect(self.blender_requested)
         controls.addWidget(self.open_blender, 1, 1)
         controls.setColumnStretch(0, 1)
@@ -291,9 +305,19 @@ class Dashboard(QWidget):
         self.edit_button.setEnabled(mutable)
         has_source = self._project is not None and bool(self._project.manifest.project.blend)
         self.open_blender.setEnabled(mutable and has_source)
+        _explain(self.open_blender, self._blender_tip(has_source))
         for card in self.cards.values():
             card.set_actions_enabled(mutable)
             card.set_inspection_enabled(idle)
+
+    def _blender_tip(self, has_source: bool) -> str:
+        """What Open in Blender does, or why it is off."""
+        project = self._project
+        if project is not None and project.read_only:
+            return f"Not available: this project is read-only ({project.read_only_reason})."
+        if not has_source:
+            return "No Blender file chosen yet: choose one in Project details…"
+        return "Start Blender with this project's source file."
 
     @property
     def mutable(self) -> bool:

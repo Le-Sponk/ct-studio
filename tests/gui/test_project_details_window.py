@@ -9,6 +9,7 @@ from pytestqt.qtbot import QtBot
 from test_new_project_window import quiet_services
 
 from ctstudio.core.project.project import Project
+from ctstudio.core.project.slots import find as find_slot
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.views.project_details import ProjectDetailsDialog
 
@@ -54,7 +55,8 @@ def test_dashboard_details_save_refreshes_header_and_statuses(qtbot: QtBot, tmp_
         dialog.source.setText(str(source))
         dialog.accept()
         qtbot.waitUntil(lambda: not window.services.editing)
-        assert window.dashboard.slot_label.text() == f"{slot}.szs"
+        assert window.dashboard.slot_label.toolTip() == f"{slot}.szs"
+        assert window.dashboard.slot_label.text() == find_slot(slot).label
         assert window.dashboard.source_label.text() == str(source)
         qtbot.waitUntil(lambda: not window.dashboard.busy)
         assert window.dashboard.edit_button.isEnabled()

@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QApplication
 
+from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.project import Project
@@ -38,6 +39,7 @@ class _Request:
     choice: EditorChoice | None = None
     label: str = ""
     offer: bool = False  # show the choice dialog when choices arrive
+    part: str = ""  # the part whose card asked, named in the dialog ("" for other files)
 
     def matches(self, result: LaunchResult) -> bool:
         return (
@@ -91,15 +93,16 @@ class DashboardEditors(QObject):
         """A card asked to open its single file: prepare, then offer the choice dialog."""
         card = self.page.cards.get(part)
         if self.dialog is None and card is not None and card.can_open() and card.path:
-            self.prepare(card.path, offer=True)
+            self.prepare(card.path, offer=True, part=COMPONENT_BY_ID[part].name)
 
-    def prepare(self, document: Path, *, offer: bool = False) -> None:
+    def prepare(self, document: Path, *, offer: bool = False, part: str = "") -> None:
         """Ask for choices for ``document``; read-only projects may prepare (reading only)."""
         project = self.page.shown_project
         if project is None or not self.page.inspectable:
             return
         self._choices = None
-        request = _Request(project, project.root, project.manifest, "prepare", offer=offer)
+        root, manifest = project.root, project.manifest
+        request = _Request(project, root, manifest, "prepare", offer=offer, part=part)
         self._start(request, lambda: self.page.services.start_prepare_editors(document))
 
     def open(self, choice: EditorChoice) -> None:
@@ -141,7 +144,7 @@ class DashboardEditors(QObject):
         prepared = self.choices
         if request.offer and prepared is not None:
             if self._may_offer():
-                self._offer(request.project, prepared)
+                self._offer(request, prepared)
             else:  # behind another window or off-page: say how to get them back
                 text += f"\n{SEE_AGAIN}"
         self.page.show_launch_note(text)
@@ -150,11 +153,13 @@ class DashboardEditors(QObject):
         """Only over the visible page and never on top of another modal window (e.g. Tools)."""
         return self.page.isVisible() and QApplication.activeModalWidget() is None
 
-    def _offer(self, project: Project, prepared: PreparedEditors) -> None:
+    def _offer(self, request: _Request, prepared: PreparedEditors) -> None:
+        project = request.project
         dialog = EditorChoices(
             prepared,
             can_open=not project.read_only,
             why_not=project.read_only_reason,
+            part=request.part or None,
             parent=self.page,
         )
         self.dialog = dialog
