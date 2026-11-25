@@ -1071,7 +1071,7 @@ GUI; empty states and focus order are mostly done). Leaves marked "owner questio
 the owner's answer (asked 2026-11-25, unanswered; options in STATUS Plan changes) and are
 written to be confirmed before they start.
 
-#### [ ] P5-T10a — Plain words on the dashboard
+#### [x] P5-T10a — Plain words on the dashboard (commit `6cde29b`)
 "Replaces" names the track (Luigi Circuit, Mushroom Cup) with the file in the tooltip;
 "Open in Blender" says why it is off (no Blender file: choose one in Project details…;
 read-only: why); the Open in… dialog names the part ("Open Collision (course.kcl) in…") in

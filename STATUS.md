@@ -4,23 +4,26 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10a — Plain words on the dashboard
+**Next task:** P5-T10i — Settings → Tools at wide fonts
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `fe528f9` (P5-T09b, exact Check, Windows + Ubuntu)
+**Last green commit:** `6cde29b` (P5-T10a, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10a — Plain words on the dashboard. "Replaces" names the track (`slots.find(...)
-  .label`, file in the tooltip, the file name for an unknown slot); Open in Blender's
-  tooltip and description say why it is off (read-only reason, or no Blender file: choose
-  one in Project details…); the Open in… dialog names the part and file in its title,
-  heading and list description (`EditorChoices(part=)`, from the card showing the file);
-  tooltips for Refresh, Copy project folder, Build test/release/Cancel (what each does),
-  and the issues panel's help button says why it is off (its page kept apart from the
-  tooltip). Tests `tests/gui/test_dashboard_words.py`; old expectations updated in
-  test_dashboard, test_project_details_window, test_editor_choices, test_issues_details,
-  test_issues_security. P5-T10b/c/e/f/g wait for owner questions D1-D5 (Plan changes).
+- P5-T10i — Settings → Tools at wide fonts (TD-022 core): the Tools page's buttons in two
+  rows, Tab leaves the Tools table (`setTabKeyNavigation(False)`), tooltips on shortened
+  cells, and TD-007's 1280×720 / 150 % Tools pictures. Acceptance: a real Tab walk; Tools
+  fits 800 px at 132 % stretch in Verdana. Taken before T10d (which waits on T10b/T10c, and
+  those on owner questions D1/D2); T10e/f/g wait on D3-D5.
 
 ## Done (newest first)
+- 2026-11-25 `P5-T10a` Plain words on the dashboard (`6cde29b`): "Replaces" names the
+  track (file in tooltip and description); Open in Blender says why it is off; the Open in…
+  dialog names the part (carried with the card's request) and file; tooltips on every
+  dashboard button; the help button says why it is off. Also the P5-T10 split (T10a-j,
+  owner questions D1-D5) and TD-022's new owners. Mutants 14/14. Review APPROVE (two
+  minors fixed), delta APPROVE. Gate 5490 / 10 / 178. Exact Check on `6cde29b`: Windows
+  139176655376 (5485 / 15), Ubuntu 139176656000 (5486 / 14), 5500 selected; artifacts
+  15018966946 / 15018092923 coverage.xml only. Integration not required (gui and tests).
 - 2026-11-25 `P5-T09b` End-to-end Open in… and screenshot review (`fe528f9`); closes
   P5-T09 with T09a. `tests/gui/test_end_to_end_open_in.py`: an editor added in Settings →
   Editors… (a real test program, native on Linux) is started by Open in… on Collision with
