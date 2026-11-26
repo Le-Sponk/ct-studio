@@ -12,15 +12,15 @@ from __future__ import annotations
 import os
 import threading
 import time
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
 from build_fakes import FakeBuilds
-from pytestqt.exceptions import TimeoutError as WaitTimedOut
 from pytestqt.qtbot import QtBot
 from test_watcher_bridge import Watchers
+from waits import settled as settled  # the one shared wait
 
 from ctstudio.core.components.state import GENERATED_DIR, ProjectState, record, save_state
 from ctstudio.core.components.status import settings_key
@@ -79,16 +79,6 @@ def shown(
         yield page
     finally:
         assert services.shutdown(10)
-
-
-def settled(qtbot: QtBot, condition: Callable[[], bool], timeout_ms: int = 10_000) -> bool:
-    """Wait for ``condition``; its final value, so a test asserts it (a timeout is a wrong
-    answer, not a crash)."""
-    try:
-        qtbot.waitUntil(condition, timeout=timeout_ms)
-    except WaitTimedOut:
-        pass
-    return condition()
 
 
 def state_of(page: Dashboard, part: str) -> str:

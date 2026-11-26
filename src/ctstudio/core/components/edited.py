@@ -124,7 +124,7 @@ def _checked(project: Project, part: str, done: str) -> tuple[ComponentSpec, byt
             f"The project is read-only, so the {spec.name} was not {done}.",
             hint=f"{reason[:1].upper()}{reason[1:]}. Reopen it for editing.",
         )
-    if getattr(project.manifest.components, spec.id).mode == "manual":
+    if getattr(project.manifest.components, spec.manifest_table or spec.id).mode == "manual":
         raise ProjectError(f"The {spec.name} uses your own file, so it was not {done}.", _REFRESH)
     raw = unchanged_manifest(project, "try again")
     try:

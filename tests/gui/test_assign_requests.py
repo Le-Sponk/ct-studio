@@ -129,6 +129,37 @@ def test_a_read_only_project_is_refused(qtbot: QtBot, tmp_path: Path) -> None:
             assert services.shutdown(10)
 
 
+@pytest.mark.parametrize(
+    ("request_name", "message"),
+    [
+        ("build", "Cannot build a read-only project."),
+        ("reconcile", "Cannot change an outside edit in a read-only project."),
+    ],
+)
+def test_other_writes_refuse_a_read_only_project_too(
+    qtbot: QtBot, tmp_path: Path, request_name: str, message: str
+) -> None:
+    """The shared guard (P5-GATE review) names each write's own refusal."""
+    services = assign_services(AssignWork())
+    with Project.create(tmp_path / "Pistë", "Pistë") as holder:
+        other = Project.open(holder.root)
+        services.adopt(other)
+        qtbot.waitUntil(lambda: not services.status.busy)
+        try:
+            refusal = None
+            try:
+                if request_name == "build":
+                    services.start_build()
+                else:
+                    services.start_reconcile("kcl", "lock")
+            except ProjectError as exc:
+                refusal = exc.user_message
+            assert refusal == message, "the read-only project was not refused"
+            assert not services.build.running and not services.launch.busy
+        finally:
+            assert services.shutdown(10)
+
+
 def test_an_unknown_part_is_refused(qtbot: QtBot, tmp_path: Path) -> None:
     work = AssignWork()
     services = assign_services(work)

@@ -40,6 +40,7 @@ from ctstudio.gui.build_controller import BuildController
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.new_project import NewProjectWizard
+from ctstudio.gui.watchdog import StallWatchdog
 
 RECORDINGS = Path(__file__).resolve().parents[1] / "fakes" / "recordings" / "wszst" / "2.42a"
 INPUTS = RECORDINGS / "inputs"
@@ -106,13 +107,48 @@ def studio(
     qtbot.addWidget(window)
     window.resize(1280, 900)
     window.show()
+    # REVIEW_CHECKLIST §3: the UI thread never stalls during the flow (the watchdog log is
+    # clean; P5-GATE review). Closing joins the workers on purpose, so it is not watched.
+    stalls: list[str] = []
+    watchdog = StallWatchdog(report=stalls.append)  # developer mode's 100 ms limit
     try:
         assert settled(qtbot, lambda: not window.welcome.busy, WAIT), "the welcome page hung"
+        watchdog.start()
+        assert watchdog.watching, "the stall watchdog did not start"
         yield window, services
     finally:
+        assert watchdog.stop(5.0), "the watchdog thread did not end"
         stopped = outcome(lambda: services.shutdown(10))
         assert stopped is True, f"cleanup shutdown gave {stopped!r}"
         window.close()
+    product = [stall for stall in stalls if in_product(stall)]
+    assert product == [], "\n\n".join(product)
+
+
+def in_product(stall: str) -> bool:
+    """False only for a stall inside a test screenshot's ``grab().save(...)``.
+
+    Grabbing and PNG encoding run on the UI thread inside the test and can pass the 100 ms
+    limit on a loaded machine (P5-GATE delta review: 2 of 18 runs). Everything else counts,
+    including a stall while the test waits in the event loop (a product slot, Qt laying out
+    or painting product widgets, or a worker holding the GIL) and the ``processEvents`` call
+    before the grab, which runs product slots (second delta review).
+    """
+    lines = stall.splitlines()
+    innermost: tuple[str, str] | None = None  # (file:function, its source line)
+    for index, line in enumerate(lines):
+        text = line.strip()
+        if text.startswith('File "'):
+            name = Path(text[6 : text.index('"', 6)]).name
+            source = lines[index + 1].strip() if index + 1 < len(lines) else ""
+            innermost = (f"{name}:{text.rsplit(' in ', 1)[-1]}", source)
+    if innermost is None:
+        return True
+    where, source = innermost
+    return not (where == f"{SHOT_FILE}:shot" and "grab()" in source)
+
+
+SHOT_FILE = "wizard_fakes.py"  # the screenshot helper the end-to-end tests use
 
 
 def idle(window: MainWindow, services: AppServices) -> bool:

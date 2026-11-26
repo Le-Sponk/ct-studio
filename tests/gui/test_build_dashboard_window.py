@@ -98,7 +98,7 @@ def test_history_busy_refuses_direct_start_and_recovers_without_refresh(
         with monkeypatch.context() as changed:
             changed.setattr(type(view.welcome), "busy", property(lambda _self: True))
             view._navigation()
-            page._sync()  # a status callback may arrive while the ancestor is disabled
+            page.sync()  # a status callback may arrive while the ancestor is disabled
             page.builds.start(False)
             assert not fake.planned
             assert not page.isEnabled()

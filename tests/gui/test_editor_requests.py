@@ -151,6 +151,28 @@ def test_read_only_projects_may_prepare_but_never_open(qtbot: QtBot, tmp_path: P
             viewer.close()
 
 
+def test_read_only_is_named_before_a_status_check_that_would_end(
+    qtbot: QtBot, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Waiting cannot fix read-only, so it is said first (P5-GATE: the one shared guard)."""
+    with owned_editors(tmp_path) as (services, project, document, work, _other):
+        assert settled(qtbot, lambda: not services.status.busy)
+        viewer = Project.open(project.root)
+        services.project = viewer
+        try:
+            monkeypatch.setattr(type(services.status), "busy", property(lambda _self: True))
+            receipt = PreparedEditors.__new__(PreparedEditors)  # refused before it is read
+            error = refused(lambda: services.start_open_editor(receipt, BUILTIN))
+            assert error.user_message == "Cannot open an editor for a read-only project."
+            busy = refused(lambda: services.start_prepare_editors(document))
+            assert "still being checked" in busy.user_message  # preparing only reads
+            assert work.calls == []
+        finally:
+            monkeypatch.undo()
+            services.project = project
+            viewer.close()
+
+
 def test_stale_choices_are_refused_through_the_services(qtbot: QtBot, tmp_path: Path) -> None:
     with owned_editors(tmp_path) as (services, project, document, work, _other):
         assert settled(qtbot, lambda: not services.status.busy)

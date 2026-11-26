@@ -9,6 +9,7 @@ from pathlib import Path
 from editor_owner_helpers import DOCUMENT_NAME, EditorWork, outcome
 from launch_controller_helpers import LaunchWork, writable_project
 from pytestqt.qtbot import QtBot
+from waits import settled as settled  # the one shared wait; re-exported for older imports
 
 from ctstudio.core.project.project import Project
 from ctstudio.gui.build_controller import BuildController
@@ -48,16 +49,6 @@ def owned_editors(
         services.editing = False
         stopped = outcome(lambda: services.shutdown(10))
         assert stopped is True, f"cleanup shutdown gave {stopped!r}"
-
-
-def settled(qtbot: QtBot, cond: object, timeout_ms: int = 5000) -> bool:
-    """Bounded wait that never raises, so a broken condition fails an assertion."""
-    assert callable(cond)
-    for _ in range(max(1, timeout_ms // 10)):
-        if cond():
-            return True
-        qtbot.wait(10)
-    return bool(cond())
 
 
 def dashboard_for(qtbot: QtBot, services: AppServices, project: Project) -> Dashboard:

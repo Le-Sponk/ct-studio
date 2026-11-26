@@ -61,6 +61,8 @@ def test_empty_dashboard_and_about_dialog(qtbot: QtBot) -> None:
     assert window.windowTitle() == "CT Studio"
     assert window.findChild(QLabel, "emptyTitle").text() == "No project open"
     assert "project" in window.findChild(QLabel, "emptyBody").text().lower()
+    menus = [action.text() for action in window.menuBar().actions()]
+    assert menus == ["&File", "&Settings", "&View", "&Help"], menus  # Help last (P5-GATE)
     action = window.findChild(QAction, "aboutAction")
     assert action is not None
     action.trigger()

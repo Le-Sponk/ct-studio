@@ -176,20 +176,7 @@ class AppServices:
         self, *, release: bool = False, force: bool = False, only: str | None = None
     ) -> bool:
         """Request a build of the current project; preparation stays on the build worker."""
-        project = self.project
-        if project is None:
-            raise ProjectError("No project is open.", hint="Open or create a project first.")
-        self._refuse_while_building()
-        if project.read_only:
-            raise ProjectError(
-                "Cannot build a read-only project.",
-                hint="Close it in the other CT Studio, then reopen it here for editing.",
-            )
-        if self.status.busy:
-            raise ProjectError(
-                "Component statuses are still being checked.",
-                hint="Wait for the check to finish, then build again.",
-            )
+        project = self._ready("Cannot build a read-only project.", retry="build again")
         return self.build.start(project, release=release, force=force, only=only)
 
     def start_launch(self, component_id: str | None = None) -> bool:
@@ -198,15 +185,7 @@ class AppServices:
         Checks only in-memory state (no disk); refusals raise an actionable ``ProjectError``.
         Read-only projects may reveal folders but not launch Blender.
         """
-        project = self.project
-        if project is None:
-            raise ProjectError("No project is open.", hint="Open or create a project first.")
-        self._refuse_while_building()
-        if self.status.busy:
-            raise ProjectError(
-                "Component statuses are still being checked.",
-                hint="Wait for the check to finish, then try again.",
-            )
+        project = self._ready()
         if component_id is None:
             _check_blender(project)
         elif component_id not in COMPONENT_BY_ID:
@@ -222,20 +201,7 @@ class AppServices:
         Checks only in-memory state (no disk); ``assign_file`` checks the rest on the worker.
         The caller publishes the returned manifest; refusals raise an actionable ``ProjectError``.
         """
-        project = self.project
-        if project is None:
-            raise ProjectError("No project is open.", hint="Open or create a project first.")
-        self._refuse_while_building()
-        if project.read_only:
-            raise ProjectError(
-                "Cannot assign a file in a read-only project.",
-                hint="Close it in the other CT Studio, then reopen it here for editing.",
-            )
-        if self.status.busy:
-            raise ProjectError(
-                "Component statuses are still being checked.",
-                hint="Wait for the check to finish, then try again.",
-            )
+        project = self._ready("Cannot assign a file in a read-only project.")
         if part not in COMPONENT_BY_ID:
             raise ProjectError(
                 f"Cannot assign a file to unknown part '{part}'.",
@@ -249,27 +215,18 @@ class AppServices:
         Memory-only eligibility; core checks the edited file on the worker. A saved manifest
         belongs to the result receiver, never published here.
         """
-        project = self.project
-        if project is None:
-            raise ProjectError("No project is open.", hint="Open or create a project first.")
-        self._refuse_while_building()
-        if project.read_only:
-            raise ProjectError(
-                "Cannot change an outside edit in a read-only project.",
-                hint="Reopen the project for editing, then try again.",
-            )
-        if self.status.busy:
-            raise ProjectError(
-                "Component statuses are still being checked.",
-                hint="Wait for the check to finish, then try again.",
-            )
+        project = self._ready(
+            "Cannot change an outside edit in a read-only project.",
+            read_only_hint="Reopen the project for editing, then try again.",
+        )
         spec = COMPONENT_BY_ID.get(part)
         if spec is None or not spec.outputs:
             raise ProjectError(
                 f"Cannot change an outside edit for part '{part}'.",
                 hint="Choose a part CT Studio makes from the current project.",
             )
-        if getattr(project.manifest.components, part).mode == "manual":
+        table = spec.manifest_table or part  # every made part has its own table
+        if getattr(project.manifest.components, table).mode == "manual":
             raise ProjectError(
                 f"The {spec.name} already uses your own file.",
                 hint="Press Refresh statuses to see its current state.",
@@ -282,7 +239,7 @@ class AppServices:
         Memory-only eligibility; the worker inspects the document, settings and tools. A
         read-only project may prepare (it only reads) but never open.
         """
-        project = self._editor_project()
+        project = self._ready()
         return self.launch.prepare_editors(project, document)
 
     def start_open_editor(self, prepared: PreparedEditors, choice: EditorChoice) -> bool:
@@ -290,23 +247,29 @@ class AppServices:
 
         The owner refuses stale, foreign or unoffered choices before anything starts.
         """
-        project = self._editor_project()
-        if project.read_only:
-            raise ProjectError(
-                "Cannot open an editor for a read-only project.",
-                hint="Close it in the other CT Studio, then reopen it here for editing.",
-            )
+        project = self._ready("Cannot open an editor for a read-only project.")
         return self.launch.open_editor(project, prepared, choice)
 
-    def _editor_project(self) -> Project:
+    def _ready(
+        self,
+        read_only: str | None = None,
+        *,
+        read_only_hint: str = "Close it in the other CT Studio, then reopen it here for editing.",
+        retry: str = "try again",
+    ) -> Project:
+        """The open project, or an actionable ``ProjectError`` in the order every request
+        checks: no project, a running build, read-only (when ``read_only`` names the
+        refusal), statuses still being checked. Memory only, never the disk."""
         project = self.project
         if project is None:
             raise ProjectError("No project is open.", hint="Open or create a project first.")
         self._refuse_while_building()
+        if read_only is not None and project.read_only:
+            raise ProjectError(read_only, hint=read_only_hint)
         if self.status.busy:
             raise ProjectError(
                 "Component statuses are still being checked.",
-                hint="Wait for the check to finish, then try again.",
+                hint=f"Wait for the check to finish, then {retry}.",
             )
         return project
 

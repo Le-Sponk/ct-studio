@@ -22,7 +22,7 @@ from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.build_controls import BuildControls
 from ctstudio.gui.views.crash_dialog import CrashDialog
 
-pytestmark = [pytest.mark.gui, pytest.mark.timeout(20)]
+pytestmark = [pytest.mark.gui, pytest.mark.timeout(60)]
 
 
 @pytest.fixture

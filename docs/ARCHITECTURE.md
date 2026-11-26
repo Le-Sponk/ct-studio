@@ -43,34 +43,49 @@ Every GUI feature must be reachable through core APIs, and most through the CLI 
 `status`, `doctor`, `open`) — this is what lets the agent test without a screen.
 
 ## 3. Source tree
+As built at the end of Phase 5 (P5-GATE). Planned packages not written yet are marked.
 ```
 src/ctstudio/
   __main__.py            # `ctstudio` with no args → GUI; with subcommand → CLI
   core/
-    errors.py  logging.py  platform.py  fsutil.py  events.py
+    errors.py  logging.py  platform.py  fsutil.py
     project/     manifest.py manifest_io.py toml_table.py migrations.py project.py lock.py
-                 watch.py
-                 slots.py slots.json  settings.py (user-level)
-    components/  registry.py  state.py  status.py  assign.py  edited.py
-                 (one module per component type if large)
-    build/       node.py  graph.py  cache.py  runner.py  events.py  part_state.py  build_log.py
-                 stage.py  assemble.py  objects.py  validate.py  project_build.py
-                 event_json.py
-    pipelines/   blender_export.py course_model.py kcl.py minimap.py skybox.py
-                 kmp.py posteffect.py assemble.py validate.py
-    tools/       spec.py registry.py discovery.py availability.py process.py
-                 wiimm.py rszst.py abmatt.py blender.py editors.py wine.py dolphin.py
-    formats/     magic.py kcl.py kmp.py            # read-only parsers
-    textures/    analyze.py recommend.py
-    validation/  issues.py wszst_check.py kmp_rules.py report.py issue_parts.py
+                 watch.py slots.py slots.json settings.py (user-level)
+                 editor_preferences.py custom_tool_preferences.py wine_preferences.py
+    components/  registry.py state.py status.py assign.py edited.py
+    build/       node.py graph.py cache.py runner.py events.py part_state.py build_log.py
+                 stage.py assemble.py objects.py validate.py project_build.py event_json.py
+                 backups.py
+    tools/       spec.py registry.py discovery.py availability.py versions.py doctor.py
+                 process.py process_errors.py process_tree.py staging.py commands.py
+                 wiimm.py wiimm_kcl.py wiimm_convert.py wiimm_objects.py wiimm_autoadd.py
+                 rszst_install.py rszst_setup.py rszst_wine.py wine.py abmatt.py
+                 abmatt_edit.py blender.py riistudio.py editors.py custom_editors.py
+                 saved_editors.py folders.py
+    formats/     magic.py                      # planned: kcl.py kmp.py read-only parsers
+    validation/  issues.py wszst_check.py report.py issue_parts.py   # planned: kmp_rules.py
+    (planned: pipelines/ auto-mode stages, textures/)
   cli/           __init__.py (COMMANDS)  new.py status.py open_file.py doctor.py setup.py build.py
-  gui/           app.py main_window.py services.py theme/ widgets/ views/ viewport/ qtmodels/
-                 build_controller.py dashboard_builds.py build_log_model.py
-                 views/dashboard_follow.py views/issues_panel.py
-                 watcher_bridge.py views/dashboard_watch.py
-  blender_bridge/ run_job.py  exporters.py  preview_mesh.py
+  gui/           app.py main_window.py window_dialogs.py settings_window.py services.py
+                 crash.py watchdog.py gc_policy.py recent_projects.py appearance.py
+                 status_service.py watcher_bridge.py build_controller.py launch_controller.py
+                 dashboard_{assign,builds,editors,outside,reconcile}.py   # dashboard controllers
+                 build_log_model.py build_settings.py advanced.py editor_settings.py
+                 editor_launch.py blender_launch.py folder_reveal.py project_details.py
+                 component_modes.py assign_text.py launch_text.py
+    views/       welcome_page.py new_project.py new_project_pages.py project_details.py
+                 dashboard.py dashboard_page.py dashboard_follow.py dashboard_watch.py
+                 header_buttons.py component_card.py card_files.py card_text.py
+                 component_mode.py outside_edit_banner.py issues_panel.py path_label.py
+                 wrap_text.py copy_details.py crash_dialog.py editor_choices.py
+                 build_controls.py build_log.py build_jobs.py build_page.py
+                 tools_page.py machine_choice.py editors_page.py editors_parts.py
+                 custom_tool_dialog.py advanced_page.py appearance_section.py
+                 wine_prefix_section.py
+    (planned: viewport/ for the 3D preview, Phase 9)
+  (planned: blender_bridge/ run_job.py exporters.py preview_mesh.py)
 vendor/blender-mkw-utilities/   # git submodule (pinned commit)
-tests/  unit/ contract/ integration/ gui/ e2e/ benchmarks/ fakes/ fixtures/
+tests/  unit/ integration/ gui/ benchmarks/ realdata/ fakes/   (fixtures/ is generated locally)
 scripts/ check.py bootstrap_tools.py fixtures/make_fixture_blend.py
 spikes/  (Phase 0 throwaway, never imported)
 docs/

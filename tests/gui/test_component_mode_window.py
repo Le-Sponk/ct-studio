@@ -123,7 +123,7 @@ def test_window_guards_refuse_direct_requests(
         with monkeypatch.context() as patch:
             block_editor(window, project, patch, reason)
             window._navigation()
-            window.dashboard._sync()
+            window.dashboard.sync()
             assert not window.dashboard.cards["kcl"].mode_button.isEnabled()
             window._edit_component("kcl", "manual")
             window.dashboard.mode_requested.emit("kcl", "manual")

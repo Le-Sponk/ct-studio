@@ -213,12 +213,12 @@ def test_start_and_controls_use_explicit_guards(
         }
         target, name, value = targets[guard]
         patch.setattr(target, name, value)
-        page._sync()
+        page.sync()
         assert page.builds.controls.test_button.isEnabled() == (guard == "history")
         page.builds.start()
         assert fake.planned == []
     page.setEnabled(False)
-    page._sync()
+    page.sync()
     page.setEnabled(True)
     assert page.builds.controls.test_button.isEnabled()
 
@@ -278,7 +278,8 @@ def test_errors_end_working_overlay_and_retry_clears_notices(
     assert page.cards["kcl"].build_label.text() == text
     notice = page.builds.controls.notice
     assert (str(error) or type(error).__name__) in notice.text()
-    assert ("retry" in notice.text(), "Paths ignored" in notice.text()) == (True, True)
+    step = "Next: Choose another file" if isinstance(error, ProjectError) else "retry"
+    assert (step in notice.text(), "Paths ignored" in notice.text()) == (True, True)
     assert notice.toolTip() == notice.text() == notice.accessibleDescription()
     assert (page.builds.controls.activity.text(), page.builds.controls.test_button.isEnabled()) == (
         "",
@@ -345,7 +346,7 @@ def test_cancel_uses_existing_owner_once_and_post_refresh_recovers(
     page.builds.start()
     qtbot.waitUntil(lambda: len(fake.cancels) == 1)
     page.builds.controls.cancel_button.click()
-    page._sync()
+    page.sync()
     page.builds.controls.cancel_button.click()
     page.builds.cancel()
     assert (calls, fake.cancels[0].cancelled, page.builds.controls.cancel_button.isEnabled()) == (
@@ -375,7 +376,7 @@ def test_window_wires_history_guard_and_refused_close_keeps_build_visible(
         with monkeypatch.context() as patch:
             patch.setattr(WelcomePage, "busy", property(lambda _self: True))
             window._navigation()
-            window.dashboard._sync()
+            window.dashboard.sync()
             builds.start()
             assert fake.planned == []
         window._navigation()

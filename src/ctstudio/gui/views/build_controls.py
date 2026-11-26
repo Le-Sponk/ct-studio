@@ -22,6 +22,7 @@ from ctstudio.core.build.events import (
     NodeSkipped,
     NodeStarted,
 )
+from ctstudio.core.errors import CTStudioError
 from ctstudio.gui.views.copy_details import CopyDetails, details_of
 
 _TEST = "Build a track to try in the game, with the test compression"
@@ -131,6 +132,13 @@ class BuildControls(QWidget):
     def show_summary(self, summary: BuildSummary) -> None:
         """Present the parent's joined result, never infer success from progress."""
         text = f"Build {summary.outcome} in {summary.duration:.2f} s."
+        errors = sum(1 for issue in summary.issues if issue.severity == "error")
+        if summary.outcome == "succeeded" and errors:  # made, but the game may not load it
+            found = f"{errors} error{'s' if errors != 1 else ''}"
+            text = (
+                f"Build finished in {summary.duration:.2f} s, but the check found {found}: "
+                "the track may not load in the game yet. See Issues."
+            )
         log = (
             f"Full build log: {summary.log}"
             if summary.log is not None
@@ -143,7 +151,9 @@ class BuildControls(QWidget):
         """Retain typed actionable messages; explain unexpected failures and interrupts."""
         reason = str(error) or type(error).__name__
         kind = "failed" if isinstance(error, Exception) else "interrupted"
-        self._error = f"Build {kind}: {reason}\nReview the problem and retry the build."
+        own_step = isinstance(error, CTStudioError) and bool(error.hint)  # "Next: …" already
+        step = "" if own_step else "\nReview the problem and retry the build."
+        self._error = f"Build {kind}: {reason}{step}"
         self._details = details_of(error)
         self._present(self.activity, "")
         self._sync_notice()

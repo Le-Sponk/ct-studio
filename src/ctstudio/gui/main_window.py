@@ -170,13 +170,13 @@ class MainWindow(QMainWindow):
         self.editors_action.triggered.connect(self.editors_window.open)
         settings_menu.addAction(self.editors_action)
 
+        self._view_menu()
         self.about_dialog = about_dialog(self)
-        help_menu = self.menuBar().addMenu("&Help")
+        help_menu = self.menuBar().addMenu("&Help")  # last, as on every desktop
         self.about_action = QAction("About CT Studio", self)
         self.about_action.setObjectName("aboutAction")
         self.about_action.triggered.connect(self.about_dialog.open)
         help_menu.addAction(self.about_action)
-        self._view_menu()
         self._navigation()
 
     def _view_menu(self) -> None:
@@ -357,7 +357,7 @@ class MainWindow(QMainWindow):
         dialog.finished.connect(self._details_finished)
         dialog.finished.connect(dialog.deleteLater)
         self._navigation()
-        self.dashboard._sync()
+        self.dashboard.sync()
         dialog.open()
 
     def _details_finished(self, _result: int) -> None:
@@ -365,7 +365,7 @@ class MainWindow(QMainWindow):
         if dialog is not None and dialog.saved:
             self._republish()
         self._navigation()
-        self.dashboard._sync()
+        self.dashboard.sync()
 
     def _republish(self) -> None:
         """The open project's manifest was saved (Project details, Settings → Build)."""

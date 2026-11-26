@@ -8,8 +8,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from assign_helpers import kcl_bytes, write
-from pytestqt.exceptions import TimeoutError as WaitTimedOut
-from pytestqt.qtbot import QtBot
+from waits import settled as settled  # the one shared wait
 
 from ctstudio.core.components.assign import Assigned
 from ctstudio.core.components.edited import discard_edit, lock_as_manual
@@ -50,14 +49,6 @@ class EditWork:
     def discard(self, project: Project, part: str) -> Path:
         self._call(project, part, "discard")
         return discard_edit(project, part)
-
-
-def settled(qtbot: QtBot, condition: Callable[[], bool]) -> bool:
-    try:
-        qtbot.waitUntil(condition, timeout=5000)
-    except WaitTimedOut:
-        pass
-    return condition()
 
 
 def outcome(call: Callable[[], object]) -> object:

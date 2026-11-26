@@ -142,6 +142,9 @@ class NewProjectWizard(QWizard):
         return Path(where) if where else Path.home()
 
     def _page_changed(self, _page: int) -> None:
+        for page in (self._name, self._blend):  # shown again after Back: the disk may differ
+            if self.currentPage() is page:
+                page.refresh()
         if self.currentPage() is self._summary:
             self._summary.problem.setText("")
             self._show_summary()

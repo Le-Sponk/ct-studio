@@ -161,7 +161,9 @@ def test_a_new_project_is_assigned_built_and_checked(
         assert summary.outcome == "succeeded", summary
         assert summary.ran == ("stage:kcl", "stage:kmp", "assemble", "validate")
         cards = window.dashboard.cards
-        assert "succeeded" in window.dashboard.builds.controls.last_result.text()
+        result = window.dashboard.builds.controls.last_result.text()
+        # The fixture track has check errors: made, but not called a success (P5-GATE).
+        assert result.startswith("Build finished in ") and "See Issues" in result, result
         for part in ("kcl", "kmp"):
             assert cards[part].build_label.text() == "Build: done", part
         assert (project.root / ISSUES_FILE).is_file()

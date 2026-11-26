@@ -95,13 +95,15 @@ build, editing, opening a different project and launching Blender/folders are di
 it runs. Read-only projects and projects being checked or edited cannot start builds.
 
 Build warnings/errors are separate from status-check and launch notices. The last result shows
-the actual outcome and duration; hover it for the full build-log path, or an explanation when
-no log was written. Screen readers receive these details too. When a failed build has
-technical details (a tool's own output, or what went wrong inside CT Studio), Copy details
-under the message copies the message and those details together, ready to paste into a bug
-report; the details are not shown on screen. After correcting a problem, wait
-for the status check to finish and choose Build again. A new build clears the previous run's
-messages and transient card progress; it keeps your choice to show or hide the live log.
+the actual outcome and duration. When the track was made but the check found errors, it says
+"Build finished" with the number of errors and points to Issues instead of "Build succeeded":
+the game may not load that track yet. Hover the result for the full build-log path, or an
+explanation when no log was written. Screen readers receive these details too. When a failed
+build has technical details (a tool's own output, or what went wrong inside CT Studio), Copy
+details under the message copies the message and those details together, ready to paste into a
+bug report; the details are not shown on screen. After correcting a problem, wait for the status
+check to finish and choose Build again. A new build clears the previous run's messages and
+transient card progress; it keeps your choice to show or hide the live log.
 
 You may view the recent-project list and return with View → Project dashboard without losing
 the running build. If closing must wait for a build, the dashboard stays visible with a stopping

@@ -107,10 +107,10 @@ class Dashboard(QWidget):
         self._layout.addWidget(self.builds.controls)
         self.services.status.updated.connect(self._updated)
         self.services.status.failed.connect(self._failed)
-        self.services.build.running_changed.connect(self._sync)
+        self.services.build.running_changed.connect(self.sync)
         self.services.build.finished.connect(self._after_build)
         self.services.build.failed.connect(self._after_build)
-        self.services.launch.busy_changed.connect(self._sync)
+        self.services.launch.busy_changed.connect(self.sync)
         self.services.launch.completed.connect(self._launched)
 
     def set_project(self, project: Project, *, changed: bool = False) -> None:
@@ -143,7 +143,7 @@ class Dashboard(QWidget):
             else ""
         )
         self.access_label.setVisible(project.read_only)
-        self._sync()
+        self.sync()
         for card in self.cards.values():
             card.bind(project)
         self.refresh()
@@ -244,12 +244,12 @@ class Dashboard(QWidget):
         self._checking = True
         self._say("Checking component statuses…")
         self.checking.show()
-        self._sync()
+        self.sync()
 
     def _checked(self) -> None:
         self._checking = False
         self.checking.hide()
-        self._sync()
+        self.sync()
 
     def _updated(self, payload: object) -> None:
         if (
@@ -305,7 +305,7 @@ class Dashboard(QWidget):
     def shown_project(self) -> Project | None:
         return self._shown()
 
-    def _sync(self, _running: bool = False) -> None:
+    def sync(self, _running: bool = False) -> None:
         self.builds.sync()
         building = self.services.build.running
         self.work_label.setText(
@@ -381,7 +381,7 @@ class Dashboard(QWidget):
                 self.assigns.completed(project, payload)
             elif payload.manifest is project.manifest:
                 self._show_launch_text(describe_launch(payload))
-        self._sync()
+        self.sync()
 
     def _show_launch_text(self, text: str) -> None:
         self.launch_notice.setText(text)

@@ -105,6 +105,8 @@ class NamePage(QWizardPage):
         layout.addLayout(preview)
         layout.addWidget(self.problem)
         layout.addStretch()
+        # The last disk check, so isComplete never touches the disk again (P5-GATE review).
+        self._usable = False
         for edit in (self.name, self.location):
             edit.textChanged.connect(self._changed)
         self._changed()
@@ -115,20 +117,23 @@ class NamePage(QWizardPage):
         return Path(where) / folder if folder and where else None
 
     def isComplete(self) -> bool:
-        root = self.root()
-        return root is not None and _folder_problem(root) is None
+        return self._usable
+
+    def refresh(self) -> None:
+        """Check again: the disk may have changed since (the page is shown again)."""
+        self._changed()
 
     def _changed(self) -> None:
         root = self.root()
         where = self.location.text().strip()
         self.preview.set_path(str(root) if root is not None else "")
         self.preview_caption.setVisible(root is not None)
+        problem = None if root is None else _folder_problem(root)
+        self._usable = root is not None and problem is None
         if not where:
             self.problem.setText("Choose where to make the project folder.")
-        elif root is None:
-            self.problem.setText("")  # no name yet: nothing to say, Next is simply off
-        else:
-            self.problem.setText(_folder_problem(root) or "")
+        else:  # no name yet: nothing to say, Next is simply off
+            self.problem.setText(problem or "")
         self.completeChanged.emit()
 
     def _browse(self) -> None:
@@ -179,6 +184,7 @@ class BlendPage(QWizardPage):
         layout.addLayout(row)
         layout.addWidget(self.problem)
         layout.addStretch()
+        self._usable = True  # empty is allowed; the last check, kept for isComplete
         self.blend.textChanged.connect(self._changed)
 
     def chosen(self) -> Path | None:
@@ -186,10 +192,16 @@ class BlendPage(QWizardPage):
         return Path(text) if text else None
 
     def isComplete(self) -> bool:
-        return _blend_problem(self.chosen()) is None
+        return self._usable
+
+    def refresh(self) -> None:
+        """Check again: the disk may have changed since (the page is shown again)."""
+        self._changed()
 
     def _changed(self) -> None:
-        self.problem.setText(_blend_problem(self.chosen()) or "")
+        problem = _blend_problem(self.chosen())
+        self._usable = problem is None
+        self.problem.setText(problem or "")
         self.completeChanged.emit()
 
     def _browse(self) -> None:
@@ -307,6 +319,7 @@ class SummaryPage(QWizardPage):
         self.track, self.slot = QLabel("", self), QLabel("", self)
         self.folder, self.blend = PathLabel(self), PathLabel(self)
         details = QFormLayout()
+        details.setHorizontalSpacing(16)  # labels and values clear apart (P5-GATE review)
         for title, value, name in (
             ("Track name", self.track, "summaryTrack"),
             ("Project folder", self.folder, "summaryFolder"),

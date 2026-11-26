@@ -1127,5 +1127,12 @@ P5-GATE's phase review links. **Acceptance:** every REVIEW_CHECKLIST §5 row is 
 its later owner task.
 
 ### [ ] P5-GATE — Phase review
+Brief `docs/reviews/PHASE_05_BRIEF.md`; findings and their fixes in
+`docs/reviews/PHASE_05_REVIEW.md`. The tag `phase-05-done` follows the Must-fix recheck and
+green exact-SHA CI.
 ### [ ] P5-HC1 — Human checkpoint 1 (see HUMAN_CHECKPOINTS.md)
 ### [ ] P5-DEEPCLEAN — Deep Clean #1 (REVIEW_CHECKLIST.md)
+Also from the P5-GATE review: one shared joined-worker helper for the six background-work
+patterns (and a thread that fails to start handled everywhere, `status_service` too); move
+`main_window`'s offscreen-font code to `app.py` or a test fixture; trim ARCHITECTURE.md's
+per-task notes (its §3 tree was already rewritten at the gate).
