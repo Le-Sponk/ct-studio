@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 from outside_flow_helpers import answer_discard, change_stage, live_dashboard
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QPoint, Qt, QTimer
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from pytestqt.qtbot import QtBot
@@ -79,7 +79,14 @@ def test_real_dashboard_tab_path_reaches_and_activates_lock(qtbot: QtBot, tmp_pa
         assert isinstance(watcher, ProjectWatcher) and watcher.wait_ready(10)
         change_stage(project)
         assert settled(qtbot, banner.lock_button.isEnabled)
-        area.resize(900, 260)  # force the target offscreen before testing keyboard scrolling
+        # Force the target offscreen before testing keyboard scrolling: a view shorter than the
+        # distance to the Lock button, whatever the header's height in this font (P5-T10d).
+        area.resize(900, 900)
+        QApplication.processEvents()
+        top = banner.lock_button.mapTo(page, QPoint(0, 0)).y()
+        tall = banner.lock_button.height()
+        assert top > 4 * tall, f"the Lock button is too near the top ({top} px) to test scrolling"
+        area.resize(900, min(260, top - tall))
         assert settled(
             qtbot,
             lambda: (
