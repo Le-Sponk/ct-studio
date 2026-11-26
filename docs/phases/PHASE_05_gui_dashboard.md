@@ -1053,7 +1053,7 @@ wraps the project folder straight after "C:"; the wizard says "Replaces: Luigi C
 assigned shows both "using files/course.kmp" and "Now using files/course.kmp (a copy of
 course.kmp)"; the first card's note disappears when a second card is assigned.
 
-### [ ] P5-T10 — UX polish pass
+### [x] P5-T10 — UX polish pass (closed by T10a–f, h–j; g → P13-T09; `2f032d9`)
 Empty states, error dialogs with "Copy details", plain-language tooltips for every component, focus
 order, window size/position persistence, high-DPI check, no text truncation at 1280×720.
 Starts from the P5-T09b picture review (`docs/reviews/P5_T09_SCREENSHOTS.md`): card action
@@ -1121,7 +1121,7 @@ Tools buttons in two rows, Tab leaves the Tools table, tooltips on shortened cel
 1280×720 / 150 % Tools pictures TD-007 asked for. **Acceptance:** a real Tab walk; Tools fits
 800 px at 132 % stretch in Verdana. The widest-font sweep stays TD-022 → P13-T06.
 
-#### [ ] P5-T10j — Close the UX pass
+#### [x] P5-T10j — Close the UX pass (commit `2f032d9`)
 Rerun the §5 pictures (light/dark, 1280×720, 150 %) into `docs/reviews/P5_T10_UX.md`, which
 P5-GATE's phase review links. **Acceptance:** every REVIEW_CHECKLIST §5 row is "Yes" or names
 its later owner task.

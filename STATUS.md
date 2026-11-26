@@ -4,16 +4,27 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10j — Close the UX pass
+**Next task:** P5-GATE — Phase review
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `569281d` (P5-T10h, exact Check, Windows + Ubuntu)
+**Last green commit:** `2f032d9` (P5-T10j, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10j — Close the UX pass: rerun the REVIEW_CHECKLIST §5 pictures (light/dark, 1280×720,
-  150 %) into `docs/reviews/P5_T10_UX.md`, which P5-GATE's phase review links. Acceptance:
-  every §5 row is "Yes" or names its later owner task.
+- P5-GATE — Phase 5 review (mkw-phase-review): the phase review links
+  `docs/reviews/P5_T10_UX.md` for REVIEW_CHECKLIST §5.
 
 ## Done (newest first)
+- 2026-11-27 `P5-T10j` Close the UX pass (`2f032d9`, docs only; closes P5-T10):
+  `docs/reviews/P5_T10_UX.md` reruns the REVIEW_CHECKLIST §5 pictures (light/dark,
+  1280×720, enlarged font and a real 1.5×/2×) after P5-T10a–i; every §5 row is "Yes", "Yes
+  (tests)" or, for truncated text, "Partly → P13-T06". PHASE_13 P13-T06 records the leftovers:
+  the build bar's message does not break paths (cut at the right edge, breaks after "C:") and
+  stops at four lines with a sliver of a fifth; a card's description stops without "…" at
+  800×600 enlarged; an unbuilt part's blocker shows only in its tooltip. Review NEEDS_REVISION
+  (wrong keyboard tests cited; the build-bar cut understated; "Yes" not earned), delta
+  NEEDS_REVISION (problem vs missing misattributed), final delta APPROVE. Exact Check on
+  `2f032d9`: Windows 139943895587 (5542 / 15), Ubuntu 139943895230 (5543 / 14),
+  5557 selected; artifacts 15122738439 / 15121073935 coverage.xml only. Integration not required (docs
+  only).
 - 2026-11-26 `P5-T10h` High-DPI evidence (`569281d`, tests only): the populated dashboard
   and Settings Tools/Editors checked and pictured at 1.5× and 2× in a child pytest per scale,
   on a realistic offscreen screen (1280×720 logical) with a real font checked to draw
