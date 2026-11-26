@@ -1102,7 +1102,7 @@ until that card changes; the duplicate "Copy path" button goes, one way to copy 
 **Acceptance:** no card shows the same fact twice; a note survives other cards' changes and
 clears when its own card changes; one copy action per card.
 
-#### [ ] P5-T10f — Error details and unexpected errors (owner decision D4)
+#### [x] P5-T10f — Error details and unexpected errors (owner decision D4) (commit `ba86330`)
 Inline error messages stay, with "Copy details" when the error has details (a
 `CTStudioError`'s details reach the GUI); a dialog only for unexpected crashes (an exception
 nothing handled), also with Copy details, and logged. **Acceptance:** a failing build and an

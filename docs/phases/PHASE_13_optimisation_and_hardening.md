@@ -33,6 +33,12 @@ Also (P5-T10e review): the outside-edit banner's own note ("Locked as manual …
 by ComponentCard.bind's outside.clear() on every re-bind, so another card's change wipes it;
 owner decision D3 asks a card's note to stay until that card changes. Keep the pending-request
 reset on re-bind, but keep the finished outcome unless the card's own part changed.
+Also (P5-T10f review): Copy details has no size cap. A tool's stderr tail keeps 50 lines of up
+to 1,000,000 characters each, so one copy reached 5,000,228 characters; cap the copied text
+(keep the head and tail). A build step failing with something other than a CTStudioError
+becomes a BuildError without details, so no Copy details appear (the traceback is only in the
+log); carry the traceback as details. The test for a failing crash dialog checks only the log
+message: also assert the record carries its traceback (exc_info).
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.

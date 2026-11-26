@@ -4,18 +4,32 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10f — Error details and unexpected errors
+**Next task:** P5-T10h — High-DPI evidence
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `6262dd4` (P5-T10e, exact Check, Windows + Ubuntu)
+**Last green commit:** `ba86330` (P5-T10f, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10f — Error details and unexpected errors (owner decision D4): inline error messages
-  stay, with "Copy details" when the error has details; a dialog only for unexpected crashes,
-  also with Copy details, and logged. Acceptance: a failing build and an unreadable settings
-  file offer Copy details with the details text; an unhandled exception in a slot shows one
-  dialog, is logged, and the app keeps running.
+- P5-T10h — High-DPI evidence: populated dashboard and Settings pictures at 1.5× and 2×.
+  Acceptance: no clipped labels; status icons drawn at least at the scale. Tests only unless
+  something turns up.
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10f` Error details and unexpected errors (`ba86330`, owner decision D4):
+  inline errors keep their message and add Copy details (message + details, details never
+  on screen) for a failed build step's tool output, a failed build's details or traceback, an
+  unusable settings file's reason and a failed status check; errors nothing handled are
+  logged to ctstudio.log on any thread and show one "Unexpected error" dialog on the GUI
+  thread (worker reports queued there; nested errors logged only; a failing dialog logged
+  once; not installed in the headless smoke start). Also fixed: the developer-mode watchdog's
+  second stop at exit after Qt deleted its timer (a traceback in 1 of 6 smoke starts). 11 new
+  tests in test_error_details.py (the commit message says 14). Mutants 21/21 (+1 dropped with
+  a redundant line). Review NEEDS_REVISION (dialog on a worker thread hung pool shutdown),
+  delta NEEDS_REVISION (failing dialog recursed; flaky smoke traceback), second delta APPROVE.
+  Gate 5545 / 10 / 178. Exact Check on `ba86330`: Windows 139880257050 (5540 / 15),
+  Ubuntu 139880256575 (5541 / 14), 5555 selected; artifacts 15114675047 / 15112444158
+  coverage.xml only. Integration not required (gui and tests). Deferred to P13-T06: Copy
+  details size cap; details for a step failing with a non-CTStudioError; pin the
+  dialog-failure traceback in the log test.
 - 2026-11-26 `P5-T10e` Card notes and actions (`6262dd4`, owner decision D3): the card's
   Copy path button is gone (More → Copy path, planned path as its tooltip); assignment notes
   say only what was done ("Copied from …", "Kept where it is (not copied)"), the lock outcome
