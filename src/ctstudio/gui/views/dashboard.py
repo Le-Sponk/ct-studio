@@ -36,6 +36,7 @@ from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
 from ctstudio.gui.views.dashboard_watch import DashboardWatch
+from ctstudio.gui.views.header_buttons import HeaderButtons
 from ctstudio.gui.views.issues_panel import IssuesPanel
 from ctstudio.gui.views.path_label import PathLabel
 
@@ -135,12 +136,12 @@ class Dashboard(QWidget):
             _explain(self.slot_label, "")
         source = project.root / info.blend if info.blend else None
         self.source_label.set_path(str(source or "No Blender file chosen"), is_path=bool(source))
-        access = (
+        self.access_label.setText(  # only a read-only project needs an access line (P5-T10d)
             f"Read-only — {project.read_only_reason}. You can inspect and copy paths."
             if project.read_only
-            else "Writable project"
+            else ""
         )
-        self.access_label.setText(access)
+        self.access_label.setVisible(project.read_only)
         self._sync()
         for card in self.cards.values():
             card.bind(project)
@@ -152,6 +153,7 @@ class Dashboard(QWidget):
         self.work_label = _label("dashboardWork", self)
         self._layout.addWidget(self.work_label)
         self.notice = _label("dashboardNotice", self)
+        self.notice.hide()  # shown only with something to say (_say)
         self._layout.addWidget(self.notice)
         self.checking = QProgressBar(self)
         self.checking.setObjectName("dashboardChecking")
@@ -166,36 +168,31 @@ class Dashboard(QWidget):
         self.launch_progress.setRange(0, 0)
         self.launch_progress.hide()
         self._layout.addWidget(self.launch_progress)
-        self._layout.addLayout(self._controls())
+        self._layout.addWidget(self._controls())
         self._make_grid()
 
-    def _controls(self) -> QGridLayout:
+    def _controls(self) -> HeaderButtons:
         self.refresh_button = QPushButton("Refresh statuses", self)
         self.refresh_button.setObjectName("refreshStatuses")
         self.refresh_button.setEnabled(False)
         _explain(self.refresh_button, "Check every part's files and the tools again.")
         self.refresh_button.clicked.connect(self.refresh)
-        # Two columns retain full native labels with wider desktop fonts at minimum width.
-        controls = QGridLayout()
-        controls.addWidget(self.refresh_button, 0, 0)
         self.copy_project = QPushButton("Copy project folder", self)
         self.copy_project.setObjectName("copyProjectFolder")
         self.copy_project.setEnabled(False)
         _explain(self.copy_project, "Copy this project's folder path to the clipboard.")
         self.copy_project.clicked.connect(self._copy_project)
-        controls.addWidget(self.copy_project, 0, 1)
         self.edit_button = QPushButton("Project details…", self)
         self.edit_button.setObjectName("editProjectDetails")
         self.edit_button.setToolTip("Change the track to replace and the Blender source file.")
         self.edit_button.clicked.connect(self.edit_requested)
-        controls.addWidget(self.edit_button, 1, 0)
         self.open_blender = QPushButton("Open in Blender", self)
         self.open_blender.setObjectName("openInBlender")
         self.open_blender.clicked.connect(self.blender_requested)
-        controls.addWidget(self.open_blender, 1, 1)
-        controls.setColumnStretch(0, 1)
-        controls.setColumnStretch(1, 1)
-        return controls
+        # One row when it fits, else two; labels are never squeezed (P5-T10d).
+        buttons = [self.refresh_button, self.copy_project, self.edit_button, self.open_blender]
+        self.header_buttons = HeaderButtons(buttons, self)
+        return self.header_buttons
 
     def _make_grid(self) -> None:
         grid = QGridLayout()
@@ -240,7 +237,7 @@ class Dashboard(QWidget):
 
     def _begin_check(self) -> None:
         self._checking = True
-        self.notice.setText("Checking component statuses…")
+        self._say("Checking component statuses…")
         self.checking.show()
         self._sync()
 
@@ -263,14 +260,18 @@ class Dashboard(QWidget):
         title = self._project.manifest.project.name
         self.issues.show_report(payload.issues, payload.issues_problem, title)
         incomplete = any(name not in payload.statuses for name in self.cards)
-        message = "Some parts were not checked; try Refresh." if incomplete else "Statuses checked."
-        self.notice.setText(payload.settings_problem or message)
+        message = "Some parts were not checked; try Refresh." if incomplete else ""
+        self._say(payload.settings_problem or message)  # all checked: the cards say it
 
     def _failed(self, error: object) -> None:
         if not self._current():
             return
         self._checked()
-        self.notice.setText(f"Could not check component statuses. {error} Try Refresh.")
+        self._say(f"Could not check component statuses. {error} Try Refresh.")
+
+    def _say(self, text: str) -> None:
+        self.notice.setText(text)
+        self.notice.setVisible(bool(text))
 
     def focus_card(self, part: str) -> None:
         """Scroll to a part's card and put the focus on its first usable control (or on it)."""

@@ -25,10 +25,14 @@ heading; close it in the other copy before reopening if you need to change it.
 ## Project overview
 
 Creating or opening a project shows its dashboard: name, project folder, the original track
-file it replaces, Blender source (if set), and whether the project is writable or read-only.
+file it replaces and the Blender source (or that none is chosen yet); a read-only project
+also says why it is
+read-only (a writable project needs no line for it).
 The eight cards show each part's mode, status icon and text, and a short explanation. Hover a
 card to read all its reasons; these are also available to screen readers. Statuses are checked
-in the background. Refresh statuses checks again without changing project files. An error
+in the background; a line above the buttons shows while checking and stays only when there
+is something to say, such as a part that could not be checked. Refresh statuses checks again
+without changing project files. An error
 keeps the last checked statuses visible, so they may be out of date until a refresh succeeds.
 During a build the last checked statuses stay visible and refresh is disabled until it ends.
 
@@ -50,8 +54,9 @@ info copies the project manifest path. Copying remains available in read-only pr
 
 View → Recent projects (Ctrl+H) returns to the welcome list without closing the current project.
 View → Project dashboard (Ctrl+D) returns to it. Tab reaches the available mode, copy and More controls; the
-dashboard scrolls to focused controls in a small window. The four project actions use two rows
-so their full button labels remain readable with larger desktop fonts. Component mode text
+dashboard scrolls to focused controls in a small window. The four project actions sit on one
+row when the window is wide enough and move to two rows when it is not (a narrow window or
+larger desktop fonts), so their labels are never cut. Component mode text
 and its Change mode button also use separate rows to keep complete labels within each card.
 File → New/Open remain available while idle.
 Navigation errors and history-save problems stay visible on the welcome screen; a project that

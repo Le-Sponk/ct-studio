@@ -125,7 +125,7 @@ def test_an_edited_made_file_shows_on_its_card_within_two_seconds(
         took = time.monotonic() - begun
         assert took < NOTICE_S, f"the card changed after {took:.2f} s"
         assert f"{MODEL} was changed outside CT Studio" in page.cards["course_model"].summary.text()
-        assert page.notice.text() == "Statuses checked."
+        assert page.notice.isHidden() and not page.notice.text()  # all checked: nothing to add
     assert watch_threads() == []
 
 

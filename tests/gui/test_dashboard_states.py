@@ -126,6 +126,7 @@ def test_read_only_is_explicit_and_copy_does_not_write(qtbot: QtBot, tmp_path: P
             qtbot.addWidget(page)
             page.set_project(opened)
             page.show()
+            assert not page.access_label.isHidden()
             assert "read-only" in page.access_label.text().lower()
             reason = opened.read_only_reason
             assert reason is not None and reason in page.access_label.text()
