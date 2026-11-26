@@ -60,7 +60,7 @@ def test_real_joined_result_rebinds_cards_and_checks_saved_state(
         assert "folder" not in page.launch_notice.text(), "reconcile was mistaken for reveal"
         assert ("manual" if action == "lock" else "backed up") in page.launch_notice.text()
         assert "Could not" not in page.launch_notice.text()
-        location = "files/course.kcl" if action == "lock" else ".ctstudio"
+        location = "Locked as manual (Collision)" if action == "lock" else ".ctstudio"
         assert location in page.launch_notice.text()
         if action == "lock":
             assert "previous copy was backed up" in page.launch_notice.text()

@@ -34,7 +34,7 @@ def test_assigned_and_refused_cards_and_menu_images(qtbot: QtBot, tmp_path: Path
         qtbot.waitUntil(lambda: not services.launch.busy and not page.busy)
         assert drop(page.cards["kmp"], local(write(tmp_path / "photo.png", png_bytes())))
         qtbot.waitUntil(lambda: not services.launch.busy and not page.busy)
-        assert page.cards["kcl"].assign_note.text().startswith("Now using files/course.kcl")
+        assert page.cards["kcl"].assign_note.text().startswith("Copied from ")
         assert "wrong type" in page.cards["kmp"].assign_note.text()
         notes = [page.cards[part].assign_note for part in ("kcl", "kmp")]
         squeezed = [n.height() < n.fontMetrics().lineSpacing() for n in notes]

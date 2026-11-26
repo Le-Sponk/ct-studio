@@ -84,7 +84,7 @@ def assert_building_controls(page: Dashboard) -> None:
     assert not page.refresh_button.isEnabled()
     assert "build" in page.work_label.text().lower()
     assert page.copy_project.isEnabled()
-    assert page.cards["kcl"].copy_button.isEnabled()
+    assert page.cards["kcl"].copy_action.isEnabled()
     assert page.work_label.isVisible()
 
 

@@ -9,7 +9,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPalette
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QGridLayout, QLabel, QPushButton, QWidget
@@ -37,18 +37,18 @@ def test_initial_card_is_plain_registry_content(qtbot: QtBot, spec: ComponentSpe
     assert card.objectName() == f"card_{spec.id}"
     assert (card.status_label.text(), card.summary.text()) == ("Not checked", spec.description)
     assert card.path is None
-    assert not card.copy_button.isEnabled()
+    assert not card.copy_action.isEnabled()
     assert (
         card.status_label.objectName(),
         card.summary.objectName(),
         card.mode_label.objectName(),
-        card.copy_button.objectName(),
+        card.copy_action.objectName(),
     ) == (f"{spec.id}State", f"{spec.id}Summary", f"{spec.id}Mode", f"{spec.id}CopyPath")
-    assert card.copy_button.accessibleName() == f"Copy {spec.name} path"
+    assert card.copy_action.text() == "Copy path"  # in More, the one way to copy (P5-T10e)
     labels = card.findChildren(QLabel)
     assert spec.name in [label.text() for label in labels]
     assert all(label.textFormat() == Qt.TextFormat.PlainText for label in labels)
-    assert all(not widget.styleSheet() for widget in [card, *labels, card.copy_button])
+    assert all(not widget.styleSheet() for widget in [card, *labels, card.more_button])
 
 
 @pytest.mark.parametrize("state", list(State))
@@ -119,10 +119,10 @@ def test_default_paths_are_lexical_and_modes_explicit(
     card.bind(project)
     assert card.path == (None if planned is None else project.root / planned)
     assert card.mode_label.text() == f"Mode: {mode}"
-    assert card.copy_button.isEnabled() == (planned is not None)
+    assert card.copy_action.isEnabled() == (planned is not None)
     if planned is not None:
-        assert str(project.root / planned) in card.copy_button.toolTip()
-        assert "may not" in card.copy_button.toolTip().lower()
+        assert str(project.root / planned) in card.copy_action.toolTip()
+        assert "may not" in card.copy_action.toolTip().lower()
 
 
 @pytest.mark.parametrize(
@@ -141,7 +141,7 @@ def test_manual_paths_use_chosen_file_not_generated_output(
     qtbot.addWidget(card)
     card.bind(project)
     assert card.path == (None if file is None else project.root / Path(file))
-    assert card.copy_button.isEnabled() == (file is not None)
+    assert card.copy_action.isEnabled() == (file is not None)
     assert card.mode_label.text() == "Mode: manual"
 
 
@@ -171,8 +171,8 @@ def test_rebind_clears_old_status_path_and_reasons(
     with Project.create(tmp_path / "New 空", "Second") as other:
         card.bind(other)
         assert card.path is None
-        assert not card.copy_button.isEnabled()
-        assert "old.kmp" not in card.copy_button.toolTip()
+        assert not card.copy_action.isEnabled()
+        assert "old.kmp" not in card.copy_action.toolTip()
         assert card.status_label.text() == "Not checked"
         assert card.summary.text() == COMPONENT_BY_ID["kmp"].description
         assert "previous project reason" not in card.summary.accessibleDescription()
@@ -182,7 +182,7 @@ def test_rebind_clears_old_status_path_and_reasons(
         )
         card.bind(other)
         assert card.path == other.root / "files/new.kmp"
-        assert card.copy_button.isEnabled()
+        assert card.copy_action.isEnabled()
 
 
 @pytest.mark.parametrize("read_only", [False, True])
@@ -201,12 +201,20 @@ def test_copy_uses_real_click_or_space_even_when_read_only(
     try:
         clipboard.setText("untouched")
         card.show()
-        if keyboard:
-            card.copy_button.setFocus()
-            qtbot.waitUntil(card.copy_button.hasFocus)
-            QTest.keyClick(card.copy_button, Qt.Key.Key_Space)
+        if keyboard:  # More → Copy path, from the keyboard
+            menu = card.more_button.menu()
+            assert menu is not None
+
+            def choose_copy() -> None:
+                menu.setActiveAction(card.copy_action)
+                QTest.keyClick(menu, Qt.Key.Key_Return)
+
+            card.more_button.setFocus()
+            qtbot.waitUntil(card.more_button.hasFocus)
+            QTimer.singleShot(0, choose_copy)
+            QTest.keyClick(card.more_button, Qt.Key.Key_Space)
         else:
-            QTest.mouseClick(card.copy_button, Qt.MouseButton.LeftButton)
+            card.copy_action.trigger()
         assert clipboard.text() == str(project.root / GENERATED_DIR / "course_model.brres")
     finally:
         clipboard.setText(previous)
@@ -223,9 +231,7 @@ def test_disabled_copy_does_not_clobber_clipboard(
     previous = qapp.clipboard().text()
     try:
         qapp.clipboard().setText("keep this")
-        QTest.mouseClick(card.copy_button, Qt.MouseButton.LeftButton)
-        QTest.keyClick(card.copy_button, Qt.Key.Key_Space)
-        card.copy_button.clicked.emit()
+        card.copy_action.trigger()  # off: nothing is copied
         assert qapp.clipboard().text() == "keep this"
     finally:
         qapp.clipboard().setText(previous)
@@ -244,9 +250,9 @@ def test_copy_tracks_rebind_and_preserves_lexical_path(
                 project.manifest, components=replace(project.manifest.components, kmp=kmp)
             )
             card.bind(project)
-            card.copy_button.click()
+            card.copy_action.trigger()
             assert qapp.clipboard().text() == str(project.root / file)
-            assert str(project.root / file) in card.copy_button.toolTip()
+            assert str(project.root / file) in card.copy_action.toolTip()
             assert all(
                 label.textFormat() == Qt.TextFormat.PlainText for label in card.findChildren(QLabel)
             )
@@ -326,18 +332,16 @@ def test_two_column_layout_fits_720_and_keyboard_tab_order(qtbot: QtBot, project
         assert card.height() < 190 + panel_height
         assert not card.outside.lock_button.isEnabled()  # editing is not enabled in this fixture
         assert not card.outside.discard_button.isEnabled()
-        assert card.copy_button.geometry().right() <= card.width()
+        assert card.more_button.geometry().right() <= card.width()
         assert card.status_label.width() >= card.status_label.fontMetrics().horizontalAdvance(
             card.status_label.text()
         )
-    cards[0].copy_button.setFocus()
-    qtbot.waitUntil(cards[0].copy_button.hasFocus)
-    QTest.keyClick(cards[0].copy_button, Qt.Key.Key_Tab)
+    cards[0].more_button.setFocus()
     qtbot.waitUntil(cards[0].more_button.hasFocus)
     QTest.keyClick(cards[0].more_button, Qt.Key.Key_Tab)
-    qtbot.waitUntil(cards[1].copy_button.hasFocus)
-    # Change mode / Copy path plus mounted Lock / Discard (More is a QToolButton).
-    assert len(host.findChildren(QPushButton)) == 4 * len(COMPONENTS)
+    qtbot.waitUntil(cards[1].more_button.hasFocus)
+    # Change mode plus mounted Lock / Discard (More is a QToolButton; Copy path is in it).
+    assert len(host.findChildren(QPushButton)) == 3 * len(COMPONENTS)
 
 
 def test_long_reason_does_not_make_an_enormous_card(qtbot: QtBot, project: Project) -> None:
@@ -374,7 +378,7 @@ def test_inherits_parent_palette_without_stylesheets(qtbot: QtBot, dark: bool) -
     card = ComponentCard(COMPONENT_BY_ID["kmp"], host)
     card.show_status(ComponentStatus(State.WARNING, ("A reason",)))
     assert card.parentWidget() is host
-    for widget in (card, *card.findChildren(QLabel), card.copy_button):
+    for widget in (card, *card.findChildren(QLabel), card.more_button):
         assert widget.palette().color(QPalette.ColorRole.Window) == palette.color(
             QPalette.ColorRole.Window
         )

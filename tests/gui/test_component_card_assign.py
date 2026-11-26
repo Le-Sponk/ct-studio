@@ -145,7 +145,9 @@ def test_anything_but_one_local_file_is_explained_on_the_card(
     assert not card.assign_note.isHidden()
     assert card.assign_note.toolTip() == DROP_ONE
     assert card.assign_note.accessibleDescription() == DROP_ONE
-    card.bind(project)
+    card.bind(project)  # nothing about this card changed: the explanation stays (P5-T10e)
+    assert card.assign_note.text() == DROP_ONE and not card.assign_note.isHidden()
+    card.show_assign_note("")
     assert card.assign_note.text() == "" and card.assign_note.isHidden()
     assert card.assign_note.accessibleDescription() == ""
 
@@ -242,9 +244,7 @@ def test_keyboard_reaches_choose_file_through_the_more_menu(
     spy = requests(card)
     chosen = tmp_path / "clavier.kcl"
     card.choose = Chooser(chosen)
-    card.copy_button.setFocus()
-    assert card.copy_button.hasFocus()
-    QTest.keyClick(card.copy_button, Qt.Key.Key_Tab)
+    card.more_button.setFocus()
     assert card.more_button.hasFocus()
     menu = card.more_button.menu()
     assert menu is not None

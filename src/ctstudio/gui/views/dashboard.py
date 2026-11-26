@@ -283,7 +283,7 @@ class Dashboard(QWidget):
             area = area.parentWidget()
         if area is not None:
             area.ensureWidgetVisible(card)
-        buttons = (card.mode_button, card.copy_button, card.more_button)
+        buttons = (card.mode_button, card.more_button)
         usable = [button for button in buttons if button.isVisible() and button.isEnabled()]
         (usable[0] if usable else card).setFocus(Qt.FocusReason.OtherFocusReason)
 

@@ -15,15 +15,18 @@ STALE_ASSIGNMENT = (
 
 
 def describe_assignment(result: LaunchResult) -> str:
-    """Plain words for a finished file assignment, shown on its card."""
+    """What a finished file assignment did, shown on its card.
+
+    Only what is new: the card's status already says which file the part uses ("using …"),
+    so the note never repeats it (P5-T10e, owner decision D3).
+    """
     receipt, error, source = result.receipt, result.error, result.source
     if isinstance(receipt, Assigned) and source is not None:
         if result.reference:
             if Path(receipt.file).is_absolute():  # full path in the tooltip (assignment_detail)
-                name = Path(receipt.file).name or receipt.file  # a drive root has no name
-                return f"Now using {name} where it is (outside the project)."
-            return f"Now using {receipt.file} where it is."
-        text = f"Now using {receipt.file} (a copy of {source.name or source})."
+                return "Kept where it is, outside the project (not copied)."
+            return "Kept where it is (not copied)."
+        text = f"Copied from {source.name or source}."
         if receipt.backup is not None:  # always .ctstudio/backups/<time> (full path: tooltip)
             text += f" The previous copy is backed up in .ctstudio/backups/{receipt.backup.name}."
         return text

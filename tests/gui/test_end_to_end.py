@@ -110,7 +110,7 @@ def copied(window: MainWindow, services: AppServices, part: str, name: str) -> N
     card, copy = window.dashboard.cards[part], project.root / "files" / name
     assert copy.read_bytes() == (INPUTS / name).read_bytes()
     assert (card.mode_label.text(), card.path) == ("Mode: manual", copy)
-    assert card.assign_note.text() == f"Now using files/{name} (a copy of {name})."
+    assert card.assign_note.text() == f"Copied from {name}."
 
 
 def statuses(window: MainWindow) -> dict[str, str]:

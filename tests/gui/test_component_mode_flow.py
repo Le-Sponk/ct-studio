@@ -26,7 +26,7 @@ def assert_saved_part(project: Project, card: ComponentCard, component: str, bef
     assert manifest_io.load(project.manifest_path) == project.manifest
     assert card.mode_label.text() == "Mode: manual"
     assert card.path is None
-    assert not card.copy_button.isEnabled()
+    assert not card.copy_action.isEnabled()
     backups = list(project.root.glob("*.bak"))
     assert len(backups) == 1
     assert backups[0].read_bytes() == before

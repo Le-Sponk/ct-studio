@@ -37,6 +37,7 @@ from ctstudio.gui.views.card_files import (
     dropped_path,
     takes_a_file,
 )
+from ctstudio.gui.views.card_text import Bound, same_part, shown_summary
 from ctstudio.gui.views.outside_edit_banner import OutsideEditBanner
 
 __all__ = ["DROP_ONE", "ComponentCard", "choose_source", "dropped_path", "takes_a_file"]
@@ -64,6 +65,7 @@ class ComponentCard(QWidget):
         super().__init__(parent)
         self._spec = spec
         self._project: Project | None = None
+        self._bound: Bound | None = None  # what the note belongs to (card_text.same_part)
         self._current_mode = spec.default_mode
         self._actions_enabled = False
         self._inspection_enabled = False
@@ -123,12 +125,7 @@ class ComponentCard(QWidget):
         mode_row.addWidget(self.mode_label)
         mode_row.addWidget(self.mode_button, alignment=Qt.AlignmentFlag.AlignRight)
         layout.addLayout(mode_row)
-        footer.addStretch()
-        self.copy_button = QPushButton("Copy path", self)
-        self.copy_button.setObjectName(f"{spec.id}CopyPath")
-        self.copy_button.setAccessibleName(f"Copy {spec.name} path")
-        self.copy_button.clicked.connect(self._copy_path)
-        footer.addWidget(self.copy_button)
+        footer.addStretch()  # one way to copy: More → Copy path (P5-T10e, owner decision D3)
         self.more_button = QToolButton(self)
         self.more_button.setText("…")
         self.more_button.setObjectName(f"{spec.id}MoreActions")
@@ -138,7 +135,9 @@ class ComponentCard(QWidget):
         self.more_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.more_button.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         menu = QMenu(self.more_button)
+        menu.setToolTipsVisible(True)  # Copy path shows the planned path
         self.copy_action = menu.addAction("Copy path")
+        self.copy_action.setObjectName(f"{spec.id}CopyPath")
         self.copy_action.triggered.connect(self._copy_path)
         self.reveal_action = menu.addAction("Open folder")
         self.reveal_action.setObjectName(f"{spec.id}OpenFolder")
@@ -285,9 +284,7 @@ class ComponentCard(QWidget):
             action.setEnabled(mutable)
             action.setChecked(mode == self._current_mode)
         copyable = self.path is not None
-        self.copy_button.setEnabled(copyable)
         self.copy_action.setEnabled(copyable)
-        self.copy_action.setToolTip(self.copy_button.toolTip())
         self.reveal_action.setEnabled(self._inspection_enabled and copyable)
         self.open_action.setEnabled(self.can_open())
         assignable = self._can_assign()
@@ -318,7 +315,12 @@ class ComponentCard(QWidget):
             self.mode_requested.emit(self._spec.id, mode)
 
     def bind(self, project: Project) -> None:
-        """Use only the in-memory manifest and lexical paths, including missing outputs."""
+        """Use only the in-memory manifest and lexical paths, including missing outputs.
+
+        The card's note stays unless this card's own part (mode, file) or the project changed:
+        another card's change re-binds every card (P5-T10e, owner decision D3).
+        """
+        before = self._bound
         self._project = project
         self.outside.clear()
         self._edited = False
@@ -343,11 +345,12 @@ class ComponentCard(QWidget):
             if self.path is None
             else f"Copy planned path (it may not yet exist):\n{self.path}"
         )
-        self.copy_button.setToolTip(tip)
-        self.copy_button.setAccessibleDescription(tip)
+        self.copy_action.setToolTip(tip)
         self._sync_actions()
         self.show_status(None)
-        self.show_assign_note("")
+        self._bound = (project, mode, self.path)
+        if not same_part(before, self._bound):
+            self.show_assign_note("")
 
     def _remember(self, status: ComponentStatus | None) -> None:
         """Keep the explicit flags the actions follow (checked file presence, outside edit)."""
@@ -368,7 +371,7 @@ class ComponentCard(QWidget):
         summary = reasons[0] if reasons else self._spec.description
         details = "\n".join(reasons) if reasons else self._spec.description
         self.status_label.setText(text)
-        self.summary.setText(summary)
+        self.summary.setText(shown_summary(summary))  # a file's name before its folder
         self._status_icon.setAccessibleName(text)
         if status is None:
             self._status_icon.clear()

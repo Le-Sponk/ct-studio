@@ -62,7 +62,7 @@ def test_close_waits_for_an_assignment_and_keeps_the_dashboard(
         work.gate.set()
         qtbot.waitUntil(lambda: not window.services.launch.busy and not window.dashboard.busy)
         assert project.manifest.components.kcl.file == "files/course.kcl"
-        assert card.assign_note.text().startswith("Now using files/course.kcl")
+        assert card.assign_note.text().startswith("Copied from ")
         assert menu_state(window) == (True, True, True)
     finally:
         work.gate.set()

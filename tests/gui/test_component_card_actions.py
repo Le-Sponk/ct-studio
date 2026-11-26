@@ -111,7 +111,7 @@ def test_primary_requires_explicit_gate_and_emits_dialog_current_mode(
     card.set_actions_enabled(False)
     card.mode_button.clicked.emit()
     assert spy.count() == 1
-    assert card.copy_button.isEnabled()
+    assert card.copy_action.isEnabled()
     assert card.more_button.isEnabled()
 
 
@@ -231,9 +231,8 @@ def test_bound_registry_gate_leaves_copy_independent(
     copyable = spec.id not in {"objects", "kmp"}
     assert card.mode_button.isEnabled() == editable
     assert all(action.isEnabled() == editable for action in card.mode_actions.values())
-    assert card.copy_button.isEnabled() == copyable
     assert card.copy_action.isEnabled() == copyable
-    assert card.copy_action.toolTip() == card.copy_button.toolTip()
+    assert card.copy_action.toolTip()  # the planned path, or why there is none
     # P5-T04b: parts that take a supplied file offer Choose file… in the same menu.
     assignable = enabled and takes_a_file(spec)  # the exact parts: test_component_card_assign
     assert card.more_button.isEnabled() == (copyable or editable or assignable)
@@ -274,8 +273,8 @@ def test_overflow_copy_mirrors_primary_without_filesystem_checks(
         project.close()
     card.bind(project)
     card.set_actions_enabled(state != "busy")
-    assert card.copy_action.isEnabled() == card.copy_button.isEnabled() == (chosen is not None)
-    assert card.copy_action.toolTip() == card.copy_button.toolTip()
+    assert card.copy_action.isEnabled() == (chosen is not None)
+    assert card.copy_action.toolTip()
     assert card.more_button.isEnabled() == (chosen is not None or state == "writable")
     previous = qapp.clipboard().text()
     try:
@@ -327,9 +326,7 @@ def test_keyboard_primary_tab_and_native_overflow_copy(
     assert spy.count() == 1
     assert spy.at(0) == ["course_model", ""]
     QTest.keyClick(card.mode_button, Qt.Key.Key_Tab)
-    assert card.copy_button.hasFocus()
-    QTest.keyClick(card.copy_button, Qt.Key.Key_Tab)
-    assert card.more_button.hasFocus()
+    assert card.more_button.hasFocus()  # Copy path is in More (P5-T10e)
     menu = card.more_button.menu()
     assert menu is not None
     opened: list[bool] = []
@@ -375,7 +372,7 @@ def test_actions_keep_native_palette_and_two_column_width(
         card.bind(project)
         card.set_actions_enabled(True)
         layout.addWidget(card, index // 2, index % 2)
-        for widget in (card, card.mode_button, card.copy_button, card.more_button):
+        for widget in (card, card.mode_button, card.more_button):
             assert not widget.styleSheet()
     host.resize(720, 720)
     host.show()

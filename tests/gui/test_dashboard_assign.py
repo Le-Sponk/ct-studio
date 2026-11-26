@@ -79,7 +79,7 @@ def test_a_dropped_file_is_copied_saved_published_and_rechecked(
         assert [p.read_bytes() for p in project.root.glob("*.bak")] == [before]
         assert (card.mode_label.text(), card.path) == ("Mode: manual", copied)
         note = card.assign_note
-        expected = "Now using files/course.kcl (a copy of mine.kcl)."
+        expected = "Copied from mine.kcl."
         assert (note.text(), note.accessibleDescription(), note.isHidden()) == (
             expected,
             expected,
@@ -102,7 +102,7 @@ def test_replacing_a_copy_says_where_the_old_one_was_backed_up(
         assert (backup / "files" / "course.kcl").read_bytes() == kcl_bytes()
         note = page.cards["kcl"].assign_note
         assert note.text() == (
-            "Now using files/course.kcl (a copy of newer.kcl). "
+            "Copied from newer.kcl. "
             f"The previous copy is backed up in .ctstudio/backups/{backup.name}."
         )
         assert note.toolTip() == f"{note.text()}\n{backup}"
@@ -126,7 +126,7 @@ def test_reference_in_place_records_the_path_and_copies_nothing(
         assert work.calls[0][2] is True
         assert project.manifest.components.kcl.file == str(source.resolve())
         assert not (project.root / "files").exists() or not any((project.root / "files").iterdir())
-        assert card.assign_note.text() == "Now using kept.kcl where it is (outside the project)."
+        assert card.assign_note.text() == "Kept where it is, outside the project (not copied)."
         assert card.assign_note.toolTip() == f"{card.assign_note.text()}\n{source.resolve()}"
         assert card.assign_note.accessibleDescription() == card.assign_note.toolTip()
 
@@ -145,7 +145,7 @@ def test_reference_in_place_inside_the_project_names_its_project_path(
         card.reference_action.trigger()
         settle(qtbot, page, services)
         assert project.manifest.components.kcl.file == "sources/mine.kcl"
-        assert card.assign_note.text() == "Now using sources/mine.kcl where it is."
+        assert card.assign_note.text() == "Kept where it is (not copied)."
         assert card.assign_note.toolTip() == card.assign_note.text()
 
 
@@ -218,7 +218,7 @@ def test_while_assigning_everything_waits_and_the_card_says_so(
             services.close_project()
         work.gate.set()
         settle(qtbot, page, services)
-        assert card.assign_note.text().startswith("Now using files/course.kcl")
+        assert card.assign_note.text().startswith("Copied from ")
 
 
 def test_a_project_changed_meanwhile_is_not_overwritten(qtbot: QtBot, tmp_path: Path) -> None:
@@ -313,6 +313,29 @@ def test_a_drive_root_used_in_place_is_named_in_full(tmp_path: Path) -> None:
             project, project.root, project.manifest, "posteffect", assigned, None, root, True
         )
         assert describe_assignment(result) == (
-            f"Now using {root} where it is (outside the project)."
+            "Kept where it is, outside the project (not copied)."
         )
         assert assignment_detail(result) == str(root)
+
+
+def test_a_card_note_stays_while_another_card_changes_and_goes_with_its_own(
+    qtbot: QtBot, tmp_path: Path
+) -> None:
+    with board(qtbot, tmp_path) as (page, services, project, _work):
+        kcl = page.cards["kcl"]
+        assert drop(kcl, local(write(tmp_path / "mine.kcl", kcl_bytes())))
+        settle(qtbot, page, services)
+        assert kcl.assign_note.text() == "Copied from mine.kcl."
+
+        def publish(part: str, mode: str, file: str | None) -> None:
+            components = project.manifest.components
+            changed = replace(getattr(components, part), mode=mode, file=file)
+            parts = replace(components, **{part: changed})
+            project.manifest = replace(project.manifest, components=parts)
+            page.set_project(project, changed=True)  # every card is bound again
+
+        publish("kmp", "manual", "files/course.kmp")  # another card changed
+        assert kcl.assign_note.text() == "Copied from mine.kcl.", "another card wiped this note"
+        assert not kcl.assign_note.isHidden()
+        publish("kcl", "auto", None)  # the collision part changed back to auto
+        assert not kcl.assign_note.text(), "the note outlived its own card's change"

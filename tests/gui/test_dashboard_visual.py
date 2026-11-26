@@ -112,7 +112,7 @@ def test_tab_order_and_small_window_reach_every_available_component_action(
     qtbot.keyClick(page.copy_project, Qt.Key.Key_Tab)
     assert page.edit_button.hasFocus()
     for card in page.cards.values():
-        for button in (card.mode_button, card.copy_button, card.more_button):
+        for button in (card.mode_button, card.more_button):
             if button.isEnabled() and button.isVisible():
                 focus = QApplication.focusWidget()
                 assert focus is not None

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ctstudio.core.components.assign import Assigned
+from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import CTStudioError
 from ctstudio.gui.launch_controller import LaunchResult
 
@@ -60,7 +61,9 @@ def _outcome(result: LaunchResult) -> str:
         )
     receipt = result.receipt
     if isinstance(receipt, Assigned):
-        text = f"Locked as manual. Now using {receipt.file}."
+        spec = COMPONENT_BY_ID.get(result.component_id or "")
+        part = spec.name if spec is not None else "the part"  # its card's status names the file
+        text = f"Locked as manual ({part}): your edited file is kept as it is."
         if receipt.backup is not None:
             text += f" The previous copy was backed up in {receipt.backup}."
         return text

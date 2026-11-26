@@ -47,7 +47,7 @@ own check runs. If changes can no longer be noticed (for example the project fol
 deleted or moved), a message under the status line says so; press Refresh statuses after
 changing files, which also tries watching again.
 
-Copy project folder and each available Copy path button copy a path without opening or
+Copy project folder and each card's More (…) → Copy path copy a path without opening or
 changing it. An automatically generated part's path is its planned output and may not exist
 until built. A supplied part uses the chosen file. Objects has no single file to copy; Track
 info copies the project manifest path. Copying remains available in read-only projects.
@@ -206,8 +206,9 @@ mode dialog is open, project navigation is blocked; while its worker is active, 
 and closing are disabled/refused. Wait for it to finish. A failure keeps the old project and
 card statuses visible with an explanation. A successful save refreshes modes, paths and statuses.
 
-More → Copy path is another way to use the existing lexical path copy: it does not open or
-validate the target, which may not exist yet, and remains available in read-only projects.
+More → Copy path is a card's one way to copy its path (hover it for the path it copies): it
+does not open or validate the target, which may not exist yet, and remains available in
+read-only projects.
 
 ## Using your own file for a part
 
@@ -217,8 +218,13 @@ part's card, or use the card's More (…) menu:
 
 - Choose file… (Choose folder… for Post-effects) copies it into the project's `files` folder
   under the name the game uses (such as `files/course.kcl`) and uses that copy.
-- Reference file in place… uses it where it is and copies nothing, so keep it there. For a file
-  outside the project the card shows its name; hover over the note for the full path.
+- Reference file in place… uses it where it is and copies nothing, so keep it there.
+
+The card's status then says which file the part uses ("using files/course.kcl"; for a file
+outside the project its name comes first, then its folder: "using mine.kcl in D:\Tracks"),
+and a note below it says only what was just done: "Copied from mine.kcl.", "Kept where it is (not
+copied)." or, for a file outside the project, "Kept where it is, outside the project (not
+copied)." (hover it for the full path).
 
 A drop is always a copy: holding Shift (move) in your file manager does not move or delete the
 original. CT Studio first checks that it is the right kind of file for that part; a wrong file is
@@ -232,8 +238,9 @@ computer is explained on the card and does nothing.
 It runs in the background like Open folder: while it runs the card says so, other edit, launch,
 refresh and build controls wait, and switching or closing the project waits until it finishes.
 It is not available in read-only projects or while statuses are checked, a build runs, or a
-dialog is open. The result stays on that card until the next assignment or the next time the
-project's cards are shown again.
+dialog is open. The note stays on that card while other cards change, and goes when that
+card's own part changes (another file, another mode) or a project is opened, the same one
+again included.
 
 ## Keeping or discarding an outside edit
 
@@ -250,7 +257,8 @@ To keep the change, choose Lock as manual. CT Studio makes an exact copy of the 
 `ctstudio.toml`. Later builds use that supplied copy rather than regenerating the part.
 A different copy already in `files/` is backed up in `.ctstudio/backups/` before replacement;
 an identical copy is kept. The manifest save has its usual timestamped backup too.
-The card reports "Locked as manual" and the file now used, plus any previous-copy backup.
+The card reports "Locked as manual (Collision): your edited file is kept as it is." (with that
+part's name) plus any previous-copy backup; its status names the file now used.
 
 To stop using the outside edit, choose Discard…. A native confirmation titled "Discard outside
 edit?" asks whether to move the changed file or folder to a backup. Cancel is the default;

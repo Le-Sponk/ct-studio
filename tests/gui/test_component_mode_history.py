@@ -87,7 +87,6 @@ def test_ancestor_reenable_restores_copy_and_mode_controls(
         host.setEnabled(False)
         card.set_actions_enabled(True)
         host.setEnabled(True)
-        assert card.copy_button.isEnabled()
         assert card.copy_action.isEnabled()
         assert card.more_button.isEnabled()
         assert card.mode_button.isEnabled() == bool(card.mode_actions)

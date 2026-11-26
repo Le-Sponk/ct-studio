@@ -59,7 +59,7 @@ def test_card_reveal_is_a_request_with_its_own_gate(qtbot: QtBot, tmp_path: Path
         card.set_inspection_enabled(False)
         card.reveal_action.triggered.emit()  # a direct trigger is also refused
         assert spy.count() == 1
-        assert card.copy_button.isEnabled() and card.copy_action.isEnabled()
+        assert card.copy_action.isEnabled()
 
 
 def test_cards_without_a_single_path_cannot_reveal(qtbot: QtBot, tmp_path: Path) -> None:
@@ -85,7 +85,7 @@ def test_controls_follow_explicit_state(qtbot: QtBot, tmp_path: Path) -> None:
         for control in (page.open_blender, page.refresh_button, page.edit_button):
             assert not control.isEnabled()
         assert not page.cards["kcl"].reveal_action.isEnabled()
-        assert page.cards["kcl"].copy_button.isEnabled()  # copying never waits
+        assert page.cards["kcl"].copy_action.isEnabled()  # copying never waits
         assert page.copy_project.isEnabled()
         work.gate.set()
         qtbot.waitUntil(lambda: not services.launch.busy)

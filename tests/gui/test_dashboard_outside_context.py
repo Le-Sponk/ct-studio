@@ -64,3 +64,4 @@ def test_an_unmatched_result_cannot_end_the_active_card_request(
         work.gate.set()
         assert settled(qtbot, lambda: not services.launch.busy and not services.status.busy)
         assert len(work.calls) == 1 and "Locked as manual" in banner.note.text()
+        assert "course.kcl" not in banner.note.text(), "the card's status already names the file"
