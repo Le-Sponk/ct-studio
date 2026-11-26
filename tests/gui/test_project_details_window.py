@@ -57,7 +57,7 @@ def test_dashboard_details_save_refreshes_header_and_statuses(qtbot: QtBot, tmp_
         qtbot.waitUntil(lambda: not window.services.editing)
         assert window.dashboard.slot_label.toolTip() == f"{slot}.szs"
         assert window.dashboard.slot_label.text() == find_slot(slot).label
-        assert window.dashboard.source_label.text() == str(source)
+        assert window.dashboard.source_label.full_text == str(source)
         qtbot.waitUntil(lambda: not window.dashboard.busy)
         assert window.dashboard.edit_button.isEnabled()
         assert window.new_project_action.isEnabled()

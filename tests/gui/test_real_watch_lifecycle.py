@@ -106,7 +106,7 @@ def inject_obsolete(watcher: ProjectWatcher, services: AppServices) -> None:
 def view_state(page: Dashboard) -> tuple[object, ...]:
     return (
         page._project,
-        page.folder_label.text(),
+        page.folder_label.full_text,
         page.notice.text(),
         page.busy,
         page.watch.notice.text(),
@@ -145,7 +145,7 @@ def test_real_switch_releases_old_lock_and_isolates_current_dashboard(
         assert not reopened.read_only, "switch did not release the actual old project lock"
         assert contender.read_only, "switch lost the current project's actual writer lock"
     assert services.project is new and page._project is new
-    assert page.folder_label.text() == str(new.root)
+    assert page.folder_label.full_text == str(new.root)
     assert page.cards["kcl"].status_label.text() == "ready"
     before = view_state(page)
     inject_obsolete(first, services)

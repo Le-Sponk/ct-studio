@@ -114,8 +114,8 @@ def test_populated_window_outside_edit_geometry_and_real_joined_outcome(
             assert len(page.cards) == 8 and all(
                 c.status_label.text() != "Not checked" for c in page.cards.values()
             )
-            assert page.name_label.text() and page.folder_label.text()
-            assert page.slot_label.text() and page.source_label.text()
+            assert page.name_label.text() and page.folder_label.full_text
+            assert page.slot_label.text() and page.source_label.full_text
             assert page.builds.controls.isVisible() and banner.lock_button.isEnabled()
             visual.settle_layout(qtbot, window, area)
             images = [

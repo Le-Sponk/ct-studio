@@ -12,6 +12,7 @@ from pathlib import Path
 from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtWidgets import (
     QFileDialog,
+    QFormLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -26,6 +27,7 @@ from PySide6.QtWidgets import (
 
 from ctstudio.core.project import manifest_io
 from ctstudio.core.project.slots import CATALOGUE, DEFAULT_SLOT, Slot, cups
+from ctstudio.gui.views.path_label import PathLabel
 
 Choose = Callable[[QWidget, Path], Path | None]  # None: the user cancelled
 _UNSAFE = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
@@ -83,9 +85,10 @@ class NamePage(QWizardPage):
         browse.setObjectName("browseLocation")
         browse.setToolTip("Choose the folder to make the project folder in.")
         browse.clicked.connect(self._browse)
-        self.preview = QLabel("", self)
+        self.preview_caption = QLabel("The project folder will be:", self)
+        self.preview_caption.setObjectName("folderPreviewCaption")
+        self.preview = PathLabel(self)  # only the path: shortened in the middle (P5-T10c)
         self.preview.setObjectName("folderPreview")
-        self.preview.setWordWrap(True)
         self.problem = _problem_label("locationProblem", self)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Track name", self))
@@ -96,7 +99,10 @@ class NamePage(QWizardPage):
         row.addWidget(self.location, 1)
         row.addWidget(browse)
         layout.addLayout(row)
-        layout.addWidget(self.preview)
+        preview = QHBoxLayout()
+        preview.addWidget(self.preview_caption)
+        preview.addWidget(self.preview, 1)
+        layout.addLayout(preview)
         layout.addWidget(self.problem)
         layout.addStretch()
         for edit in (self.name, self.location):
@@ -115,7 +121,8 @@ class NamePage(QWizardPage):
     def _changed(self) -> None:
         root = self.root()
         where = self.location.text().strip()
-        self.preview.setText(f"The project folder will be: {root}" if root is not None else "")
+        self.preview.set_path(str(root) if root is not None else "")
+        self.preview_caption.setVisible(root is not None)
         if not where:
             self.problem.setText("Choose where to make the project folder.")
         elif root is None:
@@ -296,10 +303,21 @@ class SummaryPage(QWizardPage):
         super().__init__()
         self.setTitle("Ready to make the project")
         self.setSubTitle("Check the details, then choose Finish.")
-        self.text = QLabel("", self)
-        self.text.setObjectName("summaryText")
-        self.text.setWordWrap(True)
-        self.text.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        # The two paths are shortened in the middle, whole on hover and in Copy (P5-T10c).
+        self.track, self.slot = QLabel("", self), QLabel("", self)
+        self.folder, self.blend = PathLabel(self), PathLabel(self)
+        details = QFormLayout()
+        for title, value, name in (
+            ("Track name", self.track, "summaryTrack"),
+            ("Project folder", self.folder, "summaryFolder"),
+            ("Blender file", self.blend, "summaryBlend"),
+            ("Replaces", self.slot, "summarySlot"),
+        ):
+            value.setObjectName(name)
+            details.addRow(title, value)
+        for plain in (self.track, self.slot):
+            plain.setWordWrap(True)
+            plain.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.busy = QProgressBar(self)
         self.busy.setObjectName("createBusy")
         self.busy.setRange(0, 0)
@@ -308,7 +326,7 @@ class SummaryPage(QWizardPage):
         self.busy.hide()
         self.problem = _problem_label("createProblem", self)
         layout = QVBoxLayout(self)
-        layout.addWidget(self.text)
+        layout.addLayout(details)
         layout.addSpacing(12)
         layout.addWidget(self.busy)
         layout.addWidget(self.problem)

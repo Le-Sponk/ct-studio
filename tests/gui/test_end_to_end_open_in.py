@@ -103,7 +103,8 @@ def test_open_in_starts_the_added_editor_with_the_project_file(
         notice = opened(qtbot, window, services)
         document = project.root / "files" / "course.kcl"
         assert notice.startswith(f"{EDITOR} was started (process "), notice
-        assert f") with {document}." in notice.splitlines()[0], notice
+        place = Path("files", "course.kcl")  # named by its place in the project (P5-T10c)
+        assert f") with {place}." in notice.splitlines()[0], notice
         shot(window, "p5-t09-8-started.png")
         assert settled(qtbot, receipt.is_file, WAIT), "the program never ran"
         got = json.loads(receipt.read_text(encoding="utf-8"))["argv"]

@@ -172,3 +172,10 @@ def shot(widget: QWidget, name: str) -> None:
     QApplication.processEvents()  # let the layout follow the last change before the picture
     SCREENS.mkdir(parents=True, exist_ok=True)
     assert widget.grab().save(str(SCREENS / name), "PNG")
+
+
+def to_summary(wizard: QWizard, name: str, location: Path) -> None:
+    fill_first_page(wizard, name, location)
+    for _ in range(3):
+        assert wizard_button(wizard, QWizard.WizardButton.NextButton).isEnabled()
+        wizard.next()

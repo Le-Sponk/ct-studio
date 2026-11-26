@@ -25,10 +25,10 @@ def test_project_header_is_shown(qtbot: QtBot, tmp_path: Path) -> None:
         page.show()
         label = page.findChild(QLabel, "dashboardName")
         assert label is not None and label.text() == "Piste <é>"
-        assert page.folder_label.text() == str(project.root)
+        assert page.folder_label.full_text == str(project.root)
         assert page.slot_label.text() == "Luigi Circuit (Mushroom Cup, track 1)"
         assert page.slot_label.toolTip() == f"{project.manifest.project.slot}.szs"
-        assert "source.blend" in page.source_label.text()
+        assert "source.blend" in page.source_label.full_text
     finally:
         assert services.shutdown(10)
 

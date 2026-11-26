@@ -43,8 +43,11 @@ box. CT Studio checks again when it starts the editor, in case the file was remo
 
 When an editor starts, the dashboard shows two lines like these, plus any warning:
 
-    RiiStudio was started (process 4242) with C:\Tracks\castle\course_model.brres.
+    RiiStudio was started (process 4242) with files\course_model.brres.
     CT Studio cannot tell whether RiiStudio finished opening the file.
+
+A file in the project is named by its place in the project folder; a file elsewhere by its
+whole path.
 
 CT Studio only knows that it started the program. It does not watch the editor's window or
 output: RiiStudio, for example, can keep an empty window up after a failed load, and CT Studio

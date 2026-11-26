@@ -63,6 +63,13 @@ described below; Open in… for a part's file is described in
 [Opening part files in editors](OPEN_IN.md). Every setting is described in
 [Settings](SETTINGS.md). Automatic generation is still under development.
 
+## Long paths
+
+A folder or file path that is too long for its line (the dashboard's Project folder and
+Blender source, the new-project wizard's folder) is shortened in the middle, for example
+`C:\Users\…\course.kcl`. Hover over it to see the whole path, or right-click it and choose
+Copy path.
+
 ## Building from the dashboard
 
 In the build bar pinned along the bottom of a writable project's dashboard (it stays on screen

@@ -12,7 +12,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-from PySide6.QtWidgets import QWizard
+from PySide6.QtWidgets import QWidget, QWizard
 from pytestqt.qtbot import QtBot
 from wizard_fakes import (
     WAIT,
@@ -27,6 +27,7 @@ from wizard_fakes import (
     make_wizard,
     push,
     slot_item,
+    to_summary,
     tree,
     wizard_button,
 )
@@ -35,6 +36,7 @@ from ctstudio.core.errors import ProjectError
 from ctstudio.core.project import manifest_io
 from ctstudio.gui.views import new_project
 from ctstudio.gui.views.new_project import NewProjectWizard, folder_name
+from ctstudio.gui.views.path_label import PathLabel
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(30)]
 __all__ = ["choices", "creator"]  # fixtures used by name
@@ -45,19 +47,20 @@ FINISH = QWizard.WizardButton.FinishButton
 CANCEL = QWizard.WizardButton.CancelButton
 
 
-def to_summary(wizard: NewProjectWizard, name: str, location: Path) -> None:
-    fill_first_page(wizard, name, location)
-    for _ in range(3):
-        assert wizard_button(wizard, NEXT).isEnabled()
-        wizard.next()
-
-
 def finish(qtbot: QtBot, wizard: NewProjectWizard) -> None:
     with qtbot.waitSignal(wizard.accepted, timeout=WAIT):
         wizard_button(wizard, FINISH).click()
 
 
 # --- the whole flow -----------------------------------------------------------------------------
+
+
+def summary_details(wizard: QWidget) -> str:
+    """The summary page's details; its two paths whole, as on hover and in Copy (P5-T10c)."""
+    parts = [label(wizard, name) for name in ("summaryTrack", "summarySlot")]
+    paths = [wizard.findChild(PathLabel, name) for name in ("summaryFolder", "summaryBlend")]
+    assert all(path is not None for path in paths)
+    return "\n".join([part.text() for part in parts] + [p.full_text for p in paths if p])
 
 
 def test_the_flow_makes_the_project_on_disk(
@@ -75,7 +78,9 @@ def test_the_flow_makes_the_project_on_disk(
     edit(wizard, "slotSearch").setText("mario circ")
     tree(wizard).setCurrentItem(slot_item(wizard, "castle_course"))
     wizard.next()
-    summary = label(wizard, "summaryText").text()
+    summary = summary_details(wizard)
+    chosen = wizard.findChild(PathLabel, "summaryBlend")
+    assert chosen is not None and chosen.copy_action.isEnabled()  # a real path
     assert "Piste des Neiges" in summary
     assert str(location / "Piste des Neiges") in summary
     assert "piste.blend" in summary
@@ -101,7 +106,7 @@ def test_the_defaults_are_no_blend_and_luigi_circuit(
     wizard = make_wizard(qtbot, creator, choices, tmp_path)
     assert edit(wizard, "locationEdit").text() == str(tmp_path)
     to_summary(wizard, "Ma piste", tmp_path)
-    summary = label(wizard, "summaryText").text()
+    summary = summary_details(wizard)
     assert "Luigi Circuit" in summary
     assert "none yet" in summary.lower()
     finish(qtbot, wizard)
@@ -135,7 +140,7 @@ def test_the_first_page_shows_the_folder_it_will_make(
     wizard = make_wizard(qtbot, creator, choices, tmp_path)
     assert not wizard_button(wizard, NEXT).isEnabled()  # no name yet
     edit(wizard, "trackName").setText("Ma piste")
-    assert str(tmp_path / "Ma piste") in label(wizard, "folderPreview").text()
+    assert str(tmp_path / "Ma piste") in label(wizard, "folderPreview").toolTip()
     assert wizard_button(wizard, NEXT).isEnabled()
 
 

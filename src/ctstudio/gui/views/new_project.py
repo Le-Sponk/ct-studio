@@ -144,14 +144,13 @@ class NewProjectWizard(QWizard):
     def _page_changed(self, _page: int) -> None:
         if self.currentPage() is self._summary:
             self._summary.problem.setText("")
-            self._summary.text.setText(self._summary_text())
+            self._show_summary()
 
-    def _summary_text(self) -> str:
+    def _show_summary(self) -> None:
         root, slot, blend = self._name.root(), self._slot.chosen(), self._blend.chosen()
-        lines = [
-            f"Track name: {self._name.name.text().strip()}",
-            f"Project folder: {root}",
-            f"Blender file: {blend if blend is not None else 'none yet (you can add it later)'}",
-            f"Replaces: {slot.label if slot is not None else '-'}",
-        ]
-        return "\n".join(lines)
+        summary = self._summary
+        summary.track.setText(self._name.name.text().strip())
+        summary.folder.set_path(str(root))
+        none_yet = "none yet (you can add it later)"
+        summary.blend.set_path(str(blend or none_yet), is_path=blend is not None)
+        summary.slot.setText(slot.label if slot is not None else "-")

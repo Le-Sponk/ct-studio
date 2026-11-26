@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.tools import editors
@@ -31,10 +33,12 @@ def describe_launch(result: LaunchResult) -> str:
         return describe_editor(result, editor_name(result.choice))
     receipt = result.receipt
     if isinstance(receipt, editors.Launched):
-        return _started("Blender", receipt)
+        return _started("Blender", receipt, result.root)
     if isinstance(receipt, corefolders.OpenedFolder):
+        place = _in_project(receipt.folder, result.root)
+        named = "the project folder" if place == Path() else f'the folder "{place}"'
         return (
-            f"Asked the system to open {receipt.folder}. "
+            f"Asked the system to open {named}. "
             "If no window appears, open that folder in your file manager."
         )
     subject = "open Blender" if result.component_id is None else "open the folder"
@@ -49,18 +53,27 @@ def describe_editor(result: LaunchResult, label: str) -> str:
         name = receipt.document.name
         return f"Editor choices for {name} are ready ({found} of {len(receipt.options)} found)."
     if isinstance(receipt, editors.Launched):
-        return _started(label, receipt)
+        return _started(label, receipt, result.root)
     subject = "prepare editor choices" if result.editor_action == "prepare" else f"open {label}"
     return _failure(subject, result.error)
 
 
-def _started(label: str, receipt: editors.Launched) -> str:
+def _started(label: str, receipt: editors.Launched, root: Path) -> str:
     lines = [
-        f"{label} was started (process {receipt.pid}) with {receipt.document}.",
+        f"{label} was started (process {receipt.pid}) with {_in_project(receipt.document, root)}.",
         f"CT Studio cannot tell whether {label} finished opening the file.",
         *receipt.warnings,
     ]
     return "\n".join(lines)
+
+
+def _in_project(document: Path, root: Path) -> Path:
+    """A file in the project by its place in it ("files\\course.kcl", P5-T10c); any other
+    file by its whole path."""
+    try:
+        return document.relative_to(root)
+    except ValueError:
+        return document
 
 
 def _failure(subject: str, error: BaseException | None) -> str:

@@ -37,6 +37,7 @@ from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
 from ctstudio.gui.views.dashboard_watch import DashboardWatch
 from ctstudio.gui.views.issues_panel import IssuesPanel
+from ctstudio.gui.views.path_label import PathLabel
 
 
 def _explain(widget: QWidget, text: str) -> None:
@@ -52,6 +53,12 @@ def _label(name: str, parent: QWidget) -> QLabel:
     label.setWordWrap(True)
     label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
     label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+    return label
+
+
+def _path(name: str, parent: QWidget) -> PathLabel:
+    label = PathLabel(parent)  # one line, shortened in the middle (P5-T10c)
+    label.setObjectName(name)
     return label
 
 
@@ -80,9 +87,9 @@ class Dashboard(QWidget):
         self.name_label.setFont(font)
         self._layout.addWidget(self.name_label)
         form = QFormLayout()
-        self.folder_label = _label("dashboardFolder", self)
+        self.folder_label = _path("dashboardFolder", self)
         self.slot_label = _label("dashboardSlot", self)
-        self.source_label = _label("dashboardSource", self)
+        self.source_label = _path("dashboardSource", self)
         form.addRow("Project folder", self.folder_label)
         form.addRow("Replaces", self.slot_label)
         form.addRow("Blender source", self.source_label)
@@ -115,11 +122,10 @@ class Dashboard(QWidget):
         self.issues.clear()
         self.watch.clear()
         self._checking = False
-        self.launch_notice.clear()
-        self.launch_notice.hide()
+        self._show_launch_text("")  # clears the text and its tooltip, and hides it
         info = project.manifest.project
         self.name_label.setText(info.name)
-        self.folder_label.setText(str(project.root))
+        self.folder_label.set_path(str(project.root))
         try:
             track = find_slot(info.slot)
             self.slot_label.setText(track.label)
@@ -128,7 +134,7 @@ class Dashboard(QWidget):
             self.slot_label.setText(f"{info.slot}.szs")
             _explain(self.slot_label, "")
         source = project.root / info.blend if info.blend else None
-        self.source_label.setText(str(source) if source else "No Blender file chosen")
+        self.source_label.set_path(str(source or "No Blender file chosen"), is_path=bool(source))
         access = (
             f"Read-only — {project.read_only_reason}. You can inspect and copy paths."
             if project.read_only
@@ -379,6 +385,7 @@ class Dashboard(QWidget):
 
     def _show_launch_text(self, text: str) -> None:
         self.launch_notice.setText(text)
+        self.launch_notice.setToolTip(text)  # a long path cut at the edge is whole on hover
         self.launch_notice.setVisible(bool(text))
 
     def _after_build(self, _result: object) -> None:
