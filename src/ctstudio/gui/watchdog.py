@@ -19,6 +19,7 @@ import traceback
 from collections.abc import Callable
 from pathlib import Path
 
+import shiboken6
 from PySide6.QtCore import QObject, Qt, QTimer
 
 from ctstudio.core.project import settings
@@ -49,7 +50,8 @@ class StallWatchdog:
     @property
     def watching(self) -> bool:
         """The heartbeat or the watcher thread is still going."""
-        return self._timer.isActive() or self._thread is not None
+        active = shiboken6.isValid(self._timer) and self._timer.isActive()
+        return active or self._thread is not None
 
     def start(self) -> None:
         self._last = time.monotonic()
@@ -58,8 +60,9 @@ class StallWatchdog:
         self._thread.start()
 
     def stop(self, timeout: float) -> bool:
-        """Stop watching; True when the watcher thread has ended."""
-        self._timer.stop()
+        """Stop watching; True when the watcher thread has ended. Safe to call again."""
+        if shiboken6.isValid(self._timer):  # at exit Qt may have deleted it already
+            self._timer.stop()
         self._stopping.set()
         thread = self._thread
         if thread is not None:

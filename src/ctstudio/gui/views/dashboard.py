@@ -30,11 +30,12 @@ from ctstudio.gui.dashboard_builds import DashboardBuilds
 from ctstudio.gui.dashboard_editors import DashboardEditors
 from ctstudio.gui.dashboard_outside import DashboardOutside
 from ctstudio.gui.launch_controller import LaunchResult
-from ctstudio.gui.launch_text import component_name
+from ctstudio.gui.launch_text import blender_tip, component_name
 from ctstudio.gui.launch_text import describe_launch as describe_launch
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.status_service import StatusResult
 from ctstudio.gui.views.component_card import ComponentCard
+from ctstudio.gui.views.copy_details import CopyDetails, details_of
 from ctstudio.gui.views.dashboard_watch import DashboardWatch
 from ctstudio.gui.views.header_buttons import HeaderButtons
 from ctstudio.gui.views.issues_panel import IssuesPanel
@@ -97,7 +98,7 @@ class Dashboard(QWidget):
         self._layout.addLayout(form)
         self._make_cards()
         self.watch = DashboardWatch(services, self._shown, self._begin_check, self)
-        self._layout.insertWidget(self._layout.indexOf(self.notice) + 1, self.watch.notice)
+        self._layout.insertWidget(self._layout.indexOf(self.notice_details) + 1, self.watch.notice)
         self.issues = IssuesPanel(self)
         self.issues.part_requested.connect(self.focus_card)
         self._layout.addWidget(self.issues)
@@ -155,6 +156,10 @@ class Dashboard(QWidget):
         self.notice = _label("dashboardNotice", self)
         self.notice.hide()  # shown only with something to say (_say)
         self._layout.addWidget(self.notice)
+        self.notice_details = CopyDetails(
+            "dashboardCopyDetails", "dashboard message", self
+        )  # P5-T10f
+        self._layout.addWidget(self.notice_details, alignment=Qt.AlignmentFlag.AlignLeft)
         self.checking = QProgressBar(self)
         self.checking.setObjectName("dashboardChecking")
         self.checking.setRange(0, 0)
@@ -261,17 +266,20 @@ class Dashboard(QWidget):
         self.issues.show_report(payload.issues, payload.issues_problem, title)
         incomplete = any(name not in payload.statuses for name in self.cards)
         message = "Some parts were not checked; try Refresh." if incomplete else ""
-        self._say(payload.settings_problem or message)  # all checked: the cards say it
+        problem = payload.settings_problem
+        self._say(problem or message, payload.settings_details if problem else None)
 
     def _failed(self, error: object) -> None:
         if not self._current():
             return
         self._checked()
-        self._say(f"Could not check component statuses. {error} Try Refresh.")
+        failure = f"Could not check component statuses. {error} Try Refresh."
+        self._say(failure, details_of(error) if isinstance(error, BaseException) else None)
 
-    def _say(self, text: str) -> None:
-        self.notice.setText(text)
+    def _say(self, text: str, details: str | None = None) -> None:
+        self.notice.setText(text)  # all checked: nothing to say (the cards say it)
         self.notice.setVisible(bool(text))
+        self.notice_details.offer(text, details)
 
     def focus_card(self, part: str) -> None:
         """Scroll to a part's card and put the focus on its first usable control (or on it)."""
@@ -312,19 +320,10 @@ class Dashboard(QWidget):
         self.edit_button.setEnabled(mutable)
         has_source = self._project is not None and bool(self._project.manifest.project.blend)
         self.open_blender.setEnabled(mutable and has_source)
-        _explain(self.open_blender, self._blender_tip(has_source))
+        _explain(self.open_blender, blender_tip(self._project, has_source))
         for card in self.cards.values():
             card.set_actions_enabled(mutable)
             card.set_inspection_enabled(idle)
-
-    def _blender_tip(self, has_source: bool) -> str:
-        """What Open in Blender does, or why it is off."""
-        project = self._project
-        if project is not None and project.read_only:
-            return f"Not available: this project is read-only ({project.read_only_reason})."
-        if not has_source:
-            return "No Blender file chosen yet: choose one in Project details…"
-        return "Start Blender with this project's source file."
 
     @property
     def mutable(self) -> bool:

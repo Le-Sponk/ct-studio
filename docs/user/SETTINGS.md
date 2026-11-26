@@ -131,5 +131,7 @@ The file is left exactly as it is. Meanwhile:
 - Open in… shows why and starts no editor; it never falls back to another editor.
 - CT Studio starts with the system's colour scheme and with developer mode off (unless
   `CTSTUDIO_DEV=1`), and says why in its log.
+- The dashboard says so above the project buttons; when the reason has more to it (for
+  example where the JSON stops being valid), Copy details copies it.
 - Every page that uses the file shows the reason and turns its choices off or hides them;
   the Build page's This project tab is not affected, because it is saved in the project.

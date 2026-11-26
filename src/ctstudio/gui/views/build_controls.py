@@ -22,6 +22,7 @@ from ctstudio.core.build.events import (
     NodeSkipped,
     NodeStarted,
 )
+from ctstudio.gui.views.copy_details import CopyDetails, details_of
 
 _TEST = "Build a track to try in the game, with the test compression"
 _RELEASE = (
@@ -44,6 +45,7 @@ class BuildControls(QWidget):
         self._completed: set[str] = set()
         self._warning = ""
         self._error = ""
+        self._details: str | None = None  # the error's details, copied, never shown (P5-T10f)
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         buttons = QHBoxLayout()
@@ -70,8 +72,11 @@ class BuildControls(QWidget):
         self.activity = self._label("buildActivity")
         self.notice = self._label("buildNotice")
         self.last_result = self._label("buildLastResult")
-        for label in (self.activity, self.notice, self.last_result):
-            layout.addWidget(label)
+        self.copy_details = CopyDetails("buildCopyDetails", "build error", self)
+        layout.addWidget(self.activity)
+        layout.addWidget(self.notice)
+        layout.addWidget(self.copy_details, alignment=Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(self.last_result)
         self.set_state(enabled=False, running=False)
 
     def _label(self, name: str) -> QLabel:
@@ -89,7 +94,7 @@ class BuildControls(QWidget):
         """Start presenting a run; planning has no known step count yet."""
         self._cancel_requested = False
         self._present(self.last_result, "")
-        self._error = ""
+        self._error = ""  # (an old error's details are only offered with that error)
         self._sync_notice()
         self._steps.clear()
         self._completed.clear()
@@ -120,6 +125,7 @@ class BuildControls(QWidget):
                     f"\nNext: {event.hint}" if event.hint else "\nReview the build log and retry."
                 )
                 self._error = f"Step {event.node_id} failed: {event.message}{hint}"
+                self._details = event.details  # the tool's output: Copy details only
                 self._sync_notice()
 
     def show_summary(self, summary: BuildSummary) -> None:
@@ -138,6 +144,7 @@ class BuildControls(QWidget):
         reason = str(error) or type(error).__name__
         kind = "failed" if isinstance(error, Exception) else "interrupted"
         self._error = f"Build {kind}: {reason}\nReview the problem and retry the build."
+        self._details = details_of(error)
         self._present(self.activity, "")
         self._sync_notice()
 
@@ -149,10 +156,12 @@ class BuildControls(QWidget):
     def _sync_notice(self) -> None:
         text = "\n".join(part for part in (self._error, self._warning) if part)
         self._present(self.notice, text)
+        self.copy_details.offer(text, self._details if self._error else None)
 
     def clear(self) -> None:
         """Discard the previous project's presentation without touching a controller."""
         self._warning = self._error = ""
+        self.copy_details.offer("", None)
         self._cancel_requested = False
         self._steps.clear()
         self._completed.clear()

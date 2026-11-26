@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QApplication
 
 from ctstudio.core.errors import ProjectError
 from ctstudio.gui.appearance import apply_saved
+from ctstudio.gui.crash import install as install_crash_reporter
 from ctstudio.gui.gc_policy import GuiThreadCollector
 from ctstudio.gui.main_window import MainWindow
 from ctstudio.gui.watchdog import dev_watchdog
@@ -54,6 +55,8 @@ def run_gui(smoke_path: Path | None = None) -> int:
     """Launch the app, or render and save one offscreen frame for CI."""
     app = QApplication([])
     app.setApplicationName("CT Studio")
+    if smoke_path is None:  # a headless smoke run must never wait on a dialog
+        install_crash_reporter()  # an error nothing handled: logged, one dialog (P5-T10f)
     collector = GuiThreadCollector()  # TD-017: garbage is collected on this thread only
     collector.start()
     apply_saved()  # the chosen colour scheme (P5-T08d), before any window is drawn

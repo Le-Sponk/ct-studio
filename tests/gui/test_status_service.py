@@ -140,6 +140,7 @@ def test_a_damaged_settings_file_is_said_and_the_statuses_still_come(
     assert status.found == [{}]
     assert arg(signal).settings_problem is not None
     assert "not valid json" in arg(signal).settings_problem.lower()
+    assert arg(signal).settings_details, "the parser's reason is lost (Copy details, P5-T10f)"
 
 
 # --- many requests ------------------------------------------------------------------------------

@@ -45,6 +45,7 @@ class StatusResult:
     settings_problem: str | None = None  # the settings file could not be used
     issues: IssueReport | None = None  # the last check's findings; None: none saved yet
     issues_problem: str | None = None  # the saved findings could not be read
+    settings_details: str | None = None  # why the settings file failed: Copy details (P5-T10f)
 
 
 @dataclass(frozen=True)
@@ -168,12 +169,15 @@ class _Work:
         try:
             try:
                 configured, problem = settings.load(settings_path).configured(), None
+                problem_details = None
             except SettingsError as exc:
-                configured, problem = {}, exc.user_message
+                configured, problem, problem_details = {}, exc.user_message, exc.details
             tools = self.find_tools(configured=configured)
             statuses = dict(self.evaluate(project, tools))
             issues, issues_problem = self._issues(project.root)
-            payload = StatusResult(project.root, statuses, problem, issues, issues_problem)
+            payload = StatusResult(
+                project.root, statuses, problem, issues, issues_problem, problem_details
+            )
         except Exception as exc:  # any failure must reach the window, not end with the thread
             _LOG.exception("Working out the part statuses failed")
             payload = exc

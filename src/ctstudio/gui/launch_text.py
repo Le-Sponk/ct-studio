@@ -6,6 +6,7 @@ from pathlib import Path
 
 from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import CTStudioError
+from ctstudio.core.project.project import Project
 from ctstudio.core.tools import editors
 from ctstudio.core.tools import folders as corefolders
 from ctstudio.core.tools.registry import TOOL_BY_ID
@@ -83,3 +84,12 @@ def _failure(subject: str, error: BaseException | None) -> str:
         return f"The request to {subject} was interrupted. Try again."
     reason = str(error) or type(error).__name__
     return f"Could not {subject}: {reason}. Try again; if it keeps failing, restart CT Studio."
+
+
+def blender_tip(project: Project | None, has_source: bool) -> str:
+    """What Open in Blender does, or why it is off."""
+    if project is not None and project.read_only:
+        return f"Not available: this project is read-only ({project.read_only_reason})."
+    if not has_source:
+        return "No Blender file chosen yet: choose one in Project details…"
+    return "Start Blender with this project's source file."

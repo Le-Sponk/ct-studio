@@ -96,7 +96,10 @@ it runs. Read-only projects and projects being checked or edited cannot start bu
 
 Build warnings/errors are separate from status-check and launch notices. The last result shows
 the actual outcome and duration; hover it for the full build-log path, or an explanation when
-no log was written. Screen readers receive these details too. After correcting a problem, wait
+no log was written. Screen readers receive these details too. When a failed build has
+technical details (a tool's own output, or what went wrong inside CT Studio), Copy details
+under the message copies the message and those details together, ready to paste into a bug
+report; the details are not shown on screen. After correcting a problem, wait
 for the status check to finish and choose Build again. A new build clears the previous run's
 messages and transient card progress; it keeps your choice to show or hide the live log.
 
@@ -336,3 +339,14 @@ replace it. New and Open still work, but history cannot be saved until you fix t
 
 Closing the app releases its project lock. If background work has not stopped yet, the window
 stays open and asks you to wait and close again, rather than abandoning that work.
+
+## Unexpected errors
+
+Problems CT Studio expects (a tool that fails, a file it cannot read) are explained where
+they happen, with Copy details when there is more to know. If something goes wrong that CT
+Studio did not expect, it writes the error to its log (`ctstudio.log`) and shows one
+"Unexpected error" window with the technical details and Copy details; close it and carry on.
+This includes an error in work CT Studio does in the background; its window appears in the
+main window.
+Another unexpected error while that window is open is logged only. If anything then looks
+wrong, save your work and restart CT Studio.

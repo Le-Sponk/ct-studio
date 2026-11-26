@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+import shiboken6
 from PySide6.QtCore import QObject
 from pytestqt.qtbot import QtBot
 
@@ -118,6 +119,21 @@ def test_stop_ends_the_watching_thread(qtbot: QtBot, reports: list[str]) -> None
     qtbot.wait(50)
     assert reports == []
     assert made.stop(1)  # twice is harmless
+
+
+def test_stopping_again_after_qt_deleted_the_heartbeat_is_safe(
+    qtbot: QtBot, reports: list[str]
+) -> None:
+    made = started(reports)
+    assert made.stop(WAIT / 1000)
+    _MADE.remove(made)  # stopped here; the shared teardown must not stop it a third time
+    shiboken6.delete(made._timer)  # pyright: ignore[reportPrivateUsage] - as at app exit
+    try:
+        again = made.stop(WAIT / 1000)
+    except RuntimeError as exc:  # "Internal C++ object (QTimer) already deleted"
+        again = f"raised {exc}"
+    assert again is True, "a second stop failed once Qt had deleted the timer"
+    assert not made.watching
 
 
 def test_the_app_watches_its_window_in_dev_mode_and_stops_when_it_ends(

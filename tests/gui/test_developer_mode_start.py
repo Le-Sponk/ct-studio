@@ -116,6 +116,7 @@ def start(tmp_path: Path, saved: object) -> str:
         env=env,
     )
     assert result.returncode == 0, result.stderr
+    assert "Traceback" not in result.stderr, result.stderr  # an error the smoke run hid
     logs = list(users.rglob("ctstudio.log"))
     assert len(logs) == 1, f"the start wrote {len(logs)} app logs"
     return logs[0].read_text(encoding="utf-8")
