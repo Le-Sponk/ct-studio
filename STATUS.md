@@ -4,16 +4,31 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10d — Compact header
+**Next task:** P5-T10e — Card notes and actions
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `4353e3a` (P5-T10c, exact Check, Windows + Ubuntu)
+**Last green commit:** `115ab3f` (P5-T10d repair, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10d — Compact header: the access line only for read-only projects, one row of header
-  buttons, no stale "Statuses checked." Acceptance: at 1280×720 with the enlarged font the
-  first card starts within about 40 % of the height (about 70 % before).
+- P5-T10e — Card notes and actions (owner decision D3): a card's note says only what is new
+  and stays until that card changes; the duplicate "Copy path" button goes, one way to copy
+  remains. Acceptance: no card shows the same fact twice; a note survives other cards'
+  changes and clears when its own card changes; one copy action per card.
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10d` Compact header (`551c854`): access line only for read-only projects;
+  the status line only while checking or with something to say ("Statuses checked." gone);
+  HeaderButtons puts the four project actions on one row when they fit (button widths plus
+  measured gaps, per-pair style spacing too), else two, labels never squeezed. First card at
+  1280×720 enlarged: 35 % (45 % before), DejaVu 32 %, read-only about 40 %. Mutants 13/13.
+  Review APPROVE (1,024-size sweep, Tab order and shortcuts unchanged), delta APPROVE. Gate
+  5525 / 10 / 178. Exact Check on `551c854` failed on Ubuntu only: a Tab-scrolling test hid
+  the Lock button with a fixed 260 px view, and the shorter header moved it from 304 to 238 px;
+  repair `115ab3f` (test only) measures the button first (review APPROVE, gate 5525 / 10 /
+  178). Exact Check on `115ab3f`: Windows 139698995183 (5520 / 15),
+  Ubuntu 139698995557 (5521 / 14), 5535 selected; artifacts 15089175092 / 15087858824
+  coverage.xml only. Integration not required (gui and tests). Noted for P13-T06: in
+  reviewers' copies (long scratch paths) 6 `discard-*` cases of
+  test_dashboard_outside_visual never settle; they pass in the checkout and CI.
 - 2026-11-26 `P5-T10c` Long paths never cut off (`4353e3a`, owner decision D2): PathLabel
   shortens a path in the middle to its width and font, whole path on hover, read out and in
   Copy path (off for placeholders); dashboard folder/source, wizard folder and summary (now

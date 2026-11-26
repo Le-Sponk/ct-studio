@@ -1091,7 +1091,7 @@ and in Copy; the started notice names the file relative to the project. **Accept
 path of 300 characters with no break points stays inside its card at 800 px; tooltip and
 Copy give the whole path.
 
-#### [ ] P5-T10d — Compact header
+#### [x] P5-T10d — Compact header (commit `551c854`, repair `115ab3f`)
 The access line only for read-only projects, one row of header buttons, no stale "Statuses
 checked." **Acceptance:** at 1280×720 with the enlarged font the first card starts within
 about 40 % of the height (about 70 % today). After T10b and T10c.

@@ -25,7 +25,10 @@ watcher + build race review; long-path tests on Windows. Includes TD-017 (rare f
 deadlock during worker-thread garbage collection; see STATUS Tech debt): reproduce it first, then fix.
 Also TD-018 (a confirmed intermittent ~5 s whole-process stall that makes 5 s idle waits miss in
 about 1 of 3 full-suite runs; capture all thread stacks when a wait passes 4 s and compare with
-TD-017 first).
+TD-017 first). Also: the six `discard-*` cases of tests/gui/test_dashboard_outside_visual.py
+never settle ("queued dashboard/banner geometry never settled") when the project sits under a
+long folder path, as in reviewers' scratch copies (P5-T10d review); they pass in the checkout
+and CI. Reproduce with a long basetemp, then make the wrapped outside-section text settle.
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.
