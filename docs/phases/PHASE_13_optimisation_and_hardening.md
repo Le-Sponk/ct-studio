@@ -29,6 +29,10 @@ TD-017 first). Also: the six `discard-*` cases of tests/gui/test_dashboard_outsi
 never settle ("queued dashboard/banner geometry never settled") when the project sits under a
 long folder path, as in reviewers' scratch copies (P5-T10d review); they pass in the checkout
 and CI. Reproduce with a long basetemp, then make the wrapped outside-section text settle.
+Also (P5-T10e review): the outside-edit banner's own note ("Locked as manual …") is cleared
+by ComponentCard.bind's outside.clear() on every re-bind, so another card's change wipes it;
+owner decision D3 asks a card's note to stay until that card changes. Keep the pending-request
+reset on re-bind, but keep the finished outcome unless the card's own part changed.
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.

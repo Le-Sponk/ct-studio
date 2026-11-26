@@ -1096,7 +1096,7 @@ The access line only for read-only projects, one row of header buttons, no stale
 checked." **Acceptance:** at 1280×720 with the enlarged font the first card starts within
 about 40 % of the height (about 70 % today). After T10b and T10c.
 
-#### [ ] P5-T10e — Card notes and actions (owner decision D3)
+#### [x] P5-T10e — Card notes and actions (owner decision D3) (commit `6262dd4`)
 A card's note says only what is new ("using …" is not repeated as "Now using …") and stays
 until that card changes; the duplicate "Copy path" button goes, one way to copy remains.
 **Acceptance:** no card shows the same fact twice; a note survives other cards' changes and

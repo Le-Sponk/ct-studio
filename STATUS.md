@@ -4,17 +4,30 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10e — Card notes and actions
+**Next task:** P5-T10f — Error details and unexpected errors
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `115ab3f` (P5-T10d repair, exact Check, Windows + Ubuntu)
+**Last green commit:** `6262dd4` (P5-T10e, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10e — Card notes and actions (owner decision D3): a card's note says only what is new
-  and stays until that card changes; the duplicate "Copy path" button goes, one way to copy
-  remains. Acceptance: no card shows the same fact twice; a note survives other cards'
-  changes and clears when its own card changes; one copy action per card.
+- P5-T10f — Error details and unexpected errors (owner decision D4): inline error messages
+  stay, with "Copy details" when the error has details; a dialog only for unexpected crashes,
+  also with Copy details, and logged. Acceptance: a failing build and an unreadable settings
+  file offer Copy details with the details text; an unhandled exception in a slot shows one
+  dialog, is logged, and the app keeps running.
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10e` Card notes and actions (`6262dd4`, owner decision D3): the card's
+  Copy path button is gone (More → Copy path, planned path as its tooltip); assignment notes
+  say only what was done ("Copied from …", "Kept where it is (not copied)"), the lock outcome
+  names the part, not the file; a note stays through other cards' changes and goes with its
+  own part's mode/path or another project object (reopening included); a file outside the
+  project shows its name before its folder in the status. Mutants 12/12 (+1 equivalent:
+  notes only arise in writable projects, each with its own lock token). Review
+  NEEDS_REVISION (long outside path hid the name; notes survived reopening), delta APPROVE.
+  Gate 5533 / 10 / 178. Exact Check on `6262dd4`: Windows 139727823988 (5528 / 15),
+  Ubuntu 139727823637 (5529 / 14), 5543 selected; artifacts 15092647300 / 15092078341
+  coverage.xml only. Integration not required (gui and tests). Deferred to P13-T06: the
+  outside-edit banner's own note still clears on any re-bind (D3 asks it to stay).
 - 2026-11-26 `P5-T10d` Compact header (`551c854`): access line only for read-only projects;
   the status line only while checking or with something to say ("Statuses checked." gone);
   HeaderButtons puts the four project actions on one row when they fit (button widths plus
