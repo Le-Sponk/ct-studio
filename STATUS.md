@@ -4,17 +4,24 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10c — Long paths never cut off
+**Next task:** P5-T10d — Compact header
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `139595d` (P5-T10b, exact Check, Windows + Ubuntu)
+**Last green commit:** `4353e3a` (P5-T10c, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10c — Long paths never cut off (owner decision D2): paths on one line shortened in
-  the middle with the whole path on hover and in Copy; the started notice names the file
-  relative to the project. Acceptance: a 300-character path with no break points stays
-  inside its card at 800 px; tooltip and Copy give the whole path.
+- P5-T10d — Compact header: the access line only for read-only projects, one row of header
+  buttons, no stale "Statuses checked." Acceptance: at 1280×720 with the enlarged font the
+  first card starts within about 40 % of the height (about 70 % before).
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10c` Long paths never cut off (`4353e3a`, owner decision D2): PathLabel
+  shortens a path in the middle to its width and font, whole path on hover, read out and in
+  Copy path (off for placeholders); dashboard folder/source, wizard folder and summary (now
+  a form). Started and opened-folder notices name files by their place in the project; a
+  launch notice's tooltip is its whole text. Mutants 19/19. Review NEEDS_REVISION, delta
+  NEEDS_REVISION, final APPROVE. Gate 5517 / 10 / 178. Exact Check on `4353e3a`: Windows
+  139656856243 (5512 / 15), Ubuntu 139656856509 (5513 / 14), 5527 selected;
+  artifacts 15082479935 / 15082783028 coverage.xml only. Integration not required (gui and tests).
 - 2026-11-26 `P5-T10b` Build bar pinned to the bottom of the dashboard (`139595d`, owner
   decision D1): DashboardPage holds the scrolling cards and, below them, the build bar
   (Build test / Build release / Cancel, progress, messages); empty message lines hidden so

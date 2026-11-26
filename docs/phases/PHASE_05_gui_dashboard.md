@@ -1085,7 +1085,7 @@ build's progress), outside the scrolling card area. **Acceptance:** at 1280×720
 normal and enlarged, the build buttons are inside the window without scrolling; shortcuts,
 tooltips and enabled states unchanged.
 
-#### [ ] P5-T10c — Long paths never cut off (owner decision D2)
+#### [x] P5-T10c — Long paths never cut off (owner decision D2) (commit `4353e3a`)
 Paths on one line, shortened in the middle (`C:\Users\…\course.kcl`), the full path on hover
 and in Copy; the started notice names the file relative to the project. **Acceptance:** a
 path of 300 characters with no break points stays inside its card at 800 px; tooltip and
