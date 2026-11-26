@@ -45,6 +45,17 @@ card's layout or end it with a stretch. The high-DPI tests use Qt's default Pass
 rounding, and QT_SCALE_FACTOR is never rounded, so they would not notice a future
 setHighDpiScaleFactorRoundingPolicy that turns 1.5× into 2×; add a check with the policy if
 one is ever set.
+Also (P5-T10j review, docs/reviews/P5_T10_UX.md): the build bar's message labels
+(BuildControls._label) wrap without wrap_text.breakable(), so a long path in a notice or
+error is cut at the right edge mid-name and breaks straight after "C:"; pass the text through
+breakable() as the other views do. The same message stops at four lines and shows a sliver of
+a fifth (`p5-t03e21-build-error-*-150`), and a card's description stops at its line limit
+without "…" at 800 × 600 with an enlarged font; show only whole lines and end the last one with
+"…" (the full text is in the tooltip and Copy details). An unbuilt part that also cannot be
+made right now (status.py _blockers: a tool or the .blend missing) says "problem", but the
+card's one line shows only its first reason, "…has not been made yet", so the blocker is only
+in the tooltip; show the blocker in the summary (for example first). The status words are
+right and stay.
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.
