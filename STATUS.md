@@ -4,16 +4,28 @@
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
 **Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-T10h — High-DPI evidence
+**Next task:** P5-T10j — Close the UX pass
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `ba86330` (P5-T10f, exact Check, Windows + Ubuntu)
+**Last green commit:** `569281d` (P5-T10h, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-T10h — High-DPI evidence: populated dashboard and Settings pictures at 1.5× and 2×.
-  Acceptance: no clipped labels; status icons drawn at least at the scale. Tests only unless
-  something turns up.
+- P5-T10j — Close the UX pass: rerun the REVIEW_CHECKLIST §5 pictures (light/dark, 1280×720,
+  150 %) into `docs/reviews/P5_T10_UX.md`, which P5-GATE's phase review links. Acceptance:
+  every §5 row is "Yes" or names its later owner task.
 
 ## Done (newest first)
+- 2026-11-26 `P5-T10h` High-DPI evidence (`569281d`, tests only): the populated dashboard
+  and Settings Tools/Editors checked and pictured at 1.5× and 2× in a child pytest per scale,
+  on a realistic offscreen screen (1280×720 logical) with a real font checked to draw
+  letters: status icons drawn at the scale; buttons and labels whole inside every parent and
+  at their minimum size; no sideways scrolling in scrolled contents, tables or lists; choices
+  show their whole text; the dashboard checked once its layout settles. Mutants 7/7. Review
+  NEEDS_REVISION (800×800 default screen hid a cut Tools table; glyph boxes; gaps), delta
+  NEEDS_REVISION (checked before the layout settled, red with DejaVu Sans; parts past their
+  card missed), second delta APPROVE. Gate 5547 / 10 / 178. Exact Check on `569281d`:
+  Windows 139915866053 (5542 / 15), Ubuntu 139915866508 (5543 / 14), 5557
+  selected; artifacts 15120195180 / 15117534889 coverage.xml only. Integration not required (tests only).
+  Deferred to P13-T06: card spacing beside a taller card; a future 1.5× rounding policy.
 - 2026-11-26 `P5-T10f` Error details and unexpected errors (`ba86330`, owner decision D4):
   inline errors keep their message and add Copy details (message + details, details never
   on screen) for a failed build step's tool output, a failed build's details or traceback, an

@@ -1112,7 +1112,7 @@ in a slot shows one dialog, is logged, and the app keeps running.
 #### P5-T10g — Remember window size and position: moved to P13-T09 (owner decision D5)
 Not for now; the owner wants to decide after hands-on testing.
 
-#### [ ] P5-T10h — High-DPI evidence
+#### [x] P5-T10h — High-DPI evidence (commit `569281d`)
 Populated dashboard and Settings pictures at 1.5× and 2×. **Acceptance:** no clipped labels;
 status icons drawn at least at the scale. Tests only unless something turns up.
 

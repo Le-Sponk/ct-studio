@@ -39,6 +39,12 @@ to 1,000,000 characters each, so one copy reached 5,000,228 characters; cap the 
 becomes a BuildError without details, so no Copy details appear (the traceback is only in the
 log); carry the traceback as details. The test for a failing crash dialog checks only the log
 message: also assert the record carries its traceback (exc_info).
+Also (P5-T10h review): a dashboard card beside a taller card (Minimap beside Skybox with its
+outside-edit buttons) spreads its own lines over the row height, at 100 % too; top-align the
+card's layout or end it with a stretch. The high-DPI tests use Qt's default PassThrough
+rounding, and QT_SCALE_FACTOR is never rounded, so they would not notice a future
+setHighDpiScaleFactorRoundingPolicy that turns 1.5× into 2×; add a check with the policy if
+one is ever set.
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.
