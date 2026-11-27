@@ -3,16 +3,31 @@
 > The agent updates this file at the end of every session. The human reads it to see progress
 > and to answer "Needs human" items. Keep entries short; link to files/commits for detail.
 
-**Current phase:** 5 — GUI dashboard (P4 gate passed, tag `phase-04-done`)
-**Next task:** P5-GATE — Phase review
+**Current phase:** 5 — GUI dashboard (P5 gate passed, tag `phase-05-done`; HC1 pending)
+**Next task:** P5-HC1 — Human checkpoint 1 (owner); agent: P5-DEEPCLEAN
 **Name:** CT Studio · package/CLI `ctstudio` · project data `.ctstudio/` (ADR-015)
-**Last green commit:** `2f032d9` (P5-T10j, exact Check, Windows + Ubuntu)
+**Last green commit:** `ed47f48` (P5-GATE fixes, exact Check, Windows + Ubuntu)
 
 ## In progress
-- P5-GATE — Phase 5 review (mkw-phase-review): the phase review links
-  `docs/reviews/P5_T10_UX.md` for REVIEW_CHECKLIST §5.
+- P5-HC1 — Human checkpoint 1 (owner, on the Mint host): see "Needs human — BLOCKING".
+  Unblocked meanwhile: P5-DEEPCLEAN (Deep Clean #1).
 
 ## Done (newest first)
+- 2026-11-27 `P5-GATE` Phase 5 review (fixes `ed47f48`; tag `phase-05-done`): fresh-context
+  review of `6ca155c` (docs/reviews/PHASE_05_REVIEW.md, brief PHASE_05_BRIEF.md). Must fix: a
+  GUI test flake from three bounded-wait copies (5/10 s) → one `tests/gui/waits.py` (20 s
+  elapsed). Should fix: "Build succeeded" despite check errors → "Build finished … the check
+  found N errors … See Issues"; wizard disk checks per keystroke and per isComplete → once per
+  edit and on Back (moving it off the GUI thread → P13-T06); five pasted service guards → one
+  `_ready()` (open-editor now says read-only before "still being checked", pinned); end-to-end
+  stall watchdog (100 ms, only the screenshot grab excused); ARCHITECTURE §3 tree as built.
+  Consider: public `dashboard.sync()`, Help menu last, `spec.manifest_table`, no double retry
+  step, wizard spacing; worker-pattern merge and offscreen-font move → P5-DEEPCLEAN. Three delta
+  re-reviews (NEEDS_REVISION ×2, then APPROVE); 26 scratch mutants caught. Local gate 5570/10/178;
+  integration 129/17. Exact Check on `ed47f48`: Windows 140751413380 (5565 passed / 15 skipped), Ubuntu
+  140751413761 (5566 passed / 14 skipped), 5580 selected; artifacts 15234106604 / 15233945946 coverage.xml only.
+  Also: `.tools/` was lost to a killed gate run and re-downloaded (Lorenzi's KMP Editor and KMP
+  Cloud, hand-installed, are not restored; their two integration tests skip).
 - 2026-11-27 `P5-T10j` Close the UX pass (`2f032d9`, docs only; closes P5-T10):
   `docs/reviews/P5_T10_UX.md` reruns the REVIEW_CHECKLIST §5 pictures (light/dark,
   1280×720, enlarged font and a real 1.5×/2×) after P5-T10a–i; every §5 row is "Yes", "Yes
@@ -2485,7 +2500,16 @@ numbers are for the pre-P1-T07 checkout; CI covers the P1-T07 tests and workflow
 
 ## Needs human — BLOCKING
 <!-- Question · options · agent's recommendation · what is blocked -->
-_none_ · GitHub `workflow` permission fixed; P1-T07 workflows pushed 2026-09-28.
+- **HC1 — Manual-mode MVP (≈15 min, Mint host; blocks Phase 6's start, not Deep Clean #1).**
+  Follow docs/process/HUMAN_CHECKPOINTS.md "HC1" in a fresh clone at tag `phase-05-done`
+  (`git clone https://github.com/Le-Sponk/ct-studio.git`, `git submodule update --init`,
+  `uv run python scripts/bootstrap_tools.py`, `uv sync`, `uv run ctstudio`). As built: Settings →
+  Tools and → Editors…; File → New project… (the .blend is optional); assign files with a
+  card's "Choose file…" or by dropping a file on it; Build test (Ctrl+B) in the pinned
+  build bar: when the check finds errors it says "Build finished … See Issues", not "Build
+  succeeded"; Issues panel; Open in… on a card's file. Report: anything confusing, slow, ugly
+  or wrong, and the step 9 editor answers (native Windows launch, non-ASCII paths, save
+  behaviour, BrawlCrate preview). Results go to "Human checkpoint results".
 
 ## Needs human — non-blocking
 <!-- Answered 2026-09-27: BrawlCrate preview renders natively on Windows (recorded in gaps and
@@ -2596,6 +2620,10 @@ RiiStudio" warns before launching on a non-ASCII path (PHASE_02 P2-T05/P2-T08). 
   within 4 s + 12 s; the file passed 5/5 alone right after. Not the clock bound fixed in
   P2-T08d: find whether the child is slow to start or ended early (log its pid/exit), then
   make the test wait on a signal, not a sleep.
+  Again 2026-11-27 (P5-GATE closeout gate, docs and a test-helper move only):
+  `test_exit_255_is_a_failure_too` did not raise because the fake child had not exited within
+  its 5 s watch; the file then passed 5/5 alone (one run 14.8 s instead of 6 s, an
+  occasional whole-run delay like TD-018). Same cause family: a slow Python spawn under load.
 - **TD-011 · P13-T02 · `ctstudio status` start-up.** P3-GATE measured a whole `status --json`
   run at ~400 ms on this workstation: ~110 ms Python start, ~210 ms imports (`ctstudio.cli`
   imports `cli.doctor` and so `core.tools.doctor`; `importlib.metadata` for `__version__`

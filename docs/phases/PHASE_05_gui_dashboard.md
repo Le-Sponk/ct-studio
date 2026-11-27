@@ -1126,7 +1126,7 @@ Rerun the §5 pictures (light/dark, 1280×720, 150 %) into `docs/reviews/P5_T10_
 P5-GATE's phase review links. **Acceptance:** every REVIEW_CHECKLIST §5 row is "Yes" or names
 its later owner task.
 
-### [ ] P5-GATE — Phase review
+### [x] P5-GATE — Phase review (fixes `ed47f48`; tag `phase-05-done`)
 Brief `docs/reviews/PHASE_05_BRIEF.md`; findings and their fixes in
 `docs/reviews/PHASE_05_REVIEW.md`. The tag `phase-05-done` follows the Must-fix recheck and
 green exact-SHA CI.

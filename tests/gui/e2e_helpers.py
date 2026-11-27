@@ -125,6 +125,9 @@ def studio(
     assert product == [], "\n\n".join(product)
 
 
+SHOT_FILE = "wizard_fakes.py"  # the screenshot helper the end-to-end tests use
+
+
 def in_product(stall: str) -> bool:
     """False only for a stall inside a test screenshot's ``grab().save(...)``.
 
@@ -146,9 +149,6 @@ def in_product(stall: str) -> bool:
         return True
     where, source = innermost
     return not (where == f"{SHOT_FILE}:shot" and "grab()" in source)
-
-
-SHOT_FILE = "wizard_fakes.py"  # the screenshot helper the end-to-end tests use
 
 
 def idle(window: MainWindow, services: AppServices) -> bool:

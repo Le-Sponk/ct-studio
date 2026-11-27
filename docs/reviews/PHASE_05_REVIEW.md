@@ -49,7 +49,10 @@ refresh during a build). No copyright material entered the repository. Line refe
    purpose, so it is not watched. Only a stall inside a test screenshot's grab and PNG
    encoding is excused (it passed 100 ms in 2 of 18 runs on a loaded machine); a stall while
    the test waits in the event loop, in a product slot, or in the events processed before the
-   grab still fails the test (`test_e2e_stall_filter.py`).
+   grab still fails the test (`test_e2e_stall_filter.py`). The check assumes a machine
+   that is not saturated: clean in 12 of 12 runs beside 8 CPU-heavy jobs on 16 cores, but 4 of
+   10 failed with all 16 cores busy, where the OS starves the UI thread anywhere. Tests run one
+   at a time locally and in CI; do not run the end-to-end tests beside CPU-saturating jobs.
 5. `docs/ARCHITECTURE.md` §3: the source tree listed packages that do not exist and missed
    24 GUI modules. Rewritten as built at the end of Phase 5, with planned packages marked.
    Trimming the per-task notes in the rest of the file belongs to P5-DEEPCLEAN step 5.
@@ -74,11 +77,17 @@ Not re-reported (already deferred, P13-T06): the build-bar message cut at 150 %,
 capped card text without "…".
 
 ## Gate evidence and release order
-Fixes: scratch mutants of the changed lines, all caught by assertions (two first survived
-and gained tests: build refusing a read-only project, and the watchdog actually running);
-strict pyright adds no error on Windows or Linux (the older ones in the changed files are
-on untouched lines of `test_shell.py`). Two independent delta re-reviews found the watchdog
-flake, the timeout overlap, the Back gap, the order change and a too-lenient stall filter;
-all fixed above. Then: the local gate, an
-independent recheck of the Must fix and the fixes, exact-SHA CI on Windows and Ubuntu, and the
-`phase-05-done` tag. HC1 (the owner's hands-on checkpoint) and Deep Clean #1 follow the tag.
+Fixes committed as `ed47f48` after three independent delta re-reviews (NEEDS_REVISION: the
+watchdog flake, the timeout overlap, the Back gap, the refusal order, doc wording; then
+NEEDS_REVISION: the stall filter too lenient; then APPROVE). The Must-fix recheck was part of
+the first re-review: the shared 20 s wait fails as an assertion inside its module timeouts.
+Scratch mutants of the changed lines: 26 over six rounds, all caught by assertions; strict
+pyright adds no error on Windows or Linux (the older ones in the changed files are on untouched
+lines of `test_shell.py`). Local gate green: 5,570 passed, 10 skipped, 178 deselected; real-tool
+integration selection on `ed47f48`: 129 passed, 17 skipped (Linux-only, Wine desktop, moderngl,
+two hand-installed editors). Exact Check on `ed47f48`: Windows 140751413380 (5565 passed / 15 skipped),
+Ubuntu 140751413761 (5566 passed / 14 skipped), 5,580 selected; artifacts 15234106604 / 15233945946, coverage.xml
+only. The Integration workflow did not trigger (no change under its paths; core/tools, build
+and validation untouched); the nightly at `07b5d4c` was green. Tag `phase-05-done` on the
+closeout commit after its Check CI. HC1 (the owner's hands-on checkpoint) and Deep Clean #1
+follow.
