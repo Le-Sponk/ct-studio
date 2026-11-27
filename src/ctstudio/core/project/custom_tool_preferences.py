@@ -28,7 +28,8 @@ def check_id(tool_id: object) -> str:
     return tool_id
 
 
-def _text(value: object, label: str, *, blank: bool) -> str:
+def check_text(value: object, label: str, *, blank: bool) -> str:
+    """``value`` as settings text; ValueError naming ``label`` unless it is usable."""
     if not isinstance(value, str):
         raise ValueError(f"{label} is not text: {value!r}")
     if not blank and not value.strip():
@@ -50,12 +51,14 @@ def _tool(tool_id: str, record: object) -> CustomTool:
     missing = [name for name in _FIELDS if name not in fields]
     if missing:
         raise ValueError(f"{label} lacks {', '.join(missing)}")
-    name = _text(fields["name"], f"{label} name", blank=False)
-    exe = _text(fields["exe"], f"{label} exe", blank=False)
+    name = check_text(fields["name"], f"{label} name", blank=False)
+    exe = check_text(fields["exe"], f"{label} exe", blank=False)
     args = fields["args_template"]
     if not isinstance(args, list):
         raise ValueError(f"{label} args_template is not a JSON list")
-    tokens = [_text(token, f"{label} argument", blank=True) for token in cast("list[object]", args)]
+    tokens = [
+        check_text(token, f"{label} argument", blank=True) for token in cast("list[object]", args)
+    ]
     try:
         return CustomTool(name, Path(exe), tokens)
     except ProjectError as exc:

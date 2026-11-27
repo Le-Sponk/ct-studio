@@ -1136,3 +1136,19 @@ Also from the P5-GATE review: one shared joined-worker helper for the six backgr
 patterns (and a thread that fails to start handled everywhere, `status_service` too); move
 `main_window`'s offscreen-font code to `app.py` or a test fixture; trim ARCHITECTURE.md's
 per-task notes (its §3 tree was already rewritten at the gate).
+Report: `docs/reviews/DEEP_CLEAN_1.md` (measurements, the simplification audit, results). Steps,
+one tested commit each, the 5 % deletion target measured on the files each step touches (the
+audit found ≈ 1 % of `src/` removable without losing behaviour or planned work):
+- a: `core/project/settings.py` setter and check duplicates; `cli/doctor` and Wine-prefix
+  duplicates.
+- b: complexity: `cli/build.py` `_TextPrinter._end` (C), TD-008 scripts, the rank-B GUI
+  modules.
+- c: start-up: read the version lazily (`importlib.metadata`, 142 ms at every start).
+- d: shared plain-label and busy-bar helpers for the GUI views.
+- e: the offscreen font out of `MainWindow` (smoke start and a test fixture).
+- f: one shared joined-worker helper; `status_service` (a thread that fails to start leaves
+  it busy for good), welcome page, new-project wizard, project details and Build page adopt
+  it; the build and launch controllers share only its start primitives.
+- g: the three `QThreadPool` users (Tools, Editors, machine choice) onto the same helper.
+- h: TD-013 and TD-014 measured or fixed, the unused `pytest-benchmark`, a consistency pass,
+  ARCHITECTURE.md trimmed, new benchmark baselines, tag `deepclean-1-done`.

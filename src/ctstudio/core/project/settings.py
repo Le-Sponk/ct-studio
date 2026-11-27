@@ -11,7 +11,7 @@ keeps a backup of the previous file (``fsutil.replace_with_backup``).
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import cast
@@ -120,10 +120,7 @@ class UserSettings:
         return Path(value) if isinstance(value, str) and value else None
 
     def with_auto_add_library(self, path: Path | None) -> UserSettings:
-        other = {key: value for key, value in self.other.items() if key != AUTO_ADD_LIBRARY}
-        if path is not None:
-            other[AUTO_ADD_LIBRARY] = str(path)
-        return UserSettings(self.tools, other)
+        return self._with(AUTO_ADD_LIBRARY, None if path is None else str(path))
 
     def build_jobs(self) -> int | None:
         """How many build steps may run at once (P5-T08c); None: the runner's own default."""
@@ -133,10 +130,7 @@ class UserSettings:
 
     def with_build_jobs(self, jobs: int | None) -> UserSettings:
         """A copy with that number of build steps at once, or automatic when ``jobs`` is None."""
-        other = {key: value for key, value in self.other.items() if key != BUILD_JOBS}
-        if jobs is not None:
-            other[BUILD_JOBS] = _jobs(jobs)
-        return UserSettings(self.tools, other)
+        return self._with(BUILD_JOBS, None if jobs is None else _jobs(jobs))
 
     def colour_scheme(self) -> str | None:
         """``"light"`` or ``"dark"`` (P5-T08d); None: follow the system's colour scheme."""
@@ -146,10 +140,7 @@ class UserSettings:
 
     def with_colour_scheme(self, scheme: str | None) -> UserSettings:
         """A copy with that colour scheme, or following the system when ``scheme`` is None."""
-        other = {key: value for key, value in self.other.items() if key != COLOUR_SCHEME}
-        if scheme is not None:
-            other[COLOUR_SCHEME] = _scheme(scheme)
-        return UserSettings(self.tools, other)
+        return self._with(COLOUR_SCHEME, None if scheme is None else _scheme(scheme))
 
     def show_tool_commands(self) -> bool:
         """Whether the dashboard's build log shows tool commands (P5-T08e1); absent: shown."""
@@ -159,10 +150,8 @@ class UserSettings:
 
     def with_show_tool_commands(self, shown: bool | None) -> UserSettings:
         """A copy that shows or hides tool commands; None goes back to the default (shown)."""
-        other = {key: value for key, value in self.other.items() if key != SHOW_TOOL_COMMANDS}
-        if shown is not None:
-            other[SHOW_TOOL_COMMANDS] = _flag(SHOW_TOOL_COMMANDS, shown)
-        return UserSettings(self.tools, other)
+        flag = None if shown is None else _flag(SHOW_TOOL_COMMANDS, shown)
+        return self._with(SHOW_TOOL_COMMANDS, flag)
 
     def build_logs_kept(self) -> int | None:
         """How many build logs each project keeps (P5-T08e2); None: the default (20)."""
@@ -172,10 +161,7 @@ class UserSettings:
 
     def with_build_logs_kept(self, kept: int | None) -> UserSettings:
         """A copy keeping that many build logs, or the default when ``kept`` is None."""
-        other = {key: value for key, value in self.other.items() if key != BUILD_LOGS_KEPT}
-        if kept is not None:
-            other[BUILD_LOGS_KEPT] = _kept(kept)
-        return UserSettings(self.tools, other)
+        return self._with(BUILD_LOGS_KEPT, None if kept is None else _kept(kept))
 
     def developer_mode(self) -> bool:
         """Whether the GUI runs the stall watchdog from its next start (P5-T08e3); absent: off."""
@@ -185,9 +171,13 @@ class UserSettings:
 
     def with_developer_mode(self, on: bool | None) -> UserSettings:
         """A copy with developer mode on or off; None goes back to the default (off)."""
-        other = {key: value for key, value in self.other.items() if key != DEVELOPER_MODE}
-        if on is not None:
-            other[DEVELOPER_MODE] = _flag(DEVELOPER_MODE, on)
+        return self._with(DEVELOPER_MODE, None if on is None else _flag(DEVELOPER_MODE, on))
+
+    def _with(self, key: str, value: object) -> UserSettings:
+        """A copy with ``key`` set to the checked ``value``, or removed when it is None."""
+        other = {name: kept for name, kept in self.other.items() if name != key}
+        if value is not None:
+            other[key] = value
         return UserSettings(self.tools, other)
 
     def with_tool(self, tool_id: str, path: Path | None) -> UserSettings:
@@ -256,82 +246,47 @@ def _parse(target: Path, data: object) -> UserSettings:
     fields = cast("dict[str, object]", data)
     _check_format(target, fields.get("format", FORMAT))
     other = {key: value for key, value in fields.items() if key not in ("format", "tools")}
-    _check_preferences(target, other)
-    _check_custom_tools(target, other)
-    _check_wine_prefixes(target, other)
-    _check_build_jobs(target, other)
-    _check_colour_scheme(target, other)
-    _check_show_tool_commands(target, other)
-    _check_build_logs_kept(target, other)
-    _check_developer_mode(target, other)
+    _check_other(target, other)
     library = other.get(AUTO_ADD_LIBRARY)
     if library is not None and (not isinstance(library, str) or not library):
         raise SettingsError(target, f'"{AUTO_ADD_LIBRARY}" is not a folder path')
     return UserSettings(_tool_paths(target, fields.get("tools", {})), other)
 
 
-def _check_preferences(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        parse_preferences(other)
-    except ValueError as exc:
-        raise SettingsError(target, "editor preferences are invalid", details=str(exc)) from exc
+# Checked in this order on load and save; the first failure is the reason the user reads.
+_CHECKS: tuple[tuple[Callable[[Mapping[str, object]], object], str], ...] = (
+    (parse_preferences, "editor preferences are invalid"),
+    (parse_custom_tools, "custom tools are invalid"),
+    (parse_wine_prefixes, "Wine prefixes are invalid"),
+    (
+        lambda other: UserSettings(other=other).build_jobs(),
+        f'"{BUILD_JOBS}" is not a whole number from 1 to {MAX_BUILD_JOBS}',
+    ),
+    (
+        lambda other: UserSettings(other=other).colour_scheme(),
+        f'"{COLOUR_SCHEME}" is not "light" or "dark"',
+    ),
+    (
+        lambda other: UserSettings(other=other).show_tool_commands(),
+        f'"{SHOW_TOOL_COMMANDS}" is not true or false',
+    ),
+    (
+        lambda other: UserSettings(other=other).build_logs_kept(),
+        f'"{BUILD_LOGS_KEPT}" is not a whole number from 1 to {MAX_BUILD_LOGS_KEPT}',
+    ),
+    (
+        lambda other: UserSettings(other=other).developer_mode(),
+        f'"{DEVELOPER_MODE}" is not true or false',
+    ),
+)
 
 
-def _check_custom_tools(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        parse_custom_tools(other)
-    except ValueError as exc:
-        raise SettingsError(target, "custom tools are invalid", details=str(exc)) from exc
-
-
-def _check_wine_prefixes(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        parse_wine_prefixes(other)
-    except ValueError as exc:
-        raise SettingsError(target, "Wine prefixes are invalid", details=str(exc)) from exc
-
-
-def _check_build_jobs(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        UserSettings(other=other).build_jobs()
-    except ValueError as exc:
-        raise SettingsError(
-            target,
-            f'"{BUILD_JOBS}" is not a whole number from 1 to {MAX_BUILD_JOBS}',
-            details=str(exc),
-        ) from exc
-
-
-def _check_colour_scheme(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        UserSettings(other=other).colour_scheme()
-    except ValueError as exc:
-        reason = f'"{COLOUR_SCHEME}" is not "light" or "dark"'
-        raise SettingsError(target, reason, details=str(exc)) from exc
-
-
-def _check_show_tool_commands(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        UserSettings(other=other).show_tool_commands()
-    except ValueError as exc:
-        reason = f'"{SHOW_TOOL_COMMANDS}" is not true or false'
-        raise SettingsError(target, reason, details=str(exc)) from exc
-
-
-def _check_developer_mode(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        UserSettings(other=other).developer_mode()
-    except ValueError as exc:
-        reason = f'"{DEVELOPER_MODE}" is not true or false'
-        raise SettingsError(target, reason, details=str(exc)) from exc
-
-
-def _check_build_logs_kept(target: Path, other: Mapping[str, object]) -> None:
-    try:
-        UserSettings(other=other).build_logs_kept()
-    except ValueError as exc:
-        reason = f'"{BUILD_LOGS_KEPT}" is not a whole number from 1 to {MAX_BUILD_LOGS_KEPT}'
-        raise SettingsError(target, reason, details=str(exc)) from exc
+def _check_other(target: Path, other: Mapping[str, object]) -> None:
+    for check, reason in _CHECKS:
+        try:
+            check(other)
+        except ValueError as exc:
+            raise SettingsError(target, reason, details=str(exc)) from exc
 
 
 def _check_format(target: Path, version: object) -> None:
@@ -354,14 +309,7 @@ def _tool_paths(target: Path, tools: object) -> dict[str, str]:
 def save(settings: UserSettings, path: Path | None = None) -> None:
     """Write the settings, keeping a backup of the file they replace."""
     target = path if path is not None else default_path()
-    _check_preferences(target, settings.other)
-    _check_custom_tools(target, settings.other)
-    _check_wine_prefixes(target, settings.other)
-    _check_build_jobs(target, settings.other)
-    _check_colour_scheme(target, settings.other)
-    _check_show_tool_commands(target, settings.other)
-    _check_build_logs_kept(target, settings.other)
-    _check_developer_mode(target, settings.other)
+    _check_other(target, settings.other)
     data = {"format": FORMAT, **settings.other, "tools": dict(settings.tools)}
     text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
     replace_with_backup(target, text.encode("utf-8"))

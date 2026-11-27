@@ -13,25 +13,14 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import cast
 
-from ctstudio.core.project.custom_tool_preferences import check_id
+from ctstudio.core.project.custom_tool_preferences import check_id, check_text
 
 WINE_PREFIXES = "wine_prefixes"
 PREFIX = "prefix"
 
 
 def _check_prefix(editor_id: str, value: object) -> str:
-    label = f"Wine prefix for {editor_id!r}"
-    if not isinstance(value, str):
-        raise ValueError(f"{label} is not text: {value!r}")
-    if not value.strip():
-        raise ValueError(f"{label} is blank")
-    if "\0" in value:
-        raise ValueError(f"{label} contains a NUL character")
-    try:
-        value.encode("utf-8")
-    except UnicodeEncodeError as exc:
-        raise ValueError(f"{label} is not valid Unicode text: {value!r}") from exc
-    return value
+    return check_text(value, f"Wine prefix for {editor_id!r}", blank=False)
 
 
 def _check_editor(editor_id: object) -> str:
