@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
 from ctstudio.core.project import manifest_io
 from ctstudio.core.project.slots import CATALOGUE, DEFAULT_SLOT, Slot, cups
 from ctstudio.gui.views.path_label import PathLabel
-from ctstudio.gui.views.plain import busy_bar
+from ctstudio.gui.views.plain import busy_bar, plain_label
 
 Choose = Callable[[QWidget, Path], Path | None]  # None: the user cancelled
 _UNSAFE = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
@@ -57,9 +57,7 @@ def choose_blend(parent: QWidget, start: Path) -> Path | None:
 
 
 def _problem_label(name: str, parent: QWidget) -> QLabel:
-    label = QLabel("", parent)
-    label.setObjectName(name)
-    label.setWordWrap(True)
+    label = plain_label(parent, name)  # it repeats typed paths and names: never HTML
     font = label.font()
     font.setBold(True)
     label.setFont(font)
@@ -316,7 +314,8 @@ class SummaryPage(QWizardPage):
         self.setTitle("Ready to make the project")
         self.setSubTitle("Check the details, then choose Finish.")
         # The two paths are shortened in the middle, whole on hover and in Copy (P5-T10c).
-        self.track, self.slot = QLabel("", self), QLabel("", self)
+        self.track = plain_label(self, selectable=True)  # the typed name, never HTML
+        self.slot = plain_label(self, selectable=True)
         self.folder, self.blend = PathLabel(self), PathLabel(self)
         details = QFormLayout()
         details.setHorizontalSpacing(16)  # labels and values clear apart (P5-GATE review)
@@ -328,9 +327,6 @@ class SummaryPage(QWizardPage):
         ):
             value.setObjectName(name)
             details.addRow(title, value)
-        for plain in (self.track, self.slot):
-            plain.setWordWrap(True)
-            plain.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.busy = busy_bar(self, "createBusy")
         self.busy.setTextVisible(False)
         self.busy.setToolTip("Making the project folder…")

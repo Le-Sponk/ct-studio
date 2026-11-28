@@ -55,7 +55,7 @@ _INTRO = (
     "Choose which editor Open in… lists first for each kind of file. Changes apply the "
     "next time you choose Open in…."
 )
-from ctstudio.gui.views.plain import busy_bar
+from ctstudio.gui.views.plain import busy_bar, plain_label
 
 
 class _Relay(QObject):
@@ -96,9 +96,7 @@ class EditorsPage(QWidget):
 
     def _build(self) -> None:
         layout = QVBoxLayout(self)
-        self.banner = QLabel(self)
-        self.banner.setObjectName("editorsProblem")
-        self.banner.setWordWrap(True)
+        self.banner = plain_label(self, "editorsProblem")  # names the settings file
         self.banner.setFrameShape(QLabel.Shape.StyledPanel)
         self.banner.hide()
         layout.addWidget(self.banner)
@@ -127,9 +125,7 @@ class EditorsPage(QWidget):
         self.wine.chosen.connect(self._prefix_picked)
         self.tabs.addTab(self.wine, "&Wine (Linux)")
         layout.addWidget(self.tabs)
-        self.note = QLabel(self)
-        self.note.setObjectName("editorsNote")
-        self.note.setWordWrap(True)
+        self.note = plain_label(self, "editorsNote")
         layout.addWidget(self.note)
         layout.addStretch(1)
 

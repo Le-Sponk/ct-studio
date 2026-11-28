@@ -34,7 +34,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.tools.doctor import STATUS_LABELS, ToolCheck, found_how
 from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.gui.services import ToolsResult, ToolsService
-from ctstudio.gui.views.plain import busy_bar
+from ctstudio.gui.views.plain import busy_bar, plain_label
 from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
@@ -127,9 +127,7 @@ class ToolsPage(QWidget):
         )
         intro.setWordWrap(True)
         layout.addWidget(intro)
-        self._banner = QLabel(self)
-        self._banner.setObjectName("settingsProblem")
-        self._banner.setWordWrap(True)
+        self._banner = plain_label(self, "settingsProblem")  # names the settings file
         self._banner.setFrameShape(QLabel.Shape.StyledPanel)
         self._banner.hide()
         layout.addWidget(self._banner)
@@ -137,10 +135,7 @@ class ToolsPage(QWidget):
         self._busy.hide()
         layout.addWidget(self._busy)
         layout.addWidget(self._make_table(), 1)
-        self._details = QLabel(_NO_SELECTION, self)
-        self._details.setObjectName("toolDetails")
-        self._details.setWordWrap(True)
-        self._details.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self._details = plain_label(self, "toolDetails", _NO_SELECTION, selectable=True)
         self._details.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         lines = self._details.fontMetrics().lineSpacing()
         self._details.setMinimumHeight(4 * lines + 4)  # status, path, fix, note: no jumping

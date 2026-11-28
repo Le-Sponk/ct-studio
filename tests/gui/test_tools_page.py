@@ -60,6 +60,8 @@ def test_the_first_check_lists_every_tool_off_the_ui_thread(
     assert doctor.threads[0] is not threading.main_thread()
     assert not busy_bar(page).isVisible()
     assert not label(page, "settingsProblem").isVisible()
+    for name in ("settingsProblem", "toolDetails"):  # paths are shown as typed, never as HTML
+        assert label(page, name).textFormat() == Qt.TextFormat.PlainText, name
     assert not settings_file.exists()  # looking never writes the settings
     shot(page, "p2-t07b-tools-light.png")
 

@@ -170,6 +170,9 @@ def test_an_invalid_entry_is_refused_with_the_reason(
         dialog.accept()
         assert dialog.isVisible(), "the dialog closed on an invalid entry"
         assert dialog.problem.isVisible() and reason in dialog.problem.text(), dialog.problem.text()
+        assert (
+            dialog.problem.textFormat() == Qt.TextFormat.PlainText
+        )  # it can quote the typed arguments
         fill(dialog, "Fixed", "C:/fixed.exe", "{file}")
         dialog.accept()
         assert settled(qtbot, lambda: page.tool_dialog is None), "a fixed entry was refused"

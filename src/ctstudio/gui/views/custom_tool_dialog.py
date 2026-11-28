@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.tools.spec import CustomTool
+from ctstudio.gui.views.plain import plain_label
 
 _HELP = (
     "One argument per line. Use {file} for the file to open, {dir} for its folder and "
@@ -101,9 +102,7 @@ class CustomToolDialog(QDialog):
         hint = QLabel(_HELP, self)
         hint.setWordWrap(True)
         layout.addWidget(hint)
-        self.problem = QLabel(self)
-        self.problem.setObjectName("customToolProblem")
-        self.problem.setWordWrap(True)
+        self.problem = plain_label(self, "customToolProblem")  # quotes the typed arguments
         self.problem.setFrameShape(QLabel.Shape.StyledPanel)
         self.problem.hide()
         layout.addWidget(self.problem)

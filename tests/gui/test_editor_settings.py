@@ -87,6 +87,7 @@ def test_a_choice_is_saved_with_a_backup_and_every_unknown_field(qtbot: QtBot) -
         assert len(copies) == 1 and copies[0].read_bytes() == before, "no exact backup"
         assert page.note.text() == "Saved. Open in… now lists RiiStudio first for .brres files."
         assert not page.banner.isVisible()
+        assert page.note.textFormat() == page.banner.textFormat() == Qt.TextFormat.PlainText
         assert settings.load().editor_order(".brres") == ("riistudio", "brawlcrate")
 
 

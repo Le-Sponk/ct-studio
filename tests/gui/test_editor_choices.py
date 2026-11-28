@@ -8,7 +8,7 @@ import pytest
 from editor_menu_helpers import row_texts
 from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QDialog, QLabel
+from PySide6.QtWidgets import QApplication, QDialog, QLabel, QPushButton
 from pytestqt.qtbot import QtBot
 
 from ctstudio.core.tools.saved_editors import EditorChoice
@@ -158,3 +158,18 @@ def test_the_list_is_labelled_and_every_row_describes_itself(qtbot: QtBot) -> No
     for row, option in enumerate(MIXED.options):
         described = dialog.choices.item(row).data(Qt.ItemDataRole.AccessibleDescriptionRole)
         assert described == dialog.choices.item(row).toolTip() and option.explanation in described
+
+
+def test_the_heading_names_the_file_as_typed_and_keeps_its_shortcut(qtbot: QtBot) -> None:
+    marked = PreparedEditors(Path("<b>course.brres"), ".brres", MIXED.options)
+    dialog = shown(qtbot, marked)
+    heading = next(each for each in dialog.findChildren(QLabel) if each.buddy() is dialog.choices)
+    assert heading.textFormat() == Qt.TextFormat.PlainText
+    assert "<b>course.brres" in heading.text()
+    elsewhere = dialog.findChildren(QPushButton)[-1]
+    elsewhere.setFocus()
+    assert not dialog.choices.hasFocus()
+    dialog.activateWindow()
+    qtbot.waitUntil(lambda: QApplication.activeWindow() is dialog)
+    QTest.keyClick(dialog, Qt.Key.Key_C, Qt.KeyboardModifier.AltModifier)
+    assert dialog.choices.hasFocus(), "Alt+C no longer reaches the list"

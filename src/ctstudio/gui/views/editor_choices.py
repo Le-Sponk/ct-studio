@@ -56,6 +56,7 @@ class EditorChoices(QDialog):
         self._why_not = why_not
         layout = QVBoxLayout(self)
         heading = QLabel(f"&Choose an editor for {what}:", self)
+        heading.setTextFormat(Qt.TextFormat.PlainText)  # names a file; the & still works
         layout.addWidget(heading)
         self.choices = QListWidget(self)
         heading.setBuddy(self.choices)
