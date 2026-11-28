@@ -14,6 +14,19 @@ import time
 from pytestqt.qtbot import QtBot
 
 LIMIT_MS = 20_000
+QT_DEFAULT_MS = 5_000  # pytest-qt's own waitUntil default
+SPARE_S = 10  # left of a test's time limit for its setup and teardown
+
+
+def wait_limit_ms(budget_s: float | None) -> int:
+    """Default ``qtbot.waitUntil`` limit for a test allowed ``budget_s`` seconds (None: no limit).
+
+    Up to ``LIMIT_MS``, but never so long that pytest-timeout ends the whole run first (a
+    timeout stops the session, not just the test); never below pytest-qt's 5 s.
+    """
+    if budget_s is None:
+        return LIMIT_MS
+    return int(max(QT_DEFAULT_MS, min(LIMIT_MS, (budget_s - SPARE_S) * 1000)))
 
 
 def settled(qtbot: QtBot, cond: object, timeout_ms: int = LIMIT_MS) -> bool:

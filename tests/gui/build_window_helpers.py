@@ -21,7 +21,7 @@ _JOIN = Thread.join
 def eventually(qtbot: QtBot, predicate: Callable[[], bool], message: str) -> None:
     """Report missing observable behavior as an assertion, not a polling timeout."""
     try:
-        qtbot.waitUntil(predicate, timeout=5000)
+        qtbot.waitUntil(predicate)  # the suite's default limit (tests/gui/conftest.py)
     except QtTimeout:
         pass
     assert predicate(), message
