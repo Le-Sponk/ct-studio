@@ -11,8 +11,16 @@ from pytestqt.qtbot import QtBot
 from waits import wait_limit_ms
 
 from ctstudio.core.project import settings
+from ctstudio.gui.offscreen_font import ensure_offscreen_font
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+
+@pytest.fixture(autouse=True)
+def readable_offscreen_font(qapp: object) -> None:
+    """Screenshots need letters, not boxes: the font ``run_gui`` loads for offscreen frames."""
+    del qapp  # the QApplication must exist first
+    ensure_offscreen_font()
 
 
 @pytest.fixture(autouse=True)

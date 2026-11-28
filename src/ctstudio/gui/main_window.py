@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import os
-import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtGui import QAction, QCloseEvent, QFontDatabase, QKeySequence
+from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -54,28 +52,6 @@ def _component_mode_dialog(
     return ComponentModeDialog(services, component, initial_mode=mode or None, parent=parent)
 
 
-def _ensure_offscreen_font() -> None:
-    """Qt's Windows offscreen plugin may expose no system fonts; load one for readable CI PNGs."""
-    if os.environ.get("QT_QPA_PLATFORM") != "offscreen" or QFontDatabase.families():
-        return
-    font_path = (
-        Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / "segoeui.ttf"
-        if sys.platform == "win32"
-        else Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
-    )
-    if not font_path.is_file():
-        return
-    font_id = QFontDatabase.addApplicationFont(str(font_path))
-    if font_id < 0:
-        return
-    app = QApplication.instance()
-    if not isinstance(app, QApplication):
-        return
-    font = app.font()
-    font.setFamily(QFontDatabase.applicationFontFamilies(font_id)[0])
-    app.setFont(font)
-
-
 class MainWindow(QMainWindow):
     """Welcome, project navigation and the native application menus."""
 
@@ -89,7 +65,6 @@ class MainWindow(QMainWindow):
         recent_projects: RecentProjects | None = None,
         choose_folder: Callable[[QWidget], Path | None] = choose_project,
     ) -> None:
-        _ensure_offscreen_font()
         super().__init__()
         self.services = services if services is not None else AppServices()
         self.settings_window = SettingsWindow(self.services, self, build_saved=self._republish)

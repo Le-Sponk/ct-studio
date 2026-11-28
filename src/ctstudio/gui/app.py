@@ -14,6 +14,7 @@ from ctstudio.gui.appearance import apply_saved
 from ctstudio.gui.crash import install as install_crash_reporter
 from ctstudio.gui.gc_policy import GuiThreadCollector
 from ctstudio.gui.main_window import MainWindow
+from ctstudio.gui.offscreen_font import ensure_offscreen_font
 from ctstudio.gui.watchdog import dev_watchdog
 
 
@@ -60,6 +61,7 @@ def run_gui(smoke_path: Path | None = None) -> int:
     collector = GuiThreadCollector()  # TD-017: garbage is collected on this thread only
     collector.start()
     apply_saved()  # the chosen colour scheme (P5-T08d), before any window is drawn
+    ensure_offscreen_font()  # an offscreen frame needs a font (Windows CI may have none)
     window = MainWindow()
     watching = dev_watchdog(window)  # developer mode only (CTSTUDIO_DEV=1 or the setting)
     try:

@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFormLayout, QVBoxLayout, QWidget
 
 from ctstudio.core.components.registry import COMPONENT_BY_ID
 from ctstudio.core.errors import ProjectError
@@ -66,15 +65,13 @@ class ComponentModeDialog(ProjectDetailsDialog):
             self.mode.addItem(mode, mode)
         form.addRow("&Mode", self.mode)
         layout.addLayout(form)
-        explanation = QLabel(
+        explanation = plain_label(
+            self,
+            "componentModeExplanation",
             "\n".join(f"{mode}: {_EXPLANATIONS[mode]}" for mode in self.spec.modes)
             + "\nSwitching modes keeps existing files and inactive settings. "
             "Switching to manual does not choose a file; assign one separately.",
-            self,
         )
-        explanation.setObjectName("componentModeExplanation")
-        explanation.setTextFormat(Qt.TextFormat.PlainText)
-        explanation.setWordWrap(True)
         layout.addWidget(explanation)
         self._make_footer(layout)
 

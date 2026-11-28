@@ -79,6 +79,7 @@ not on whole packages, and each change is its own tested commit:
 | b | Complexity: `cli/build.py` summary split (`_found`, `_counts`; was C 14), TD-008 `bootstrap_tools.unpack` (`_extract`, `_content_root`) and `check.run_step` (`_execute`), one `isinstance` in `dashboard_assign.completed` | +15 (splits); no block above B left |
 | c | Start-up: `ctstudio.version()` reads the package metadata on first use (module `__getattr__` keeps `__version__`); `--version` reads it only when asked; Help → About is built when first shown | `importlib.metadata` no longer imported by a CLI command or a window start (was 142 ms) |
 | d | `gui/views/plain.py`: `plain_label` (plain text, wrapped; `fill`, `selectable`) and `busy_bar` (`slim`) replace the same 4–8 setup lines in 17 view files | −43 in 18 files (3,925 → 3,882) |
+| e | The offscreen font loader leaves `MainWindow` for `gui/offscreen_font.py`: `run_gui` calls it before the window (smoke frames), a GUI-test fixture once per test; the last two hand-built labels use `plain_label` | +9 in 5 files (920 → 929; `main_window.py` 397 → 372) |
 
 Kept on purpose (audit list C): the tool adapters; schema fields; `Project.lock_owner`
 (set from the lock on open and read by nobody yet; one line that says who holds a read-only
@@ -113,3 +114,11 @@ exact Check on Windows and Ubuntu):
   panel's texts are selectable and the Tools busy bar thin, both untested before). Found,
   not changed here: the new-project wizard's problem label is not plain text, so a message
   that looks like HTML would be formatted (fixed separately).
+- d `9aba151`: gate 5607/10/178; review APPROVE (309 labels and bars in nine real windows,
+  old and new identical); Check Windows 140910864126 (5602/15), Ubuntu 140910864354
+  (5603/14). Its finding became two fixes: `09c6a2e` (12 labels that repeat typed names or
+  paths are plain text; Check 140917736606 / 140917736876) and `699e76d` (a file name's
+  "&" in the editor-choice heading).
+- e: 9 mutants, all caught (`test_offscreen_font.py`: loaded only offscreen and without
+  fonts, the platform's font file, refused or missing fonts change nothing, the smoke run
+  loads it before the window).

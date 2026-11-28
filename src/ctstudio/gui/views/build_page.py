@@ -22,7 +22,7 @@ import logging
 import threading
 from collections.abc import Callable
 
-from PySide6.QtCore import QObject, Qt, Signal
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -102,10 +102,7 @@ class BuildPage(QWidget):
         QVBoxLayout(self).addWidget(self.tabs)
         self.project_tab = QWidget(self.tabs)
         layout = QVBoxLayout(self.project_tab)
-        self.note = QLabel(self)
-        self.note.setObjectName("buildNote")
-        self.note.setTextFormat(Qt.TextFormat.PlainText)
-        self.note.setWordWrap(True)
+        self.note = plain_label(self, "buildNote")
         layout.addWidget(self.note)
         self.fields = QWidget(self)
         self.fields.setObjectName("buildFields")
