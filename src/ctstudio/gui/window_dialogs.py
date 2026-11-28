@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout, QWidget
 
-from ctstudio import __version__
+from ctstudio import version
 from ctstudio.gui.settings_window import EDITORS, TOOLS, SettingsWindow
 from ctstudio.gui.views.editors_page import EditorsPage
 from ctstudio.gui.views.tools_page import ToolsPage
@@ -62,7 +62,7 @@ def about_dialog(parent: QWidget) -> QDialog:
     dialog.setMinimumWidth(420)
     layout = QVBoxLayout(dialog)
     for text in (
-        f"CT Studio {__version__}",
+        f"CT Studio {version()}",
         "Turn a Blender project into a Mario Kart Wii custom track.",
         "Licence: GPL-3.0-or-later",
         "Third-party notices will be listed here before release.",

@@ -10,6 +10,7 @@ from pathlib import Path
 from PySide6.QtGui import QAction, QCloseEvent, QFontDatabase, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
+    QDialog,
     QLabel,
     QMainWindow,
     QStackedWidget,
@@ -171,13 +172,20 @@ class MainWindow(QMainWindow):
         settings_menu.addAction(self.editors_action)
 
         self._view_menu()
-        self.about_dialog = about_dialog(self)
+        self._about: QDialog | None = None
         help_menu = self.menuBar().addMenu("&Help")  # last, as on every desktop
         self.about_action = QAction("About CT Studio", self)
         self.about_action.setObjectName("aboutAction")
-        self.about_action.triggered.connect(self.about_dialog.open)
+        self.about_action.triggered.connect(lambda: self.about_dialog.open())
         help_menu.addAction(self.about_action)
         self._navigation()
+
+    @property
+    def about_dialog(self) -> QDialog:
+        """Help → About, built when first shown: its version line reads package metadata."""
+        if self._about is None:
+            self._about = about_dialog(self)
+        return self._about
 
     def _view_menu(self) -> None:
         menu = self.menuBar().addMenu("&View")

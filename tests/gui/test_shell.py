@@ -65,9 +65,12 @@ def test_empty_dashboard_and_about_dialog(qtbot: QtBot) -> None:
     assert menus == ["&File", "&Settings", "&View", "&Help"], menus  # Help last (P5-GATE)
     action = window.findChild(QAction, "aboutAction")
     assert action is not None
+    # Built when first shown (Deep Clean #1 step c): its version line reads package metadata.
+    assert window.findChild(QDialog, "aboutDialog") is None
     action.trigger()
     dialog = window.findChild(QDialog, "aboutDialog")
     assert dialog is not None and dialog.isVisible()
+    assert window.about_dialog is dialog, "each About opens the same dialog, never a second one"
     content = " ".join(label.text() for label in dialog.findChildren(QLabel))
     assert __version__ in content
     assert "GPL-3.0-or-later" in content

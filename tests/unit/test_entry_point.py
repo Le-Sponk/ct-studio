@@ -83,3 +83,36 @@ def test_version_does_not_import_qt() -> None:
     result = _run([sys.executable, "-c", probe])
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip().splitlines()[-1] == "[]"
+
+
+def test_starting_does_not_read_the_package_metadata() -> None:
+    """Deep Clean #1 step c: the version is read on first use, not at every start.
+
+    ``importlib.metadata`` cost about 0.14 s of each start; CLI commands skip it unless
+    ``--version`` is given (the window's side is in tests/gui/test_shell.py).
+    """
+    probe = (
+        "import sys\n"
+        "import ctstudio, ctstudio.cli\n"
+        "from ctstudio.__main__ import _build_parser\n"
+        "args = _build_parser().parse_args(['status', '.'])\n"
+        "print('importlib.metadata' in sys.modules, 'version' in vars(args))\n"
+        "print(ctstudio.__version__ == ctstudio.version())\n"
+    )
+    result = _run([sys.executable, "-c", probe])
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split() == ["False", "False", "True"]
+
+
+def test_version_takes_no_value(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as exited:
+        main(["--version=x"])
+    assert exited.value.code == 2
+    assert "ignored explicit argument 'x'" in capsys.readouterr().err
+
+
+def test_other_missing_names_are_still_missing() -> None:
+    import ctstudio
+
+    assert not hasattr(ctstudio, "__no_such_name__")
+    assert ctstudio.version() == _pyproject_version()

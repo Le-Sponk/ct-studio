@@ -3,7 +3,7 @@
 No arguments launch the GUI; `--offscreen-smoke` captures a headless PNG; `doctor` checks
 the external tools (P2-T06); `setup rszst` fetches or builds RiiStudio's CLI (P2-T06b);
 `new`, `status` and `open` make, check and edit projects (P3-T07).
-Only the stdlib and package metadata are imported until a path is selected, and CLI
+Only the stdlib is imported until a path is selected (the version on `--version` only), and CLI
 subcommands never import Qt.
 """
 
@@ -16,7 +16,24 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from ctstudio import __version__
+
+class _ShowVersion(argparse.Action):
+    """``--version``, reading the version only when asked (argparse's action needs it up front)."""
+
+    def __init__(self, option_strings: Sequence[str], dest: str, **_: object) -> None:
+        super().__init__(
+            option_strings,
+            dest,
+            nargs=0,
+            default=argparse.SUPPRESS,
+            help="show program's version number and exit",
+        )
+
+    def __call__(self, parser: argparse.ArgumentParser, *_: object) -> None:
+        from ctstudio import version
+
+        sys.stdout.write(f"{parser.prog} {version()}\n")
+        parser.exit()
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -24,7 +41,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="ctstudio",
         description="Turn a Blender project into a finished Mario Kart Wii custom track (.szs).",
     )
-    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("--version", action=_ShowVersion)
     parser.add_argument(
         "--offscreen-smoke",
         type=Path,

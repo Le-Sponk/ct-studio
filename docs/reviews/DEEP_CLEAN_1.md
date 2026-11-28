@@ -77,6 +77,7 @@ not on whole packages, and each change is its own tested commit:
 |---|---|---|
 | a | `settings.py`: one `_with` setter helper and one ordered check table; `cli/doctor` reuses `cli/status`'s settings read; Wine prefixes reuse the custom-tool text check | −75 in 4 files (641 → 566, −12 %) |
 | b | Complexity: `cli/build.py` summary split (`_found`, `_counts`; was C 14), TD-008 `bootstrap_tools.unpack` (`_extract`, `_content_root`) and `check.run_step` (`_execute`), one `isinstance` in `dashboard_assign.completed` | +15 (splits); no block above B left |
+| c | Start-up: `ctstudio.version()` reads the package metadata on first use (module `__getattr__` keeps `__version__`); `--version` reads it only when asked; Help → About is built when first shown | `importlib.metadata` no longer imported by a CLI command or a window start (was 142 ms) |
 
 Kept on purpose (audit list C): the tool adapters; schema fields; `Project.lock_owner`
 (set from the lock on open and read by nobody yet; one line that says who holds a read-only
@@ -87,10 +88,20 @@ Step evidence (each: scratch mutants caught by assertions, independent review, l
 exact Check on Windows and Ubuntu):
 - a `36ddcb3`: 13 mutants; review APPROVE (614 side-by-side cases identical to the old code);
   gate 5587/10/178; Check Windows 140780147710 (5582/15), Ubuntu 140780148054 (5583/14).
-- b: 18 mutants over five rounds, all caught (two existing unpack tests rewritten so a
+- b `d682f5d`: gate 5591/10/178; Check Windows 140794116190 (5586/15), Ubuntu 140794115864
+  (5587/14). 18 mutants over five rounds, all caught (two existing unpack tests rewritten so a
   refusal or fallback break fails an assertion; new tests for "1 note", the missing-tool
   message, an info-only build without a findings block, the order of the counts and the
   removed staging folder: the last three from the review, APPROVE, whose old-against-new
   comparison matched in 10,368 summary cases, 16 gate-step and 12 unpack scenarios).
   The three GUI modules xenon ranks B keep every block at B or better; the gate's module-A
   rule covers `core/` only, so they stay as they are.
+- c: 12 mutants over three rounds, all caught (new tests: a parsed command does not import
+  `importlib.metadata` nor carry a `version` value; `--version=x` is still refused; other
+  missing names still raise; About is not built until shown, and is the same dialog after).
+  Review NEEDS_REVISION, all fixed: the window built About (so read the metadata) at start;
+  `version=None` appeared in parsed arguments; pyright stopped flagging unknown package
+  names. Its comparison of 325 command lines was byte-identical except at 12 columns, where
+  argparse used to wrap `ctstudio 0.1.0.dev0` onto two lines and now prints one. Median
+  wall time old/new: `status --help` 476/400 ms, `import ctstudio.gui.app` 789/630 ms,
+  `--offscreen-smoke` 936/820 ms (before the About fix).
