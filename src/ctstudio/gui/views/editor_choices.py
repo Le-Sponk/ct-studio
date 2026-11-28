@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 
 from ctstudio.core.tools.saved_editors import EditorChoice
 from ctstudio.gui.editor_launch import EditorOption, PreparedEditors
+from ctstudio.gui.views.plain import plain_label
 
 _SUFFIX = {"available": "", "missing": " (not found)", "ineligible": " (cannot open this file)"}
 READ_ONLY = "This project is open read-only here, so no editor can be started from it."
@@ -71,11 +72,7 @@ class EditorChoices(QDialog):
         layout.addWidget(self.choices)
         self.setup_button = self._setup_button()
         layout.addWidget(self.setup_button)
-        self.notes = QLabel(self._notes(), self)
-        self.notes.setObjectName("editorChoiceNotes")
-        self.notes.setTextFormat(Qt.TextFormat.PlainText)
-        self.notes.setWordWrap(True)
-        self.notes.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.notes = plain_label(self, "editorChoiceNotes", self._notes(), selectable=True)
         layout.addWidget(self.notes)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel, parent=self)
         self.open_button = buttons.addButton("Open", QDialogButtonBox.ButtonRole.AcceptRole)

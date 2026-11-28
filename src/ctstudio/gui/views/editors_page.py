@@ -28,7 +28,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidgetItem,
     QMessageBox,
-    QProgressBar,
     QPushButton,
     QTabWidget,
     QVBoxLayout,
@@ -56,6 +55,7 @@ _INTRO = (
     "Choose which editor Open in… lists first for each kind of file. Changes apply the "
     "next time you choose Open in…."
 )
+from ctstudio.gui.views.plain import busy_bar
 
 
 class _Relay(QObject):
@@ -102,11 +102,7 @@ class EditorsPage(QWidget):
         self.banner.setFrameShape(QLabel.Shape.StyledPanel)
         self.banner.hide()
         layout.addWidget(self.banner)
-        self.busy_bar = QProgressBar(self)
-        self.busy_bar.setObjectName("editorsBusy")
-        self.busy_bar.setRange(0, 0)
-        self.busy_bar.setTextVisible(False)
-        self.busy_bar.setMaximumHeight(6)
+        self.busy_bar = busy_bar(self, "editorsBusy", slim=True)
         self.busy_bar.hide()
         layout.addWidget(self.busy_bar)
         # The tabs are hidden while the file cannot be used: they could do nothing then, and

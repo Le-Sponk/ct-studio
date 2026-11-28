@@ -78,6 +78,7 @@ not on whole packages, and each change is its own tested commit:
 | a | `settings.py`: one `_with` setter helper and one ordered check table; `cli/doctor` reuses `cli/status`'s settings read; Wine prefixes reuse the custom-tool text check | −75 in 4 files (641 → 566, −12 %) |
 | b | Complexity: `cli/build.py` summary split (`_found`, `_counts`; was C 14), TD-008 `bootstrap_tools.unpack` (`_extract`, `_content_root`) and `check.run_step` (`_execute`), one `isinstance` in `dashboard_assign.completed` | +15 (splits); no block above B left |
 | c | Start-up: `ctstudio.version()` reads the package metadata on first use (module `__getattr__` keeps `__version__`); `--version` reads it only when asked; Help → About is built when first shown | `importlib.metadata` no longer imported by a CLI command or a window start (was 142 ms) |
+| d | `gui/views/plain.py`: `plain_label` (plain text, wrapped; `fill`, `selectable`) and `busy_bar` (`slim`) replace the same 4–8 setup lines in 17 view files | −43 in 18 files (3,925 → 3,882) |
 
 Kept on purpose (audit list C): the tool adapters; schema fields; `Project.lock_owner`
 (set from the lock on open and read by nobody yet; one line that says who holds a read-only
@@ -105,3 +106,10 @@ exact Check on Windows and Ubuntu):
   argparse used to wrap `ctstudio 0.1.0.dev0` onto two lines and now prints one. Median
   wall time old/new: `status --help` 476/400 ms, `import ctstudio.gui.app` 789/630 ms,
   `--offscreen-smoke` 936/820 ms (before the About fix).
+- c `04cb3b1`: gate 5603/10/178 (after the wait repair `83f6c4e`, Check Windows
+  140813740900 5595/15, Ubuntu 140813740677 5596/14: two gates had failed on a 5 s
+  `qtbot.waitUntil` default under load).
+- d: 14 mutants over two rounds, all caught (new `test_plain_widgets.py`; the issues
+  panel's texts are selectable and the Tools busy bar thin, both untested before). Found,
+  not changed here: the new-project wizard's problem label is not plain text, so a message
+  that looks like HTML would be formatted (fixed separately).

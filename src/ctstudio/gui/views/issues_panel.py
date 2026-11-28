@@ -17,7 +17,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QSizePolicy,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -33,6 +32,7 @@ from ctstudio.core.validation.report import (
     severity_word,
     shown_file,
 )
+from ctstudio.gui.views.plain import plain_label
 
 OpenUrl = Callable[[str], object]
 NOT_CHECKED = "Not checked yet: build the track to check it for problems."
@@ -102,13 +102,7 @@ class IssuesPanel(QWidget):
         self.clear()
 
     def _text(self, name: str, text: str) -> QLabel:
-        label = QLabel(text, self)
-        label.setObjectName(name)
-        label.setTextFormat(Qt.TextFormat.PlainText)
-        label.setWordWrap(True)
-        label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
-        label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        return label
+        return plain_label(self, name, text, fill=True, selectable=True)
 
     def _buttons(self) -> QHBoxLayout:
         row = QHBoxLayout()

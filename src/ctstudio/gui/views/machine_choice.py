@@ -19,10 +19,11 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import partial
 
-from PySide6.QtCore import QObject, Qt, QThreadPool, Signal
-from PySide6.QtWidgets import QComboBox, QLabel, QProgressBar, QVBoxLayout, QWidget
+from PySide6.QtCore import QObject, QThreadPool, Signal
+from PySide6.QtWidgets import QComboBox, QLabel, QVBoxLayout, QWidget
 
 from ctstudio.core.project.settings import SettingsError
+from ctstudio.gui.views.plain import busy_bar, plain_label
 from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
@@ -115,19 +116,12 @@ class MachineChoiceSection(QWidget):
         self.label, self.combo = self.rows[self._texts.name]
         self.banner = self._text(f"{self._texts.name}Problem", layout)
         self.note = self._text(f"{self._texts.name}Note", layout)
-        self.busy_bar = QProgressBar(self)
-        self.busy_bar.setObjectName(f"{self._texts.name}Busy")
-        self.busy_bar.setRange(0, 0)
-        self.busy_bar.setTextVisible(False)
-        self.busy_bar.setMaximumHeight(6)
+        self.busy_bar = busy_bar(self, f"{self._texts.name}Busy", slim=True)
         layout.addWidget(self.busy_bar)
         layout.addStretch()
 
     def _text(self, name: str, layout: QVBoxLayout) -> QLabel:
-        label = QLabel(self)
-        label.setObjectName(name)
-        label.setTextFormat(Qt.TextFormat.PlainText)
-        label.setWordWrap(True)
+        label = plain_label(self, name)
         layout.addWidget(label)
         return label
 

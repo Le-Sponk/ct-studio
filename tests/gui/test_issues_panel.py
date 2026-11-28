@@ -73,6 +73,9 @@ def test_the_last_check_is_shown_grouped_by_part_when_the_project_opens(
         assert panel.copy_button.isEnabled()
         assert not panel.help_button.isEnabled()  # nothing selected yet
         assert panel.detail.text() == "Select a finding to see its next step and file."
+        select = Qt.TextInteractionFlag.TextSelectableByMouse
+        for label in (panel.summary, panel.detail):  # a finding's text can be copied by hand
+            assert label.textInteractionFlags() & select, label.objectName()
 
 
 def test_the_report_is_read_off_the_ui_thread(qtbot: QtBot, tmp_path: Path) -> None:

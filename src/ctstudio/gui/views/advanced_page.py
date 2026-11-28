@@ -23,7 +23,6 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from typing import cast
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 
 from ctstudio.core.build.build_log import KEEP
@@ -36,6 +35,7 @@ from ctstudio.gui.advanced import (
     AdvancedService,
 )
 from ctstudio.gui.views.machine_choice import ChoiceRow, ChoiceTexts, MachineChoiceSection
+from ctstudio.gui.views.plain import plain_label
 from ctstudio.gui.views.wrap_text import breakable
 
 COMMANDS = ChoiceTexts(
@@ -149,10 +149,7 @@ class AdvancedPage(QWidget):
         self.tabs.addTab(self.project_tab, "This &project")
 
     def _text(self, name: str, layout: QVBoxLayout) -> QLabel:
-        label = QLabel(self.project_tab)
-        label.setObjectName(name)
-        label.setTextFormat(Qt.TextFormat.PlainText)
-        label.setWordWrap(True)
+        label = plain_label(self.project_tab, name)
         layout.addWidget(label)
         return label
 

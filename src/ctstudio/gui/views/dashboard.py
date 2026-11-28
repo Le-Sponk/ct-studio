@@ -12,10 +12,8 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGridLayout,
     QLabel,
-    QProgressBar,
     QPushButton,
     QScrollArea,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -40,6 +38,7 @@ from ctstudio.gui.views.dashboard_watch import DashboardWatch
 from ctstudio.gui.views.header_buttons import HeaderButtons
 from ctstudio.gui.views.issues_panel import IssuesPanel
 from ctstudio.gui.views.path_label import PathLabel
+from ctstudio.gui.views.plain import busy_bar, plain_label
 
 
 def _explain(widget: QWidget, text: str) -> None:
@@ -49,13 +48,7 @@ def _explain(widget: QWidget, text: str) -> None:
 
 
 def _label(name: str, parent: QWidget) -> QLabel:
-    label = QLabel(parent)
-    label.setObjectName(name)
-    label.setTextFormat(Qt.TextFormat.PlainText)
-    label.setWordWrap(True)
-    label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
-    label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-    return label
+    return plain_label(parent, name, fill=True, selectable=True)
 
 
 def _path(name: str, parent: QWidget) -> PathLabel:
@@ -160,17 +153,13 @@ class Dashboard(QWidget):
             "dashboardCopyDetails", "dashboard message", self
         )  # P5-T10f
         self._layout.addWidget(self.notice_details, alignment=Qt.AlignmentFlag.AlignLeft)
-        self.checking = QProgressBar(self)
-        self.checking.setObjectName("dashboardChecking")
-        self.checking.setRange(0, 0)
+        self.checking = busy_bar(self, "dashboardChecking")
         self.checking.hide()
         self._layout.addWidget(self.checking)
         self.launch_notice = _label("dashboardLaunchNotice", self)
         self.launch_notice.hide()
         self._layout.addWidget(self.launch_notice)
-        self.launch_progress = QProgressBar(self)
-        self.launch_progress.setObjectName("dashboardLaunching")
-        self.launch_progress.setRange(0, 0)
+        self.launch_progress = busy_bar(self, "dashboardLaunching")
         self.launch_progress.hide()
         self._layout.addWidget(self.launch_progress)
         self._layout.addWidget(self._controls())

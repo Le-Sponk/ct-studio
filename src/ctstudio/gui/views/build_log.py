@@ -5,7 +5,6 @@ from PySide6.QtGui import QAction, QKeyEvent, QKeySequence
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
-    QLabel,
     QListView,
     QMenu,
     QSizePolicy,
@@ -16,6 +15,7 @@ from PySide6.QtWidgets import (
 
 from ctstudio.core.build.events import CommandRun, LogLine
 from ctstudio.gui.build_log_model import COPY_SHORTCUT, BuildLogModel, LogRole
+from ctstudio.gui.views.plain import plain_label
 
 _EMPTY = "No output yet. Start a build below, or wait for its next message."
 
@@ -63,13 +63,9 @@ class BuildLogPanel(QWidget):
         self.body = QWidget(self)
         self.body.setObjectName("build_log_body")
         self.body.setAccessibleName("Build output")
-        self.history = QLabel(_EMPTY, self.body)
-        self.history.setObjectName("build_log_history")
+        self.history = plain_label(self.body, "build_log_history", _EMPTY, fill=True)
         self.history.setAccessibleName("Build log history")
         self.history.setAccessibleDescription(self.history.text())
-        self.history.setTextFormat(Qt.TextFormat.PlainText)
-        self.history.setWordWrap(True)
-        self.history.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self.view = _LogView(self.body)
         self.view.setObjectName("build_log_view")
         self.view.setAccessibleName("Build output lines")

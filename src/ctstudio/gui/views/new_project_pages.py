@@ -16,7 +16,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QProgressBar,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -28,6 +27,7 @@ from PySide6.QtWidgets import (
 from ctstudio.core.project import manifest_io
 from ctstudio.core.project.slots import CATALOGUE, DEFAULT_SLOT, Slot, cups
 from ctstudio.gui.views.path_label import PathLabel
+from ctstudio.gui.views.plain import busy_bar
 
 Choose = Callable[[QWidget, Path], Path | None]  # None: the user cancelled
 _UNSAFE = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
@@ -331,9 +331,7 @@ class SummaryPage(QWizardPage):
         for plain in (self.track, self.slot):
             plain.setWordWrap(True)
             plain.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.busy = QProgressBar(self)
-        self.busy.setObjectName("createBusy")
-        self.busy.setRange(0, 0)
+        self.busy = busy_bar(self, "createBusy")
         self.busy.setTextVisible(False)
         self.busy.setToolTip("Making the project folder…")
         self.busy.hide()

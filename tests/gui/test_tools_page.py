@@ -208,6 +208,7 @@ def test_while_checking_a_busy_bar_shows_and_actions_wait(
     try:
         qtbot.waitUntil(lambda: len(doctor.calls) == 2, timeout=WAIT)
         assert page.busy and busy_bar(page).isVisible()
+        assert busy_bar(page).maximumHeight() == 6 and not busy_bar(page).isTextVisible()
         for name in ("recheckButton", "browseButton", "clearButton"):
             assert not button(page, name).isEnabled()
         shot(page, "p2-t07b-tools-checking.png")

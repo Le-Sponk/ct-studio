@@ -8,12 +8,12 @@ from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
-    QProgressBar,
     QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
+
+from ctstudio.gui.views.plain import busy_bar, plain_label
 
 
 def confirm_discard(parent: QWidget) -> bool:
@@ -68,10 +68,8 @@ class OutsideEditBanner(QWidget):
         self.lock_button.clicked.connect(lambda: self._request("lock"))
         self.discard_button.clicked.connect(lambda: self._request("discard"))
         self.activity, self.note = self._label("Activity"), self._label("Note")
-        self.progress = QProgressBar(self)
-        self.progress.setObjectName("outsideEditProgress")
+        self.progress = busy_bar(self, "outsideEditProgress")
         self.progress.setAccessibleName("Outside-edit request progress")
-        self.progress.setRange(0, 0)
         for widget in (self.activity, self.progress, self.note):
             layout.addWidget(widget)
         self.clear()
@@ -124,14 +122,9 @@ class OutsideEditBanner(QWidget):
         self.setVisible(self._edited or self._working or bool(self.note.text()))
 
     def _label(self, suffix: str) -> QLabel:
-        label = QLabel(self)
-        label.setObjectName(f"outsideEdit{suffix}")
-        label.setTextFormat(Qt.TextFormat.PlainText)
-        label.setWordWrap(True)
-        label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        label = plain_label(self, f"outsideEdit{suffix}", fill=True, selectable=True)
         label.setMaximumHeight(label.fontMetrics().lineSpacing() * 4)
         label.installEventFilter(self)
-        label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         return label
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:

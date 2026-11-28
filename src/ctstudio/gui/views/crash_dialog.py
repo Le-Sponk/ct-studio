@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QDialogButtonBox,
-    QLabel,
     QPlainTextEdit,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
+
+from ctstudio.gui.views.plain import plain_label
 
 
 class CrashDialog(QDialog):
@@ -23,10 +23,7 @@ class CrashDialog(QDialog):
         self.setObjectName("crashDialog")
         self.setWindowTitle("Unexpected error")
         layout = QVBoxLayout(self)
-        text = QLabel(message, self)
-        text.setTextFormat(Qt.TextFormat.PlainText)
-        text.setWordWrap(True)
-        layout.addWidget(text)
+        layout.addWidget(plain_label(self, text=message))
         self.details = QPlainTextEdit(details, self)
         self.details.setObjectName("crashDetails")
         self.details.setReadOnly(True)

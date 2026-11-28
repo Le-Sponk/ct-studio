@@ -7,7 +7,7 @@ import threading
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Qt, Signal
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -16,7 +16,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QProgressBar,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -28,6 +27,7 @@ from ctstudio.core.project.slots import CATALOGUE
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.new_project_pages import Choose, choose_blend
+from ctstudio.gui.views.plain import busy_bar, plain_label
 
 _LOG = logging.getLogger(__name__)
 WORKER_NAME = "ctstudio-project-details"
@@ -123,14 +123,9 @@ class ProjectDetailsDialog(QDialog):
         self._make_footer(layout)
 
     def _make_footer(self, layout: QVBoxLayout) -> None:
-        self.problem = QLabel(self)
-        self.problem.setObjectName("detailsProblem")
-        self.problem.setTextFormat(Qt.TextFormat.PlainText)
-        self.problem.setWordWrap(True)
+        self.problem = plain_label(self, "detailsProblem")
         layout.addWidget(self.problem)
-        self.progress = QProgressBar(self)
-        self.progress.setObjectName("detailsProgress")
-        self.progress.setRange(0, 0)
+        self.progress = busy_bar(self, "detailsProgress")
         layout.addWidget(self.progress)
         self.buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel, self

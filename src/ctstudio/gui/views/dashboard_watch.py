@@ -11,11 +11,12 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from PySide6.QtCore import QObject, Qt
-from PySide6.QtWidgets import QLabel, QSizePolicy, QWidget
+from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QWidget
 
 from ctstudio.core.project.project import Project
 from ctstudio.gui.services import AppServices
+from ctstudio.gui.views.plain import plain_label
 
 
 class DashboardWatch(QObject):
@@ -29,11 +30,7 @@ class DashboardWatch(QObject):
         """``shown``: the dashboard's project while it is the current one, else None."""
         super().__init__(page)
         self._services, self._shown, self._begin_check = services, shown, begin_check
-        self.notice = QLabel(page)
-        self.notice.setObjectName("dashboardWatchNotice")
-        self.notice.setTextFormat(Qt.TextFormat.PlainText)
-        self.notice.setWordWrap(True)
-        self.notice.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        self.notice = plain_label(page, "dashboardWatchNotice", fill=True)
         self.notice.hide()
         self._failed_meanwhile = False
         services.watcher.changed.connect(self._changed)

@@ -8,14 +8,13 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Qt, Signal
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QLabel,
     QListWidget,
     QListWidgetItem,
-    QProgressBar,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -24,6 +23,7 @@ from PySide6.QtWidgets import (
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
 from ctstudio.gui.recent_projects import RecentProjects, RecentResult
+from ctstudio.gui.views.plain import busy_bar, plain_label
 
 _LOG = logging.getLogger(__name__)
 WORKER_NAME = "ctstudio-welcome"
@@ -77,10 +77,7 @@ class WelcomePage(QWidget):
 
     def _build(self) -> None:
         layout = QVBoxLayout(self)
-        self.title = title = QLabel("No project open", self)
-        title.setObjectName("emptyTitle")
-        title.setWordWrap(True)
-        title.setTextFormat(Qt.TextFormat.PlainText)
+        self.title = title = plain_label(self, "emptyTitle", "No project open")
         font = title.font()
         font.setPointSize(16)
         font.setBold(True)
@@ -123,14 +120,9 @@ class WelcomePage(QWidget):
             recent_actions.addWidget(button)
         recent_actions.addStretch()
         layout.addLayout(recent_actions)
-        self._problem = QLabel(self)
-        self._problem.setObjectName("welcomeProblem")
-        self._problem.setWordWrap(True)
-        self._problem.setTextFormat(Qt.TextFormat.PlainText)
+        self._problem = plain_label(self, "welcomeProblem")
         layout.addWidget(self._problem)
-        self._progress = QProgressBar(self)
-        self._progress.setObjectName("welcomeBusy")
-        self._progress.setRange(0, 0)
+        self._progress = busy_bar(self, "welcomeBusy")
         self._progress.setToolTip("Reading project folders and settings…")
         layout.addWidget(self._progress)
 

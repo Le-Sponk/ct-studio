@@ -11,6 +11,7 @@ from ctstudio.core.project.project import Project
 from ctstudio.gui.component_modes import ComponentModeService
 from ctstudio.gui.project_details import DetailsSnapshot
 from ctstudio.gui.services import AppServices
+from ctstudio.gui.views.plain import plain_label
 from ctstudio.gui.views.project_details import ProjectDetailsDialog
 
 WORKER_NAME = "ctstudio-component-mode"
@@ -55,10 +56,7 @@ class ComponentModeDialog(ProjectDetailsDialog):
 
     def _make_fields(self) -> None:
         layout = QVBoxLayout(self)
-        note = QLabel(self.spec.description, self)
-        note.setObjectName("componentModeDescription")
-        note.setTextFormat(Qt.TextFormat.PlainText)
-        note.setWordWrap(True)
+        note = plain_label(self, "componentModeDescription", self.spec.description)
         layout.addWidget(note)
         form = QFormLayout()
         self.mode = QComboBox(self)

@@ -23,7 +23,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
-    QProgressBar,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
@@ -35,6 +34,7 @@ from ctstudio.core.errors import CTStudioError
 from ctstudio.core.tools.doctor import STATUS_LABELS, ToolCheck, found_how
 from ctstudio.core.tools.registry import TOOL_BY_ID
 from ctstudio.gui.services import ToolsResult, ToolsService
+from ctstudio.gui.views.plain import busy_bar
 from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
@@ -133,11 +133,7 @@ class ToolsPage(QWidget):
         self._banner.setFrameShape(QLabel.Shape.StyledPanel)
         self._banner.hide()
         layout.addWidget(self._banner)
-        self._busy = QProgressBar(self)
-        self._busy.setObjectName("busyBar")
-        self._busy.setRange(0, 0)  # an activity bar: checks have no known length
-        self._busy.setTextVisible(False)
-        self._busy.setMaximumHeight(6)
+        self._busy = busy_bar(self, "busyBar", slim=True)  # checks have no known length
         self._busy.hide()
         layout.addWidget(self._busy)
         layout.addWidget(self._make_table(), 1)

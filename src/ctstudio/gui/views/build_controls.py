@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QProgressBar,
     QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -29,6 +28,7 @@ _TEST = "Build a track to try in the game, with the test compression"
 _RELEASE = (
     "Build the track to share, with the release compression; an error in the final check stops it"
 )
+from ctstudio.gui.views.plain import plain_label
 
 
 class BuildControls(QWidget):
@@ -81,12 +81,8 @@ class BuildControls(QWidget):
         self.set_state(enabled=False, running=False)
 
     def _label(self, name: str) -> QLabel:
-        label = QLabel(self)
-        label.setObjectName(name)
-        label.setTextFormat(Qt.TextFormat.PlainText)
-        label.setWordWrap(True)
+        label = plain_label(self, name, fill=True)
         label.setAlignment(Qt.AlignmentFlag.AlignTop)
-        label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         label.setMaximumHeight(label.fontMetrics().lineSpacing() * 4 + 8)
         label.hide()  # shown with its first text
         return label

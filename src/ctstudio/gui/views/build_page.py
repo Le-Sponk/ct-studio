@@ -29,7 +29,6 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
-    QProgressBar,
     QPushButton,
     QTabWidget,
     QVBoxLayout,
@@ -43,6 +42,7 @@ from ctstudio.gui.build_settings import BuildChoices, BuildJobsService, BuildSet
 from ctstudio.gui.project_details import DetailsSnapshot
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.build_jobs import BuildJobsSection
+from ctstudio.gui.views.plain import busy_bar, plain_label
 from ctstudio.gui.views.wrap_text import breakable
 
 _LOG = logging.getLogger(__name__)
@@ -149,9 +149,7 @@ class BuildPage(QWidget):
     def _footer(self, layout: QVBoxLayout) -> None:
         self.blocked = self._label("buildBlocked", layout)  # why Save is off, from outside
         self.problem = self._label("buildProblem", layout)  # the last result or error
-        self.progress = QProgressBar(self)
-        self.progress.setObjectName("buildProgress")
-        self.progress.setRange(0, 0)
+        self.progress = busy_bar(self, "buildProgress")
         layout.addWidget(self.progress)
         self.action_row = QWidget(self)  # hidden with the choices when no project is open
         row = QHBoxLayout(self.action_row)
@@ -169,10 +167,7 @@ class BuildPage(QWidget):
         layout.addStretch()
 
     def _label(self, name: str, layout: QVBoxLayout) -> QLabel:
-        label = QLabel(self)
-        label.setObjectName(name)
-        label.setTextFormat(Qt.TextFormat.PlainText)
-        label.setWordWrap(True)
+        label = plain_label(self, name)
         layout.addWidget(label)
         return label
 
