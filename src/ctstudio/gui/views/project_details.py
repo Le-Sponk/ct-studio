@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-import threading
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -24,6 +22,7 @@ from PySide6.QtWidgets import (
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.project.project import Project
 from ctstudio.core.project.slots import CATALOGUE
+from ctstudio.gui.joined_worker import JoinedWorker
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.new_project_pages import Choose, choose_blend
@@ -31,10 +30,6 @@ from ctstudio.gui.views.plain import busy_bar, plain_label
 
 _LOG = logging.getLogger(__name__)
 WORKER_NAME = "ctstudio-project-details"
-
-
-class _Relay(QObject):
-    done = Signal(object)
 
 
 class ProjectDetailsDialog(QDialog):
@@ -63,9 +58,13 @@ class ProjectDetailsDialog(QDialog):
         self._snapshot: DetailsSnapshot | None = None
         self._busy = False
         self._owns_edit = False
-        self._worker: threading.Thread | None = None
-        self._relay = _Relay(self)
-        self._relay.done.connect(self._completed)
+        self._worker = JoinedWorker(
+            self.worker_name,
+            self._completed,
+            logger=_LOG,
+            failure=f"{self.SUBJECT.capitalize()} operation failed",
+            parent=self,
+        )
         self.finished.connect(self._release)
         self._make_fields()
         self.services.build.running_changed.connect(self._controls)
@@ -197,31 +196,19 @@ class ProjectDetailsDialog(QDialog):
         operation = "Saving" if saving else "Loading"
         self.problem.setText(f"{operation} {self.SUBJECT}…")
         self._controls()
-        relay = self._relay
         project = self.project
 
-        def job() -> None:
-            try:
-                result: DetailsSnapshot | Exception = action()
-                if project is None or result.root != project.root.resolve():
-                    raise ProjectError(
-                        "The project changed.", hint="Close and reopen the editor before retrying."
-                    )
-            except Exception as exc:  # failures must reach the dialog, not vanish in a thread
-                _LOG.exception("%s operation failed", self.SUBJECT.capitalize())
-                result = exc
-            relay.done.emit(result)
+        def job() -> DetailsSnapshot:
+            result = action()
+            if project is None or result.root != project.root.resolve():
+                raise ProjectError(
+                    "The project changed.", hint="Close and reopen the editor before retrying."
+                )
+            return result
 
-        self._worker = threading.Thread(target=job, name=self.worker_name, daemon=True)
-        try:
-            self._worker.start()
-        except Exception as exc:
-            self._completed(exc)
+        self._worker.start(job)
 
     def _completed(self, payload: object) -> None:
-        if self._worker is not None and self._worker.ident is not None:
-            self._worker.join()
-        self._worker = None
         self._busy = False
         if isinstance(payload, DetailsSnapshot) and self._allowed():
             self._snapshot = payload

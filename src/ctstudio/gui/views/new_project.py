@@ -10,15 +10,14 @@ as ``project``. The pages are in ``new_project_pages``.
 from __future__ import annotations
 
 import logging
-import threading
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget, QWizard
 
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
+from ctstudio.gui.joined_worker import JoinedWorker
 from ctstudio.gui.views.new_project_pages import (
     BlendPage,
     Choose,
@@ -34,10 +33,6 @@ _LOG = logging.getLogger(__name__)
 Create = Callable[..., Project]  # (root, name, *, blend, slot) -> the project, opened
 WORKER_NAME = "ctstudio-new-project"
 __all__ = ["WORKER_NAME", "NewProjectWizard", "folder_name"]
-
-
-class _Relay(QObject):
-    done = Signal(object)  # the Project, or the exception
 
 
 class NewProjectWizard(QWizard):
@@ -58,11 +53,16 @@ class NewProjectWizard(QWizard):
         self.setWizardStyle(QWizard.WizardStyle.ClassicStyle)
         self.setOption(QWizard.WizardOption.NoBackButtonOnStartPage)
         self._create = create
-        self._relay = _Relay(self)
-        self._relay.done.connect(self._made)
+        self._worker = JoinedWorker(
+            WORKER_NAME,
+            self._made,
+            logger=_LOG,
+            failure="Making the project failed",
+            expected=(CTStudioError,),  # a message for the user, not a fault to log
+            parent=self,
+        )
         self.project: Project | None = None
         self._busy = False
-        self._worker: threading.Thread | None = None
         self._name = NamePage(default_location, choose_folder)
         self._blend = BlendPage(choose_blend, self._blend_start)
         self._slot = SlotPage()
@@ -83,37 +83,16 @@ class NewProjectWizard(QWizard):
         root, slot = self._name.root(), self._slot.chosen()
         if self._busy or root is None or slot is None:
             return
-        name, blend, create, relay = (
-            self._name.name.text().strip(),
-            self._blend.chosen(),
-            self._create,
-            self._relay,
-        )
-
-        def job() -> None:
-            result: Project | Exception
-            try:
-                result = create(root, name, blend=blend, slot=slot.file)
-            except CTStudioError as exc:
-                result = exc
-            except Exception as exc:  # any failure must reach the wizard, not die here
-                _LOG.exception("Making the project failed")
-                result = exc
-            relay.done.emit(result)
-
+        name, blend, create = self._name.name.text().strip(), self._blend.chosen(), self._create
         self._set_busy(True)
         self._summary.problem.setText("")
-        self._worker = threading.Thread(target=job, name=WORKER_NAME, daemon=True)
-        self._worker.start()
+        self._worker.start(lambda: create(root, name, blend=blend, slot=slot.file))
 
     def reject(self) -> None:
         if not self._busy:  # Escape or Cancel while making it: wait for it
             super().reject()
 
     def _made(self, result: object) -> None:
-        if self._worker is not None:  # its last step was the emit: done, or about to be
-            self._worker.join()
-            self._worker = None
         self._set_busy(False)
         if isinstance(result, Project):
             self.project = result

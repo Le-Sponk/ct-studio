@@ -13,10 +13,10 @@ and what is running (a closed project); ``shutdown`` also waits for the thread.
 from __future__ import annotations
 
 import logging
-import threading
 from collections.abc import Callable, Collection, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
@@ -28,6 +28,7 @@ from ctstudio.core.project.manifest import Manifest
 from ctstudio.core.project.settings import SettingsError
 from ctstudio.core.tools.availability import available_tools
 from ctstudio.core.validation.report import IssueReport, load_report
+from ctstudio.gui.joined_worker import JoinedWorker
 
 _LOG = logging.getLogger(__name__)
 STATUS_THREAD = "ctstudio-status"
@@ -56,12 +57,6 @@ class _Snapshot:
     manifest: Manifest
 
 
-class _Relay(QObject):
-    """Sends from the status thread; not a child of the service, so it outlives it."""
-
-    done = Signal(int, object)  # generation, StatusResult or exception
-
-
 class StatusService(QObject):
     updated = Signal(object)  # StatusResult
     failed = Signal(object)  # the exception
@@ -83,10 +78,14 @@ class StatusService(QObject):
         self._timer.setSingleShot(True)
         self._timer.setInterval(delay_ms)
         self._timer.timeout.connect(self._delay_over)
-        self._relay = _Relay()
-        self._relay.done.connect(self._done)
+        # No parent: the relay outlives the service, for a result sent during shutdown.
+        self._worker = JoinedWorker(
+            STATUS_THREAD,
+            self._delivered,
+            logger=_LOG,
+            failure="Working out the part statuses failed",
+        )
         self._project: ProjectLike | None = None
-        self._thread: threading.Thread | None = None
         self._generation = 0
         self._pending = False
 
@@ -98,7 +97,7 @@ class StatusService(QObject):
     @property
     def busy(self) -> bool:
         """A result is still to come (delay, run, or a run waiting)."""
-        return self._timer.isActive() or self._thread is not None or self._pending
+        return self._timer.isActive() or self._worker.busy or self._pending
 
     def request(self, project: ProjectLike) -> None:
         """Work the statuses of ``project`` out soon; a burst of requests gives one run."""
@@ -114,16 +113,10 @@ class StatusService(QObject):
     def shutdown(self, timeout: float) -> bool:
         """``clear``, then wait up to ``timeout`` s; True when no status thread is left."""
         self.clear()
-        thread = self._thread
-        if thread is not None:
-            thread.join(timeout)
-            if thread.is_alive():
-                return False
-        self._thread = None
-        return True
+        return self._worker.shutdown(timeout)
 
     def _delay_over(self) -> None:
-        if self._thread is not None:
+        if self._worker.busy:
             self._pending = True
         else:
             self._run()
@@ -132,26 +125,28 @@ class StatusService(QObject):
         project = self._project
         if project is None:  # for the type checker: a run is only ever asked after a request
             return
-        work = _Work(
-            self._generation, self._relay, self._evaluate, self._find_tools, self._load_issues
-        )
-        snapshot = _Snapshot(project.root, project.manifest)
-        self._thread = threading.Thread(
-            target=work.run, args=(snapshot, self._settings_path), name=STATUS_THREAD, daemon=True
-        )
-        self._thread.start()
+        work = _Work(self._generation, self._evaluate, self._find_tools, self._load_issues)
+        snapshot, settings_path = _Snapshot(project.root, project.manifest), self._settings_path
+        self._worker.start(lambda: work.run(snapshot, settings_path))
+
+    def _delivered(self, payload: object) -> None:
+        if isinstance(payload, tuple):  # (generation, result) from the thread
+            generation, result = cast("tuple[int, object]", payload)
+            self._done(generation, result)
+        else:  # the thread did not start
+            self._done(self._generation, payload)
 
     def _done(self, generation: int, payload: object) -> None:
-        self._thread = None
+        # This run's news first (busy stays on while a re-run is pending), then the re-run:
+        # its own failure to start must be the last word, not hidden by an older result.
+        if generation == self._generation:  # else cleared while it ran
+            if isinstance(payload, StatusResult):
+                self.updated.emit(payload)
+            else:
+                self.failed.emit(payload)
         if self._pending:
             self._pending = False
             self._run()
-        if generation != self._generation:
-            return  # cleared while it ran
-        if isinstance(payload, StatusResult):
-            self.updated.emit(payload)
-        else:
-            self.failed.emit(payload)
 
 
 @dataclass(frozen=True)
@@ -159,12 +154,11 @@ class _Work:
     """One evaluation, as run on the status thread."""
 
     generation: int
-    relay: _Relay
     evaluate: Evaluate
     find_tools: FindTools
     load_issues: LoadIssues
 
-    def run(self, project: _Snapshot, settings_path: Path | None) -> None:
+    def run(self, project: _Snapshot, settings_path: Path | None) -> tuple[int, object]:
         payload: StatusResult | Exception
         try:
             try:
@@ -181,7 +175,7 @@ class _Work:
         except Exception as exc:  # any failure must reach the window, not end with the thread
             _LOG.exception("Working out the part statuses failed")
             payload = exc
-        self.relay.done.emit(self.generation, payload)
+        return self.generation, payload
 
     def _issues(self, root: Path) -> tuple[IssueReport | None, str | None]:
         """The saved findings, or why they could not be read; never hides the statuses."""

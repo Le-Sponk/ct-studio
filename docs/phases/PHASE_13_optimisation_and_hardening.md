@@ -59,6 +59,12 @@ made right now (status.py _blockers: a tool or the .blend missing) says "problem
 card's one line shows only its first reason, "…has not been made yet", so the blocker is only
 in the tooltip; show the blocker in the summary (for example first). The status words are
 right and stay.
+Also (Deep Clean #1 f review): a refused window close leaves the welcome page stopped.
+`MainWindow.closeEvent` stops the welcome page before the services; when a service then
+refuses (a launch or the watcher will not stop), the window stays open but
+`WelcomePage._stopped` stays set, so New, Open and the recent list do nothing until restart.
+Older than Deep Clean #1 and rare (needs a stuck service); give the page a resume on refusal
+(or stop it last) with a test that refuses the close and then opens a project.
 ### [ ] P13-T07 — Security review
 Subprocess argument handling, manifest path traversal, hook script execution consent, download
 verification, no secrets in logs/diagnostics.

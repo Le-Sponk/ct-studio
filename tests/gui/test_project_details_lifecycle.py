@@ -180,8 +180,15 @@ def test_worker_start_failure_is_visible_and_keeps_cancel_available(
         def fail_start(_thread: threading.Thread) -> None:
             raise RuntimeError("Synthetic thread start failure")
 
-        monkeypatch.setattr(threading.Thread, "start", fail_start)
-        dialog.accept()
+        refused: Exception | None = None
+        # Only the save's thread fails: the status thread at teardown must start normally.
+        with monkeypatch.context() as patch, qtbot.capture_exceptions() as escaped:
+            patch.setattr(threading.Thread, "start", fail_start)
+            try:
+                dialog.accept()
+            except Exception as exc:  # the failure must reach the dialog, not escape
+                refused = exc
+        assert refused is None and not escaped, f"the failure escaped: {refused!r} {escaped!r}"
         assert not dialog.busy and dialog.isVisible()
         assert "Synthetic thread start failure" in dialog.problem.text()
         assert project.manifest_path.read_bytes() == before

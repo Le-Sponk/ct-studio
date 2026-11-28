@@ -9,11 +9,12 @@ from __future__ import annotations
 import threading
 from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 import pytest
 from build_fakes import WAIT, FakeBuilds, fake, project, settings_with
 from pytestqt.qtbot import QtBot
+from waits import settled
 
 from ctstudio.core.components.status import ComponentStatus, ProjectLike, State
 from ctstudio.core.errors import ProjectError
@@ -300,3 +301,79 @@ def test_app_shutdown_waits_for_the_status_work_too(
     assert made.shutdown(WAIT / 1000)
     assert current.read_only
     assert status_threads() == []
+
+
+def test_a_status_thread_that_cannot_start_reports_and_is_not_busy(
+    qtbot: QtBot, status: FakeStatus, project: Project, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Deep Clean #1 f: a thread that failed to start used to leave the service busy for good."""
+    # Not service(): no thread ever starts here, so there is nothing for teardown to wait on.
+    made = StatusService(evaluate=status.evaluate, find_tools=status.tools, delay_ms=20)
+    seen = results(made)
+
+    def no_threads(_thread: threading.Thread) -> NoReturn:
+        raise RuntimeError("can't start new thread")
+
+    monkeypatch.setattr(threading.Thread, "start", no_threads)
+    with qtbot.capture_exceptions() as escaped:  # the thread starts later, in the event loop
+        made.request(project)
+        qtbot.wait(100)
+    assert not escaped, f"the start failure escaped the service: {escaped!r}"
+    assert settled(qtbot, lambda: bool(seen)), "the failure never reached the window"
+    assert isinstance(seen[0], RuntimeError) and len(seen) == 1
+    assert not made.busy and status.calls == []
+
+
+def test_after_a_shutdown_a_request_still_gets_its_answer(
+    qtbot: QtBot, status: FakeStatus, project: Project
+) -> None:
+    """A refused window close (another service would not stop) keeps this service in use."""
+    made = service(status)
+    seen = results(made)
+    made.request(project)
+    assert settled(qtbot, lambda: len(seen) == 1)
+    assert made.shutdown(WAIT / 1000)
+    made.request(project)
+    assert settled(qtbot, lambda: len(seen) == 2), "no answer after the shutdown"
+    assert isinstance(seen[1], StatusResult) and not made.busy
+
+
+def test_a_re_run_that_cannot_start_is_the_last_word(
+    qtbot: QtBot, status: FakeStatus, project: Project, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A request while a run works queues a re-run; its start failure must not be hidden."""
+    status.gate = threading.Event()
+    made = StatusService(evaluate=status.evaluate, find_tools=status.tools, delay_ms=20)
+    seen = results(made)
+    made.request(project)
+    assert settled(qtbot, lambda: bool(status.calls)), "the first run never started"
+    made.request(project)
+    assert settled(qtbot, lambda: made.busy and not made._timer.isActive())  # pyright: ignore[reportPrivateUsage]
+
+    def no_threads(_thread: threading.Thread) -> NoReturn:
+        raise RuntimeError("can't start new thread")
+
+    with monkeypatch.context() as patch, qtbot.capture_exceptions() as escaped:
+        patch.setattr(threading.Thread, "start", no_threads)
+        status.gate.set()
+        assert settled(qtbot, lambda: len(seen) == 2), f"got {seen!r}"
+    assert not escaped
+    assert isinstance(seen[0], StatusResult) and isinstance(seen[1], RuntimeError)
+    assert not made.busy
+
+
+def test_busy_stays_on_while_a_re_run_waits_to_start(
+    qtbot: QtBot, status: FakeStatus, project: Project
+) -> None:
+    """The dashboard syncs its cards on ``updated``: with a re-run queued they must stay locked."""
+    status.gate = threading.Event()
+    made = service(status)
+    busy_when_told: list[bool] = []
+    made.updated.connect(lambda _result: busy_when_told.append(made.busy))
+    made.request(project)
+    assert settled(qtbot, lambda: bool(status.calls)), "the first run never started"
+    made.request(project)  # arrives while the first run works: queued as a re-run
+    assert settled(qtbot, lambda: not made._timer.isActive())  # pyright: ignore[reportPrivateUsage]
+    status.gate.set()
+    assert settled(qtbot, lambda: len(busy_when_told) == 2), f"got {busy_when_told!r}"
+    assert busy_when_told == [True, False], "cards unlocked while a re-run was still to come"

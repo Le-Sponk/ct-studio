@@ -19,10 +19,9 @@ with or without a project.
 from __future__ import annotations
 
 import logging
-import threading
 from collections.abc import Callable
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -39,6 +38,7 @@ from ctstudio.core.project import manifest_io
 from ctstudio.core.project.manifest import COMPRESSIONS
 from ctstudio.core.project.project import Project
 from ctstudio.gui.build_settings import BuildChoices, BuildJobsService, BuildSettingsService
+from ctstudio.gui.joined_worker import JoinedWorker
 from ctstudio.gui.project_details import DetailsSnapshot
 from ctstudio.gui.services import AppServices
 from ctstudio.gui.views.build_jobs import BuildJobsSection
@@ -62,10 +62,6 @@ NO_PROJECT = (
 )
 
 
-class _Relay(QObject):
-    done = Signal(object)
-
-
 class BuildPage(QWidget):
     saved = Signal()  # a save was published to the open project
     save_finished = Signal(bool)  # a save ended: True when it was saved and published
@@ -87,9 +83,13 @@ class BuildPage(QWidget):
         self._outside = False  # the file no longer matches the project as opened
         self._busy = False
         self._saving = False
-        self._worker: threading.Thread | None = None
-        self._relay = _Relay(self)
-        self._relay.done.connect(self._completed)
+        self._worker = JoinedWorker(
+            WORKER_NAME,
+            self._completed,
+            logger=_LOG,
+            failure="Reading or saving the build settings failed",
+            parent=self,
+        )
         self._build(jobs_service or BuildJobsService())
         services.build.running_changed.connect(self._render)
         services.launch.busy_changed.connect(self._render)
@@ -237,27 +237,10 @@ class BuildPage(QWidget):
         self._busy, self._saving = True, saving
         self.problem.setText("Saving the build settings…" if saving else "")
         self._render()
-        relay = self._relay
-
-        def job() -> None:
-            try:
-                result: object = work()
-            except Exception as exc:  # failures must reach the page, not vanish in a thread
-                _LOG.exception("Reading or saving the build settings failed")
-                result = exc
-            relay.done.emit(result)
-
-        self._worker = threading.Thread(target=job, name=WORKER_NAME, daemon=True)
-        try:
-            self._worker.start()
-        except Exception as exc:
-            self._completed(exc)
+        self._worker.start(work)
         return True
 
     def _completed(self, payload: object) -> None:
-        if self._worker is not None and self._worker.ident is not None:
-            self._worker.join()
-        self._worker = None
         self._busy = False
         self.services.editing = False
         # The project cannot change meanwhile: the page owned ``services.editing``.

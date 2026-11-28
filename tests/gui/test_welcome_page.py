@@ -7,6 +7,7 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
+from typing import NoReturn
 
 import pytest
 from PySide6.QtCore import QCoreApplication, QObject
@@ -15,8 +16,8 @@ from pytestqt.qtbot import QtBot
 
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.project.project import Project
+from ctstudio.gui import joined_worker
 from ctstudio.gui.recent_projects import RecentProject, RecentProjects, RecentResult
-from ctstudio.gui.views import welcome_page
 from ctstudio.gui.views.welcome_page import WelcomePage
 
 pytestmark = [pytest.mark.gui, pytest.mark.timeout(30)]
@@ -241,10 +242,33 @@ def test_result_delivery_waits_for_worker_end(
     qtbot: QtBot, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     history = History()
-    monkeypatch.setattr(welcome_page, "threading", SimpleNamespace(Thread=_SlowTail))
+    monkeypatch.setattr(joined_worker, "threading", SimpleNamespace(Thread=_SlowTail))
     page = WelcomePage(history)
     qtbot.addWidget(page)
     alive: list[bool] = []
     page.checked.connect(lambda: alive.append(history.threads[0].is_alive()))
     qtbot.waitUntil(lambda: bool(alive), timeout=WAIT)
     assert alive == [False]
+
+
+def test_a_thread_that_cannot_start_shows_why_and_frees_the_page(
+    qtbot: QtBot, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Deep Clean #1 f: the start failure used to escape and leave the page busy for good."""
+    page = make(qtbot, History())
+    refused: Exception | None = None
+    with monkeypatch.context() as patch, qtbot.capture_exceptions() as escaped:
+        patch.setattr(threading.Thread, "start", _no_thread)
+        try:
+            page.refresh()
+        except Exception as exc:  # the failure must reach the page, not escape
+            refused = exc
+    assert refused is None and not escaped, f"escaped: {refused!r} {escaped!r}"
+    assert not page.busy
+    assert "could not be read" in problem(page)
+    assert button(page, "welcomeNew").isEnabled() and button(page, "welcomeOpen").isEnabled()
+    assert not widget(page, QProgressBar, "welcomeBusy").isVisible()
+
+
+def _no_thread(_thread: threading.Thread) -> NoReturn:
+    raise RuntimeError("can't start new thread")

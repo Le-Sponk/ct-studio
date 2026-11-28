@@ -34,7 +34,7 @@ from wizard_fakes import (
 
 from ctstudio.core.errors import ProjectError
 from ctstudio.core.project import manifest_io
-from ctstudio.gui.views import new_project
+from ctstudio.gui import joined_worker
 from ctstudio.gui.views.new_project import NewProjectWizard, folder_name
 from ctstudio.gui.views.path_label import PathLabel
 
@@ -367,7 +367,7 @@ def test_the_worker_has_ended_when_the_wizard_closes(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(new_project, "threading", SimpleNamespace(Thread=_SlowEnd))
+    monkeypatch.setattr(joined_worker, "threading", SimpleNamespace(Thread=_SlowEnd))
     wizard = make_wizard(qtbot, creator, choices, tmp_path)
     alive: list[bool] = []
     wizard.accepted.connect(lambda: alive.append(creator.threads[0].is_alive()))

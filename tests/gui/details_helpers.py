@@ -1,12 +1,13 @@
 """Synthetic, gated project-details service shared by the dialog/window tests."""
 
 import threading
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 
 from pytestqt.qtbot import QtBot
 from test_new_project_window import quiet_services
+from waits import settled
 
 from ctstudio.core.project.project import Project
 from ctstudio.gui.project_details import DetailsSnapshot, ProjectDetailsService
@@ -46,7 +47,7 @@ class DetailsWork(ProjectDetailsService):
 @contextmanager
 def details(
     qtbot: QtBot, folder: Path, work: DetailsWork | None = None
-) -> Iterator[tuple[ProjectDetailsDialog, AppServices, Project, DetailsWork]]:
+) -> Generator[tuple[ProjectDetailsDialog, AppServices, Project, DetailsWork]]:
     services = quiet_services()
     project = Project.create(folder / "Détails 日本", "Détails 日本")
     services.adopt(project)
@@ -61,6 +62,8 @@ def details(
         for gate in (work.load_gate, work.save_gate):
             if gate is not None:
                 gate.set()
-        qtbot.waitUntil(lambda: not dialog.busy)
+        # settled, not waitUntil: a timeout here would hide the test's own failed assertion
+        idle = settled(qtbot, lambda: not dialog.busy)
         dialog.reject()
         assert services.shutdown(10)
+        assert idle, "the dialog was still busy at the end of the test"

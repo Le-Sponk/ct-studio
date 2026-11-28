@@ -80,6 +80,7 @@ not on whole packages, and each change is its own tested commit:
 | c | Start-up: `ctstudio.version()` reads the package metadata on first use (module `__getattr__` keeps `__version__`); `--version` reads it only when asked; Help → About is built when first shown | `importlib.metadata` no longer imported by a CLI command or a window start (was 142 ms) |
 | d | `gui/views/plain.py`: `plain_label` (plain text, wrapped; `fill`, `selectable`) and `busy_bar` (`slim`) replace the same 4–8 setup lines in 17 view files | −43 in 18 files (3,925 → 3,882) |
 | e | The offscreen font loader leaves `MainWindow` for `gui/offscreen_font.py`: `run_gui` calls it before the window (smoke frames), a GUI-test fixture once per test; the last two hand-built labels use `plain_label` | +9 in 5 files (920 → 929; `main_window.py` 397 → 372) |
+| f | Five copies of "run one job on a thread, hand the result back after the thread ended" (welcome page, build settings, project details, new-project wizard, status checker) become `gui/joined_worker.py`; a thread that cannot start now reports in the status checker (it stayed busy for good), the wizard and the welcome page (the error escaped; the page stayed busy) | −63 in the 5 users (1,195 → 1,132), +93 for the shared helper with its docs |
 
 Kept on purpose (audit list C): the tool adapters; schema fields; `Project.lock_owner`
 (set from the lock on open and read by nobody yet; one line that says who holds a read-only
@@ -122,3 +123,26 @@ exact Check on Windows and Ubuntu):
 - e: 9 mutants, all caught (`test_offscreen_font.py`: loaded only offscreen and without
   fonts, the platform's font file, refused or missing fonts change nothing, the smoke run
   loads it before the window).
+- e `bfb536e`: gate 5621/10/178; review APPROVE; Check Windows 140926153489 (5616/15),
+  Ubuntu 140926153285 (5617/14).
+- f: 9 mutants, all caught (no join before delivery, expected refusals logged, faults not
+  logged, a start failure raised, a result delivered after shutdown, shutdown ignoring a
+  running job, the thread kept after its result, the status checker dropping a start
+  failure, the wizard logging user refusals). New tests: `test_joined_worker.py`,
+  `test_new_project_start_failure.py`, and a status-service start-failure case; both
+  start-failure tests fail on the old code.
+  Review NEEDS_REVISION: (1) a stop was permanent, but a refused window close keeps the status
+  checker in use, which then stayed on "Checking…"; each start now has a serial, `shutdown`
+  drops only results already on their way, and the worker starts again (tests: restart after
+  shutdown, a queued result dropped, the status checker answering after a shutdown).
+  (2) the welcome page's start-failure handling had no test; added. (3) a re-run that cannot
+  start is now reported after the older run's result, not before it. (4) the shutdown test
+  flushes queued events instead of waiting 100 ms. An older refused-close problem in the
+  welcome page went to Phase 13 (P13-T06). The first full gate then caught a fault of this
+  step: the welcome page announced "busy" before the worker counted as busy, so the window
+  left Open project on while a project was opening (`test_dashboard_window.py`); the page now
+  starts the worker first. After the fixes: 14 mutants, all caught (rounds 7 and 8; adds a
+  stale result delivered, the serial not bumped by shutdown, a permanent stop, the re-run
+  reported first, "busy" announced too early, the welcome start failure lost). Delta review:
+  all four findings fixed; one gap closed (busy must stay on during `updated` while a re-run
+  is queued: a test and a 15th mutant, round 9, caught).

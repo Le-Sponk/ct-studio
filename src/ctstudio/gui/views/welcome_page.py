@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import logging
-import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -22,6 +21,7 @@ from PySide6.QtWidgets import (
 
 from ctstudio.core.errors import CTStudioError
 from ctstudio.core.project.project import Project
+from ctstudio.gui.joined_worker import JoinedWorker
 from ctstudio.gui.recent_projects import RecentProjects, RecentResult
 from ctstudio.gui.views.plain import busy_bar, plain_label
 
@@ -38,10 +38,6 @@ def choose_project(parent: QWidget) -> Path | None:
 class _Opened:
     project: Project
     history: RecentResult
-
-
-class _Relay(QObject):
-    done = Signal()
 
 
 class WelcomePage(QWidget):
@@ -62,18 +58,19 @@ class WelcomePage(QWidget):
         self.history = history
         self._choose = choose_folder
         self._open = open_project
-        self._thread: threading.Thread | None = None
+        # No parent: its relay survives a pending result until shutdown joins the thread.
+        self._worker = JoinedWorker(
+            WORKER_NAME, self._finished, logger=_LOG, failure="Welcome operation failed"
+        )
         self._result: RecentResult | _Opened | Exception | None = None
         self._history = RecentResult(())
         self._stopped = False
-        self._relay = _Relay()  # survives a pending emit until shutdown joins the worker
-        self._relay.done.connect(self._finished)
         self._build()
         self.refresh()
 
     @property
     def busy(self) -> bool:
-        return self._thread is not None
+        return self._worker.busy
 
     def _build(self) -> None:
         layout = QVBoxLayout(self)
@@ -101,7 +98,7 @@ class WelcomePage(QWidget):
         self._list.setObjectName("recentProjects")
         self._list.setToolTip("Recently opened folders, newest first. Missing folders stay listed.")
         self._list.currentRowChanged.connect(self._selection)
-        self._list.itemActivated.connect(lambda _item: self._open_selected())
+        self._list.itemActivated.connect(self._activated)
         layout.addWidget(self._list, 1)
         self._empty = QLabel("No recent projects yet. Use New or Open to get started.", self)
         self._empty.setObjectName("recentEmpty")
@@ -170,23 +167,25 @@ class WelcomePage(QWidget):
             return
 
         def job() -> None:
+            # Kept here, not only sent: shutdown closes a project opened but not yet shown.
             try:
                 self._result = operation()
             except Exception as exc:  # always deliver worker failures to the window
                 _LOG.exception("Welcome operation failed")
                 self._result = exc
-            self._relay.done.emit()
 
-        self._thread = threading.Thread(target=job, name=WORKER_NAME, daemon=True)
-        self._controls(True)
-        self._thread.start()
+        self._worker.start(job)
+        if self._worker.busy:  # the window reads ``busy`` when told; a start failure is over
+            self._controls(True)
 
-    def _finished(self) -> None:
+    def _activated(self, _item: QListWidgetItem) -> None:
+        self._open_selected()
+
+    def _finished(self, failed: object) -> None:
         if self._stopped:
             return
-        if self._thread is not None:
-            self._thread.join()  # worker has emitted; do not delete while it is still ending
-        self._thread = None
+        if isinstance(failed, Exception):  # the thread did not start
+            self._result = failed
         result, self._result = self._result, None
         if isinstance(result, Exception):
             self._problem.setText(_error(result))
@@ -234,12 +233,9 @@ class WelcomePage(QWidget):
 
     def shutdown(self, timeout: float) -> bool:
         """Invalidate queued signals and release a project not yet handed to the window."""
-        if self._thread is not None:
-            self._thread.join(timeout)
-            if self._thread.is_alive():
-                return False
+        if not self._worker.shutdown(timeout):
+            return False
         self._stopped = True
-        self._thread = None
         if isinstance(self._result, _Opened):
             self._result.project.close()
         self._result = None

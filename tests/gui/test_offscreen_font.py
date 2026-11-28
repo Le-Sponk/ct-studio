@@ -20,7 +20,7 @@ class Fonts:
     def __init__(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
         self.families: list[str] = []
         self.added: list[str] = []
-        self.font_id = 7
+        self.font_id = 0  # Qt numbers the first application font 0
         self.file = tmp_path / "probe.ttf"
         self.file.write_bytes(b"not read: addApplicationFont is replaced")
         monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
