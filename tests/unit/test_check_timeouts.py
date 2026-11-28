@@ -91,3 +91,17 @@ def test_pytest_diagnostics_preserve_selection_and_time_limits(fast: bool) -> No
         for step in steps
         if step.name != "pytest"
     )
+
+
+def test_a_tool_that_is_not_installed_fails_its_step_with_the_fix(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Deep Clean #1 step b moved this into ``_execute``; the message and status stay."""
+
+    def missing(*args: object, **kwargs: object) -> NoReturn:
+        raise FileNotFoundError("ruff")
+
+    monkeypatch.setattr(check.subprocess, "run", missing)
+    result = check.run_step(check.Step("ruff check", ("ruff", "check"), 5), tmp_path)
+    assert result.status == "FAIL"
+    assert result.output == "ruff is not installed. Run `uv sync` and try again."

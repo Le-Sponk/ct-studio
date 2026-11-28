@@ -81,3 +81,51 @@ def test_info_lines_are_counted_not_listed(
         "           Open map_model.brres in an editor and fix the reported problem.\n"
         "  and 2 notes for information, in the log.\n"
     ) in out
+
+
+def test_one_info_note_is_said_in_the_singular(
+    root: Path, builds: Builds, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Deep Clean #1 step b: the summary split keeps "1 note" singular."""
+    info = Issue("info", "track", "WSZST_INFO", "Signature: WiimmSZS v2.42", None, "wszst check")
+    builds.events = [
+        BuildStarted(("validate",)),
+        NodeFinished("validate", 0.1, (info, WARN)),
+        BuildFinished(summary(root=root, ran=("validate",), skipped=(), issues=(info, WARN))),
+    ]
+    assert main(["build", str(root)]) == 0
+    assert "  and 1 note for information, in the log.\n" in capsys.readouterr().out
+
+
+def test_only_info_notes_print_no_found_block(
+    root: Path, builds: Builds, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Deep Clean #1 step b review: no "Found while building" header without a finding."""
+    info = Issue("info", "track", "WSZST_INFO", "Signature: WiimmSZS v2.42", None, "wszst check")
+    builds.events = [
+        BuildStarted(("validate",)),
+        NodeFinished("validate", 0.1, (info,)),
+        BuildFinished(summary(root=root, ran=("validate",), skipped=(), issues=(info,))),
+    ]
+    assert main(["build", str(root)]) == 0
+    out = capsys.readouterr().out
+    assert "Found while building" not in out and "for information" not in out
+    assert "\n\nBuild succeeded: 1 done in 0.5 s.\n" in out
+
+
+def test_the_counts_keep_their_order(
+    root: Path, builds: Builds, capsys: pytest.CaptureFixture[str]
+) -> None:
+    ended = summary(
+        "failed",
+        root=root,
+        ran=("stage:kcl",),
+        skipped=("stage:kmp",),
+        failed=("assemble",),
+        cancelled=("validate",),
+        not_run=("stage:minimap",),
+    )
+    builds.events = [BuildStarted(("stage:kcl",)), BuildFinished(ended)]
+    main(["build", str(root)])
+    expected = "Build failed: 1 done, 1 unchanged, 1 failed, 1 cancelled, 1 not run in 0.5 s.\n"
+    assert expected in capsys.readouterr().out

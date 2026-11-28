@@ -76,8 +76,21 @@ not on whole packages, and each change is its own tested commit:
 | Step | What | Lines (net) |
 |---|---|---|
 | a | `settings.py`: one `_with` setter helper and one ordered check table; `cli/doctor` reuses `cli/status`'s settings read; Wine prefixes reuse the custom-tool text check | −75 in 4 files (641 → 566, −12 %) |
+| b | Complexity: `cli/build.py` summary split (`_found`, `_counts`; was C 14), TD-008 `bootstrap_tools.unpack` (`_extract`, `_content_root`) and `check.run_step` (`_execute`), one `isinstance` in `dashboard_assign.completed` | +15 (splits); no block above B left |
 
 Kept on purpose (audit list C): the tool adapters; schema fields; `Project.lock_owner`
 (set from the lock on open and read by nobody yet; one line that says who holds a read-only
 project's lock, left for when a notice needs it); the five `dashboard_*` controllers (they keep
 `dashboard.py` under 400 lines); the two build/launch controllers' start-up race logic.
+
+Step evidence (each: scratch mutants caught by assertions, independent review, local gate,
+exact Check on Windows and Ubuntu):
+- a `36ddcb3`: 13 mutants; review APPROVE (614 side-by-side cases identical to the old code);
+  gate 5587/10/178; Check Windows 140780147710 (5582/15), Ubuntu 140780148054 (5583/14).
+- b: 18 mutants over five rounds, all caught (two existing unpack tests rewritten so a
+  refusal or fallback break fails an assertion; new tests for "1 note", the missing-tool
+  message, an info-only build without a findings block, the order of the counts and the
+  removed staging folder: the last three from the review, APPROVE, whose old-against-new
+  comparison matched in 10,368 summary cases, 16 gate-step and 12 unpack scenarios).
+  The three GUI modules xenon ranks B keep every block at B or better; the gate's module-A
+  rule covers `core/` only, so they stay as they are.

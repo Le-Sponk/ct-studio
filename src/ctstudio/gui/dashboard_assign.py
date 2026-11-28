@@ -48,13 +48,13 @@ class DashboardAssign(QObject):
         """Publish a saved assignment (UI thread, worker joined), then check statuses again."""
         page = self.page
         card = page.cards.get(result.component_id or "")
-        saved = isinstance(result.receipt, Assigned)
-        if saved and result.manifest is not project.manifest:  # changed meanwhile: keep it
-            if card is not None:
-                card.show_assign_note(STALE_ASSIGNMENT)
-            return
-        if isinstance(result.receipt, Assigned):  # (saved; pyright needs the narrowing)
-            project.manifest = result.receipt.manifest
+        receipt = result.receipt
+        if isinstance(receipt, Assigned):
+            if result.manifest is not project.manifest:  # changed meanwhile: keep it
+                if card is not None:
+                    card.show_assign_note(STALE_ASSIGNMENT)
+                return
+            project.manifest = receipt.manifest
             page.outside_edits.bind(project)
             for each in page.cards.values():
                 each.bind(project)

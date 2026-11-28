@@ -174,25 +174,9 @@ def run_step(step: Step, root: Path) -> Result:
     started = time.perf_counter()
     with ExitStack() as stack:
         argv, report = _coverage_args(step, stack)
-        try:
-            proc = subprocess.run(  # noqa: S603 - argv list of our own venv's tools, no shell
-                argv,
-                cwd=root,
-                env=child_env(root),
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=step.timeout_s,
-                check=False,
-            )
-        except FileNotFoundError:
-            output = f"{step.argv[0]} is not installed. Run `uv sync` and try again."
-            return Result(step, "FAIL", time.perf_counter() - started, output)
-        except subprocess.TimeoutExpired as exc:
-            reason = f"timed out after {step.timeout_s:.0f} s: {' '.join(step.argv)}"
-            output = _timeout_output(exc, reason)
-            return Result(step, "FAIL", time.perf_counter() - started, output)
+        proc = _execute(step, argv, root)
+        if isinstance(proc, str):  # it could not run to the end: the reason
+            return Result(step, "FAIL", time.perf_counter() - started, proc)
         output = (proc.stdout + proc.stderr).strip()
         problem = coverage_failure(report) if report is not None and proc.returncode == 0 else None
     status: Status = "PASS" if proc.returncode == 0 and problem is None else "FAIL"
@@ -201,6 +185,29 @@ def run_step(step: Step, root: Path) -> Result:
     if proc.returncode:
         output += f"\n[exit status {proc.returncode}]"
     return Result(step, status, time.perf_counter() - started, output)
+
+
+def _execute(
+    step: Step, argv: tuple[str, ...], root: Path
+) -> subprocess.CompletedProcess[str] | str:
+    """The finished process, or why it did not run to the end."""
+    try:
+        return subprocess.run(  # noqa: S603 - argv list of our own venv's tools, no shell
+            argv,
+            cwd=root,
+            env=child_env(root),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=step.timeout_s,
+            check=False,
+        )
+    except FileNotFoundError:
+        return f"{step.argv[0]} is not installed. Run `uv sync` and try again."
+    except subprocess.TimeoutExpired as exc:
+        reason = f"timed out after {step.timeout_s:.0f} s: {' '.join(step.argv)}"
+        return _timeout_output(exc, reason)
 
 
 def summary_line(result: Result) -> str:

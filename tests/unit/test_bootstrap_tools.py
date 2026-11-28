@@ -135,13 +135,19 @@ def test_unpack_strips_the_leading_directory(tmp_path: Path) -> None:
     bt.unpack(archive, dest, "tool-1.0-linux")
     assert (dest / "hello.txt").read_text(encoding="utf-8") == "hi"
     assert not (dest / "tool-1.0-linux").exists()
+    assert not (tmp_path / "out.unpack").exists(), "the staging folder was left behind"
 
 
 def test_unpack_falls_back_when_the_prefix_was_renamed(tmp_path: Path) -> None:
     """Publishers rename top-level dirs between builds; a lone dir is still usable."""
     archive = _tar_with(tmp_path, {"hello.txt": "hi"}, prefix="actually-named-differently")
     dest = tmp_path / "out"
-    bt.unpack(archive, dest, "expected-name")
+    refused = None
+    try:
+        bt.unpack(archive, dest, "expected-name")
+    except bt.BootstrapError as exc:
+        refused = str(exc)
+    assert refused is None, refused
     assert (dest / "hello.txt").exists()
 
 
@@ -159,8 +165,12 @@ def test_unpack_refuses_zip_path_traversal(tmp_path: Path) -> None:
     archive = tmp_path / "evil.zip"
     with zipfile.ZipFile(archive, "w") as zf:
         zf.writestr("../escaped.txt", "nope")
-    with pytest.raises(bt.BootstrapError, match="unsafe path"):
+    try:
         bt.unpack(archive, tmp_path / "out", None)
+        refused = ""
+    except bt.BootstrapError as exc:
+        refused = str(exc)
+    assert "unsafe path" in refused, "a path outside the folder was unpacked"
     assert not (tmp_path.parent / "escaped.txt").exists()
 
 

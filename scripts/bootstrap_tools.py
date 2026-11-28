@@ -120,7 +120,15 @@ def unpack(archive: Path, dest: Path, strip_prefix: str | None) -> None:
     if staging.exists():
         shutil.rmtree(staging)
     staging.mkdir(parents=True)
+    _extract(archive, staging)
+    root = _content_root(archive, staging, strip_prefix)
+    if dest.exists():
+        shutil.rmtree(dest)
+    root.replace(dest)
+    shutil.rmtree(staging, ignore_errors=True)
 
+
+def _extract(archive: Path, staging: Path) -> None:
     if archive.name.endswith((".tar.gz", ".tar.xz")):
         with tarfile.open(archive) as tar:
             # filter="data" refuses absolute paths, .. traversal and special files.
@@ -136,21 +144,16 @@ def unpack(archive: Path, dest: Path, strip_prefix: str | None) -> None:
     else:
         raise BootstrapError(f"Don't know how to unpack {archive.name}")
 
-    root = staging / strip_prefix if strip_prefix else staging
-    if not root.is_dir():
-        # Publishers rename top-level dirs between builds; fall back to a lone dir.
-        entries = [p for p in staging.iterdir()]
-        if len(entries) == 1 and entries[0].is_dir():
-            root = entries[0]
-        else:
-            raise BootstrapError(
-                f"{archive.name}: expected directory {strip_prefix!r} inside the archive"
-            )
 
-    if dest.exists():
-        shutil.rmtree(dest)
-    root.replace(dest)
-    shutil.rmtree(staging, ignore_errors=True)
+def _content_root(archive: Path, staging: Path, strip_prefix: str | None) -> Path:
+    root = staging / strip_prefix if strip_prefix else staging
+    if root.is_dir():
+        return root
+    # Publishers rename top-level dirs between builds; fall back to a lone dir.
+    entries = list(staging.iterdir())
+    if len(entries) == 1 and entries[0].is_dir():
+        return entries[0]
+    raise BootstrapError(f"{archive.name}: expected directory {strip_prefix!r} inside the archive")
 
 
 def executable_path(tool_dir: Path, name: str) -> Path:

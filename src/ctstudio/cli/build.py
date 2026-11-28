@@ -252,34 +252,39 @@ class _TextPrinter:
         return f"Building {manifest.project.name}, replacing {slot}: {kind}, {steps}"
 
     def _end(self, summary: BuildSummary) -> list[str]:
-        new = [issue for issue in summary.issues if issue.message not in self.told]
-        found = [issue for issue in new if issue.severity != "info"]
-        notes = len(new) - len(found)
-        lines = [""]
-        if found:
-            lines += ["Found while building:", *(_issue_lines(i) for i in found)]
-            if notes:
-                lines.append(
-                    f"  and {notes} note{'s' if notes > 1 else ''} for information, in the log."
-                )
-            lines.append("")
-        counts = [
-            f"{len(steps)} {word}"
-            for steps, word in (
-                (summary.ran, "done"),
-                (summary.skipped, "unchanged"),
-                (summary.failed, "failed"),
-                (summary.cancelled, "cancelled"),
-                (summary.not_run, "not run"),
-            )
-            if steps
-        ]
-        lines.append(f"Build {summary.outcome}: {', '.join(counts)} in {summary.duration:.1f} s.")
+        lines = ["", *self._found(summary)]
+        counts = ", ".join(_counts(summary))
+        lines.append(f"Build {summary.outcome}: {counts} in {summary.duration:.1f} s.")
         if summary.outcome == "succeeded" and "assemble" in summary.ran + summary.skipped:
             lines.append(f"Track: build/{self.plan.request.manifest.project.slot}.szs")
         if summary.log is not None:
             lines.append(f"Log: {_shown(summary.log, self.root)}")
         return lines
+
+    def _found(self, summary: BuildSummary) -> list[str]:
+        """Findings not already shown with their step; info notes are only counted."""
+        new = [issue for issue in summary.issues if issue.message not in self.told]
+        found = [issue for issue in new if issue.severity != "info"]
+        if not found:
+            return []
+        lines = ["Found while building:", *(_issue_lines(i) for i in found)]
+        notes = len(new) - len(found)
+        if notes:
+            lines.append(
+                f"  and {notes} note{'s' if notes > 1 else ''} for information, in the log."
+            )
+        return [*lines, ""]
+
+
+def _counts(summary: BuildSummary) -> list[str]:
+    steps = (
+        (summary.ran, "done"),
+        (summary.skipped, "unchanged"),
+        (summary.failed, "failed"),
+        (summary.cancelled, "cancelled"),
+        (summary.not_run, "not run"),
+    )
+    return [f"{len(ids)} {word}" for ids, word in steps if ids]
 
 
 def _issue_lines(issue: Issue) -> str:
