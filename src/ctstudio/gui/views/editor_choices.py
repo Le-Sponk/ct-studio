@@ -55,7 +55,8 @@ class EditorChoices(QDialog):
         self._can_open = can_open
         self._why_not = why_not
         layout = QVBoxLayout(self)
-        heading = QLabel(f"&Choose an editor for {what}:", self)
+        # Its buddy makes every & a shortcut mark: a file called "R&D" must show its &.
+        heading = QLabel(f"&Choose an editor for {what.replace('&', '&&')}:", self)
         heading.setTextFormat(Qt.TextFormat.PlainText)  # names a file; the & still works
         layout.addWidget(heading)
         self.choices = QListWidget(self)

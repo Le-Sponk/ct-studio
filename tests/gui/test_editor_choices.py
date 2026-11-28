@@ -173,3 +173,17 @@ def test_the_heading_names_the_file_as_typed_and_keeps_its_shortcut(qtbot: QtBot
     qtbot.waitUntil(lambda: QApplication.activeWindow() is dialog)
     QTest.keyClick(dialog, Qt.Key.Key_C, Qt.KeyboardModifier.AltModifier)
     assert dialog.choices.hasFocus(), "Alt+C no longer reaches the list"
+
+
+def test_an_ampersand_in_the_file_name_is_shown_not_taken_as_a_shortcut(qtbot: QtBot) -> None:
+    dialog = shown(qtbot, PreparedEditors(Path("R&D.brres"), ".brres", MIXED.options))
+    heading = next(each for each in dialog.findChildren(QLabel) if each.buddy() is dialog.choices)
+    assert heading.text() == "&Choose an editor for R&&D.brres:"  # && shows one &
+    elsewhere = dialog.findChildren(QPushButton)[-1]
+    elsewhere.setFocus()
+    dialog.activateWindow()
+    qtbot.waitUntil(lambda: QApplication.activeWindow() is dialog)
+    QTest.keyClick(dialog, Qt.Key.Key_D, Qt.KeyboardModifier.AltModifier)
+    assert not dialog.choices.hasFocus(), "the file name's & became a second shortcut"
+    QTest.keyClick(dialog, Qt.Key.Key_C, Qt.KeyboardModifier.AltModifier)
+    assert dialog.choices.hasFocus(), "Alt+C no longer reaches the list"
